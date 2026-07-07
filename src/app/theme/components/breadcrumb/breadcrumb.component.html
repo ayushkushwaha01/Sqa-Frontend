@@ -1,0 +1,26 @@
+<div class="breadcrumb-wrapper" *ngIf="breadcrumbs.length > 0" 
+     [ngClass]="{
+        'custom-manage-users-breadcrumb': isManageUsersRoute,
+        'custom-admin-settings-breadcrumb': isAdminSettingsRoute,
+        'custom-supplier-inspection-breadcrumb': isSupplierInspectionRoute,
+        'custom-supplier-parts-breadcrumb': isSupplierPartsRoute,
+        'custom-supplier-process-breadcrumb': isSupplierProcessRoute,
+        'custom-supplier-dashboard-breadcrumb': isSupplierDashboardRoute
+     }">
+  <!-- Left: Page Title -->
+  <div class="page-title-section">
+    <h3 class="page-title">{{ Header }}</h3>
+    <p class="page-description" *ngIf="description">{{ description }}</p>
+  </div>
+
+  <!-- Right: Breadcrumb trail e.g. "Dashboard >> System Dashboard" -->
+  <!-- <nav class="breadcrumb-trail" aria-label="breadcrumb">
+    <ng-container *ngFor="let breadcrumb of breadcrumbs; let last = last; let i = index">
+      <a class="breadcrumb-link" [routerLink]="breadcrumb.url" *ngIf="!last">
+        {{ breadcrumb.name }}
+      </a>
+      <span class="breadcrumb-separator" *ngIf="!last"> &gt;&gt; </span>
+      <span class="breadcrumb-current" *ngIf="last">{{ breadcrumb.name }}</span>
+    </ng-container>
+  </nav> -->
+</div>

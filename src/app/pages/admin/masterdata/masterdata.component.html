@@ -1,0 +1,55 @@
+<div class="row-wrap">
+    <div class="w-100">
+        <!-- Master Data Tabs -->
+        <div class="col-xs-12" style="margin-top: 15px; margin-left: -16px;">
+            <div class="pills">
+                <ul class="nav nav-pills" style="margin-left: 10px;">
+                    <li routerLinkActive="active" [routerLink]="['./departments']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Departments
+                        </a>
+                    </li>
+                    <li routerLinkActive="active" [routerLink]="['./status-master']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Status Master
+                        </a>
+                    </li>
+                    <li routerLinkActive="active" [routerLink]="['./sections']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Sections
+                        </a>
+                    </li>
+                    <li routerLinkActive="active" [routerLink]="['./categories']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Categories
+                        </a>
+                    </li>
+                    <li routerLinkActive="active" [routerLink]="['./continents']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Continent
+                        </a>
+                    </li>
+                    <li routerLinkActive="active" [routerLink]="['./country']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Country
+                        </a>
+                    </li>
+
+                    <li routerLinkActive="active" [routerLink]="['./criticality']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Criticality
+                        </a>
+                    </li>
+                    <li routerLinkActive="active" [routerLink]="['./step']">
+                        <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
+                            Step
+                        </a>
+                    </li>
+
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<router-outlet></router-outlet>

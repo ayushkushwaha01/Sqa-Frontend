@@ -1,0 +1,270 @@
+<div class="sqm-wrapper">
+  <div class="nav-container" [ngClass]="isSidenavOpen ? 'nav-open' : 'nav-closed'"
+    *ngIf="activeTab !== 'sqmd' && !hideSidebar">
+
+    <button (click)="toggleSidenav()" class="toggle-button">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <nav class="nav-links" *ngIf="activeTab === 'process'">
+      <ul>
+        <li routerLinkActive="active" routerLink="./process/analytics">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+        </li>
+        <li (click)="openaudit('process')">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="New Audit">add_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">New Audit</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./process/active-audits">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Active Audits">pending_actions</mat-icon>
+            <span *ngIf="isSidenavOpen">Active Audits</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./process/actions">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Actions">play_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">CAPA</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./process/completed-audits">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Completed Audits">task_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Completed Audits</span>
+          </a>
+        </li>
+        <li (click)="openUserManual('sample-1.pdf')">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+        </li>
+        <li (click)="openHelpDesk()">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <nav class="nav-links" *ngIf="activeTab === 'parts'">
+      <ul>
+        <li routerLinkActive="active" routerLink="./parts/analytics">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+        </li>
+        <li (click)="openaudit('parts')">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="New Audit">add_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">New Audit</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/active-audits">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Active Audits">pending_actions</mat-icon>
+            <span *ngIf="isSidenavOpen">Active Audits</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/actions">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Actions">play_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">CAPA</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/completed-audits">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Completed Audits">task_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Completed Audits</span>
+          </a>
+        </li>
+        <li (click)="openUserManual('sample-1.pdf')">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+        </li>
+        <li (click)="openHelpDesk()">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <nav class="nav-links" *ngIf="activeTab === 'inspection'">
+      <ul>
+        <li routerLinkActive="active" routerLink="./inspection/analytics">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+        </li>
+        <!-- <li (click)="openheatmapname()">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Heat Map">map</mat-icon>
+            <span *ngIf="isSidenavOpen">Heat Map</span>
+          </a>
+        </li> -->
+        <li (click)="addrecordpop(null)">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Add Record">add_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">Add Record</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./inspection/datatable">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Active Records">pending_actions</mat-icon>
+            <span *ngIf="isSidenavOpen">Active Records</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./inspection/inspectioncapa">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="CAPA">play_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">CAPA</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./inspection/inspectionarchive">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Archives">archive</mat-icon>
+            <span *ngIf="isSidenavOpen">Archives</span>
+          </a>
+        </li>
+        <li (click)="openUserManual('sample-1.pdf')">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+        </li>
+        <li (click)="openHelpDesk()">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Setup sidenav -->
+    <nav class="nav-links" *ngIf="activeTab === 'setup'">
+      <ul>
+        <li routerLinkActive="active" routerLink="./process/setup/process-cat">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Process Audit Categories">category</mat-icon>
+            <span *ngIf="isSidenavOpen">Process Audit Categories</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./process/setup/commodity">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Commodity Master">inventory_2</mat-icon>
+            <span *ngIf="isSidenavOpen">Commodity Master</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/parts-cat">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Audit Categories">list_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Audit Categories</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/families">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Families">account_tree</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Families</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Master">build_circle</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Master</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/batchmaster">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Batch Master">layers</mat-icon>
+            <span *ngIf="isSidenavOpen">Batch Master</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/defectsmaster">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Defects Master">bug_report</mat-icon>
+            <span *ngIf="isSidenavOpen">Defects Master</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/vender-rating">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Vendor Rating">star_rate</mat-icon>
+            <span *ngIf="isSidenavOpen">Vendor Rating</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/supplier-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Supplier Master">business</mat-icon>
+            <span *ngIf="isSidenavOpen">Supplier Master</span>
+          </a>
+        </li>
+
+
+        <li routerLinkActive="active" routerLink="./parts/setup/state-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="State Master">map</mat-icon>
+            <span *ngIf="isSidenavOpen">State Master</span>
+          </a>
+          </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/city-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="City Master">location_city</mat-icon>
+            <span *ngIf="isSidenavOpen">City Master</span>
+          </a>
+        </li>
+        
+      </ul>
+    </nav>
+
+  </div>
+
+  <div class="main-content" [ngClass]="
+      activeTab !== 'sqmd' && !hideSidebar
+        ? isSidenavOpen
+          ? 'content-shrink'
+          : 'content-expanded'
+        : 'content-full'
+    ">
+
+    <!-- <ul class="nav nav-pills" *ngIf="!hideSidebar">
+      <li>
+        <a mat-raised-button class="navtabWidth" routerLink="./sqmd" routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      </li>
+      <li>
+        <a mat-raised-button class="navtabWidth" routerLink="./process" [class.active]="activeTab === 'process'">Process
+          Audits</a>
+      </li>
+      <li>
+        <a mat-raised-button class="navtabWidth" routerLink="./parts" [class.active]="activeTab === 'parts'">Parts
+          Audits</a>
+      </li>
+      <li>
+        <a mat-raised-button class="navtabWidth" routerLink="./inspection"
+          [class.active]="activeTab === 'inspection'">Inspection</a>
+      </li>
+      <li>
+        <a mat-raised-button class="navtabWidth" routerLink="./process/setup/process-cat"
+          [class.active]="activeTab === 'setup'">Setup</a>
+      </li>
+    </ul> -->
+
+
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

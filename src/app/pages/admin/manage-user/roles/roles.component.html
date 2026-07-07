@@ -1,0 +1,106 @@
+<div class=" col-sm-8 master-scroll-container" style="margin-top: -18px;">
+    <div id="main-scroll-viewport">
+
+
+
+        <div class="px-3 mb-3 text-end">
+            <button mat-raised-button style="background:black;color:white" (click)="filterToggle = !filterToggle">
+                <mat-icon>filter_list</mat-icon> Filter
+            </button>
+            <button mat-raised-button class="ms-2" color="primary" (click)="openRoleDialog(null)">
+                <mat-icon>person_add</mat-icon> Add Role
+            </button>
+        </div>
+
+        <div fxLayout="row wrap" *ngIf="filterToggle" class="px-3 mb-3">
+            <div fxFlex="100" class="flex-p w-100">
+                <form [formGroup]="filterForm">
+                    <mat-card class="filter">
+                        <mat-card-content>
+                            <div class="row col-sm-12">
+
+                                <div class="col-sm-4 row me-2">
+                                    <div class="col-sm-3 d-flex align-items-center"><b>Keyword:</b></div>
+                                    <div class="col-sm-9">
+                                        <input type="text" formControlName="Keyword" class="form-control"
+                                            placeholder="Search by Role Name...">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 row me-2">
+                                    <div class="col-sm-3 d-flex align-items-center"><b>Status:</b></div>
+                                    <div class="col-sm-8">
+                                        <mat-select formControlName="Status" placeholder="Select Status"
+                                            class="form-control">
+                                            <mat-option *ngFor="let option of Status" [value]="option.value">
+                                                {{option.name}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <button mat-raised-button color="primary" class="pull-right" (click)="filter()">
+                                        <mat-icon>search</mat-icon> Search
+                                    </button>
+                                    <button mat-raised-button class="pull-right btn-default margin-right-10"
+                                        (click)="clearFilter()">
+                                        <mat-icon>settings_backup_restore</mat-icon> Clear
+                                    </button>
+                                </div>
+
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive px-3">
+            <table class="table table-bordered tbl-head">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Role Name</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of dataSource.connect() | async">
+                        <td>{{ item.roleName }}</td>
+
+                        <td class="text-center">
+                            <span (click)="toggleStatus(item)" [style.color]="item.isActive ? 'green' : 'red'"
+                                [style.pointer-events]="isActionDisabled(item.roleName) ? 'none' : 'auto'"
+                                [style.opacity]="isActionDisabled(item.roleName) ? '0.5' : '1'"
+                                style="cursor:pointer; font-weight: bold;">
+                                {{ item.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <i class="fa fa-edit text-primary me-2" matTooltip="Edit Role" style="cursor:pointer"
+                                (click)="openRoleDialog(item)"
+                                [style.pointer-events]="isActionDisabled(item.roleName) ? 'none' : 'auto'"
+                                [style.opacity]="isActionDisabled(item.roleName) ? '0.5' : '1'"></i>
+
+                            <i class="fa fa-trash text-danger" matTooltip="Delete Role" style="cursor:pointer"
+                                (click)="deleteConfirmation(item)"
+                                [style.pointer-events]="isActionDisabled(item.roleName) ? 'none' : 'auto'"
+                                [style.opacity]="isActionDisabled(item.roleName) ? '0.5' : '1'"></i>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="dataSource.data.length === 0">
+                        <td colspan="3" class="text-center">No Records Found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="paginator-fixed">
+            <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons>
+            </mat-paginator>
+        </div>
+    </div>
+</div>

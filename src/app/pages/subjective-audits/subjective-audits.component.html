@@ -1,0 +1,73 @@
+<div class="nav-container" [ngClass]="{'nav-open': isNavOpen, 'nav-closed': !isNavOpen}">
+
+  <button (click)="toggleNav()" class="toggle-button">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <nav class="nav-links">
+    <ul>
+
+      <li routerLinkActive="active" routerLink="./subjective-reports">
+        <a>
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="Reports">bar_chart</mat-icon>
+          <span *ngIf="isNavOpen">Reports</span>
+        </a>
+      </li>
+
+      <li>
+        <a (click)="addParameter(null)">
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="New Audit">add_task</mat-icon>
+          <span *ngIf="isNavOpen">New Audit</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active" routerLink="./subjective-audits-issues-status">
+        <a>
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="Audit Status">fact_check</mat-icon>
+          <span *ngIf="isNavOpen">Active Audits </span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active" routerLink="./subjective-alerts">
+        <a>
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="Alerts">notifications_active</mat-icon>
+          <span *ngIf="isNavOpen">PRTS</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active" routerLink="./prts-subjective-setup">
+        <a>
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="Setup">settings</mat-icon>
+          <span *ngIf="isNavOpen">Setup</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active" routerLink="./subjective-audit-archives">
+        <a>
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="Archives">inventory_2</mat-icon>
+          <span *ngIf="isNavOpen">Archives</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active" routerLink="./user-manual">
+        <a>
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="User Manual">menu_book</mat-icon>
+          <span *ngIf="isNavOpen">User Manual</span>
+        </a>
+      </li>
+
+      <li>
+        <a (click)="itHelpDeskPop(null)">
+          <mat-icon class="nav-icon" *ngIf="!isNavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+          <span *ngIf="isNavOpen">IT Help Desk</span>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+
+</div>
+
+<div class="main-content" [ngClass]="{'content-expanded': !isNavOpen, 'content-shrink': isNavOpen}">
+  <router-outlet></router-outlet>
+</div>
