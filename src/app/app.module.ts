@@ -109,6 +109,7 @@ import { DragulaModule } from 'ng2-dragula';
 import { SqmComponent } from './pages/sqm/sqm.component';
 import { AddSupplierComponent } from './add-supplier/add-supplier.component';
 import { UserNotificationComponent } from './theme/components/notification/user-notification/user-notification.component';
+import { StatusChangeComponent } from './status-change/status-change.component';
 // import { SupplierLoginComponent } from './pages/supplier-login/supplier-login.component';
   
  
@@ -227,6 +228,7 @@ DragulaModule.forRoot()
     SqmComponent,
     AddSupplierComponent,
     UserNotificationComponent,
+    StatusChangeComponent,
     // SupplierLoginComponent,
  
  

@@ -481,3 +481,59 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+/* Global helper to remove default MatDialog padding for custom title headers */
+.no-padding-dialog .mat-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 4px !important;
+}
+
+/* Styling for Delete Confirmation Dialog when opened with no-padding-dialog */
+.no-padding-dialog app-confirmation-dialog {
+  display: block;
+  min-width: 360px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.no-padding-dialog app-confirmation-dialog .cust-red {
+  background-color: #d44141 !important;
+  color: #ffffff !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 15px 24px !important;
+}
+
+.no-padding-dialog app-confirmation-dialog .cust-red h3 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.2 !important;
+  color: #ffffff !important;
+}
+
+.no-padding-dialog app-confirmation-dialog div[mat-dialog-content] {
+  padding: 20px 24px !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+.no-padding-dialog app-confirmation-dialog div[mat-dialog-content] p {
+  color: #555555 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.no-padding-dialog app-confirmation-dialog mat-dialog-actions {
+  display: block !important;
+  text-align: center !important;
+  padding: 0 24px 20px 24px !important;
+  margin: 0 !important;
+  border: none !important;
+}

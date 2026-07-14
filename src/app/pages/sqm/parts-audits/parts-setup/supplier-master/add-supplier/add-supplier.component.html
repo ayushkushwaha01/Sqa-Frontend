@@ -1,149 +1,71 @@
 <div class="NewHeader">
-    <h3 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
-        Add Supplier</h3>
-
+    <h3 style="padding-top:15px; padding-left: 20px; font-weight: 400;font-size: 18px;">
+        {{ isEditMode ? 'Update' : 'Add' }} Supplier
+    </h3>
 </div>
 
-<div>
-    <div fxLayout="row wrap" class="col-sm-12">
-        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
-            <form>
-                <div>
-
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
-                                Supplier Name :</label>
-
-                        </div>
-                        <div class="col-sm-8">
-
-                            <input type="text" class="form-control" placeholder="Enter Supplier Name">
-                        </div>
-
-                    </div>
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
-                                Contact Person :</label>
-
-                        </div>
-                        <div class="col-sm-8">
-
-                            <input type="text" class="form-control" placeholder="Enter Contact Person">
-                        </div>
-
-                    </div>
-
-                    <!-- <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
-                                State :
-                            </label>
-                        </div>
-
-                        <div class="col-sm-8">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-select placeholder="Select State">
-                                    <mat-option *ngFor="let state of states" [value]="state">
-                                        {{ state }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                    </div> -->
-
-
-                     <div class="row" style="margin-bottom: 12px;">
-                    <div class="col-sm-4">
-                        <label class="add-member-label mt-2" style="font-weight: bold;">
-                            Select State
-                        </label>
-                    </div>
-                    <div class="col-sm-8">
-                        <mat-select placeholder="Select State" class="form-control mt-2">
-                            <mat-option value="state1">State 1</mat-option>
-                            <mat-option value="state2">State 2</mat-option>
-                            <mat-option value="state3">State 3</mat-option>
-                        </mat-select>
-                    </div>
-                </div>
-
-
-
-
-
-                 <div class="row" style="margin-bottom: 12px;">
-                    <div class="col-sm-4">
-                        <label class="add-member-label mt-2" style="font-weight: bold;">
-                            Select City
-                        </label>
-                    </div>
-                    <div class="col-sm-8">
-                        <mat-select placeholder="Select City" class="form-control mt-2">
-                            <mat-option value="city1">City 1</mat-option>
-                            <mat-option value="city2">City 2</mat-option>
-                            <mat-option value="city3">City 3</mat-option>
-                        </mat-select>
-                    </div>
-                </div>
-
-                    <!-- <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">
-                                City :
-                            </label>
-                        </div>
-
-                        <div class="col-sm-8">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-select placeholder="Select City">
-                                    <mat-option *ngFor="let city of cities" [value]="city">
-                                        {{ city }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                    </div> -->
-
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class=" mt5" style="margin-top:5px; font-weight: bold;">
-                                Address :
-                            </label>
-                        </div>
-
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" placeholder="Enter Address">
-                        </div>
-                    </div>
-
-
-
-
-
-
-
-
-
-                </div>
-            </form>
-
-
-            <mat-dialog-actions align="end"
-                style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
-                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
-                    style="background-color: lightgray; color: red;margin-right: 5px;">
-                    <mat-icon>cancel</mat-icon> Close
-                </button>
-                <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;">
-                    <mat-icon>save</mat-icon>
-                    {{ isEditMode ? 'Update' : 'Save' }}
-                </button>
-            </mat-dialog-actions>
-
-
-
+<div style="padding: 20px;">
+    <form [formGroup]="supplierForm" (ngSubmit)="save()">
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="col-sm-4">
+                <label class="mt-2" style="font-weight: bold;">Supplier Name : <span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" formControlName="supplierName" placeholder="Enter Supplier Name">
+            </div>
         </div>
-    </div>
+
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="col-sm-4">
+                <label class="mt-2" style="font-weight: bold;">Contact Person :</label>
+            </div>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" formControlName="contactPerson" placeholder="Enter Contact Person">
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="col-sm-4">
+                <label class="mt-2" style="font-weight: bold;">Select State : <span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-8">
+                <mat-select placeholder="Select State" class="form-control" formControlName="stateId">
+                    <mat-option *ngFor="let state of states" [value]="state.stateId">
+                        {{ state.stateName }}
+                    </mat-option>
+                </mat-select>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="col-sm-4">
+                <label class="mt-2" style="font-weight: bold;">Select City : <span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-8">
+                <mat-select placeholder="Select City" class="form-control" formControlName="cityId">
+                    <mat-option *ngFor="let city of cities" [value]="city.cityId">
+                        {{ city.cityName }}
+                    </mat-option>
+                </mat-select>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom: 15px;">
+            <div class="col-sm-4">
+                <label class="mt-2" style="font-weight: bold;">Address :</label>
+            </div>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="2" formControlName="address" placeholder="Enter Complete Address"></textarea>
+            </div>
+        </div>
+
+        <mat-dialog-actions align="end" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+            <button mat-raised-button type="button" (click)="close()" style="background-color: lightgray; color: red; margin-right: 10px;">
+                <mat-icon>cancel</mat-icon> Close
+            </button>
+            <button mat-raised-button type="submit" color="primary">
+                <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
+            </button>
+        </mat-dialog-actions>
+    </form>
 </div>

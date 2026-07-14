@@ -36,6 +36,7 @@ import { KanbanComponent } from "./pages/complaints/kanban/kanban.component";
 import { GatesModule } from "./pages/testing/gates/gates.module";
 import { SqmComponent } from "./pages/sqm/sqm.component";
 import { SupplierLoginComponent } from "./pages/supplier-login/supplier-login.component";
+import { LoginGuard } from "./pages/helpers/login.guard";
 
 const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
@@ -43,6 +44,7 @@ const routes: Routes = [
   {
     path: "app",
     component: PagesComponent,
+    canActivate: [LoginGuard],
     children: [
       { path: "", redirectTo: "sqm", pathMatch: "full" },
     {

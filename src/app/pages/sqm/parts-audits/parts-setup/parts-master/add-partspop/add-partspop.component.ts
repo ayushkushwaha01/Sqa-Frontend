@@ -1,5 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-add-partspop',
@@ -16,11 +19,113 @@ export class AddPartspopComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<AddPartspopComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: any, private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+  ) { }
+
+
+  currentPage: number = 0;
+  totalSize: number = 0;
+  fromIndex: number = 0;
+  pageSize: number = 5;
+  tableLists: any[] = [];
+
 
   ngOnInit(): void {
-    this.isEditMode = this.data === 1;
+    this.formInit(this.data);
+    this.getPartsFamilies();
+  }
+
+
+
+
+  partsFamilies: any[] = [];
+  getPartsFamilies() {
+    this._setupService.getPartFamilies(null)
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.partsFamilies = res.data.data;
+
+        }
+      });
+  }
+
+  myGroup!: FormGroup;
+
+  formInit(data: any) {
+
+    this.myGroup = this.fb.group({
+
+      PartMasterId: [
+        data?.partMasterId || 0
+      ],
+
+      PartFamilyId: [
+        data?.partFamilyId || null,
+        Validators.required
+      ],
+
+      PartMasterName: [
+        data?.partMasterName || '',
+        Validators.required
+      ],
+
+      PartMasterCode: [
+        data?.partMasterCode || '',
+        [
+          Validators.required,
+          Validators.pattern('^[a-zA-Z0-9]{5}$')
+        ]
+      ],
+
+      CommodityId: [
+        data?.commodityId || null,
+
+      ]
+
+    });
+  }
+
+  get f() {
+    return this.myGroup.controls;
+  }
+
+
+  UpsertPartMaster(): void {
+
+    if (this.myGroup.invalid) {
+      this.myGroup.markAllAsTouched();
+      return;
+    }
+
+    this._setupService
+      .upsertPartMaster(this.myGroup.value)
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(res.message, 1);
+            this.dialogRef.close(true);
+
+          } else {
+
+            this.alertService.createAlert(res.message, 0);
+
+          }
+
+        },
+
+        error: (err) => {
+
+          console.error(err);
+          this.alertService.createAlert('Something went wrong.', 0);
+
+        }
+
+      });
+
   }
 
   onDragOver(event: DragEvent): void {

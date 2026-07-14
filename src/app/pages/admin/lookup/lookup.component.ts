@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
-import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
-import { MenuService } from 'src/app/theme/components/menu/menu.service';
-import { environment } from 'src/environments/environment';
-import { admindata } from '../admindata';
 import { AddLookupDialogComponent } from './add-lookup-dialog/add-lookup-dialog.component';
+import { LookupService } from './lookup.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-lookup',
@@ -14,64 +12,102 @@ import { AddLookupDialogComponent } from './add-lookup-dialog/add-lookup-dialog.
   styleUrls: ['./lookup.component.scss']
 })
 export class LookupComponent implements OnInit {
-
-
-  Status = [{ name: 'Active', value: true }, { name: "Inactive", value: false }];
-
-
-
-
-
-  public popoverTitle: string = 'Confirm Delete';
-  public popoverMessage: string = 'Are you sure you want to delete this.?';
-  public popoverStatusTitle: string = 'Confirm Status Change';
-  public popoverStatusMessage: string = 'Are you sure you want to change vcStatus.?';
-  public cancelClicked: boolean = false;
-
-  filterToggle: boolean;
-
-  public searchText: string;
-  public page: any;
+  tableData: any[] = [];
+  filteredData: any[] = [];
+  codeMasters: any[] = [];
+  selectedCodeFilter: number | null = null;
 
   constructor(
-    //public appSettings: AppSettings,
-    public dialog: MatDialog,
-    //private alertService: AlertService
-  ) {
+    public dialog: MatDialog, 
+    private api: LookupService, 
+    private alertService: AlertService
+  ) { }
 
-  }
-
-
-  tableList = []
   ngOnInit() {
-    if (environment.mode == 1) {
-      //this.values = PartsData.getd1();
-      this.tableList = admindata.lookUp();
-    }
-    else {
+    this.getCodeMasters();
+    this.getLookups();
+  }
 
+  getCodeMasters() {
+    this.api.getCodeMasters().subscribe((res: any) => {
+      if(res.success) this.codeMasters = res.data;
+    });
+  }
+
+  getLookups() {
+    this.api.getLookups().subscribe((res: any) => {
+      if(res.success) {
+        this.tableData = res.data;
+        this.filterTable(); // Apply initial filter if any
+      }
+    });
+  }
+
+  refresh() {
+    this.selectedCodeFilter = null;
+    this.getLookups();
+  }
+
+  filterTable() {
+    if (this.selectedCodeFilter) {
+      this.filteredData = this.tableData.filter(x => x.codeId === this.selectedCodeFilter);
+    } else {
+      this.filteredData = this.tableData;
     }
   }
 
-
-
-
-  public addlookup(applicant) {
+  addlookup(item: any) {
     let dialogRef = this.dialog.open(AddLookupDialogComponent, {
-      data: applicant,
-      height: 'auto',
-      width: '600px'
+      data: { item: item, codeMasters: this.codeMasters },
+      width: '600px',
+      disableClose: true
     });
-    dialogRef.afterClosed().subscribe(data => {
+    dialogRef.afterClosed().subscribe(res => { if(res) this.getLookups(); });
+  }
+
+  toggleStatus(item: any) {
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.toggleStatus(item.lookupId).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              item.isActive = !item.isActive;
+              this.alertService.createAlert(res.message || 'Status updated successfully.', 1);
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to update status.', 0);
+            }
+          }
+        });
+      }
     });
   }
 
-  deleteUser() {
-    // this.alertService.createAlert('Successfully deleted.', 1);
-  }
+  deleteLookup(item: any) {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete this lookup?', isConfirmation: true }
+    });
 
-  saveStatus() {
-    //this.alertService.createAlert('Successfully saved.', 1);
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.deleteLookup(item.lookupId).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert(res.message || 'Lookup deleted successfully.', 1);
+              this.getLookups();
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to delete lookup.', 0);
+            }
+          }
+        });
+      }
+    });
   }
-
 }

@@ -1,55 +1,70 @@
-<mat-sidenav-container>
+<div class="login-wrapper">
+  <div class="login-left-panel">
+    <div class="login-left-content">
+      <h1 class="project-title">SQA</h1>
+      <h2 class="project-subtitle">Supplier Quality Audit</h2>
+      <p class="project-desc">
+        Streamlining supplier quality audits, checklist configurations, monthly target tracking, and corrective actions in one unified platform.
+      </p>
+      
+      <div class="decor-card">
+        <div class="decor-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="decor-body">
+          <div class="bar-chart-preview">
+            <div class="bar" style="height: 40px;"></div>
+            <div class="bar" style="height: 70px;"></div>
+            <div class="bar" style="height: 50px;"></div>
+            <div class="bar" style="height: 90px;"></div>
+            <div class="bar" style="height: 60px;"></div>
+          </div>
+          <div class="line-preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <div fxLayout="row" fxLayoutAlign="center center" class="h-100 login-bg">
+  <div class="login-right-panel">
+    <div class="login-form-container">
+      <div class="logo-wrapper-center">
+        <div class="logo-area">
+          <img alt="logo" class="logo-default logo-img box-content-center" src="../../../../assets/optionmatrixlogo.png">
+        </div>
+      </div>
+      
+      <div class="welcome-text">
+        <h2>Forgot Password</h2>
+        <p *ngIf="!successMessage">Please enter your email to reset your password.</p>
+      </div>
 
+      <div *ngIf="successMessage" class="alert alert-success text-center" style="color: green; background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c8e6c9;">
+        {{ successMessage }}
+      </div>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit(form.value)" fxFlex="80" fxFlex.gt-sm="30" fxFlex.sm="60" style="position: relative;
-         left: 0%;
-         top: 0%;
-         margin-bottom: 0%;">
+      <form *ngIf="!successMessage" [formGroup]="form" (ngSubmit)="onSubmit(form.value)" class="login-form">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Email Address</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="Enter your email">
+          <mat-error *ngIf="form.controls['email'].errors?.required">Email is required</mat-error>
+          <mat-error *ngIf="form.controls['email'].hasError('invalidEmail')">Invalid email address</mat-error>
+        </mat-form-field>
 
-            <!-- First Card half up-->
-            <mat-card class="p-0 mat-elevation-z24 box">
-                <div fxLayout="column" fxLayoutAlign="center center" class="bg-secondary box-header">
-                    <div style="margin-top: auto;margin-bottom: auto;">
-                        <img alt="logo" class="logo-default logo-img box-content-center"
-                        
-                        style="height: 270px;  margin-bottom: 20px; margin-right:0px;"
-                        src="../../assets/mor.jpg"> 
-                    </div>
-                </div>
+        <div class="forgot-pwd-row">
+          <a [routerLink]="['/login']" class="forgot-link">Back to Sign In</a>
+        </div>
 
-                <!-- First Card half down-->
-                <mat-card-content fxLayout="column" fxLayoutAlign="end center" class=" box-content">
-                    <mat-card fxLayout="column" fxLayoutAlign="center center"
-                        class="mat-elevation-z12 box-content-inner">
+        <button mat-raised-button class="btn-signin" type="submit" [disabled]="!form.valid || isSubmitted">
+          {{ isSubmitted ? 'Sending...' : 'Submit' }}
+        </button>
+      </form>
 
-                        <mat-form-field class="w-100">
-                            <input matInput placeholder="Please Enter Email" formControlName="email">
-                            <mat-error *ngIf="form.controls.email.errors?.required">Email is required</mat-error>
-                            <mat-error *ngIf="form.controls.email.hasError('invalidEmail')">Invalid email address
-                            </mat-error>
-                        </mat-form-field>
-
-                        <!-- <div class="w-100">
-                            <a [routerLink]="['/forgotpassword']" class="pull-right" style="color:blue">Forgot
-                                Password?</a>
-                        </div> -->
-                    </mat-card>
-                    <button mat-raised-button class="bg-secondary mat-elevation-z12 box-button text-white"
-                        type="submit">Submit</button>
-                </mat-card-content>
-
-            </mat-card>
-            <div class="col-12 " style="position: relative;
-            left: 0%;
-            top: 50%;
-            margin-top: 20px; 
-            margin-bottom: 0%;">
-            </div>
-
-        </form>
+      <div *ngIf="successMessage" class="text-center mt-3" style="margin-top: 20px;">
+        <a [routerLink]="['/login']" style="color: #2196f3; text-decoration: none; font-weight: 500;">&larr; Back to Sign In</a>
+      </div>
 
     </div>
-
-</mat-sidenav-container>
+  </div>
+</div>

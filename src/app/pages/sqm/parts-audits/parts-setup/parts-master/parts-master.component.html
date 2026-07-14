@@ -1,11 +1,8 @@
 <div class="custom-layout-wrapper">
 
   <div class="d-flex justify-content-end mb-3 gap-3">
-    
-    <button
-      mat-raised-button
-      style="background-color: #000; color: #fff;"
-      (click)="toggleFilters()">
+
+    <button mat-raised-button style="background-color: #000; color: #fff;" (click)="toggleFilters()">
 
       <mat-icon class="icon-sm" style="margin-right: 4px;  margin-top:4px">
         filter_list
@@ -14,10 +11,7 @@
       Filter
     </button>
 
-    <button (click)="addpart(null)"
-      mat-raised-button
-      color="primary"
-      style="background-color: #1b85ca; color: #fff;">
+    <button (click)="addpart(null)" mat-raised-button color="primary" style="background-color: #1b85ca; color: #fff;">
 
       <mat-icon class="icon-sm" style="margin-right: 4px;  margin-top:4px">
         add
@@ -35,41 +29,31 @@
       <div class="filter-group">
         <label class="filter-label">Commodity:</label>
 
-        <mat-select
-          placeholder="Select Commodity"
-          class="custom-mat-select"
-          [(ngModel)]="selectedIndustry">
+        <mat-select placeholder="Select Commodity" class="custom-mat-select" [(ngModel)]="selectedIndustry">
 
           <mat-option value="manufacturing">Casting</mat-option>
           <mat-option value="automotive">Forging</mat-option>
           <!-- <mat-option value="logistics">Logistics</mat-option> -->
-           <mat-option value="manufacturing">Machining</mat-option>
+          <mat-option value="manufacturing">Machining</mat-option>
           <mat-option value="automotive">Fasteners</mat-option>
-           <mat-option value="automotive">Non-Metallic</mat-option>
+          <mat-option value="automotive">Non-Metallic</mat-option>
         </mat-select>
       </div>
 
-<div class="filter-group">
-  <label class="filter-label mb-0">Keyword :</label>
-  <input type="text" [(ngModel)]="selectedKeyword" placeholder="Enter Keyword" class="custom-mat-input">
-</div>
+      <div class="filter-group">
+        <label class="filter-label mb-0">Keyword :</label>
+        <input type="text" [(ngModel)]="selectedKeyword" placeholder="Enter Keyword" class="custom-mat-input">
+      </div>
 
       <div class="button-group">
 
-        <button
-          mat-raised-button
-          class="btn-clear"
-          (click)="onClear()">
+        <button mat-raised-button class="btn-clear">
 
           <mat-icon>settings_backup_restore</mat-icon>
           Clear
         </button>
 
-        <button
-          mat-raised-button
-          color="primary"
-          class="btn-go"
-          (click)="onGo()">
+        <button mat-raised-button color="primary" class="btn-go">
 
           <mat-icon>youtube_searched_for</mat-icon>
           Go
@@ -93,8 +77,8 @@
           <th>Commodity</th>
           <th class="text-center">Suppliers</th>
           <!-- <th class="text-center">Priority</th> -->
-          
-              <th class="text-center">Parameters</th>
+
+          <th class="text-center">Parameters</th>
           <!-- <th class="text-center">   Parameter Template</th> -->
           <th class="text-center">Status</th>
           <th class="text-center">Actions</th>
@@ -103,60 +87,43 @@
 
       <tbody>
 
-        <tr *ngFor="let item of pagedData">
 
-          <td>{{ item.partName }}</td>
-          <td>{{ item.partCode }}</td>
-          <td>{{ item.partFamily }}</td>
-          <td>{{ item.commodity }}</td>
+        <tr *ngFor="let item of tableLists">
 
-          <td
-            class="text-center text-link"
-            style="color: blue; cursor: pointer;"  (click)="opensuppliers()">
-         
+          <td>{{ item.partMasterName || '-' }}</td>
+
+          <td>{{ item.partMasterCode || '-' }}</td>
+          <td>{{ item.partFamilyId || '-' }}</td>
+          <td>{{ item.commodityId || '-' }}</td>
+          <td class="text-center text-link" style="color: blue; cursor: pointer;" (click)="opensuppliers()">
+
             {{ item.suppliers }}
           </td>
-
-          <!-- <td class="text-center">
-            <mat-checkbox
-              color="primary"
-              [(ngModel)]="item.priority">
-            </mat-checkbox>
-          </td> -->
-
-        
           <td class="text-center">
-   <a class="text-blue" style="cursor: pointer; text-decoration: underline;" [routerLink]="['inner']"
-              [queryParams]="{ code: item.code, name: item.name }" matTooltip="View Parameter Details">
-              {{ item.parameters }}
+            <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
+              [routerLink]="['../parts-parameter']" [queryParams]="{ partMasterId: item.partMasterId }"
+              matTooltip="View Parameter Details">
+              {{ item.parametersCount || 0 }}
             </a>
-</td>
-        
-
-
-            <td
-            class="text-center"
-            [ngStyle]="{
-              'color': item.status === 'Active' ? 'blue' : 'red'
-            }">
-
-            {{ item.status }}
           </td>
+
+          <td class="text-center">
+            <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
+              matTooltip="Click to Change Status" (click)="changeStatus(item)">
+
+              {{ item.isActive ? 'Active' : 'Inactive' }}
+
+            </a>
+          </td>
+
+
           <td class="text-center manage-icons">
 
-            <mat-icon  (click)="addpart(1)"
-              class="edit-icon"
-              matTooltip="Edit"
-              style="color: #3b7bbd; font-size: 18px; margin-right: 8px; cursor: pointer;">
-
+            <mat-icon class="edit-icon" matTooltip="Edit" (click)="addpart(item)">
               edit
             </mat-icon>
 
-            <mat-icon
-              class="delete-icon"
-              matTooltip="Delete"
-              style="color: red; font-size: 18px; cursor: pointer;">
-
+            <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteConfirmation(item)">
               delete
             </mat-icon>
 
@@ -164,31 +131,66 @@
 
         </tr>
 
+        <!-- <tr *ngFor="let item of pagedData">
+
+          <td>{{ item.partName }}</td>
+          <td>{{ item.partCode }}</td>
+          <td>{{ item.partFamily }}</td>
+          <td>{{ item.commodity }}</td>
+
+          <td class="text-center text-link" style="color: blue; cursor: pointer;" (click)="opensuppliers()">
+
+            {{ item.suppliers }}
+          </td>
+
+        
+
+
+          <td class="text-center">
+            <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
+              [routerLink]="['../parts-parameter']" [queryParams]="{ partFamilyId: item.partFamilyId }"
+              matTooltip="View Parameter Details">
+              {{ item.parametersCount || 0 }}
+            </a>
+          </td>
+
+
+          <td class="text-center" [ngStyle]="{
+              'color': item.status === 'Active' ? 'blue' : 'red'
+            }">
+
+            {{ item.status }}
+          </td>
+          <td class="text-center manage-icons">
+
+            <mat-icon (click)="addpart(1)" class="edit-icon" matTooltip="Edit"
+              style="color: #3b7bbd; font-size: 18px; margin-right: 8px; cursor: pointer;">
+
+              edit
+            </mat-icon>
+
+            <mat-icon class="delete-icon" matTooltip="Delete" style="color: red; font-size: 18px; cursor: pointer;">
+
+              delete
+            </mat-icon>
+
+          </td>
+
+        </tr> -->
+
       </tbody>
 
     </table>
 
-    <mat-paginator
-      [length]="filteredData.length"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="[5, 10, 25, 50]"
-      showFirstLastButtons
-      (page)="onPageChange($event)">
-
+    <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+      [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
     </mat-paginator>
 
   </div>
 
-  <div
-    class="fab-wrapper d-flex justify-content-end gap-3"
-    style="margin-bottom:40px; z-index: 3;">
+  <div class="fab-wrapper d-flex justify-content-end gap-3" style="margin-bottom:40px; z-index: 3;">
 
-    <button
-      mat-fab
-      color="accent"
-      class="nav-fab"
-      style="background-color: #fafafa;"
-      (click)="scrollLeft()"
+    <button mat-fab color="accent" class="nav-fab" style="background-color: #fafafa;" (click)="scrollLeft()"
       matTooltip="Scroll Left">
 
       <mat-icon style="color: #37474f;">
@@ -197,12 +199,7 @@
 
     </button>
 
-    <button
-      mat-fab
-      color="accent"
-      class="nav-fab"
-      style="background-color: #fafafa;"
-      (click)="scrollRight()"
+    <button mat-fab color="accent" class="nav-fab" style="background-color: #fafafa;" (click)="scrollRight()"
       matTooltip="Scroll Right">
 
       <mat-icon style="color: #37474f;">

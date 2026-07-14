@@ -8,7 +8,7 @@
       Filter
     </button>
 
-     
+
 
     <button mat-raised-button color="primary" class="btn-blue" (click)="addbatchpop(null)">
       <mat-icon>add</mat-icon> Add Batch
@@ -40,10 +40,9 @@
   </div>
 
   <div class="table-responsive">
-    <table class="table table-bordered table-hover" style="width: 100%;">
+    <table class="table table-bordered table-hover" style="width:100%;">
       <thead class="tbl-head">
         <tr>
-          
           <th>Part Family</th>
           <th>Part Name</th>
           <th>Batch Number</th>
@@ -52,35 +51,58 @@
           <th class="text-center">Actions</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let item of mockdata">
-          
-          <td>{{ item.PartFamily }}</td>
-          <td>{{ item.PartName }}</td>
-          <td>{{ item.BatchNumber }}</td>
-          <td>{{ item.BatchDate }}</td>
-          <td class="text-center">
-            <mat-icon color="primary" [matTooltip]="item.Remarks" matTooltipPosition="above"
-              style="color: blue; cursor: pointer; font-size: 18px; vertical-align: middle; margin-left: 5px;">
-              info
-            </mat-icon>
-          </td>
+
+        <tr *ngFor="let item of tableLists">
+
+          <td>{{ item.partFamilyName || '-' }}</td>
+
+          <td>{{ item.partMasterName || '-' }}</td>
+
+          <td>{{ item.batchNumber || '-' }}</td>
+
+          <td>{{ item.batchDate | date:'dd/MM/yyyy' }}</td>
 
           <td class="text-center">
-            <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;" (click)="openEditDialog(item)">
+
+            <mat-icon *ngIf="item.remakrs" color="primary" [matTooltip]="item.remakrs" matTooltipPosition="above"
+              style="color:blue;cursor:pointer;">
+
+              info
+
+            </mat-icon>
+
+            <span *ngIf="!item.remakrs">-</span>
+
+          </td>
+
+          <td class="text-center  ">
+
+
+
+            <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;" (click)="addbatchpop(item)">
               <mat-icon style="color: cornflowerblue; font-size: 20px;">edit</mat-icon>
             </a>
             <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteConfirmation(item)">
               <mat-icon style="color: red; font-size: 20px;">delete</mat-icon>
             </a>
+
+          </td>
+
+        </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="6" class="text-center">
+            No Records Found
           </td>
         </tr>
 
-        <tr *ngIf="!mockdata || mockdata.length === 0">
-          <td colspan="6" class="text-center">No records found</td>
-        </tr>
       </tbody>
     </table>
   </div>
 
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
 </div>

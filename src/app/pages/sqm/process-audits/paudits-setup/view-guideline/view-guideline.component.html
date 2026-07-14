@@ -1,0 +1,13 @@
+<div class="NewHeader">
+  <h3 style="padding: 15px; margin: 0;  flex; justify-content: space-between;">
+    Guideline Details
+    <mat-icon style="cursor: pointer;" (click)="dialogRef.close()">close</mat-icon>
+  </h3>
+</div>
+
+<div mat-dialog-content style="padding: 20px;">
+  <!-- white-space: pre-wrap preserves your line breaks from the multiline textbox -->
+  <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; min-height: 120px; white-space: pre-wrap; font-size: 14px; color: #333;">
+    {{ data }}
+  </div>
+</div>

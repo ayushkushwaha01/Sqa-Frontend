@@ -1,24 +1,29 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ManageUsersService } from '../../manage-users.service';
 
 @Component({
   selector: 'app-manager-dialog',
-  templateUrl: './manager-dialog.component.html',
-  styleUrls: ['./manager-dialog.component.scss']
+  templateUrl: './manager-dialog.component.html'
 })
 export class ManagerDialogComponent implements OnInit {
+  assignedManagers: any[] = [];
 
-  constructor(public fb: FormBuilder, public dialogRef: MatDialogRef<ManagerDialogComponent> ,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any, // data contains the comma-separated manager IDs e.g. "1,4"
+    private api: ManageUsersService
+  ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
+    if (this.data) {
+      const selectedIds = this.data.split(',').map(Number);
+      
+      this.api.getManagers().subscribe((res: any) => {
+        if (res.success) {
+          // Filter the total list of managers to only show the ones assigned to this user
+          this.assignedManagers = res.data.filter((m: any) => selectedIds.includes(m.userId));
+        }
+      });
+    }
   }
-
-  managers = [
-    { Manager:'Navin Malik'},
-    { Manager:'Sourabh'},
-    { Manager:'Surya Teja'},
-    { Manager:'Vamshi'}
-  ]
 }

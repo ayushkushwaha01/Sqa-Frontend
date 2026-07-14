@@ -1,5 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-add-parts-familypop',
@@ -13,14 +16,69 @@ export class AddPartsFamilypopComponent implements OnInit {
   isDragOver = false;
   selectedFileName: string = '';
   selectedFile: File | null = null;
+  myGroup!: FormGroup;
+
+
 
   constructor(
-    private dialogRef: MatDialogRef<AddPartsFamilypopComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+    public _fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<AddPartsFamilypopComponent>,
+    private _setupService: SetupService, private alertService: AlertService) {
+  }
 
-  ngOnInit(): void {
-    this.isEditMode = this.data === 1;
+
+  ngOnInit() {
+    console.log('Received data in AddPartCategoryComponent:', this.data);
+    if (this.data) {
+      this.formInit(this.data);
+    }
+    else {
+      this.formInit(null);
+    }
+  }
+
+  formInit(data: any) {
+    this.myGroup = this._fb.group({
+      PartFamilyId: [data?.partFamilyId || 0],
+
+      PartFamilyName: [
+        data?.partFamilyName || '',
+        Validators.required
+      ],
+
+      PartFamilyCode: [
+        data?.partFamilyCode || '',
+        [
+          Validators.required,
+          Validators.pattern('^[a-zA-Z0-9]{5}$')
+        ]
+      ]
+    });
+
+    console.log(this.myGroup.value);
+  }
+  get f() { return this.myGroup.controls }
+
+
+  UpsertPartFamily() {
+
+    if (this.myGroup.invalid) {
+      this.myGroup.markAllAsTouched();
+      return;
+    }
+
+    this._setupService.upsertPartFamily(this.myGroup.value)
+      .subscribe((data: any) => {
+
+        if (data.success) {
+          this.alertService.createAlert(data.message, 1);
+          this.dialogRef.close(true);
+        } else {
+          this.alertService.createAlert(data.message, 0);
+        }
+
+      });
   }
 
   onDragOver(event: DragEvent): void {

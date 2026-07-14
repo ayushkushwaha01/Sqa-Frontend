@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // ✅ ADDED: Material imports needed for your grids and popups
 import { MatDialogModule } from '@angular/material/dialog';
@@ -42,7 +42,8 @@ const routes: Routes = [
     MatSelectModule,
     MatCheckboxModule,
     MatCardModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ReactiveFormsModule
   ]
 })
 export class AuditCategoriesModule { }

@@ -1,13 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-
+import { ProcessAuditService } from '../../../process-audit.service';
+ 
 @Component({
   selector: 'app-add-question-pop',
-  templateUrl: './add-question-pop.component.html',
-  styleUrls: ['./add-question-pop.component.scss']
+  templateUrl: './add-question-pop.component.html'
 })
 export class AddQuestionPopComponent implements OnInit {
-  
+  checklistId: number = 0;
+  categoryId: number = 0;
   questionText: string = '';
   guidelineText: string = '';
   isMandatory: boolean = false;
@@ -16,38 +17,29 @@ export class AddQuestionPopComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AddQuestionPopComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private api: ProcessAuditService
   ) {}
 
   ngOnInit(): void {
-    // Check if the dialog was opened in edit mode
     this.isEditMode = this.data?.isEdit;
-
-    // If editing, populate the fields with the existing item data
-    if (this.isEditMode && this.data?.item) {
-      this.questionText = this.data.item.question || '';
-      this.guidelineText = this.data.item.guideline || ''; 
-      this.isMandatory = this.data.item.mandatory === 'Yes';
-      
-      // Handles boolean or string mapping depending on your parent grid's data
-      this.isPriority = this.data.item.priority === 'High' || this.data.item.priority === true;
-    }
-  }
-
-  onCancel(): void {
-    // Closes the dialog without returning data
-    this.dialogRef.close();
+    this.categoryId = this.data?.categoryId; // The FK passed from the grid
   }
 
   onSave(): void {
-    // Bundle all the data, including the new guideline field, and pass it back
-    const result = {
+    const payload = {
+      checklistId: this.checklistId,
+      processCategoryId: this.categoryId, // Saving against specific category
       question: this.questionText,
       guideline: this.guidelineText,
-      mandatory: this.isMandatory ? 'Yes' : 'No', 
-      priority: this.isPriority ? 'High' : 'Normal' 
+      isMandatory: this.isMandatory, 
+      isPriority: this.isPriority
     };
     
-    this.dialogRef.close(result);
+    this.api.upsertChecklist(payload).subscribe((res: any) => {
+      if(res.success) this.dialogRef.close(true);
+    });
   }
+  
+  onCancel(): void { this.dialogRef.close(); }
 }

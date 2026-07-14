@@ -43,7 +43,8 @@ import { ProcessActionsGridComponent } from './paudits-actions/process-actions-g
 import { ProcessActionsEditComponent } from './paudits-actions/process-actions-edit/process-actions-edit.component';
 import { ProcessDocPopComponent } from './paudits-actions/process-doc-pop/process-doc-pop.component';
 import { AuditCategoriesInnerscreenComponent } from './paudits-setup/process-audits-categories/audit-categories-innerscreen/audit-categories-innerscreen.component';
-import { QuestionPopComponent } from './paudits-setup/process-audits-categories/audit-categories-innerscreen/question-pop/question-pop.component'; // ← ADD
+import { AddQuestionPopComponent } from './paudits-setup/process-audits-categories/audit-categories-innerscreen/question-pop/question-pop.component';
+import { ViewGuidelineComponent } from './paudits-setup/view-guideline/view-guideline.component';
 
 const routes: Routes = [
   {
@@ -111,7 +112,8 @@ const routes: Routes = [
     ProcessActionsEditComponent,
     ProcessDocPopComponent,
     AuditCategoriesInnerscreenComponent,
-    QuestionPopComponent,   // ← ADD THIS
+    AddQuestionPopComponent,
+    ViewGuidelineComponent
   ],
   imports: [
     CommonModule,

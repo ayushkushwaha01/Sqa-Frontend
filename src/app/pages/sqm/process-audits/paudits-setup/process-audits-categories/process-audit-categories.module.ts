@@ -13,20 +13,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 
 // Components
- 
- 
 
 
 
- 
+
+
+
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuditCategoriesComponent } from '../../../parts-audits/parts-setup/audit-categories/audit-categories.component';
-import { QuestionPopComponent } from './audit-categories-innerscreen/question-pop/question-pop.component';
+import { AddQuestionPopComponent } from './audit-categories-innerscreen/question-pop/question-pop.component';
 import { CommodityMasterComponent } from '../commodity-master/commodity-master.component';
 import { AuditCategoriesInnerscreenComponent } from './audit-categories-innerscreen/audit-categories-innerscreen.component';
- 
+
 
 const routes: Routes = [
   {
@@ -40,15 +40,15 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-     
- 
-       QuestionPopComponent
+
+
+    AddQuestionPopComponent
   ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),// Sets up the child routing
     FormsModule,
-    
+
     // Material Modules
     MatButtonModule,
     MatIconModule,
@@ -60,7 +60,7 @@ const routes: Routes = [
     MatInputModule,
     MatFormFieldModule,
     MatCheckboxModule,
-    
+
   ]
 })
 export class processauditcategoriesmodule { }

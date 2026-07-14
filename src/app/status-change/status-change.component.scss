@@ -1,0 +1,75 @@
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  min-width: 360px;
+}
+
+.dialog-header {
+  background-color: #283891;
+  /* Navy blue matching screenshot */
+  padding: 15px 24px;
+  text-align: center;
+}
+
+.dialog-title {
+  color: #ffffff;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.dialog-content {
+  padding: 34px 24px;
+  text-align: center;
+}
+
+.confirm-text {
+  color: #555555;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 24px 24px 24px;
+}
+
+button {
+  min-width: 95px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-cancel {
+  background-color: #e5e5e5;
+  color: #000000;
+
+  &:hover {
+    background-color: #d8d8d8;
+  }
+}
+
+.btn-confirm {
+  background-color: #283891;
+  color: #ffffff;
+
+  &:hover {
+    background-color: #1e2b70;
+  }
+}

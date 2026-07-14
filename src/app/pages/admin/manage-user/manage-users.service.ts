@@ -37,5 +37,32 @@ export class ManageUsersService {
   getAllUsers() {
     return this.http.get(this.apiUrl + 'Users/get-all');
   }
-  // ... other user endpoints
+
+  upsertUser(data: any) {
+    return this.http.post(this.apiUrl + 'Users/upsert', data);
+  }
+
+  toggleUserStatus(data: any) {
+    return this.http.post(this.apiUrl + 'Users/toggle-status', data);
+  }
+
+  deleteUser(data: any) {
+    return this.http.post(this.apiUrl + 'Users/delete', data);
+  }
+
+  getManagers() {
+    return this.http.get(this.apiUrl + 'Users/get-managers');
+  }
+
+  resetPassword(data: any) {
+    return this.http.post(this.apiUrl + 'Users/reset-password', data);
+  }
+
+   
+login(credentials: any) {
+  return this.http.post(this.apiUrl + 'Auth/login', credentials);
+}
+
+
+
 }

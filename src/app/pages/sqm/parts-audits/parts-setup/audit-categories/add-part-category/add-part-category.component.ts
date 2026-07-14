@@ -1,5 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-add-part-category',
@@ -13,51 +16,67 @@ export class AddPartCategoryComponent implements OnInit {
   isDragOver = false;
   selectedFileName: string = '';
   selectedFile: File | null = null;
+  myGroup!: FormGroup;
+
+
 
   constructor(
-    private dialogRef: MatDialogRef<AddPartCategoryComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
-
-  ngOnInit(): void {
-    this.isEditMode = this.data === 1;
+    public _fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<AddPartCategoryComponent>,
+    private _setupService: SetupService, private alertService: AlertService) {
   }
 
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = true;
-  }
 
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = false;
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = false;
-
-    const files = event.dataTransfer?.files;
-
-    if (files && files.length > 0) {
-      this.handleFile(files[0]);
+  ngOnInit() {
+    console.log('Received data in AddPartCategoryComponent:', this.data);
+    if (this.data) {
+      this.formInit(this.data);
+    }
+    else {
+      this.formInit(null);
     }
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
+  formInit(data: any) {
+    this.myGroup = this._fb.group({
+      PartId: new FormControl(data?.partId || 0),
 
-    if (input.files && input.files.length > 0) {
-      this.handleFile(input.files[0]);
-    }
+      CategoryName: new FormControl(
+        data?.categoryName || '',
+        Validators.required
+      ),
+
+      CategoryCode: new FormControl(
+        data?.categoryCode || '',
+        [
+          Validators.required,
+          Validators.pattern('^[a-zA-Z0-9]{5}$')
+        ]
+      )
+    });
   }
+  get f() { return this.myGroup.controls }
 
-  private handleFile(file: File): void {
-    this.selectedFile = file;
-    this.selectedFileName = file.name;
+
+  UpsertPartAuditCategory() {
+
+    if (this.myGroup.invalid) {
+      this.myGroup.markAllAsTouched();
+      return;
+    }
+
+    this._setupService.upsertPartAuditCategory(this.myGroup.value)
+      .subscribe((data: any) => {
+
+        if (data.success) {
+          this.alertService.createAlert(data.message, 1);
+          this.dialogRef.close(true);
+        } else {
+          this.alertService.createAlert(data.message, 0);
+        }
+
+      });
   }
 
   close(): void {

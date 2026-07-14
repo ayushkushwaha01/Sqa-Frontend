@@ -1,119 +1,146 @@
 <div class="NewHeader">
-  <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
-  {{ isEditMode ? 'Update Part Master' : 'Add Part Master' }}
-</h2>
+    <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
+        {{ isEditMode ? 'Update Part Master' : 'Add Part Master' }}
+    </h2>
 </div>
 
 <div>
     <div fxLayout="row wrap" class="col-sm-12">
         <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
-            <form>
-                <div>
+            <form [formGroup]="myGroup">
 
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt-2" style="margin-top:5px; font-weight: bold;">
-                                Part Family <span style="color: red;"></span>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <mat-select placeholder="Select Part Family Name" class="form-control mt-2">
-                                <mat-option value="family1">Engine Components</mat-option>
-                                <mat-option value="family2">Braking Systems</mat-option>
-                                <mat-option value="family3">Electrical Systems</mat-option>
-                            </mat-select>
-                        </div>
+                <!-- Part Family -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Part Family :
+                        </label>
                     </div>
 
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt-2" style="margin-top:5px; font-weight: bold;">
-                                Parts : <span style="color: red;"></span>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control mt-2" placeholder="Enter Parts Name">
-                        </div>
-                    </div>
+                    <div class="col-sm-8">
 
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt-2" style="margin-top:5px; font-weight: bold;">
-                                Parts Code : <span style="color: red;"></span>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control mt-2" placeholder="Enter Parts Code">
-                        </div>
-                    </div>
+                        <mat-select class="form-control" placeholder="Select Part Family"
+                            formControlName="PartFamilyId">
 
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt-2" style="margin-top:5px; font-weight: bold;">
-                                Commodity <span style="color: red;"></span>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <mat-select placeholder="Select Commodity Name" class="form-control mt-2">
-                                <mat-option value="casting">Casting</mat-option>
-                                <mat-option value="forging">Forging</mat-option>
-                                <mat-option value="machining">Machining</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
+                            <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
 
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt-2" style="margin-top:5px; font-weight: bold;">
-                                Upload Parameter Template :
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
+                                {{ item.partFamilyName }}
 
-                            <input #fileInput type="file" style="display: none;" (change)="onFileSelected($event)">
+                            </mat-option>
 
-                            <div
-                                class="drag-drop-zone"
-                                [class.drag-over]="isDragOver"
-                                (click)="fileInput.click()"
-                                (dragover)="onDragOver($event)"
-                                (dragleave)="onDragLeave($event)"
-                                (drop)="onDrop($event)">
+                        </mat-select>
 
-                                <div class="upload-icon">
-                                    <mat-icon>upload</mat-icon>
-                                </div>
+                        <small class="text-danger"
+                            *ngIf="f['PartFamilyId'].touched && f['PartFamilyId'].errors?.['required']">
 
-                                <span class="drag-drop-text">
-                                    {{ selectedFileName ? selectedFileName : 'Drag and drop files here' }}
-                                </span>
+                            Part Family is required.
 
-                                <button
-                                    mat-raised-button
-                                    class="browse-btn"
-                                    type="button"
-                                    color="primary"
-                                    (click)="$event.stopPropagation(); fileInput.click()">
-                                    Browse Files
-                                </button>
-                            </div>
+                        </small>
 
-                        </div>
                     </div>
 
                 </div>
+
+                <!-- Part Master Name -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Parts :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" placeholder="Enter Parts Name"
+                            formControlName="PartMasterName">
+
+                        <small class="text-danger"
+                            *ngIf="f['PartMasterName'].touched && f['PartMasterName'].errors?.['required']">
+
+                            Part Name is required.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <!-- Part Master Code -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Parts Code :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <input class="form-control" type="text" maxlength="5" placeholder="Enter Parts Code"
+                            formControlName="PartMasterCode">
+
+                        <small class="text-danger"
+                            *ngIf="f['PartMasterCode'].touched && f['PartMasterCode'].errors?.['required']">
+
+                            Part Code is required.
+
+                        </small>
+
+
+                    </div>
+
+                </div>
+
+                <!-- Commodity -->
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-4">
+                        <label style="font-weight:bold;">
+                            Commodity :
+                        </label>
+                    </div>
+
+                    <div class="col-sm-8">
+
+                        <mat-select class="form-control" placeholder="Select Commodity" formControlName="CommodityId">
+
+                            <mat-option [value]="1">Casting</mat-option>
+                            <mat-option [value]="2">Forging</mat-option>
+                            <mat-option [value]="3">Machining</mat-option>
+
+                        </mat-select>
+
+
+                    </div>
+
+                </div>
+
             </form>
 
-            <mat-dialog-actions align="end"
-                style="margin-top: 15px; display: flex; justify-content: flex-end; margin-right: -20px;">
-                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
-                    style="background-color: lightgray; color: red; margin-right: 5px;">
-                    <mat-icon>cancel</mat-icon> Close
+            <mat-dialog-actions align="end">
+
+                <button mat-raised-button type="button" (click)="close()" style="background:lightgray;color:red;">
+
+                    <mat-icon>cancel</mat-icon>
+                    Close
+
                 </button>
-                <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;">
+
+                <button mat-raised-button color="primary" type="button" (click)="UpsertPartMaster()"
+                    [disabled]="myGroup.invalid">
+
                     <mat-icon>save</mat-icon>
-{{ isEditMode ? 'Update' : 'Save' }}
+
+                    {{ myGroup.value.PartMasterId == 0 ? 'Save' : 'Update' }}
+
                 </button>
+
             </mat-dialog-actions>
 
         </div>

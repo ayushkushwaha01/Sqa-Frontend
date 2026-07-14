@@ -34,6 +34,9 @@ import { AddSupplierComponent } from './supplier-master/add-supplier/add-supplie
 import { AddCityComponent } from './city-master/add-city/add-city.component';
 import { AddStateComponent } from './state-master/add-state/add-state.component';
 import { AddVenderComponent } from './vender-rating/add-vender/add-vender.component';
+import { AddParameterComponent } from './parts-families/add-parameter/add-parameter.component';
+import { PartsParameterComponent } from './parts-master/parts-parameter/parts-parameter.component';
+import { AddParameterforpartmasterComponent } from './parts-master/add-parameterforpartmaster/add-parameterforpartmaster.component';
 
 // ❌ REMOVED AuditCategoriesComponent, AddPartCategoryComponent, and PartsauditcatInnergridComponent imports from here
 
@@ -60,7 +63,8 @@ const routes: Routes = [
       { path: 'supplier-master', component: SupplierMasterComponent },
       { path: 'city-master', component: CityMasterComponent },
       { path: 'state-master', component: StateMasterComponent },
-      { path: '', redirectTo: 'parts-cat', pathMatch: 'full' }
+      { path: '', redirectTo: 'parts-cat', pathMatch: 'full' },
+      { path: 'parts-parameter', component: PartsParameterComponent },
     ]
   }
 ];
@@ -86,7 +90,10 @@ const routes: Routes = [
     AddSupplierComponent,
     AddCityComponent,
     AddStateComponent,
-    AddVenderComponent
+    AddVenderComponent,
+    AddParameterComponent,
+    PartsParameterComponent,
+    AddParameterforpartmasterComponent
 
   ],
   imports: [

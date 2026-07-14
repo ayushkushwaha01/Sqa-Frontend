@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddBatchPopComponent } from './add-batch-pop/add-batch-pop.component';
+import { AlertService } from 'src/app/shared/alert.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-batch-master',
@@ -12,10 +17,115 @@ export class BatchMasterComponent implements OnInit {
   mockdata: any[] = [];
   showFilters: boolean = false;
 
-  constructor(private dialog: MatDialog) { }
+  currentPage: number = 0;
+  totalSize: number = 0;
+  fromIndex: number = 0;
+  pageSize: number = 5;
+  tableLists: any[] = [];
+
+  constructor(private dialog: MatDialog,
+    private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+  ) { }
+
+  filterForm!: FormGroup;
+
 
   ngOnInit(): void {
+    this.formInit();
+    this.getBatchMaster();
     this.generateMockData();
+  }
+
+
+
+
+  formInit() {
+    this.filterForm = this.fb.group({
+      Keyword: [''],
+      Status: ['']
+    });
+  }
+  clearFilter() {
+    this.filterForm.reset({ Keyword: '', Status: '' });
+    this.getBatchMaster();
+  }
+
+  BatchMasters: any[] = [];
+  getBatchMaster() {
+    this._setupService.getBatchMaster(this.filterForm.value)
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.BatchMasters = res.data.data;
+          this.totalSize = res.data.toatalRecords;
+
+          this.tableLists = this.BatchMasters.slice(
+            this.fromIndex,
+            this.pageSize
+          );
+        }
+      });
+  }
+
+  loadPageData() {
+    this.fromIndex = this.currentPage * this.pageSize;
+
+    this.tableLists = this.BatchMasters.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+  }
+  fnHandlePage(event: any) {
+
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+
+    this.loadPageData();
+  }
+
+  deleteConfirmation(item: any) {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: 'auto',
+      data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+    });
+
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this._setupService.deleteBatchMaster(item).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert(res.message, 1);
+              this.getBatchMaster();
+            } else {
+              this.alertService.createAlert(res.message, 0);
+            }
+          }
+        });
+      }
+    });
+  }
+
+
+  changeStatus(item: any) {
+    let dialogRef = this.dialog.open(DialogComponent, {
+      width: 'auto',
+      data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
+    });
+
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this._setupService.ChangeStatus(item).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert(res.message, 1);
+              this.getBatchMaster();
+            } else {
+              this.alertService.createAlert(res.message, 0);
+            }
+          }
+        });
+      }
+    });
   }
 
   toggleFilters(): void {
@@ -63,10 +173,19 @@ export class BatchMasterComponent implements OnInit {
   }
 
   addbatchpop(data: any) {
-    this.dialog.open(AddBatchPopComponent, {
+
+    const dialogRef = this.dialog.open(AddBatchPopComponent, {
       width: '600px',
       height: 'auto',
       data: data
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (result) {
+        this.getBatchMaster();
+      }
+
     });
   }
 
@@ -75,10 +194,7 @@ export class BatchMasterComponent implements OnInit {
     // Add logic here to open the popup with existing data
   }
 
-  deleteConfirmation(item: any) {
-    console.log('Delete clicked for:', item);
-    // Add delete logic here
-  }
+
 
   archiveRecord(item: any) {
     console.log('Archive clicked for:', item);

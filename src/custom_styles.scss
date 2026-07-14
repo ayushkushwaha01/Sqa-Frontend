@@ -13,7 +13,7 @@
 .pills>.nav>li.active>a {
   background: #50636d !important;
   color: #ffffff;
-} 
+}
 
 .pills>.nav>li>a:hover {
   color: #ffffff;
@@ -31,7 +31,7 @@
 
 .tbl-head,
 .tbl-head th {
-  background-color:#3f3f3f;
+  background-color: #3f3f3f;
   color: white;
 }
 
@@ -886,10 +886,12 @@ a {
   filter: alpha(opacity=80);
   pointer-events: none;
 }
+
 /* high-performance display:none; helper */
 .gu-hide {
   left: -9999px !important;
 }
+
 /* added to mirrorContainer (default = body) while dragging */
 .gu-unselectable {
   -webkit-user-select: none !important;
@@ -897,6 +899,7 @@ a {
   -ms-user-select: none !important;
   user-select: none !important;
 }
+
 /* added to the source element while its mirror is dragged */
 .gu-transit {
   opacity: 0.2;

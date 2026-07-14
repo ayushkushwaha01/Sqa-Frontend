@@ -1,6 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { LookupService } from '../lookup.service'; // Adjust path
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-add-lookup-dialog',
@@ -8,50 +10,58 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   styleUrls: ['./add-lookup-dialog.component.scss']
 })
 export class AddLookupDialogComponent implements OnInit {
+  isEditMode: boolean = false;
+  lookupId: number = 0;
+  form: FormGroup;
+  codeMasters: any[] = [];
 
-  countryList : any;
-  stateList : any;
-  cityList : any;
-  data : any;
-  code_master:any;
-  conditions : Array<any> = [{'code':'>=','name':' >= '},{'code':'<=','name':' <= '}];
-  colors : Array<any> = [{'code':'green','name':'Green','colorClass':'dot_green'},{'code':'blue','name':'Blue','colorClass':'dot_blue'},{'code':'grey','name':'Grey','colorClass':'dot_grey'},{'code':'red','name':'Red','colorClass':'dot_red'}];
-  constructor(public dialogRef: MatDialogRef<AddLookupDialogComponent>,@Inject(MAT_DIALOG_DATA) public user: number,
-   //private alertService: AlertService
-   ) { 
-     this.data = user
-    console.log(this.user);
-   }
+  constructor(
+    private fb: FormBuilder,
+    public dialogRef: MatDialogRef<AddLookupDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private api: LookupService,
+    private alertService: AlertService
+  ) {
+    this.form = this.fb.group({
+      codeId: [null, Validators.required],
+      lookupName: ['', Validators.required]
+    });
+  }
 
-  
   ngOnInit() {
-    
-  }
+    this.codeMasters = this.data.codeMasters; // Receive dropdown list from parent
 
-  close(): void {
-    this.dialogRef.close();
-  }
-
-  itemstr: HTMLElement[] = [];
-  agestr: HTMLElement[] = [];
-  responsestr: HTMLElement[] = [];
-  str: HTMLElement = <HTMLElement>document.getElementById("new_text");
-  copy(type) {
-    if(type=='lookup')
-      this.itemstr.push(this.str);
-    else if(type=='age')
-      this.agestr.push(this.str);
-    else
-      this.responsestr.push(this.str);
-  }
-
-  remove(e) {
-    document.getElementById("repeat-" + e).remove();
+    if (this.data.item) {
+      this.isEditMode = true;
+      this.lookupId = this.data.item.lookupId;
+      this.form.patchValue({
+        codeId: this.data.item.codeId,
+        lookupName: this.data.item.lookupName
+      });
+    }
   }
 
   saveLookup() {
-    //this.alertService.createAlert('Successfully Saved.', 1);
-    this.dialogRef.close();
+    if (this.form.valid) {
+      const payload = {
+        lookupId: this.lookupId,
+        codeId: this.form.value.codeId,
+        lookupName: this.form.value.lookupName
+      };
+
+      this.api.upsertLookup(payload).subscribe((res: any) => {
+        if (res.success) {
+          const successMessage = res.message || (this.isEditMode ? 'Lookup updated successfully.' : 'Lookup added successfully.');
+          this.alertService.createAlert(successMessage, 1);
+          this.dialogRef.close(true);
+        } else {
+          this.alertService.createAlert(res.message || 'Failed to save lookup.', 0);
+        }
+      });
+    } else {
+      this.form.markAllAsTouched();
+    }
   }
 
+  close(): void { this.dialogRef.close(false); }
 }

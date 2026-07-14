@@ -1,58 +1,32 @@
 <div class="NewHeader">
-   <h3 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;;">
-  {{ isEditMode ? 'Update Process Audit Category' : 'Add Process Audit Category' }}
-</h3>
+   <h3 >
+      {{ isEditMode ? 'Update Process Category' : 'Add Process Category' }}
+   </h3>
 </div>
 
-<div>
-    <div fxLayout="row wrap" class="col-sm-12">
-        <div class="col-sm-12" style="margin-top: 0px; padding-left: 10px; padding-right: 20px;">
-            <form>
-                <div>
-
-                    <div class="row" style="margin-bottom: 12px;">
-                        <div class="col-sm-4">
-                            <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Process
-                              Category Name :</label>
-
-                        </div>
-                        <div class="col-sm-8">
-                            <!-- <mat-select placeholder="Select Process Category" class="form-control">
-                                <mat-option value="category1">Category 1</mat-option>
-                                <mat-option value="category2">Category 2</mat-option>
-                            </mat-select> -->
-                            <input type="text" class="form-control" placeholder="Enter Process Category Name" >
-                        </div>
-
-                    </div>
-
-
-
-
-
-
-
-
-
-
-                </div>
-            </form>
-
-
-            <mat-dialog-actions align="end"
-                style="margin-top: 15px; display: flex; justify-content: flex-end;margin-right: -20px;">
-                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
-                    style="background-color: lightgray; color: red;margin-right: 5px;">
-                    <mat-icon>cancel</mat-icon> Close
-                </button>
-                <button mat-raised-button type="submit" class="save" color="primary" style="margin-right: 17px;">
-                  <mat-icon>save</mat-icon>
-{{ isEditMode ? 'Update' : 'Save' }}
-                </button>
-            </mat-dialog-actions>
-
-
-
+<div mat-dialog-content style="padding: 20px;">
+    <!-- Wrap inputs in the form group -->
+    <form [formGroup]="categoryForm">
+        <div class="row mb-3 align-items-center">
+            <div class="col-sm-4 fw-bold text-end">Category Name: <span class="text-danger">*</span></div>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" formControlName="categoryName" placeholder="Enter Category Name">
+            </div>
         </div>
-    </div>
+        <div class="row mb-3 align-items-center">
+            <div class="col-sm-4 fw-bold text-end">Category Code: <span class="text-danger">*</span></div>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" formControlName="categoryCode" placeholder="Enter Code (e.g. QMS)">
+            </div>
+        </div>
+    </form>
 </div>
+
+<mat-dialog-actions align="end" style="padding: 15px;">
+    <button mat-raised-button style="background-color: lightgray; color: red;" (click)="close()">
+        <mat-icon>cancel</mat-icon> Close
+    </button>
+    <button mat-raised-button color="primary" class="ms-2" [disabled]="!categoryForm.valid" (click)="save()">
+        <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
+    </button>
+</mat-dialog-actions>

@@ -1,65 +1,133 @@
 import { Component, OnInit } from '@angular/core';
-import { AddCommodityPopComponent } from './add-commodity-pop/add-commodity-pop.component';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-
+import { Router, NavigationEnd } from '@angular/router';
+import { AddCommodityPopComponent } from './add-commodity-pop/add-commodity-pop.component';
+import { CommodityService } from './commodity.service';
+import { AlertService } from '../../../../../shared/alert.service';
+import { ConfirmationDialogComponent } from '../../../../../shared/confirmation-dialog/confirmation-dialog.component';
+import { StatusChangeComponent } from '../../../../../status-change/status-change.component';
+ 
 @Component({
   selector: 'app-commodity-master',
   templateUrl: './commodity-master.component.html',
   styleUrls: ['./commodity-master.component.scss']
 })
 export class CommodityMasterComponent implements OnInit {
-
   showFilters: boolean = false; 
-  selectedCategory: string | null = null;
+  tableData: any[] = [];
+  originalTableData: any[] = [];
+  selectedKeyword: string = '';
   selectedStatus: string = '';
 
-  tableData = [
-    { name: 'Casting', status: 'Active',code : 6498,target : '4' },
-    { name: 'Forging', status: 'Inactive',code : 4265 ,target : '3'},
-    { name: 'Machining', status: 'Active',code : 1284,target : '7' },
-    { name: 'Fasteners', status: 'Inactive',code : 1685,target : '2'},
-    { name: 'Non-Metallic', status: 'Active',code : 2586 ,target : '7'},
-    { name: 'Sheet Metal', status: 'Active',code : 6547,target : '5' }
-  ];
-selectedKeyword: any;
- 
+  constructor(
+    private dialog: MatDialog, 
+    public router: Router, 
+    private api: CommodityService,
+    private alertService: AlertService
+  ) { }
 
-  constructor(private dialog: MatDialog,  public router: Router) { }
-
-  ngOnInit(): void {}
-
-  toggleFilters(): void {
-    this.showFilters = !this.showFilters;
+  ngOnInit(): void {
+    this.getCommodities();
+    
+    // Auto-refresh the outer grid count when navigating back to the master route
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd && this.isMasterRoute()) {
+        this.getCommodities();
+      }
+    });
   }
 
-  onClear(): void {
-    this.selectedCategory = null;
-    this.selectedStatus = '';
+  getCommodities() {
+    this.api.getCommodities().subscribe((res: any) => {
+      if (res.success) {
+        this.originalTableData = res.data;
+        this.applyFilter();
+      }
+    });
   }
 
-  onGo(): void {
-    console.log('Filters Applied:', { category: this.selectedCategory, status: this.selectedStatus });
+  addCommodity(item: any): void {
+    const dialogRef = this.dialog.open(AddCommodityPopComponent, {
+      width: '650px', disableClose: true, data: item
+    });
+    dialogRef.afterClosed().subscribe(res => { 
+      if (res) {
+        this.alertService.createAlert(item ? 'Commodity updated successfully.' : 'Commodity added successfully.', 1);
+        this.getCommodities(); 
+      }
+    });
   }
 
-  addCommodity(data: any): void {
-   const dialogRef = this.dialog.open(AddCommodityPopComponent, {
-       width: '650px',
-       disableClose: true   ,
-       data:data     // prevents closing on backdrop click
-     });
-   
-     dialogRef.afterClosed().subscribe((result: { name: string; status: string; }) => {
-       if (result) {
-         // result = { name: '...', status: '...' }
-        //  this.tableData.push(result);  // or call your API here
-       }
-     });
+  toggleStatus(item: any) {
+    const dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      disableClose: true
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.toggleCommodityStatus(item.commodityId).subscribe((res: any) => {
+          if (res.success) {
+            item.isActive = !item.isActive;
+            this.alertService.createAlert(res.message || 'Status updated successfully.', 1);
+          } else {
+            this.alertService.createAlert(res.message || 'Failed to update status.', 0);
+          }
+        });
+      }
+    });
   }
 
-  isMasterRoute(): boolean {
-  // Checks if the URL ends exactly with '/commodity' (or whatever your base path is)
-  // Adjust the string to match your exact route path if needed
-  return this.router.url.endsWith('/commodity'); 
-}
+  deleteCommodity(item: any) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete this Commodity?', isConfirmation: true }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.deleteCommodity(item.commodityId).subscribe((res: any) => {
+          if (res.success) {
+            this.alertService.createAlert(res.message || 'Commodity deleted successfully.', 1);
+            this.getCommodities();
+          } else {
+            this.alertService.createAlert(res.message || 'Failed to delete Commodity.', 0);
+          }
+        });
+      }
+    });
+  }
+
+  toggleFilters(): void { this.showFilters = !this.showFilters; }
+  
+  onClear(): void { 
+    this.selectedKeyword = ''; 
+    this.selectedStatus = ''; 
+    this.applyFilter();
+  }
+
+  onGo(): void { 
+    this.applyFilter(); 
+  }
+
+  applyFilter(): void {
+    let filtered = [...this.originalTableData];
+
+    if (this.selectedKeyword) {
+      const keyword = this.selectedKeyword.trim().toLowerCase();
+      filtered = filtered.filter(item => 
+        (item.name && item.name.toLowerCase().includes(keyword)) ||
+        (item.code && item.code.toLowerCase().includes(keyword))
+      );
+    }
+
+    if (this.selectedStatus) {
+      const isActiveFilter = this.selectedStatus === 'Active';
+      filtered = filtered.filter(item => item.isActive === isActiveFilter);
+    }
+
+    this.tableData = filtered;
+  }
+
+  isMasterRoute(): boolean { return this.router.url.endsWith('/commodity'); }
 }

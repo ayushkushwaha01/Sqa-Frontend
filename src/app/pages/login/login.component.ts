@@ -1,196 +1,63 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { AppSettings } from 'src/app/app.settings';
 import { emailValidator } from 'src/app/theme/utils/app-validators';
-import { users } from '../helpers/data';
+import { ManageUsersService } from '../admin/manage-user/manage-users.service';
+import { AlertService } from 'src/app/shared/alert.service';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-
   public form: FormGroup;
-  public settings: any;
 
-  passwordType: string = 'password';
-  passwordShown: boolean = true;
-  alertService: any;
-  data: any[] = users;
-
-  constructor(public appSettings: AppSettings, public fb: FormBuilder, public router: Router, public dialog: MatDialog) {
-    this.settings = this.appSettings.settings;
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private api: ManageUsersService,
+    private alertService: AlertService
+  ) {
     this.form = this.fb.group({
       'email': [null, Validators.compose([Validators.required, emailValidator])],
       'password': [null, Validators.compose([Validators.required, Validators.minLength(6)])]
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
-  public togglePassword() {
-    this.passwordType = this.passwordType == 'text' ? 'password' : 'text';
-  }
-
-  // public onSubmit(values) {
-
-  //   console.log(values)
-  //   if (this.form.valid) {
-  //     for (let i = 0; i < this.data.length; i++) {
-  //       if (values.email === 'admin@optionmatrix.com' &&
-  //         values.password === 'admin@123') {
-  //         let userToken = btoa(encodeURIComponent(this.data[i]['email']))
-  //         console.log((this.data[i].userId))
-  //         localStorage.setItem('userToken', userToken)
-  //         localStorage.setItem('userId', JSON.stringify(this.data[i].userId))
-  //         if (this.data[i]['isClient']) {
-  //           localStorage.setItem('isClient', JSON.stringify(true))
-  //           this.router.navigate(['/app/client-login']);
-  //         }
-  //         else {
-  //           localStorage.setItem('isClient', JSON.stringify(false))
-  //           this.router.navigate(['/app']);
-  //         }
-
-
-  //         return;
-  //       }
-  //     }
-  //     alert("Wrong E-mail Id or Password");
-  //     //True if all the fields are filled
-  //   }
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-  //   public onSubmit(values) {
-  //   console.log(values);
-  //   if (this.form.valid) {
-      
-  //     // 1. Supplier Hardcoded Login Check
-  //     if (values.email === 'supplier@optionmatrix.com' && values.password === 'supplier@123') {
-  //       let userToken = btoa(encodeURIComponent(values.email));
-  //       localStorage.setItem('userToken', userToken);
-  //       localStorage.setItem('userType', 'supplier'); // Set flag for supplier
-  //       localStorage.setItem('isClient', JSON.stringify(false));
-        
-  //       // Route to supplier specific dashboard ncdksnk
-  //        this.router.navigate(['/app']);
-  //       return;
-  //     }
-
-  //     // 2. Admin Hardcoded Login Check
-  //     if (values.email === 'admin@optionmatrix.com' && values.password === 'admin@123') {
-  //       let userToken = btoa(encodeURIComponent(values.email));
-  //       localStorage.setItem('userToken', userToken);
-  //       localStorage.setItem('userType', 'admin'); // Set flag for admin
-  //       localStorage.setItem('isClient', JSON.stringify(false));
-        
-  //       this.router.navigate(['/app']);
-  //       return;
-  //     }
-
-  //     // 3. Dynamic User Data Loop (for Clients or other users in data array)
-  //     for (let i = 0; i < this.data.length; i++) {
-  //       if (values.email === this.data[i].email && values.password === this.data[i].password) {
-  //         let userToken = btoa(encodeURIComponent(this.data[i]['email']));
-  //         localStorage.setItem('userToken', userToken);
-  //         localStorage.setItem('userId', JSON.stringify(this.data[i].userId));
-          
-  //         if (this.data[i]['isClient']) {
-  //           localStorage.setItem('userType', 'client');
-  //           localStorage.setItem('isClient', JSON.stringify(true));
-  //           this.router.navigate(['/app/client-login']);
-  //         } else {
-  //           localStorage.setItem('userType', 'standard');
-  //           localStorage.setItem('isClient', JSON.stringify(false));
-  //           this.router.navigate(['/app']);
-  //         }
-  //         return;
-  //       }
-  //     }
-
-  //     // If no conditions are met
-  //     alert("Wrong E-mail Id or Password");
-  //   }
-  // }
-
-  public onSubmit(values) {
-    console.log(values);
+  public onSubmit(values: any) {
     if (this.form.valid) {
-      
-      // 1. Supplier Hardcoded Login Check
-      if (values.email === 'supplier@optionmatrix.com' && values.password === 'supplier@123') {
-        let userToken = btoa(encodeURIComponent(values.email));
-        localStorage.setItem('userToken', userToken);
-        localStorage.setItem('userType', 'supplier'); // Set flag for supplier
-        localStorage.setItem('isClient', JSON.stringify(false));
-        
-        // Route to supplier specific dashboard
-        this.router.navigate(['/app/supplier-login/dashboard']);
-        return;
-      }
+      const credentials = {
+        email: values.email,
+        password: values.password
+      };
 
-      // 2. Admin Hardcoded Login Check
-      if (values.email === 'admin@optionmatrix.com' && values.password === 'admin@123') {
-        let userToken = btoa(encodeURIComponent(values.email));
-        localStorage.setItem('userToken', userToken);
-        localStorage.setItem('userType', 'admin'); // Set flag for admin
-        localStorage.setItem('isClient', JSON.stringify(false));
-        
-        // Route to Admin/Normal User Dashboard
-        this.router.navigate(['/app/sqm/sqmd']);
-        return;
-      }
+      this.api.login(credentials).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            // 1. Save Token and User Data
+            localStorage.setItem('jwt_token', res.token);
+            sessionStorage.setItem('jwt_token', res.token);
+            localStorage.setItem('UserName', res.userData.userName);
+            localStorage.setItem('UserId', res.userData.userId);
+            localStorage.setItem('RoleId', res.userData.roleId);
 
-      // 3. Dynamic User Data Loop (for Clients or other users in data array)
-      for (let i = 0; i < this.data.length; i++) {
-        if (values.email === this.data[i].email && values.password === this.data[i].password) {
-          let userToken = btoa(encodeURIComponent(this.data[i]['email']));
-          localStorage.setItem('userToken', userToken);
-          localStorage.setItem('userId', JSON.stringify(this.data[i].userId));
-          
-          if (this.data[i]['isClient']) {
-            localStorage.setItem('userType', 'client');
-            localStorage.setItem('isClient', JSON.stringify(true));
-            this.router.navigate(['/app/client-login']);
-          } else {
-            localStorage.setItem('userType', 'standard');
-            localStorage.setItem('isClient', JSON.stringify(false));
-            
-            // Route standard users to SQM dashboard as well
+            // 2. Show Success Toast
+            this.alertService.createAlert('Login Successful', 1);
+
+            // 3. Navigate to your app dashboard
             this.router.navigate(['/app/sqm/sqmd']);
+          } else {
+            this.alertService.createAlert(res.message || 'Invalid Email or Password', 0);
           }
-          return;
+        },
+        error: (err) => {
+          console.error(err);
+          this.alertService.createAlert(err.error?.message || 'Invalid Email or Password', 0);
         }
-      }
-
-      // If no conditions are met
-      alert("Wrong E-mail Id or Password");
+      });
     }
-  }
-
-  openRegistrationDialog() {
-    this.dialog.open(LoginComponent, {
-      height: 'auto',
-      width: '600px'
-    });
-  }
-
-  ngAfterViewInit() {
-    this.settings.loadingSpinner = false;
-    localStorage.setItem('userType', '');
   }
 }

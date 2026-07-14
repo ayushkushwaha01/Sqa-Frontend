@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AddStateComponent } from './add-state/add-state.component';
 import { MatDialog } from '@angular/material/dialog';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { AlertService } from 'src/app/shared/alert.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   selector: 'app-state-master',
@@ -9,57 +14,147 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class StateMasterComponent implements OnInit {
 
-
-
-  mockdata: any[] = [];
-
+  statesList: any[] = [];
+  filteredStates: any[] = [];
   showFilters: boolean = false;
+  filterForm: FormGroup;
 
+  Status = [
+    { name: 'Active', value: true },
+    { name: 'Inactive', value: false }
+  ];
 
+  constructor(
+    private dialog: MatDialog,
+    private setupservice: SetupService,
+    private fb: FormBuilder,
+    private alertService: AlertService
+  ) {
+    this.filterForm = this.fb.group({
+      keyword: [''],
+      status: ['']
+    });
+  }
+
+  ngOnInit(): void {
+    this.getAllStates();
+  }
 
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
+    if (!this.showFilters) {
+      this.clearFilter();
+    }
   }
 
-  constructor(private dialog: MatDialog) { }
-
-  ngOnInit(): void {
-    this.generateMockData();
-  }
-
-  generateMockData() {
-    this.mockdata = [
-      {
-        State: 'Telangana',
-        Status: 'Active'
+  getAllStates() {
+    this.setupservice.getAllStates().subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.statesList = res.data;
+          this.filteredStates = [...this.statesList];
+        } else {
+          this.alertService.createAlert(res.message || 'Failed to load states');
+        }
       },
-      {
-        State: 'Andhra Pradesh',
-        Status: 'Inactive'
-      },
-      {
-        State: 'Karnataka',
-        Status: 'Active'
-      },
-      {
-        State: 'Tamil Nadu',
-        Status: 'Inactive'
-      },
-      {
-        State: 'Maharashtra',
-        Status: 'Active'
+      error: (err) => {
+        console.error('Error fetching states', err);
+        this.alertService.createAlert(err.error?.message || 'An error occurred while fetching states.');
       }
-    ];
+    });
   }
 
-  addSupplier(data: any) {
-    this.dialog.open(AddStateComponent, {
+  deleteState(item: any) {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      autoFocus: false,
+      data: { title: 'Delete Confirmation', content: `Are you sure you want to delete "${item.stateName}"?`, isConfirmation: true }
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.setupservice.deleteState(item).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert(res.message || 'State deleted successfully', 1);
+              this.getAllStates();
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to delete state', 0);
+            }
+          },
+          error: (err) => {
+            console.error('Error deleting state', err);
+            this.alertService.createAlert(err.error?.message || 'An error occurred while deleting the state.', 0);
+          }
+        });
+      }
+    });
+  }
+
+  toggleStatus(item: any) {
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      autoFocus: false,
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.setupservice.toggleStatus(item).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              item.isActive = !item.isActive;
+              this.alertService.createAlert(res.message || 'Status updated successfully', 1);
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to update status', 0);
+            }
+          },
+          error: (err) => {
+            console.error('Error toggling status', err);
+            this.alertService.createAlert(err.error?.message || 'An error occurred while updating the status.', 0);
+          }
+        });
+      }
+    });
+  }
+
+  applyFilter() {
+    const keyword = this.filterForm.get('keyword')?.value?.toLowerCase().trim() || '';
+    const status = this.filterForm.get('status')?.value;
+
+    this.filteredStates = this.statesList.filter(item => {
+      const matchesKeyword = item.stateName?.toLowerCase().includes(keyword);
+
+      let matchesStatus = true;
+      if (status === true || status === false) {
+        matchesStatus = item.isActive === status;
+      }
+
+      return matchesKeyword && matchesStatus;
+    });
+  }
+
+  clearFilter() {
+    this.filterForm.reset({
+      keyword: '',
+      status: ''
+    });
+    this.filteredStates = [...this.statesList];
+  }
+
+  addState(data: any) {
+    const dialogRef = this.dialog.open(AddStateComponent, {
       width: '600px',
       height: 'auto',
       data: data
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.getAllStates();
+      }
+    });
   }
-
-
-
 }

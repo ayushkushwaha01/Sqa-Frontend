@@ -1,72 +1,171 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { AddDepartmentComponent } from 'src/app/pages/admin/masterdata/m-departments/add-department/add-department.component';
-import { AddresparasComponent } from 'src/app/pages/testing/masterdata/respareas/addresparas/addresparas.component';
-import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
-import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { AddAgencyAuditComponent } from '../../audit-config/a-agencies/add-agency-audit/add-agency-audit.component';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusConfirmationDialogComponent } from 'src/app/pages/testing/testing-projects/add-projects/status-confirmation-dialog/status-confirmation-dialog.component';
+import { DepartmentService } from './department.service';
 
 @Component({
   selector: 'app-mdata-depts',
   templateUrl: './mdata-depts.component.html',
   styleUrls: ['./mdata-depts.component.scss']
 })
-export class MdataDeptsComponent {
+export class MdataDeptsComponent implements OnInit {
+  // Data Lists
+  allDepartments: any[] = []; // Holds the original unfiltered data
+  filteredDepartments: any[] = []; // Holds data after applying filters
+  tableList: any[] = []; // Holds data for the current page
+  uniqueDeptCodes: string[] = []; // For the Department Code dropdown
 
-  deleteConfirmation(item: any) {
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
-      data: { ProjectId: item.ProjectId, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?' }
+  filterToggle: boolean = false;
+  
+  // Filter Models
+  filterKeyword: string = '';
+  filterStatus: boolean | null = null;
+  filterDeptCodes: string[] = [];
+
+  // Pagination Variables
+  totalSize: number = 0;
+  currentPage: number = 0;
+  pageSize: number = 5;
+
+  // Example permissions
+  canCreate = true;
+  canUpdate = true;
+  canDelete = true;
+
+  constructor(
+    private dialog: MatDialog,
+    private departmentService: DepartmentService
+  ) { }
+
+  ngOnInit(): void {
+    this.getDepartments();
+  }
+
+  getDepartments() {
+    this.departmentService.getAllDepartments().subscribe((response: any) => {
+      if (response && response.success) {
+        this.allDepartments = response.data;
+        
+        // Extract unique department codes for the filter dropdown
+        this.uniqueDeptCodes = [...new Set(this.allDepartments.map(item => item.departmentCode))].filter(Boolean);
+        
+        // Apply filters initially to load the grid and pagination
+        this.applyFilters();
+      }
+    });
+  }
+
+  // --- FILTER LOGIC ---
+  applyFilters() {
+    this.filteredDepartments = this.allDepartments.filter(item => {
+      // 1. Keyword Filter (Checks Name, Code, and Head)
+      let matchesKeyword = true;
+      if (this.filterKeyword) {
+        const keyword = this.filterKeyword.toLowerCase();
+        matchesKeyword = (
+          (item.departmentName?.toLowerCase().includes(keyword)) ||
+          (item.departmentCode?.toLowerCase().includes(keyword)) ||
+          (item.departmentHead?.toLowerCase().includes(keyword))
+        );
+      }
+
+      // 2. Status Filter
+      let matchesStatus = true;
+      if (this.filterStatus !== null && this.filterStatus !== undefined) {
+        matchesStatus = item.isActive === this.filterStatus;
+      }
+
+      // 3. Department Code Filter (Multiple selection)
+      let matchesCode = true;
+      if (this.filterDeptCodes && this.filterDeptCodes.length > 0) {
+        matchesCode = this.filterDeptCodes.includes(item.departmentCode);
+      }
+
+      return matchesKeyword && matchesStatus && matchesCode;
     });
 
+    // Reset pagination to first page after search
+    this.totalSize = this.filteredDepartments.length;
+    this.currentPage = 0; 
+    this.updatePagination();
   }
-  canCreate: any;
 
-  filterToggle: any;
-  totalSize: any;
-  currentPage: any;
-  pageSize: any;
+  clearFilters() {
+    this.filterKeyword = '';
+    this.filterStatus = null;
+    this.filterDeptCodes = [];
+    this.applyFilters();
+  }
+
+  // --- PAGINATION LOGIC ---
+  handlePage(event: any) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePagination();
+  }
+
+  updatePagination() {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.tableList = this.filteredDepartments.slice(startIndex, endIndex);
+  }
+
+  // --- CRUD OPERATIONS ---
+  addmodule(item: any) {
+    let dialogRef = this.dialog.open(AddAgencyAuditComponent, {
+      data: item, 
+      height: 'auto',
+      width: '600px',
+    });
+    
+    dialogRef.afterClosed().subscribe((res: any) => {
+      if (res === 'success') {
+        this.getDepartments();
+      }
+    });
+  }
 
   Confirmation(item: any) {
     let dialogRef = this.dialog.open(StatusConfirmationDialogComponent, {
       width: 'auto',
-      data: { TractorStatusId: item.TractorStatusId, title: 'Change Status', content: 'Are you sure you want to Change the Status ?' }
+      data: { title: 'Change Status', content: `Are you sure you want to change the status of ${item.departmentName}?` }
     });
 
-  }
-  constructor(private router: Router, private dialog: MatDialog) { }
-
-
-  tableList = [
-    { agency: 'HD', code: '=', head:"Tejaswi", status: true },
-    { agency: 'Test', code: 'test',head:"Roshan", status: true },
-    { agency: 'Manufacture', code: 'mfg', head:"Raj", status: true },
-    { agency: 'HR Department', code: 'HR100', head:"Sai",status: true },
-    { agency: 'IT Department', code: 'IT-DEPT',head:"Karthik", status: true },
-    { agency: 'Painting Department', code: 'PD',head:"Ravi", status: false },
-    { agency: 'Component-Shop', code: 'C-Shop',head:"Nikhil", status: true },
-    { agency: 'Assembly line', code: 'A-Line',head:"Hritik", status: false },
-    { agency: 'Paint Shop', code: 'P-Shop',head:"Shiv", status: true },
-    { agency: 'Body Shop', code: 'BS',head:"Chandana", status: false }
-  ]
-
-  public addmodule(id: any) {
-    console.log('jkhksbdjk');
-    let dialogRef = this.dialog.open(AddAgencyAuditComponent, {
-      data: id,
-      height: 'auto',
-      width: '600px',
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        const payload = { departmentId: item.departmentId };
+        this.departmentService.toggleDepartmentStatus(payload).subscribe((apiRes: any) => {
+          if (apiRes.success) {
+            this.getDepartments(); 
+          }
+        });
+      }
     });
-    dialogRef.afterClosed().subscribe((data: any) => { });
   }
 
-  addcheckpoint(item) {
-    this.router.navigate(['/app/setup/subjective/overview']);
+  deleteConfirmation(item: any) {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: 'auto',
+      data: { 
+        title: 'Delete Confirmation', 
+        content: `Are you sure you want to delete the department: ${item.departmentName}?` 
+      }
+    });
 
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) { 
+        const payload = { departmentId: item.departmentId, deletedBy: 1 };
+        
+        this.departmentService.deleteDepartment(payload).subscribe((apiRes: any) => {
+          if (apiRes.success) {
+            this.getDepartments(); 
+          } else {
+            alert(apiRes.message || "Failed to delete department.");
+          }
+        });
+      }
+    });
   }
-
-
-
 }

@@ -1,56 +1,74 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
-
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ProcessAuditService } from '../../../process-audit.service';
+ 
 @Component({
   selector: 'question-pop.component',
   templateUrl: './question-pop.component.html',
   styleUrls: ['./question-pop.component.scss']
 })
 
-
-export class QuestionPopComponent implements OnInit {
-
+export class AddQuestionPopComponent implements OnInit {
+  categoryId: number = 0;
+  checklistId: number = 0;
   isEditMode: boolean = false;
-  questionText: string = '';
-  isMandatory: boolean = false;
-  isPriority: boolean = false;
+  questionForm: FormGroup;
 
   constructor(
-    public dialogRef: MatDialogRef<QuestionPopComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+    private fb: FormBuilder,
+    public dialogRef: MatDialogRef<AddQuestionPopComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private api: ProcessAuditService
+  ) {
+    // 1. Initialize the Reactive Form
+    this.questionForm = this.fb.group({
+      questionText: ['', Validators.required],
+      guidelineText: [''],
+      isMandatory: [false],
+      isPriority: [false]
+    });
+  }
 
   ngOnInit(): void {
-    // Check if we passed the edit flag from the parent
-    this.isEditMode = this.data?.isEdit;
+    this.categoryId = this.data.categoryId; // FK always passed in
 
-    // If editing, populate the fields with the existing item data
-    if (this.isEditMode && this.data.item) {
-      this.questionText = this.data.item.question;
-      this.isMandatory = this.data.item.mandatory === 'Yes';
+    if (this.data.item) {
+      this.isEditMode = true;
+      this.checklistId = this.data.item.checklistId;
+      
+      // 2. Patch values if in Edit Mode
+      this.questionForm.patchValue({
+        questionText: this.data.item.question,
+        guidelineText: this.data.item.guideline,
+        isMandatory: this.data.item.isMandatory,
+        isPriority: this.data.item.isPriority
+      });
+    }
+  }
 
-      // Your mock data uses 'High' for priority, but the checkbox expects a boolean
-      this.isPriority = this.data.item.priority === 'High' || this.data.item.priority === true;
+  onSave(): void {
+    if (this.questionForm.valid) {
+      const payload = {
+        checklistId: this.checklistId,
+        processCategoryId: this.categoryId, 
+        question: this.questionForm.value.questionText,
+        guideline: this.questionForm.value.guidelineText,
+        isMandatory: this.questionForm.value.isMandatory,
+        isPriority: this.questionForm.value.isPriority
+      };
+
+      this.api.upsertChecklist(payload).subscribe((res: any) => {
+        if(res.success) {
+          this.dialogRef.close(true);
+        }
+      });
+    } else {
+      this.questionForm.markAllAsTouched();
     }
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
-
-  onSave(): void {
-    const result = {
-      question: this.questionText,
-      mandatory: this.isMandatory ? 'Yes' : 'No',
-      priority: this.isPriority ? 'High' : 'Normal'
-    };
-
-    this.dialogRef.close(result);
-  }
-}  
+}

@@ -8,6 +8,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { AddRolesComponent } from './add-roles/add-roles.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { ManageUsersService } from '../manage-users.service'; // Ensure this path is correct
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 
 @Component({
   selector: 'app-roles',
@@ -115,7 +116,8 @@ export class RolesComponent implements OnInit, AfterViewInit {
   // 4. DELETE
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
+      width: '360px',
+      panelClass: 'no-padding-dialog',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
     
@@ -139,17 +141,25 @@ export class RolesComponent implements OnInit, AfterViewInit {
   toggleStatus(item: any) {
     if(this.isActionDisabled(item.roleName)) return; 
 
-    if(confirm("Are you sure you want to change this status?")) {
-      this.api.toggleStatus(item).subscribe({
-        next: (res: any) => {
-          if (res.success) {
-            item.isActive = !item.isActive;
-            this.alertService.createAlert(res.message, 1);
-          } else {
-            this.alertService.createAlert(res.message, 0);
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.toggleStatus(item).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              item.isActive = !item.isActive;
+              this.alertService.createAlert(res.message, 1);
+            } else {
+              this.alertService.createAlert(res.message, 0);
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    });
   }
 }

@@ -1,156 +1,100 @@
-<div class="custom-layout-wrapper" >
-
+<div class="custom-layout-wrapper">
   <div *ngIf="isMasterRoute()" style="width:100%">
-
+    
     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px;">
-
-      <button
-        mat-raised-button
+      <button mat-raised-button
         style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
         (click)="toggleFilters()">
-
-        <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">
-          filter_list
-        </mat-icon>
-
+        <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">filter_list</mat-icon>
         Filter
       </button>
 
-      <button
-        mat-raised-button
+      <button mat-raised-button
         style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
         (click)="addCommodity(null)">
-
-        <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">
-          add
-        </mat-icon>
-
+        <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">add</mat-icon>
         Add Commodity
       </button>
-
     </div>
 
-    <div class="filter-wrapper" *ngIf="showFilters">
-      <mat-card class="filter-card">
-        <mat-card-content>
-
-          <div class="filter-row">
-
-         <div class="filter-group">
-  <label class="filter-label mb-0">Keyword :</label>
-  <input type="text" [(ngModel)]="selectedKeyword" placeholder="Enter Keyword" class="custom-mat-input">
-</div>
-
-            <div class="filter-group">
-              <label class="filter-label mb-0">Status :</label>
-
-              <mat-select
-                [(ngModel)]="selectedStatus"
-                placeholder="Select Status"
-                class="custom-mat-select">
-
-                <mat-option value="Active">Active</mat-option>
-                <mat-option value="Inactive">Inactive</mat-option>
-
-              </mat-select>
+    <div class="row" *ngIf="showFilters" style="margin-left: 5px; margin-bottom: 15px; width: 100%;">
+      <div class="col-sm-12 flex-p w-100">
+        <mat-card class="filter" style="box-shadow: 5px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 5px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 1px rgba(0, 0, 0, 0.12) !important;">
+          <mat-card-content>
+            <div class="row col-sm-12" style="align-items: center;">
+              <div class="col-sm-4 row me-2" style="align-items: center;">
+                <div class="col-sm-3 newMarginClass"><b>Keyword:</b></div>
+                <div class="col-sm-9">
+                  <input type="text" [(ngModel)]="selectedKeyword" class="form-control"
+                    placeholder="Search by Name, Code...">
+                </div>
+              </div>
+              <div class="col-sm-4 row" style="align-items: center;">
+                <div class="col-sm-3 newMarginClass"><b>Status:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus">
+                    <mat-option value="Active">Active</mat-option>
+                    <mat-option value="Inactive">Inactive</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 mt-2" style="margin-left: -25px;">
+                <button mat-raised-button class="pull-right btn-default margin-right-10"
+                  (click)="onClear()">
+                  <mat-icon>settings_backup_restore</mat-icon> Clear
+                </button>
+                <button mat-raised-button color="primary" class="pull-right margin-right-10"
+                  (click)="onGo()">
+                  <mat-icon>search</mat-icon> Search
+                </button>
+              </div>
             </div>
-
-            <div class="button-group">
-
-              <button mat-raised-button class="btn-go" (click)="onGo()">
-                <mat-icon>search</mat-icon>
-                Go
-              </button>
-
-              <button mat-raised-button class="btn-clear" (click)="onClear()">
-                <mat-icon>settings_backup_restore</mat-icon>
-                Clear
-              </button>
-
-            </div>
-
-          </div>
-
-        </mat-card-content>
-      </mat-card>
+          </mat-card-content>
+        </mat-card>
+      </div>
     </div>
 
     <div class="table-responsive bg-white shadow-sm">
-
       <table class="custom-grid-table">
-
         <thead>
           <tr>
             <th>Commodity Name</th>
-            <th class="text-center" >Targets</th>
-              <th class="text-center" >Commodity Code</th>
+            <th class="text-center">Targets</th>
+            <th class="text-center">Commodity Code</th>
             <th class="text-center" style="width: 150px;">Status</th>
             <th class="text-center" style="width: 150px;">Actions</th>
           </tr>
         </thead>
-
         <tbody>
-
           <tr *ngFor="let item of tableData">
-
             <td>{{ item.name }}</td>
-            <td style="cursor: pointer; color:blue" routerLink="inner-grid" class="text-center">{{item.target}}</td>
-            <td  class="text-center">{{ item.code }}</td>
-            <!-- <td class="text-center">
-              <a
-                routerLink="inner-grid"
-                style="color: blue; cursor: pointer; text-decoration: underline;">
-                {{ item.code }}
-              </a>
-            </td> -->
-
             <td class="text-center">
-              <a
-                class="status-link"
-                [ngClass]="item.status === 'Active' ? 'text-blue' : 'text-red'"
-                matTooltip="Click to Change Status">
-
-                {{ item.status }}
-
+              <a routerLink="inner-grid" [queryParams]="{ id: item.commodityId }" style="cursor: pointer; color: blue; text-decoration: underline;">
+                {{ item.targetCount }}
               </a>
             </td>
-
-            <td class="text-center manage-icons">
-
-              <mat-icon
-                class="edit-icon"
-                matTooltip="Edit"
-                (click)="addCommodity(1)">
-                edit
-              </mat-icon>
-
-              <mat-icon
-                class="delete-icon"
-                matTooltip="Delete">
-                delete
-              </mat-icon>
-
+            <td class="text-center">{{ item.code }}</td>
+            <td class="text-center">
+              <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'" matTooltip="Click to Change Status" (click)="toggleStatus(item)" style="cursor: pointer;">
+                {{ item.isActive ? 'Active' : 'Inactive' }}
+              </a>
             </td>
-
+            <td class="text-center manage-icons">
+              <mat-icon class="edit-icon" matTooltip="Edit" (click)="addCommodity(item)" style="cursor: pointer; color: blue; margin-right: 8px;">edit</mat-icon>
+              <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteCommodity(item)" style="cursor: pointer; color: red;">delete</mat-icon>
+            </td>
           </tr>
-
+          <tr *ngIf="tableData.length === 0">
+            <td colspan="5" class="text-center text-muted" style="padding: 15px;">No Commodities Found</td>
+          </tr>
         </tbody>
-
       </table>
 
-      <mat-paginator
-        [length]="tableData.length"
-        [pageSize]="4"
-        [pageSizeOptions]="[4, 10, 25, 50]"
-        showFirstLastButtons>
-      </mat-paginator>
-
+      <mat-paginator [length]="tableData.length" [pageSize]="10" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
     </div>
-
   </div>
 
   <div class="mt-4">
     <router-outlet></router-outlet>
   </div>
-
 </div>

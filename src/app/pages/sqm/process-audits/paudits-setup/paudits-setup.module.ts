@@ -11,11 +11,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ViewGuidelineComponent } from './view-guideline/view-guideline.component';
 
 
 @NgModule({
   declarations: [
     // declare any other components under paudits-setup here
+  
+    ViewGuidelineComponent
   ],
   imports: [
     CommonModule,
@@ -30,6 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCardModule,
     MatSelectModule,
     MatTooltipModule,
+    MatIconModule
   ]
 })
 export class PauditsSetupModule { }
