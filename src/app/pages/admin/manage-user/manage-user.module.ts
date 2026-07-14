@@ -22,6 +22,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { JobCodesPopComponent } from './users/job-codes-pop/job-codes-pop.component';
+import { SupplierComponent } from './supplier/supplier.component';
+import { AddSupplierComponent } from './supplier/add-supplier/add-supplier.component';
+import { SupplierResetPasswordComponent } from './supplier/supplier-reset-password/supplier-reset-password.component';
 
 
 
@@ -31,6 +34,7 @@ export const routes = [
   { path: 'users', component: UsersComponent, data: { breadcrumb: 'Manage Users', description: 'This screen covers comprehensive list of users managed across the application. User profiles can be created, deleted or modified. ' } },
   { path: 'users/proj-perm', component: ProjPermComponent },
   { path: 'users/spl-permissions', component: SplPermissionsComponent },
+  {path:'supplier', component: SupplierComponent, data: { breadcrumb: 'Manage Supplier', description: 'This screen covers comprehensive list of users managed across the application. User profiles can be created, deleted or modified. ' } },
   { path: 'roles', component: RolesComponent, data: { breadcrumb: 'Manage Roles', description: 'This screen covers comprehensive list of users managed across the application. User profiles can be created, deleted or modified. ' } },
   { path: 'roles/permission', component: PermissionComponent, data: { breadcrumb: 'Permissions', description: 'This page is used to Permission' } }
 
@@ -50,7 +54,10 @@ export const routes = [
     SplPermissionsComponent,
     UserAudittypeComponent,
     ManagerDialogComponent,
-    JobCodesPopComponent
+    JobCodesPopComponent,
+    SupplierComponent,
+    AddSupplierComponent,
+    SupplierResetPasswordComponent
 
   ],
   imports: [

@@ -7,12 +7,14 @@ import { environment } from 'src/environments/environment';
 })
 export class ManageUsersService {
 
-// Base API URL
+  // Base API URL
   apiUrl = environment.apiUrl; 
 
   constructor(private http: HttpClient) { }
 
- //Roles realted API endpoints by ayush
+  // ==========================================
+  // ---------- ROLES API ENDPOINTS -----------
+  // ==========================================
   
   getAllRoles() {
     return this.http.get(this.apiUrl + 'RoleMasters/get-all');
@@ -58,11 +60,56 @@ export class ManageUsersService {
     return this.http.post(this.apiUrl + 'Users/reset-password', data);
   }
 
+  // ==========================================
+  // ---------- AUTHENTICATION ----------------
+  // ==========================================
    
-login(credentials: any) {
-  return this.http.post(this.apiUrl + 'Auth/login', credentials);
-}
+  login(credentials: any) {
+    return this.http.post(this.apiUrl + 'Auth/login', credentials);
+  }
 
+  forgotPassword(email: string) {
+    return this.http.post(this.apiUrl + 'Auth/forgot-password', { email: email });
+  }
 
+  resetPasswordWithToken(data: any) {
+    return this.http.post(this.apiUrl + 'Auth/reset-password-with-token', data);
+  }
+
+  // ==========================================
+  // ---------- SUPPLIERS API ENDPOINTS -------
+  // ==========================================
+
+  getSuppliers() { 
+    return this.http.get(this.apiUrl + 'Suppliers/get-all'); 
+  }
+  
+  upsertSupplier(data: any) { 
+    return this.http.post(this.apiUrl + 'Suppliers/upsert', data); 
+  }
+  
+  toggleSupplierStatus(id: number) { 
+    return this.http.post(this.apiUrl + `Suppliers/toggle-status/${id}`, {}); 
+  }
+  
+  deleteSupplier(id: number) { 
+    return this.http.post(this.apiUrl + `Suppliers/delete/${id}`, {}); 
+  }
+  
+  resetSupplierPassword(data: any) { 
+    return this.http.post(this.apiUrl + 'Suppliers/reset-password', data); 
+  }
+
+  // ==========================================
+  // ---------- LOCATION API ENDPOINTS --------
+  // ==========================================
+
+  getStates() { 
+    return this.http.get(this.apiUrl + 'StateMasters/get-all-states'); 
+  }
+  
+  getCities() { 
+    return this.http.get(this.apiUrl + 'CityMasters/get-all-cities'); 
+  }
 
 }

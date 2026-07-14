@@ -1,0 +1,119 @@
+<div fxLayout="row wrap" #resizedDiv>
+    <div class="flex-p w-100">
+
+        <div class="row" style="margin-bottom:14px;">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"></div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                <div class="w-100 flex-p">
+                    <button mat-raised-button color="primary" class="pull-right" (click)="openAddSupplier()">
+                        <mat-icon>add_business</mat-icon> Add Supplier
+                    </button>
+                    <button mat-raised-button style="background-color: black; color:white;"
+                        class="pull-right filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
+                        <mat-icon>filter_list</mat-icon> Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-left: 5px;">
+            <div fxFlex="100" class="flex-p w-100">
+                <form [formGroup]="filterForm">
+                    <mat-card class="filter">
+                        <mat-card-content>
+                            <div class="row col-sm-12">
+                                <div class="col-sm-4 row me-2">
+                                    <div class="col-sm-3 newMarginClass"><b>Keyword:</b></div>
+                                    <div class="col-sm-9">
+                                        <input type="text" formControlName="Keyword" class="form-control"
+                                            placeholder="Search by Name, Email...">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="col-sm-3 newMarginClass"><b>Status:</b></div>
+                                    <div class="col-sm-8">
+                                        <mat-select placeholder="Select Status" class="form-control"
+                                            formControlName="Status">
+                                            <mat-option *ngFor="let option of Status"
+                                                [value]="option.value">{{option.name}}</mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 mt-2" style="margin-left: -25px;">
+                                    <button mat-raised-button class="pull-right btn-default margin-right-10"
+                                        (click)="clearFilter()">
+                                        <mat-icon>settings_backup_restore</mat-icon> Clear
+                                    </button>
+                                    <button mat-raised-button color="primary" class="pull-right margin-right-10"
+                                        (click)="filter()">
+                                        <mat-icon>search</mat-icon> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-sm-12" style="margin-left: 13px;">
+            <div id="grid-table-container" class="table-responsive" style="width: 101%; margin-left: -18px;">
+                <table class="table table-bordered table-hover">
+                    <thead class="tbl-head">
+                        <tr class="tr-grid-header">
+                            <th class="text-center">Actions</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Password</th>
+                            <th>User Name</th>
+                            <th>Supplier Name</th>
+                            <th>Contact Person</th>
+                            <th>State</th>
+                            <th>City</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       <!-- Inside your existing <tbody> -->
+<tr *ngFor="let item of dataSource.connect() | async">
+    <td style="white-space:nowrap" class="text-center">
+        <a matTooltip="Edit Supplier" style="margin-right: 10px; cursor: pointer;" (click)="openAddSupplier(item)">
+            <i class="fa fa-edit text-primary"></i>
+        </a>
+        <a matTooltip="Delete Supplier" style="cursor:pointer;" (click)="deleteSupplier(item)">
+            <i class="fa fa-trash text-danger"></i>
+        </a>
+    </td>
+    <td class="text-center">
+        <span (click)="toggleStatus(item)" [style.color]="item.isActive ? 'green' : 'red'" style="cursor:pointer; font-weight: bold;">
+            {{ item.isActive ? 'Active' : 'Inactive' }}
+        </span>
+    </td>
+    <td class="text-center">
+        <a style="cursor: pointer; color: cornflowerblue;" (click)="resetPassword(item)">
+            <mat-icon matTooltip="Reset Password">autorenew</mat-icon>
+        </a>
+    </td>
+    <td>{{item.userName}}</td>
+    <td>{{item.supplierName}}</td>
+    <td>{{item.contactPerson}}</td>
+    <!-- Shows the Joined Names from the API -->
+    <td>{{item.stateName}}</td> 
+    <td>{{item.cityName}}</td>
+    <td>{{item.address}}</td>
+    <td>{{item.email}}</td>
+    <td>{{item.phone}}</td>
+</tr>
+
+                        <tr *ngIf="dataSource.data.length === 0">
+                            <td colspan="11" class="text-center">No records found</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"
+                    showFirstLastButtons></mat-paginator>
+            </div>
+        </div>
+    </div>
+</div>
