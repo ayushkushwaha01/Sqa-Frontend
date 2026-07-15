@@ -110,12 +110,13 @@
 
                         <mat-select class="form-control" placeholder="Select Commodity" formControlName="CommodityId">
 
-                            <mat-option [value]="1">Casting</mat-option>
-                            <mat-option [value]="2">Forging</mat-option>
-                            <mat-option [value]="3">Machining</mat-option>
+                            <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
+
+                                {{ item.name }}
+
+                            </mat-option>
 
                         </mat-select>
-
 
                     </div>
 
