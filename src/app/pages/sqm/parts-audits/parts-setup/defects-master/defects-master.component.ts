@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { PartsFamilyPopComponent } from './parts-family-pop/parts-family-pop.component';
 import { AddDefectsPopComponent } from './add-defects-pop/add-defects-pop.component';
+ import { MatTableDataSource } from '@angular/material/table';
+import { SetupService } from 'src/app/pages/setup/setup.service';
 
 @Component({
   selector: 'app-defects-master',
@@ -10,75 +11,68 @@ import { AddDefectsPopComponent } from './add-defects-pop/add-defects-pop.compon
 })
 export class DefectsMasterComponent implements OnInit {
 
-  mockdata: any[] = [];
+  dataSource = new MatTableDataSource<any>([]);
+  allData: any[] = [];
+  showFilters: boolean = false; 
+  keyword: string = '';
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog, private api: SetupService) { }
 
   ngOnInit(): void {
-    this.generateMockData();
+    this.loadData();
   }
 
-  generateMockData() {
-    this.mockdata = [
-      { defectname: 'Oil Leak', PartFamily: '5/10', PartNumber: 'ENG-PN-001', BatchNumber: 'BCH-2026-001', BatchDate: '01/06/2026' },
-      { defectname: 'Gear Slippage', PartFamily: '4/10', PartNumber: 'TRN-PN-014', BatchNumber: 'BCH-2026-002', BatchDate: '03/06/2026' },
-      { defectname: 'Short Circuit', PartFamily: '6/10', PartNumber: 'ELE-PN-022', BatchNumber: 'BCH-2026-003', BatchDate: '05/06/2026' },
-      { defectname: 'Paint Peeling', PartFamily: '8/10', PartNumber: 'BDP-PN-009', BatchNumber: 'BCH-2026-004', BatchDate: '08/06/2026' },
-      { defectname: 'Torn Upholstery', PartFamily: '7/10', PartNumber: 'INT-PN-031', BatchNumber: 'BCH-2026-005', BatchDate: '10/06/2026' },
-      { defectname: 'Corrosion', PartFamily: '8/10', PartNumber: 'CHS-PN-007', BatchNumber: 'BCH-2026-006', BatchDate: '12/06/2026' },
-      { defectname: 'Worn Pads', PartFamily: '4/10', PartNumber: 'BRK-PN-018', BatchNumber: 'BCH-2026-007', BatchDate: '14/06/2026' },
-      { defectname: 'Overheating', PartFamily: '7/10', PartNumber: 'ENG-PN-002', BatchNumber: 'BCH-2026-008', BatchDate: '16/06/2026' }
-    ];
-  }
-
-  openEditDialog(item: any) {
-    console.log('Edit clicked for:', item);
-    // Add logic here to open the popup with existing data
-  }
-
-  deleteConfirmation(item: any) {
-    console.log('Delete clicked for:', item);
-    // Add delete logic here
-  }
-
-  archiveRecord(item: any) {
-    console.log('Archive clicked for:', item);
-    // Add archive logic here
-  }
-
-
-
-  openpartspop(data: any) {
-    this.dialog.open(PartsFamilyPopComponent, {
-      width: '600px',
-      height: 'auto',
-      data: data
+  loadData() {
+    this.api.getDefects().subscribe((res: any) => {
+      if (res.success) {
+        this.allData = res.data;
+        this.dataSource.data = this.allData;
+      }
     });
   }
 
-
-
-
-showFilters: boolean = false; 
-
-
-
-    toggleFilters(): void {
+  toggleFilters(): void {
     this.showFilters = !this.showFilters;
   }
 
+  filterData() {
+    const key = this.keyword.toLowerCase();
+    this.dataSource.data = this.allData.filter(x => 
+      x.defectName.toLowerCase().includes(key)
+    );
+  }
 
+  clearFilter() {
+    this.keyword = '';
+    this.dataSource.data = this.allData;
+  }
 
-    adddefects(data: any) {
-    this.dialog.open(AddDefectsPopComponent, {
+  adddefects(data: any) {
+    let dialogRef = this.dialog.open(AddDefectsPopComponent, {
       width: '600px',
       height: 'auto',
-      data: data
+      data: data,
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadData(); // Refresh grid on save
+      }
     });
   }
 
+  openEditDialog(item: any) {
+    this.adddefects(item);
+  }
 
-
-
-
+  deleteConfirmation(item: any) {
+    if(confirm('Are you sure you want to delete this defect?')) {
+      this.api.deleteDefect({ defectId: item.defectId }).subscribe((res: any) => {
+        if (res.success) {
+          this.loadData(); // Refresh grid after delete
+        }
+      });
+    }
+  }
 }

@@ -67,6 +67,7 @@
         <tr>
           <th style="width:30%">Part Family Name</th>
           <th class="text-center" style="width: 200px;">Part Code</th>
+          <th class="text-center" style="width: 200px;">Defects</th>
           <th class="text-center" style="width: 150px;">Status</th>
           <th class="text-center" style="width: 150px;">Parameters</th>
           <!-- <th class="text-center" style="width: 150px;"> Parameter Template</th> -->
@@ -79,6 +80,7 @@
           <td>{{ item.partFamilyName }}</td>
 
           <td>{{ item.partFamilyCode }}</td>
+          <td>Defects</td>
 
           <td class="text-center">
             <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"

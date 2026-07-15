@@ -127,4 +127,10 @@ export class SetupService {
   changeStatusBatchMaster(data: any) {
     return this.http.post(this.apiUrl + 'BatchMaster/toggle-status', data);
   }
+
+  //Defects Master
+
+  getDefects() { return this.http.get(this.apiUrl + 'Defects/get-all'); }
+  upsertDefect(data: any) { return this.http.post(this.apiUrl + 'Defects/upsert', data); }
+  deleteDefect(data: any) { return this.http.post(this.apiUrl + 'Defects/delete', data); }
 }
