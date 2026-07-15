@@ -1,122 +1,76 @@
 <div class="custom-layout-wrapper">
-
-<div class="toolbar-row mb-3 d-flex justify-content-end" style="width: 100%;">
-
-
-    <!-- <button mat-raised-button
-      style="background-color: #1a1a1a; color: white; padding: 10px 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
-      (click)="toggleFilters()">
-      <mat-icon style="font-size: 18px; height: 18px; width: 18px;  margin-top:4px">filter_list</mat-icon>
+  <div class="toolbar-row mb-3 d-flex justify-content-end" style="width: 100%;">
+    
+    <button mat-raised-button style="background-color: #1a1a1a; color: white; padding: 10px 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;" (click)="toggleFilters()">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">filter_list</mat-icon>
       Filter
-    </button> -->
-
+    </button>
     &nbsp;&nbsp;&nbsp; 
-
-     <button mat-raised-button
-      style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
-      >
+    
+    <!-- <button mat-raised-button style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;">
       <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">download</mat-icon>
       Download Template
     </button>
+    &nbsp;&nbsp;&nbsp;  
 
-&nbsp;&nbsp;&nbsp;  
+    <button mat-raised-button style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">upload_file</mat-icon>
+      Upload CSV
+    </button>  -->
+     
 
-<button
-  mat-raised-button
-  style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
->
-  <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">
-    upload_file
-  </mat-icon>
-  Upload CSV
-</button> &nbsp;&nbsp;&nbsp;  
+    <button mat-raised-button color="primary" class="btn-blue" (click)="adddefects(null)">
+      <mat-icon>add</mat-icon> Add Defect
+    </button>
+  </div>
 
-
-
-
-
-
-  <button mat-raised-button color="primary" class="btn-blue" (click)="adddefects(null)">
-    <mat-icon>add</mat-icon> Add Defect
-  </button>
-</div>
-
-
-
-
-
-
-
-  <div class="filter-wrapper" *ngIf="showFilters"  style="width: 100%;">
+  <!-- Filter Card -->
+  <div class="filter-wrapper" *ngIf="showFilters" style="width: 100%;">
     <mat-card class="filter-card">
       <mat-card-content>
         <div class="filter-row">
-          
-      <div class="filter-group">
-  <label class="filter-label mb-0">Keyword :</label>
-  <input type="text" placeholder="Enter Keyword" class="custom-mat-input">
-</div>
-
-          <!-- <div class="filter-group">
-            <label class="filter-label mb-0">Status :</label>
-            <mat-select [(ngModel)]="selectedStatus" placeholder="Select Status" class="custom-mat-select">
-              <mat-option value="Active">Active</mat-option>
-              <mat-option value="Inactive">Inactive</mat-option>
-            </mat-select>
-          </div> -->
-
-          <div class="button-group">
-            <button mat-raised-button class="btn-go"  >
+          <div class="filter-group">
+            <label class="filter-label mb-0">Keyword :</label>
+            <input type="text" [(ngModel)]="keyword" placeholder="Search by Defect Name..." class="custom-mat-input form-control">
+          </div>
+          <div class="button-group" style="margin-top: 25px;">
+            <button mat-raised-button class="btn-go" color="primary" (click)="filterData()">
               <mat-icon>search</mat-icon> Go
-            </button>
-            <button mat-raised-button class="btn-clear"  >
+            </button> &nbsp;
+            <button mat-raised-button class="btn-clear" (click)="clearFilter()">
               <mat-icon>settings_backup_restore</mat-icon> Clear
             </button>
           </div>
-
         </div>
       </mat-card-content>
     </mat-card>
   </div> 
 
-
-
-
-
-<div class="table-responsive mt-1">
-  <table class="table table-bordered table-hover" style="width: 100%;">
-    <thead class="tbl-head">
-      <tr>
-       
-        <th class="text-center">Defect Name</th>
-        <th class="text-center"> Part Family</th>
-         <th class="text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of mockdata">
-        
-      
-
-        <td class="text-center">{{ item.defectname }}</td>
-        <td  class="text-center text-link"
-            style="color: blue; cursor: pointer;" (click)="openpartspop(null)" >{{ item.PartFamily }}</td>
-      
+  <!-- Data Grid -->
+  <div class="table-responsive mt-1">
+    <table class="table table-bordered table-hover" style="width: 100%;">
+      <thead class="tbl-head">
+        <tr>
+          <th>Defect Name</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of dataSource.data">
+          <td>{{ item.defectName }}</td>
           <td class="text-center">
-          <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;" (click)="openEditDialog(item)">
-            <mat-icon style="color: cornflowerblue; font-size: 20px;">edit</mat-icon>
-          </a>
-          <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteConfirmation(item)">
-            <mat-icon style="color: red; font-size: 20px;">delete</mat-icon>
-          </a>
-        </td>
-      </tr>
-
-      <tr *ngIf="!mockdata || mockdata.length === 0">
-        <td colspan="5" class="text-center">No records found</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
+            <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;" (click)="openEditDialog(item)">
+              <mat-icon style="color: cornflowerblue; font-size: 20px;">edit</mat-icon>
+            </a>
+            <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteConfirmation(item)">
+              <mat-icon style="color: red; font-size: 20px;">delete</mat-icon>
+            </a>
+          </td>
+        </tr>
+        <tr *ngIf="!dataSource.data || dataSource.data.length === 0">
+          <td colspan="2" class="text-center">No records found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
