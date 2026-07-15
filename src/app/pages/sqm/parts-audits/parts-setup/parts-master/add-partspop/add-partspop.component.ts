@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SetupService } from 'src/app/pages/setup/setup.service';
+import { CommodityService } from 'src/app/pages/sqm/process-audits/paudits-setup/commodity-master/commodity.service';
 import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
@@ -20,6 +21,7 @@ export class AddPartspopComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<AddPartspopComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+    private api: CommodityService,
   ) { }
 
 
@@ -31,8 +33,11 @@ export class AddPartspopComponent implements OnInit {
 
 
   ngOnInit(): void {
+    console.log('Received data:', this.data);
     this.formInit(this.data);
     this.getPartsFamilies();
+    this.getCommodities();
+
   }
 
 
@@ -48,6 +53,15 @@ export class AddPartspopComponent implements OnInit {
 
         }
       });
+  }
+  originalTableData: any[] = [];
+  getCommodities() {
+    this.api.getCommodities().subscribe((res: any) => {
+      if (res.success) {
+        this.originalTableData = res.data;
+
+      }
+    });
   }
 
   myGroup!: FormGroup;
@@ -80,7 +94,7 @@ export class AddPartspopComponent implements OnInit {
 
       CommodityId: [
         data?.commodityId || null,
-
+        Validators.required
       ]
 
     });

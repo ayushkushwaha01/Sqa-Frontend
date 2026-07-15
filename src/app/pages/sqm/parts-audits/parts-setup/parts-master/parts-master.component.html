@@ -93,20 +93,22 @@
           <td>{{ item.partMasterName || '-' }}</td>
 
           <td>{{ item.partMasterCode || '-' }}</td>
-          <td>{{ item.partFamilyId || '-' }}</td>
-          <td>{{ item.commodityId || '-' }}</td>
-          <td class="text-center text-link" style="color: blue; cursor: pointer;" (click)="opensuppliers()">
+          <td>{{ item.partFamilyName || '-' }}</td>
+          <td>{{ item.commodityName || '-' }}</td>
+          <td class="text-center text-link" style="color: blue; cursor: pointer;" (click)="opensuppliers(item)">
 
-            {{ item.suppliers }}
+            {{ item.supplierCount || 0 }}
+
           </td>
+
           <td class="text-center">
-            <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
-              [routerLink]="['../parts-parameter']" [queryParams]="{ partMasterId: item.partMasterId }"
-              matTooltip="View Parameter Details">
+            <a class="text-blue" style="cursor:pointer;text-decoration:underline;" [routerLink]="['../parts-parameter']"
+              [queryParams]="{ partMasterId: item.partMasterId }">
+
               {{ item.parametersCount || 0 }}
+
             </a>
           </td>
-
           <td class="text-center">
             <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
               matTooltip="Click to Change Status" (click)="changeStatus(item)">

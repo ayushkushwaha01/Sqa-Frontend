@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-parts-master-suppliers',
@@ -37,50 +41,100 @@ export class PartsMasterSuppliersComponent implements OnInit {
   selectedAssigned: string[] = [];
 
   // Inject MatDialogRef to handle closing the popup
-  constructor(public dialogRef: MatDialogRef<PartsMasterSuppliersComponent>) { }
+  // constructor(public dialogRef: MatDialogRef<PartsMasterSuppliersComponent>, private api: ManageUsersService,) { }
+
+  constructor(
+    private dialogRef: MatDialogRef<PartsMasterSuppliersComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any, private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+    private api: ManageUsersService
+  ) { }
 
   ngOnInit(): void {
+    this.loadSuppliers();
   }
 
+
+  allData: any[] = [];
+
+  loadSuppliers() {
+
+    this.api.getSuppliers().subscribe((res: any) => {
+
+      if (res.success) {
+
+        const allSuppliers = res.data || [];
+
+        const selectedIds = this.data?.supplierIds
+          ? this.data.supplierIds.split(',').map((x: string) => +x)
+          : [];
+
+        this.assignedSuppliers = allSuppliers.filter((x: any) =>
+          selectedIds.includes(x.supplierId)
+        );
+
+        this.availableSuppliers = allSuppliers.filter((x: any) =>
+          !selectedIds.includes(x.supplierId)
+        );
+      }
+
+    });
+
+  }
   // Moves items from Left (Available) to Right (Assigned)
   addSuppliers() {
-    if (this.selectedAvailable.length > 0) {
-      // 1. Add selected items to the Assigned list
-      this.assignedSuppliers.push(...this.selectedAvailable);
-      
-      // 2. Remove those items from the Available list
-      this.availableSuppliers = this.availableSuppliers.filter(
-        (supplier) => !this.selectedAvailable.includes(supplier)
-      );
-      
-      // 3. Clear the selection highlights
-      this.selectedAvailable = [];
-    }
+
+    this.assignedSuppliers.push(...this.selectedAvailable);
+
+    this.availableSuppliers = this.availableSuppliers.filter(
+      x => !this.selectedAvailable.includes(x)
+    );
+
+    this.selectedAvailable = [];
   }
 
   // Moves items from Right (Assigned) to Left (Available)
   removeSuppliers() {
-    if (this.selectedAssigned.length > 0) {
-      // 1. Add selected items back to the Available list
-      this.availableSuppliers.push(...this.selectedAssigned);
-      
-      // 2. Remove those items from the Assigned list
-      this.assignedSuppliers = this.assignedSuppliers.filter(
-        (supplier) => !this.selectedAssigned.includes(supplier)
-      );
-      
-      // 3. Clear the selection highlights
-      this.selectedAssigned = [];
-    }
-  }
 
+    this.availableSuppliers.push(...this.selectedAssigned);
+
+    this.assignedSuppliers = this.assignedSuppliers.filter(
+      x => !this.selectedAssigned.includes(x)
+    );
+
+    this.selectedAssigned = [];
+  }
+  selectedSupplierIds: string = '';
   // Saves the selection and closes the dialog
-  save() {
-    // Closes the popup and returns the updated assigned array to the parent component
-    this.dialogRef.close(this.assignedSuppliers);
-  }
+  // save() {
+  //   // Closes the popup and returns the updated assigned array to the parent component
+  //   this.dialogRef.close(this.assignedSuppliers);
+  // }
 
-  closeDialog(){
+  save() {
+
+    const supplierIds = this.assignedSuppliers
+      .map((x: any) => x.supplierId)
+      .join(',');
+
+    const payload = {
+      ...this.data,
+      SupplierIds: supplierIds
+    };
+
+    this._setupService.upsertPartMaster(payload)
+      .subscribe((res: any) => {
+
+        if (res.success) {
+          this.alertService.createAlert(res.message, 1);
+          this.dialogRef.close(true);
+        } else {
+          this.alertService.createAlert(res.message, 0);
+        }
+
+      });
+
+  }
+  closeDialog() {
     this.dialogRef.close();
   }
 
