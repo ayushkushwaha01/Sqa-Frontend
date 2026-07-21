@@ -195,12 +195,21 @@ export class PartsMasterComponent implements OnInit {
 
 
 
+opensuppliers(item: any) {
 
-  opensuppliers() {
-    this.dialog.open(PartsMasterSuppliersComponent, {
-      width: '650px',
-      disableClose: true,
-      data: null
-    });
-  }
+  const dialogRef = this.dialog.open(PartsMasterSuppliersComponent, {
+    width: '650px',
+    disableClose: true,
+    data: item
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+
+    if (result) {
+      this.getPartsMasters();   // Refresh grid after save
+    }
+
+  });
+
+}
 }

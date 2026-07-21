@@ -33,6 +33,8 @@ import { CityMasterComponent } from './city-master/city-master.component';
 import { AddSupplierComponent } from './supplier-master/add-supplier/add-supplier.component';
 import { AddCityComponent } from './city-master/add-city/add-city.component';
 import { AddStateComponent } from './state-master/add-state/add-state.component';
+import { SeverityMasterComponent } from './severity-master/severity-master.component';
+import { AddSeverityComponent } from './severity-master/add-severity/add-severity.component';
 import { AddVenderComponent } from './vender-rating/add-vender/add-vender.component';
 import { AddParameterComponent } from './parts-families/add-parameter/add-parameter.component';
 import { PartsParameterComponent } from './parts-master/parts-parameter/parts-parameter.component';
@@ -62,6 +64,7 @@ const routes: Routes = [
       { path: 'vender-rating', component: VenderRatingComponent },
       { path: 'supplier-master', component: SupplierMasterComponent },
       { path: 'city-master', component: CityMasterComponent },
+      { path: 'severity-master', component: SeverityMasterComponent },
       { path: 'state-master', component: StateMasterComponent },
       { path: '', redirectTo: 'parts-cat', pathMatch: 'full' },
       { path: 'parts-parameter', component: PartsParameterComponent },
@@ -90,6 +93,8 @@ const routes: Routes = [
     AddSupplierComponent,
     AddCityComponent,
     AddStateComponent,
+    SeverityMasterComponent,
+    AddSeverityComponent,
     AddVenderComponent,
     AddParameterComponent,
     PartsParameterComponent,

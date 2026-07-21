@@ -1,30 +1,106 @@
 <div class="active-audits-container">
-
   <div class="charts-row">
     <div class="chart-container">
-      <highcharts-chart [Highcharts]="Highcharts" [options]="commodityChartOptions"></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="commodityChartOptions" [callbackFunction]="commodityCallback"></highcharts-chart>
     </div>
     <div class="chart-container">
-      <highcharts-chart [Highcharts]="Highcharts" [options]="auditorChartOptions"></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="auditorChartOptions" [callbackFunction]="auditorCallback"></highcharts-chart>
     </div>
     <div class="chart-container">
-      <highcharts-chart [Highcharts]="Highcharts" [options]="statusChartOptions"></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="statusChartOptions" [callbackFunction]="statusCallback"></highcharts-chart>
     </div>
   </div>
+
 
   <div class="toolbar-row">
     <mat-checkbox style="margin-right: 16px;     margin-top: 6px;">
       Mask Done
     </mat-checkbox>
-    <button mat-raised-button class="btn-dark" (click)="openGridView()">
+    <button mat-raised-button class="btn-dark">
       <mat-icon>grid_on</mat-icon> Grid View
     </button>
-    <button mat-raised-button class="btn-dark">
+    <button mat-raised-button class="btn-dark" (click)="filterToggle = !filterToggle">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
     <button mat-raised-button color="primary" class="btn-blue" (click)="openaudit()">
       <mat-icon>person_add</mat-icon> Add Audit
     </button>
+  </div>
+
+  <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 15px;">
+    <div fxFlex="100" class="flex-p w-100">
+      <form [formGroup]="filterForm">
+        <mat-card class="filter">
+          <mat-card-content>
+            <!-- ROW 1 -->
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Keyword:</b></div>
+                <div class="col-sm-8">
+                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search...">
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Status:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Status" class="form-control" formControlName="Status">
+                    <mat-option *ngFor="let option of statusLookups" [value]="option.lookupId">{{option.lookupName}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Commodity:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Commodity" class="form-control" formControlName="Commodity">
+                    <mat-option *ngFor="let opt of uniqueCommodities" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 2 -->
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>State:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select State" class="form-control" formControlName="State">
+                    <mat-option *ngFor="let opt of uniqueStates" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>City:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select City" class="form-control" formControlName="City">
+                    <mat-option *ngFor="let opt of uniqueCities" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Supplier:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Supplier" class="form-control" formControlName="Supplier">
+                    <mat-option *ngFor="let opt of uniqueSuppliers" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 3 (Buttons) -->
+            <div class="row col-sm-12">
+              <div class="col-sm-12 text-end">
+                <button mat-raised-button class="btn-default me-2" (click)="clearFilter()">
+                  <mat-icon>settings_backup_restore</mat-icon> Clear
+                </button>
+                <button mat-raised-button color="primary" (click)="filter()">
+                  <mat-icon>search</mat-icon> Search
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </div>
   </div>
 
   <div class="table-responsive">
@@ -33,7 +109,8 @@
         <tr>
           <th>Audit Reference</th>
           <th>Commodity</th>
-          <th>Location</th>
+          <th>State</th>
+          <th>City</th>
           <th>Supplier</th>
           <th>Auditor</th>
           <th>Audit Date</th>
@@ -45,42 +122,57 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let audit of auditData">
+        <tr *ngFor="let audit of pagedAuditData">
+          <!-- Clickable Audit Reference routing -->
           <td class="text-link">
-            <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']">
-              {{ audit.ref }}
+            <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']"
+              [queryParams]="{ id: audit.processAuditId, ref: audit.auditReference }">
+              {{ audit.auditReference }}
             </a>
           </td>
-          <td>{{ audit.commodity }}</td>
-          <td>{{ audit.location }}</td>
-          <td>{{ audit.supplier }}</td>
-          <td>{{ audit.auditor }}</td>
-          <td>{{ audit.date }}</td>
-          <td class="text-link text-center">{{ audit.action }}</td>
-          <td class="text-link text-center" (click)="openscorepdf('processaudit.pdf')">{{ audit.score }}</td>
+
+          <td>{{ audit.commodityName }}</td>
+          <td>{{ audit.stateName }}</td>
+          <td>{{ audit.cityName }}</td> <!-- Or CityName, StateName -->
+          <td>{{ audit.supplierName }}</td>
+          <td>{{ audit.auditorName }}</td>
+          <td>{{ audit.auditDate | date:'dd-MM-yyyy' }}</td>
+
+          <!-- Locate this part in your <tbody> -->
           <td class="text-center">
-            <mat-select placeholder="Select Status"
+            <span [ngClass]="{'text-success': isFullyResolved(audit), 'text-danger': !isFullyResolved(audit)}">
+              {{ audit.capaSummary }}
+            </span>
+          </td>
+          <td class="text-link text-center">{{ audit.report }}</td>
+
+          <!-- Status Dropdown loaded from DB Lookup -->
+          <td class="text-center">
+            <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
+              placeholder="Select Status"
               style="max-width: 120px; min-width: 120px; border: 0.5px solid black; border-radius: 4px; padding: 4px;">
-              <mat-option value="Initiated">Initiated</mat-option>
-              <mat-option value="Awarded">Awarded</mat-option>
-              <mat-option value="In Process">In Process</mat-option>
-              <mat-option value="On Hold">On Hold</mat-option>
-              <mat-option value="Complete">Complete</mat-option>
+              <mat-option *ngFor="let status of statusLookups" [value]="status.lookupId">
+                {{ status.lookupName }}
+              </mat-option>
             </mat-select>
           </td>
+
+          <!-- IsDone Checkbox -->
           <td class="text-center">
-            <mat-checkbox [checked]="audit.done" (click)="onDoneClick($event, audit)" color="primary">
-            </mat-checkbox>
+            <mat-checkbox [checked]="audit.isDone" (click)="onDoneClick($event, audit)" color="primary"></mat-checkbox>
           </td>
+
+          <!-- Actions -->
           <td class="text-center manage-icons">
-            <i class="fas fa-edit edit-icon" title="Edit"></i>
-            <i class="fas fa-trash delete-icon" title="Delete"></i>
+            <i class="fas fa-edit edit-icon" title="Edit" (click)="openaudit(audit)"></i>
+            <i class="fas fa-trash delete-icon" title="Delete" (click)="deleteAudit(audit)"
+              style="color:red; margin-left: 10px;"></i>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <mat-paginator [length]="auditData.length" [pageSize]="4" [pageSizeOptions]="[4, 10, 20]" aria-label="Select page">
+    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)" aria-label="Select page">
     </mat-paginator>
   </div>
 

@@ -1,38 +1,76 @@
 .active-audits-container {
   padding: 20px;
   background-color: #f9f9f9;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
 }
 
 /* Charts Grid */
 .charts-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  background-color: white;
-  padding: 20px 0;
-  margin-bottom: 20px;
+  gap: 18px;
+  padding: 0;
+  margin-bottom: 22px;
+}
+
+.chart-container {
+  width: 100%;
+  min-width: 0;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  padding: 0;
+  overflow: visible;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  ::ng-deep highcharts-chart {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  ::ng-deep .highcharts-container,
+  ::ng-deep .highcharts-root {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  ::ng-deep svg.highcharts-root {
+    width: 100% !important;
+    overflow: visible !important;
+    display: block;
+    margin: 0 auto;
+  }
 }
 
 /* Toolbar Buttons */
 .toolbar-row {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 12px;
   margin-bottom: 15px;
 
-  /* Overriding mat-raised-button colors */
   .btn-dark {
     background-color: #111 !important;
     color: #fff !important;
   }
 
   .btn-blue {
-    background-color: #0d8add !important; /* Light blue from image */
+    background-color: #0d8add !important;
     color: #fff !important;
   }
-  
-  /* Centers the icon properly with text inside a mat-button */
+
   ::ng-deep .mdc-button__label {
     display: flex;
     align-items: center;
@@ -46,26 +84,32 @@
   overflow-x: auto;
   background-color: white;
   border: 1px solid #ddd;
-/* Optional: smooths the corners around table and paginator */
+  border-radius: 4px;
 }
 
 .audit-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
+  table-layout: auto;
 
   thead {
-    background-color: #2b6ca3; /* The blue header */
+    background-color: #3f3f3f;
     color: white;
 
     th {
-      padding: 12px 10px;
+      padding: 12px 14px;
       text-align: left;
       font-weight: bold;
-    border: 1px solid #e1e1e1; /* Subtle inner border for header */
+      border: 1px solid #555;
       white-space: nowrap;
+      font-size: 14px;
 
-      &:nth-child(7), &:nth-child(8), &:nth-child(9), &:nth-child(10), &:nth-child(11) {
+      &:nth-child(7),
+      &:nth-child(8),
+      &:nth-child(9),
+      &:nth-child(10),
+      &:nth-child(11) {
         text-align: center;
       }
     }
@@ -74,24 +118,35 @@
   tbody {
     tr {
       border-bottom: 1px solid #e0e0e0;
+
       &:nth-child(even) {
         background-color: #fafafa;
       }
+
       &:hover {
         background-color: #f1f5f9;
       }
     }
 
     td {
-      padding: 10px;
-      border: 1px solid #e0e0e0; /* Vertical column borders */
+      padding: 10px 14px;
+      border: 1px solid #dee2e6;
       color: #333;
+      font-size: 14px;
+      vertical-align: middle;
+      white-space: nowrap;
 
       &.text-link {
         color: #0000ee;
         cursor: pointer;
-        &:hover {
-          text-decoration: underline;
+
+        a {
+          color: #0000ee;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
       }
 
@@ -114,15 +169,16 @@
 /* Manage Icons */
 .manage-icons {
   font-size: 14px;
+  white-space: nowrap;
 
   .edit-icon {
-    color: #5c7cb1; /* Slate blue */
+    color: #5c7cb1;
     margin-right: 12px;
     cursor: pointer;
   }
 
   .delete-icon {
-    color: #e53935; /* Red */
+    color: #e53935;
     cursor: pointer;
   }
 }
@@ -130,98 +186,4 @@
 /* Fix Mat Paginator border so it blends with the table */
 ::ng-deep .mat-mdc-paginator {
   border-top: 1px solid #e0e0e0;
-}
-
-.chart-container
-{
-  width: 100%;
-}
-
-.charts-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  background-color: white;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.chart-container {
-  width: 100%;
-  min-width: 0; // ← critical: prevents grid blowout
-}
-
-// Override the inline width on the Highcharts host element
-.chart-container ::ng-deep highcharts-chart {
-  display: block !important;
-  width: 100% !important;
-}
-
-.active-audits-container {
-  padding: 20px;
-  background-color: #f9f9f9;
-  font-family: Arial, sans-serif;
-}
-
-/* Charts Grid */
-.charts-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  background-color: white;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.chart-container {
-  width: 100%;
-  min-width: 0;
-
-  ::ng-deep highcharts-chart {
-    display: block !important;
-    width: 100% !important;
-  }
-
-  // Force the inner SVG Highcharts renders to respect container width
-  ::ng-deep .highcharts-container,
-  ::ng-deep .highcharts-root {
-    width: 100% !important;
-  }
-
-  ::ng-deep svg.highcharts-root {
-    width: 100% !important;
-  }
-}
-
-.chart-container {
-  width: 100%;
-  min-width: 0;
-  height: 320px; /* ensures equal height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-th {
-  background-color: #3f3f3f;
-  color: white;
-  padding: 12px;
-  font-size: 14px;
-  border: 1px solid #e1e1e1;  /* ← darker shade of the header blue */
-}
-td {
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-    font-size: 14px;
-    padding: 10px 12px;
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-  }
-
-  th {
-  background-color: #3f3f3f;
-  color: white;
-  padding: 12px;
-  font-size: 14px;
-  border: 1px solid #e1e1e1;  /* already correct */
 }

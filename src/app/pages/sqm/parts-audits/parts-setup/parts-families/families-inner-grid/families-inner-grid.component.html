@@ -70,7 +70,11 @@
               edit
             </mat-icon>
 
-            <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteConfirmation(item)">
+            <!-- <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteConfirmation(item)">
+              delete
+            </mat-icon> -->
+            <mat-icon class="delete-icon" [class.disabled-icon]="item.isCopied"
+              [matTooltip]="item.isCopied ? '' : 'Delete'" (click)="!item.isCopied && deleteConfirmation(item)">
               delete
             </mat-icon>
 

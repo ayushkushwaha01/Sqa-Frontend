@@ -110,6 +110,7 @@ import { SqmComponent } from './pages/sqm/sqm.component';
 import { AddSupplierComponent } from './add-supplier/add-supplier.component';
 import { UserNotificationComponent } from './theme/components/notification/user-notification/user-notification.component';
 import { StatusChangeComponent } from './status-change/status-change.component';
+import { ColumnSelectorComponent } from './pages/column-selector/column-selector.component';
 // import { SupplierLoginComponent } from './pages/supplier-login/supplier-login.component';
   
  
@@ -229,6 +230,7 @@ DragulaModule.forRoot()
     AddSupplierComponent,
     UserNotificationComponent,
     StatusChangeComponent,
+    ColumnSelectorComponent,
     // SupplierLoginComponent,
  
  

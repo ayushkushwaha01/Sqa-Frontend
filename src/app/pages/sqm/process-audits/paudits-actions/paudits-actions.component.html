@@ -1,6 +1,6 @@
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
-   <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
-    class="filter-hover margin-right-10" >
+  <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
+    class="filter-hover margin-right-10">
     <mat-icon class="">warning</mat-icon> Alerts (12)
   </button>
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
@@ -8,7 +8,8 @@
     <mat-icon class="">filter_list</mat-icon> Filter
   </button>
 
-  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns" (click)="processgrid()">
+  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
+    (click)="processgrid()">
     <mat-icon>grid_on</mat-icon> Grid Columns
   </button>
 </div>
@@ -152,7 +153,7 @@
                 </div>
               </div> -->
 
-               
+
 
               <div class="col-sm-12 pull-right mt-3" style="margin-left: -15px;">
                 <a (click)="filterToggle = !filterToggle" class="pull-right"
@@ -196,30 +197,29 @@
             <th mat-header-cell mat-sort-header class="text-center">Supplier Remarks</th>
             <th mat-header-cell mat-sort-header class="text-center">Log Date</th>
             <th mat-header-cell mat-sort-header class="text-center"> Due Date</th>
-             <th mat-header-cell mat-sort-header class="text-center">Delay In Days</th>
+            <th mat-header-cell mat-sort-header class="text-center">Delay In Days</th>
             <th mat-header-cell mat-sort-header class="text-center">Completion Date</th>
-               <th mat-header-cell mat-sort-header class="text-center">Severity</th>
-                  <th mat-header-cell mat-sort-header class="text-center">Occurrence</th>
-                     <th mat-header-cell mat-sort-header class="text-center">Detection</th>
-                        <th mat-header-cell mat-sort-header class="text-center">Risk Rating</th>
-                           <th mat-header-cell mat-sort-header class="text-center">Rating</th>
-                            <th mat-header-cell mat-sort-header class="text-center">PDCA Status</th>
-                              <!-- <th mat-header-cell mat-sort-header class="text-center">Action  Type</th> -->
+            <th mat-header-cell mat-sort-header class="text-center">Severity</th>
+            <th mat-header-cell mat-sort-header class="text-center">Occurrence</th>
+            <th mat-header-cell mat-sort-header class="text-center">Detection</th>
+            <th mat-header-cell mat-sort-header class="text-center">Risk Rating</th>
+            <th mat-header-cell mat-sort-header class="text-center">Rating</th>
+            <th mat-header-cell mat-sort-header class="text-center">PDCA Status</th>
+            <!-- <th mat-header-cell mat-sort-header class="text-center">Action  Type</th> -->
           </tr>
         </thead>
 
-       <tbody>
-          <tr *ngFor="let applicant of tableList">
+        <tbody>
+          <tr *ngFor="let applicant of pagedCapaData">
             <td class="text-center">
-              <a matTooltip="Edit" (click)="editrow()">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
-                <i class="fa fa-trash red"></i>
-              </a>
+              <a matTooltip="Edit" (click)="editrow()"><i class="fa fa-edit"></i></a>
+              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)"><i class="fa fa-trash red"></i></a>
             </td>
+
+            <!-- 🔥 Status Dropdown (Triggers API) 🔥 -->
             <td class="text-center">
-              <mat-select [(ngModel)]="applicant.status" class="form-control">
+              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
+                class="form-control">
                 <mat-option value="WIP">WIP</mat-option>
                 <mat-option value="Open">Open</mat-option>
                 <mat-option value="Closed">Closed</mat-option>
@@ -228,51 +228,59 @@
                 <mat-option value="Completed">Completed</mat-option>
               </mat-select>
             </td>
+
+            <!-- 🔥 Resolved Checkbox (Triggers API) 🔥 -->
             <td class="text-center">
-              <mat-checkbox [checked]="applicant.resolved === true" color="primary"></mat-checkbox>
+              <mat-checkbox [checked]="applicant.resolved" (change)="onResolvedChange(applicant, $event)"
+                color="primary"></mat-checkbox>
             </td>
-            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto()">{{ applicant.docs }}</td>
-            
+
+            <!-- ... Rest of your columns bound securely ... -->
+            <!-- <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto()">{{ applicant.docs }}
+            </td> -->
+
+            <!-- Change this line inside your <tbody> -->
+            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
+              {{ applicant.docs }}
+            </td>
+            <!-- <td class="text-link text-center">
+              <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']">{{ applicant.reference }}</a>
+            </td> -->
+
+            <!-- 🔥 Replace your current Reference column with this 🔥 -->
             <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']">
+              <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']" [queryParams]="{ 
+        id: applicant.processAuditId, 
+        ref: applicant.auditReference, 
+        categoryId: applicant.processCategoryId, 
+        checklistId: applicant.checklistId 
+     }">
                 {{ applicant.reference }}
               </a>
             </td>
             <td class="text-center">{{ applicant.actionSubject }}</td>
-              
             <td class="text-center">{{ applicant.supplierName }}</td>
             <td class="text-center">{{ applicant.actionType }}</td>
             <td class="text-center">{{ applicant.auditReference }}</td>
             <td class="text-center">{{ applicant.processCategory }}</td>
-            
             <td class="text-center">
-              <mat-icon (click)="imageSource1()" matTooltip="{{ applicant.description }}" style="color: blue; cursor: pointer;">info</mat-icon>
+              <mat-icon (click)="imageSource1(applicant.description)" matTooltip="{{ applicant.description }}"
+                style="color: blue; cursor: pointer;">info</mat-icon>
             </td>
             <td class="text-center">
-              <mat-icon (click)="imageSource1()" matTooltip="{{ applicant.supplierRemarks }}" style="color: blue; cursor: pointer;">info</mat-icon>
+              <mat-icon (click)="imageSource1(applicant.supplierRemarks)" matTooltip="{{ applicant.supplierRemarks }}"
+                style="color: blue; cursor: pointer;">info</mat-icon>
             </td>
-            
-            <td class="text-center">{{ applicant.logDate }}</td>
-            <td class="text-center">{{ applicant.dueDate }}</td>
-            <td class="text-center">{{ applicant.delayInDays ?? '-' }}</td>
-            <td class="text-center">{{ applicant.completion ?? '-' }}</td>
-
+            <td class="text-center">{{ applicant.logDate | date:'dd-MM-yyyy' }}</td>
+            <td class="text-center">{{ applicant.dueDate | date:'dd-MM-yyyy' }}</td>
+            <td class="text-center">{{ applicant.delayInDays === 0 ? '-' : applicant.delayInDays }}</td>
+            <td class="text-center">{{ applicant.completion | date:'dd-MM-yyyy' }}</td>
             <td class="text-center">{{ applicant.severity }}</td>
             <td class="text-center">{{ applicant.occurrence }}</td>
             <td class="text-center">{{ applicant.detection }}</td>
-            
-            <td class="text-center" style="min-width: 120px;">
-              <mat-select [(ngModel)]="applicant.riskRating" class="form-control" 
-               >
-                <mat-option value="High">High</mat-option>
-                <mat-option value="Medium">Medium</mat-option>
-                <mat-option value="Low">Low</mat-option>
-              </mat-select>
-            </td>
-            
+            <td class="text-center">{{ applicant.riskRating }}</td>
             <td class="text-center">{{ applicant.rating }}</td>
             <td class="text-center">{{ applicant.pdcaStatus }}</td>
-            <!-- <td class="text-center">{{ applicant.capaActionType }}</td> -->
           </tr>
         </tbody>
       </table>
@@ -285,9 +293,9 @@
       </button>
 
     </div>
-    
+
     <div style="width: 100%;">
-      <mat-paginator [length]="totalSize" [pageSize]="5" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons>
+      <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
       </mat-paginator>
     </div>
   </div>
