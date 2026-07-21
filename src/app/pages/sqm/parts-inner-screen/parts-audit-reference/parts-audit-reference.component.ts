@@ -5,6 +5,11 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common';
 import { AuditrefRemarksPopComponent } from './auditref-remarks-pop/auditref-remarks-pop.component';
+import { AlertService } from 'src/app/shared/alert.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { FormBuilder } from '@angular/forms';
+import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-parts-audit-reference',
@@ -13,10 +18,102 @@ import { AuditrefRemarksPopComponent } from './auditref-remarks-pop/auditref-rem
 })
 export class PartsAuditReferenceComponent implements OnInit {
 
-  constructor(
-    private location: Location,
-    public dialog: MatDialog,
+  // constructor(
+  //   private location: Location,
+  //   public dialog: MatDialog,
+  // ) { }
+
+
+  currentPage: number = 0;
+  totalSize: number = 0;
+  fromIndex: number = 0;
+  pageSize: number = 5;
+  tableLists: any[] = [];
+
+  constructor(private dialog: MatDialog, private location: Location, private route: ActivatedRoute,
+    private alertService: AlertService, private partAuditService: PartAuditService, private fb: FormBuilder,
   ) { }
+
+  partMasterId: number = 0;
+  partFamilyId: number = 0;
+  PartId: number = 0;
+  partAuditId: number = 0;
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+
+      this.partMasterId = +params['partMasterId'] || 0;
+      this.partFamilyId = +params['partFamilyId'] || 0;
+      this.partAuditId = +params['partAuditId'] || 0;
+      this.PartId = +params['PartId'] || 0;
+
+      console.log('PartMasterId:', this.partMasterId);
+      console.log('PartFamilyId:', this.partFamilyId);
+      console.log('PartId:', this.PartId);
+
+      this.getPartsMasters();
+
+    });
+
+
+
+  }
+
+  categoriesparameters: any[] = [];
+  selectedCategory: any;
+  tableData: any[] = [];
+  pagedData: any[] = [];
+
+  getPartsMasters() {
+
+    const filter: any = {};
+
+    // if (this.partMasterId > 0) {
+    //   filter.PartMasterId = this.partMasterId;
+    // } else {
+    //   filter.PartFamilyId = this.partFamilyId;
+    // }
+    filter.PartAuditId = this.partAuditId;
+    this.partAuditService.getCategoryAuditsParameters(filter)
+      .subscribe((res: any) => {
+
+        if (res.success) {
+
+          this.categoriesparameters = res.data;
+          console.log(this.categoriesparameters);
+          console.log(this.tableData);
+          console.log(this.pagedData);
+          if (this.categoriesparameters.length > 0) {
+            this.selectCategory(this.categoriesparameters[0]);
+          }
+
+        }
+
+      });
+  }
+
+  selectCategory(category: any) {
+
+    this.selectedCategory = category;
+
+    this.tableData = category.parameters || [];
+
+    this.pagedData = this.tableData.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+
+    console.log(this.pagedData);
+  }
+
+  onPageChange1(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.fromIndex = event.pageIndex * event.pageSize;
+
+    this.pagedData = this.tableData.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+  }
 
   goBack(): void {
     this.location.back();
@@ -24,24 +121,24 @@ export class PartsAuditReferenceComponent implements OnInit {
 
   // Top Categories (Cleaned up extra spaces for exact matching)
   categories = [
-    { name: 'Dimensional Checks (12)'  },
+    { name: 'Dimensional Checks (12)' },
     { name: 'Surface Finish (12)', tooltip: 'Material Management' },
     { name: 'Performance (12)', tooltip: 'Production Planning & Control' },
     { name: 'Metallurgical (12)', tooltip: 'Inspection & Measurement Engineering' },
     { name: 'Mechanical (12)', tooltip: 'Corrective and Preventive Actions' }
   ];
-  
-  selectedCategory = 'Dimensional Checks (12)';
+
+  //selectedCategory = 'Dimensional Checks (12)';
 
   // Pagination
-  pageSize = 10;
+
   pageIndex = 0;
-  pagedData: any[] = [];
-  tableData: any[] = []; 
+  // pagedData: any[] = [];
+  // tableData: any[] = [];
 
   // Dictionary holding unique parameters for EACH category
   // FIXED: The keys here now exactly match the 'name' properties in the categories array above
-categoryData: { [key: string]: any[] } = {
+  categoryData: { [key: string]: any[] } = {
     'Dimensional Checks (12)': [
       { parameter: 'OUTER DIAMETER', spec: '457.0±0.8', min: 23, max: 27, actionLink: '12', special: 'General', method: 'Thermocouple', s1: 24.5, s2: 25.0, s3: 26.0, s4: 25.5, s5: 24.8, okay: false },
       { parameter: 'TOTAL LENGTH', spec: '4.747 / 34.798', min: 6.5, max: 7.5, actionLink: '13', special: 'General', method: 'pH Meter', s1: 7.1, s2: 6.9, s3: 7.2, s4: 6.8, s5: 7.0, okay: true },
@@ -113,19 +210,15 @@ categoryData: { [key: string]: any[] } = {
       { parameter: 'TORSIONAL YIELD', spec: '200 MPa', min: 190, max: 210, actionLink: '512', special: 'General', method: 'Torsion Tester', s1: 195, s2: 205, s3: 200, s4: 198, s5: 185, okay: false }
     ]
   };
-  ngOnInit(): void {
-    // Load the initial data for t e default selected tab
-    this.tableData = this.categoryData[this.selectedCategory] || [];
-    this.updatePage();
-  }
+
 
   // Set active category tab AND update table data
-  selectCategory(catName: string) {
+  selectCategory1(catName: string) {
     this.selectedCategory = catName;
     // Load the new parameters array based on the clicked tab
     this.tableData = this.categoryData[catName] || [];
     // Reset pagination back to page 1
-    this.pageIndex = 0; 
+    this.pageIndex = 0;
     this.updatePage();
   }
 
@@ -141,12 +234,28 @@ categoryData: { [key: string]: any[] } = {
     this.pagedData = this.tableData.slice(start, start + this.pageSize);
   }
 
-  addchecklistaudit() {
-    let dialogRef = this.dialog.open(PartsAddParameterComponent, {
+  addchecklistaudit(item?: any) {
+
+    const dialogRef = this.dialog.open(PartsAddParameterComponent, {
+      width: '850px',
       height: 'auto',
-      width: '850px'
+      //data: item || null
+      data: {
+        ...item,
+        partId: this.selectedCategory?.partId,
+        partAuditId: this.partAuditId,          // <-- Add this
+        partMasterId: this.partMasterId,
+        partFamilyId: this.partFamilyId
+      }
     });
-    dialogRef.afterClosed().subscribe(data => {});
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh data if needed
+        this.getPartsMasters();
+      }
+    });
+
   }
 
   editParameter(item: any) {
@@ -176,15 +285,15 @@ categoryData: { [key: string]: any[] } = {
 
   deleteParameter(item: any): void {
     const confirmDelete = window.confirm('Are you sure you want to delete??');
-    
+
     if (confirmDelete) {
       // Find the index of the item in the currently active tableData array
       const index = this.tableData.indexOf(item);
-      
+
       if (index > -1) {
         // Remove the item from the array
         this.tableData.splice(index, 1);
-        
+
         // Refresh the paginated view to reflect the deletion
         this.updatePage();
       }
