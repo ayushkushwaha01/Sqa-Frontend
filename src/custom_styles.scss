@@ -906,3 +906,10 @@ a {
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
   filter: alpha(opacity=20);
 }
+
+.disable-custom {
+  color: gray !important;
+  pointer-events: none !important;
+  filter: grayscale(1) !important;
+  cursor: disabled;
+}

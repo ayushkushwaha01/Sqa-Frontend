@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class SetupService {
-  apiUrl = environment.apiUrl; 
+  apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -39,9 +39,8 @@ export class SetupService {
     return this.http.post(this.apiUrl + 'SupplierMaster/delete', data);
   }
 
-  //kJ ravi services
 
-  
+
   upsertPartAuditCategory(data: any) {
     return this.http.post(this.apiUrl + 'PartsAuditCategories/upsert', data);
   }

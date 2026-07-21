@@ -1,0 +1,160 @@
+<h2 mat-dialog-title class="dialog-title">
+    <div class="title">Manage Grid Columns</div>
+    <div class="subtitle">
+        Select, reorder and freeze columns to customize your grid.
+    </div>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+
+    <!-- Left Panel -->
+    <div class="left-panel">
+
+        <div class="panel-header">
+
+            <h5>Available Columns</h5>
+
+            <div class="search-box">
+                <i class="fa fa-search"></i>
+
+                <input type="text" [(ngModel)]="searchQuery" placeholder="Search columns..." />
+
+            </div>
+
+        </div>
+
+        <div class="column-list">
+
+            <div *ngFor="let col of getFilteredColumns()" class="checkbox-row">
+
+                <label>
+
+                    <input type="checkbox" [checked]="isSelected(col)" (change)="toggleColumn(col,$event)">
+
+                    <span>{{col}}</span>
+
+                </label>
+
+            </div>
+
+            <div *ngIf="getFilteredColumns().length==0" class="empty">
+
+                No Columns Found
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Right Panel -->
+
+    <div class="right-panel">
+
+        <div class="panel-header selected-header">
+
+            <h5>
+
+                Selected ({{selectedColumns.length}})
+
+            </h5>
+
+            <div class="freeze-container">
+
+                <span>Freeze First</span>
+
+                <select [(ngModel)]="frozenCount">
+
+                    <option [ngValue]="0">0</option>
+
+                    <option *ngFor="let c of selectedColumns;let i=index" [ngValue]="i+1">
+
+                        {{i+1}}
+
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div cdkDropList class="selected-list" (cdkDropListDropped)="drop($event)">
+
+            <div *ngIf="frozenCount==0 && selectedColumns.length>0" class="freeze-message">
+
+                <i class="fa fa-snowflake-o"></i>
+
+                No Frozen Columns
+
+            </div>
+
+
+            <ng-container *ngFor="let col of selectedColumns;let i=index">
+
+                <div *ngIf="i==frozenCount && frozenCount>0" class="freeze-divider">
+
+                    <span>
+
+                        Above Columns Are Frozen
+
+                    </span>
+
+                </div>
+
+
+                <div cdkDrag class="drag-row">
+
+                    <div class="left">
+
+                        <i class="fa fa-grip-vertical drag-icon"></i>
+
+                        <span>{{col}}</span>
+
+                    </div>
+
+                    <div class="right">
+
+                        <mat-icon class="remove" matTooltip="Remove" (click)="removeColumn(col)">
+
+                            close
+
+                        </mat-icon>
+
+                    </div>
+
+                </div>
+
+            </ng-container>
+
+
+            <div *ngIf="selectedColumns.length==0" class="empty">
+
+                No Columns Selected
+
+            </div>
+
+        </div>
+
+    </div>
+
+</mat-dialog-content>
+
+
+<mat-dialog-actions align="end" class="dialog-footer">
+
+    <button mat-button (click)="closeDialog(false)">
+
+        Cancel
+
+    </button>
+
+    <button mat-raised-button color="primary" (click)="saveConfiguration()">
+
+        Apply Changes
+
+    </button>
+
+</mat-dialog-actions>
