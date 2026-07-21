@@ -224,6 +224,12 @@
             <span *ngIf="isSidenavOpen">City Master</span>
           </a>
         </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/severity-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Severity Master">report_problem</mat-icon>
+            <span *ngIf="isSidenavOpen">Severity Master</span>
+          </a>
+        </li>
         
       </ul>
     </nav>

@@ -13,28 +13,23 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';   // <-- FIXES THE BUTTONS
 import { MatTooltipModule } from '@angular/material/tooltip'; // <-- FIXES TOOLTIPS ON ICONS
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
 
 // Import your components
-
-
 import { ProcessAuditDetailsComponent } from './process-audit-details/process-audit-details.component';
-
 import { ProcessInnerScreenComponent } from './process-inner-screen.component';
 import { ProcessAuditReferenceComponent } from './process-audit-reference/process-audit-reference.component';
 import { ProcessCompletedReferenceComponent } from './process-completed-reference/process-completed-reference.component';
-import { MatRadioModule } from '@angular/material/radio';
 
 const routes: Routes = [
   {
     path: '',
     component: ProcessInnerScreenComponent,
     children: [
-
       { path: 'process-audit-details', component: ProcessAuditDetailsComponent },
       { path: 'process-audit-reference', component: ProcessAuditReferenceComponent },
       { path: 'process-completed-reference', component: ProcessCompletedReferenceComponent },
-
-
       { path: '', redirectTo: 'process-audit-details', pathMatch: 'full' }
     ]
   }
@@ -55,11 +50,13 @@ const routes: Routes = [
     MatSelectModule,
     MatButtonModule,
     MatTooltipModule,
-    MatRadioModule
+    MatRadioModule,
+    MatDialogModule
   ],
   exports: [RouterModule],
   declarations: [
     ProcessAuditDetailsComponent,
+    ProcessInnerScreenComponent,
     ProcessAuditReferenceComponent,
     ProcessCompletedReferenceComponent
   ]

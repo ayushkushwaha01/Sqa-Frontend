@@ -129,8 +129,15 @@ export class SetupService {
   }
 
   //Defects Master
-
   getDefects() { return this.http.get(this.apiUrl + 'Defects/get-all'); }
   upsertDefect(data: any) { return this.http.post(this.apiUrl + 'Defects/upsert', data); }
   deleteDefect(data: any) { return this.http.post(this.apiUrl + 'Defects/delete', data); }
+
+
+  //Severity Master
+  getSeverities() { return this.http.get(this.apiUrl + 'Severity/get-all'); }
+  upsertSeverity(data: any) { return this.http.post(this.apiUrl + 'Severity/upsert', data); }
+  toggleSeverityStatus(data: any) { return this.http.post(this.apiUrl + 'Severity/toggle-status', data); }
+  deleteSeverity(data: any) { return this.http.post(this.apiUrl + 'Severity/delete', data); }
 }
+

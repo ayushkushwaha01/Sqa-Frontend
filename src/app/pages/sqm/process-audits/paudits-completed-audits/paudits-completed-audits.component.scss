@@ -3,20 +3,53 @@
   min-height: 100vh;
 }
 
-/* Charts Styling */
-.chart-header {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #666;
-  font-size: 20px;
-  font-weight: 500;
-  margin-bottom: 15px;
+/* Charts Grid */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding: 0;
+  margin-bottom: 22px;
 }
 
 .chart-container {
-  height: 300px;
   width: 100%;
+  min-width: 0;
+  height: 320px;
   display: flex;
+  align-items: center;
   justify-content: center;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  padding: 0;
+  overflow: visible;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  ::ng-deep highcharts-chart {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  ::ng-deep .highcharts-container,
+  ::ng-deep .highcharts-root {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  ::ng-deep svg.highcharts-root {
+    width: 100% !important;
+    overflow: visible !important;
+    display: block;
+    margin: 0 auto;
+  }
 }
 
 /* Table Styling matching your image */
@@ -38,6 +71,7 @@
     padding: 10px 12px;
     border: 1px solid #dee2e6;
     vertical-align: middle;
+    white-space: nowrap;
   }
 
   // th {
@@ -130,4 +164,5 @@ th {
   border: 1px solid #e1e1e1;
   font-size: 14px;                                    /* ← added */
   font-family: Roboto, "Helvetica Neue", sans-serif;  /* ← added */
+  white-space: nowrap;
 }

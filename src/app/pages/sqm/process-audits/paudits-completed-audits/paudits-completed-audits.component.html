@@ -1,45 +1,102 @@
 <div class="page-container p-3">
 
-  <div class="row mb-4">
-    <div class="col-lg-4 text-center">
-      <h3 class="chart-header">Commodity Distribution</h3>
-      <div class="chart-container">
-        <ngx-charts-pie-chart [results]="commodityData" [scheme]="colorSchemeCommodity" [labels]="true"
-          [doughnut]="false" [explodeSlices]="false" [legend]="false">
-        </ngx-charts-pie-chart>
-      </div>
+  <div class="charts-row">
+    <div class="chart-container">
+      <highcharts-chart [Highcharts]="Highcharts" [options]="commodityChartOptions" [callbackFunction]="commodityCallback"></highcharts-chart>
     </div>
-
-    <div class="col-lg-4 text-center">
-      <h3 class="chart-header">Auditor Distribution</h3>
-      <div class="chart-container">
-        <ngx-charts-pie-chart [results]="auditorData" [scheme]="colorSchemeAuditor" [labels]="true" [doughnut]="false"
-          [explodeSlices]="false" [legend]="false">
-        </ngx-charts-pie-chart>
-      </div>
+    <div class="chart-container">
+      <highcharts-chart [Highcharts]="Highcharts" [options]="auditorChartOptions" [callbackFunction]="auditorCallback"></highcharts-chart>
     </div>
-
-    <div class="col-lg-4 text-center">
-      <h3 class="chart-header">Audits Status</h3>
-      <div class="chart-container">
-        <ngx-charts-pie-chart [results]="statusData" [scheme]="colorSchemeStatus" [labels]="true" [doughnut]="false"
-          [explodeSlices]="false" [legend]="false">
-        </ngx-charts-pie-chart>
-      </div>
+    <div class="chart-container">
+      <highcharts-chart [Highcharts]="Highcharts" [options]="statusChartOptions" [callbackFunction]="statusCallback"></highcharts-chart>
     </div>
   </div>
 
 
-    <div class="toolbar-row">
+  <div class="toolbar-row">
     <button mat-raised-button class="btn-dark" (click)="openGridView()">
       <mat-icon>grid_on</mat-icon> Grid View
     </button>
-    <button mat-raised-button class="btn-dark">
+    <button mat-raised-button class="btn-dark" (click)="filterToggle = !filterToggle">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
   </div>
 
+  <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 15px;">
+    <div fxFlex="100" class="flex-p w-100">
+      <form [formGroup]="filterForm">
+        <mat-card class="filter">
+          <mat-card-content>
+            <!-- ROW 1 -->
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Keyword:</b></div>
+                <div class="col-sm-8">
+                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search...">
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Status:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Status" class="form-control" formControlName="Status">
+                    <mat-option *ngFor="let option of statusLookups" [value]="option.lookupId">{{option.lookupName}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Commodity:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Commodity" class="form-control" formControlName="Commodity">
+                    <mat-option *ngFor="let opt of uniqueCommodities" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+            </div>
 
+            <!-- ROW 2 -->
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>State:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select State" class="form-control" formControlName="State">
+                    <mat-option *ngFor="let opt of uniqueStates" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>City:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select City" class="form-control" formControlName="City">
+                    <mat-option *ngFor="let opt of uniqueCities" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Supplier:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Supplier" class="form-control" formControlName="Supplier">
+                    <mat-option *ngFor="let opt of uniqueSuppliers" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 3 (Buttons) -->
+            <div class="row col-sm-12">
+              <div class="col-sm-12 text-end">
+                <button mat-raised-button class="btn-default me-2" (click)="clearFilter()">
+                  <mat-icon>settings_backup_restore</mat-icon> Clear
+                </button>
+                <button mat-raised-button color="primary" (click)="filter()">
+                  <mat-icon>search</mat-icon> Search
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </div>
+  </div>
   
   <div class="table-responsive bg-white">
     <table class="custom-grid-table">
@@ -47,54 +104,58 @@
         <tr>
           <th>Audit Reference</th>
           <th>Commodity</th>
-          <th>Location Factory</th>
+          <th>State</th>
+          <th>City</th>
           <th>Supplier</th>
           <th>Auditor</th>
           <th>Audit Date</th>
-          <th>Issues</th>
           <th>CAPA</th>
           <th>Report</th>
           <th style="width: 150px;">Status</th>
           <th>Done</th>
         </tr>
       </thead>
-    <tbody>
-  <tr *ngFor="let item of tableData">
-    <td class="text-link">
-      <a [routerLink]="['/app','sqm','process-inner-screen','process-completed-reference']">
-        {{ item.auditRef }}
-      </a>
-    </td>
-    <td>{{ item.commodity }}</td>
-    <td>{{ item.location }}</td>
-    <td>{{ item.supplier }}</td>
-    <td>{{ item.auditor }}</td>
-    <td>{{ item.date }}</td>
-    <td class="text-link text-center">{{ item.issues }}</td>
-    <td class="text-link text-center">{{ item.capa }}</td>
-    <td class="text-link text-center">
-      <a [routerLink]="['/app','sqm','process-inner-screen','process-completed-reference']">
-        {{ item.score }}
-      </a>
-    </td>
-    <td class="text-center">
-      <mat-select class="mat-select form-control" placeholder="Select Status" [(ngModel)]="item.status">
-        <mat-option value="Pending">Initiated</mat-option>
-        <mat-option value="WIP">Awarded</mat-option>
-        <mat-option value="Completed">In Progress</mat-option>
-        <mat-option value="OnHold">On Hold</mat-option>
-        <mat-option value="Complete">Complete</mat-option>
-      </mat-select>
-    </td>
-    <td class="text-center">
-      <mat-checkbox [checked]="item.done" (click)="onDoneClick($event, item)" color="primary">
-      </mat-checkbox>
-    </td>
-  </tr>
-</tbody>
+      <tbody>
+        <tr *ngFor="let item of pagedAuditData">
+          <td class="text-link">
+            <!-- 🔥 Routes to your reference component safely -->
+            <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']" [queryParams]="{ id: item.processAuditId, ref: item.auditReference }">
+              {{ item.auditReference }}
+            </a>
+          </td>
+          <td>{{ item.commodityName }}</td>
+          <td>{{ item.stateName }}</td>
+          <td>{{ item.cityName }}</td>
+          <td>{{ item.supplierName }}</td>
+          <td>{{ item.auditorName }}</td>
+          <td>{{ item.auditDate | date:'dd-MM-yyyy' }}</td>
+          
+          <td class="text-center">
+            <!-- Reuses the CAPA summary formatting -->
+            <span [ngClass]="{'text-success': item.capaSummary && item.capaSummary !== '-', 'text-danger': item.capaSummary === '-'}">
+              {{ item.capaSummary }}
+            </span>
+          </td>
+          <td class="text-link text-center">{{ item.report || '-' }}</td>
+          
+          <td class="text-center font-weight-bold">
+            <!-- 🔥 Rendered as Read-Only Text -->
+            {{ getStatusName(item.statusId) }}
+          </td>
+          
+          <!-- <td class="text-center">
+            <mat-checkbox [checked]="item.isDone" [disabled]="true" color="primary"></mat-checkbox>
+          </td> -->
+
+          <td class="text-center">
+            <!-- 🔥 Rendered as Interactive Checkbox -->
+            <mat-checkbox [checked]="item.isDone" (click)="onDoneClick($event, item)" color="primary"></mat-checkbox>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
-    <mat-paginator [length]="tableData.length" [pageSize]="4" [pageSizeOptions]="[4, 10, 25, 50]" showFirstLastButtons>
+    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)" showFirstLastButtons>
     </mat-paginator>
   </div>
 
