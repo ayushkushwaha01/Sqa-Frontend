@@ -6,6 +6,7 @@ import { SetupService } from 'src/app/pages/setup/setup.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { PartsFamilyPopComponent } from '../defects-master/parts-family-pop/parts-family-pop.component';
 
 @Component({
   selector: 'app-parts-families',
@@ -17,49 +18,32 @@ export class PartsFamiliesComponent implements OnInit {
   showFilters: boolean = false;
   selectedCategory: string | null = null;
   selectedStatus: string = '';
-
-  tableData = [
-    { name: 'Engine Components', code: 'PF001', status: 'Active', parameters: 12 },
-    { name: 'Transmission Systems', code: 'PF002', status: 'Active', parameters: 8 },
-    { name: 'Chassis and Frame', code: 'PF003', status: 'Inactive', parameters: 0 },
-    { name: 'Suspension Parts', code: 'PF004', status: 'Active', parameters: 15 },
-    { name: 'Electrical Systems', code: 'PF005', status: 'Inactive', parameters: 0 },
-    { name: 'Braking Systems', code: 'PF006', status: 'Active', parameters: 10 },
-    { name: 'Body and Cabin', code: 'PF007', status: 'Active', parameters: 20 },
-    { name: 'Fuel Systems', code: 'PF008', status: 'Inactive', parameters: 0 },
-    { name: 'Cooling Systems', code: 'PF009', status: 'Active', parameters: 12 },
-    { name: 'Steering Systems', code: 'PF010', status: 'Active', parameters: 8 }
-  ];
   selectedKeyword: any;
-
+  filterForm!: FormGroup;
 
   currentPage: number = 0;
   totalSize: number = 0;
   fromIndex: number = 0;
   pageSize: number = 5;
+  
+  partsFamilies: any[] = [];
   tableLists: any[] = [];
+  
+  // Variables for Defects tracking
+  allDefectsMaster: any[] = []; 
+  totalDefectsCount: number = 0; 
 
-  constructor(private dialog: MatDialog,
-    private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+  constructor(
+    private dialog: MatDialog,
+    private alertService: AlertService, 
+    private _setupService: SetupService, 
+    private fb: FormBuilder
   ) { }
 
-  filterForm!: FormGroup;
   ngOnInit(): void {
     this.formInit();
+    this.getAllDefectsList();
     this.getPartsFamilies();
-  }
-
-  toggleFilters(): void {
-    this.showFilters = !this.showFilters;
-  }
-
-  onClear(): void {
-    this.selectedCategory = null;
-    this.selectedStatus = '';
-  }
-
-  onGo(): void {
-    console.log('Filters Applied:', { category: this.selectedCategory, status: this.selectedStatus });
   }
 
   formInit() {
@@ -68,11 +52,98 @@ export class PartsFamiliesComponent implements OnInit {
       Status: ['']
     });
   }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+
   clearFilter() {
     this.filterForm.reset({ Keyword: '', Status: '' });
     this.getPartsFamilies();
   }
 
+  // --- Data Fetching ---
+  getAllDefectsList() {
+    this._setupService.getDefects().subscribe((res: any) => {
+      if (res.success) {
+        this.allDefectsMaster = res.data;
+        this.totalDefectsCount = this.allDefectsMaster.length;
+      }
+    });
+  }
+
+  getPartsFamilies() {
+    this._setupService.getPartFamilies(this.filterForm.value).subscribe((res: any) => {
+      if (res.success) {
+        this.partsFamilies = res.data.data;
+        this.totalSize = res.data.totalRecords;
+        this.tableLists = this.partsFamilies.slice(this.fromIndex, this.pageSize);
+      }
+    });
+  }
+
+  // --- Pagination ---
+  loadPageData() {
+    this.fromIndex = this.currentPage * this.pageSize;
+    this.tableLists = this.partsFamilies.slice(this.fromIndex, this.fromIndex + this.pageSize);
+  }
+
+  fnHandlePage(event: any) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadPageData();
+  }
+
+  // --- Defect Pop-up Logic ---
+  getDefectsCount(item: any): number {
+    // Check for both lowercase and uppercase 'D' just in case of C# serialization differences
+    const defectsData = item.defects || item.Defects;
+    
+    if (!defectsData) return 0;
+
+    // If the data is already an array (parsed automatically by Angular HttpClient)
+    if (Array.isArray(defectsData)) return defectsData.length;
+
+    // If the data is a raw JSON string
+    try {
+      const parsed = JSON.parse(defectsData);
+      return Array.isArray(parsed) ? parsed.length : 0;
+    } catch (e) {
+      console.error("Failed to parse defects:", defectsData);
+      return 0; 
+    }
+  }
+
+  openDefectsPopup(item: any) {
+    let currentSelectedIds: number[] = [];
+    const defectsData = item.defects || item.Defects;
+
+    if (defectsData) {
+      try {
+        currentSelectedIds = Array.isArray(defectsData) ? defectsData : JSON.parse(defectsData);
+      } catch (e) {
+        currentSelectedIds = [];
+      }
+    }
+
+    const dialogRef = this.dialog.open(PartsFamilyPopComponent, {
+      width: '550px',
+      disableClose: true,
+      data: {
+        fullItem: item,
+        allDefects: this.allDefectsMaster,
+        selectedIds: currentSelectedIds
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((needsRefresh: boolean) => {
+      if (needsRefresh) {
+        this.getPartsFamilies();
+      }
+    });
+  }
+
+  // --- CRUD Operations ---
   addPartFamily(data: any) {
     const dialogRef = this.dialog.open(AddPartsFamilypopComponent, {
       width: '650px',
@@ -82,41 +153,9 @@ export class PartsFamiliesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.getPartsFamilies();   // Reload the grid/list
+        this.getPartsFamilies();
       }
     });
-  }
-  partsFamilies: any[] = [];
-  getPartsFamilies() {
-    this._setupService.getPartFamilies(this.filterForm.value)
-      .subscribe((res: any) => {
-        if (res.success) {
-
-          this.partsFamilies = res.data.data;
-          this.totalSize = res.data.totalRecords;
-
-          this.tableLists = this.partsFamilies.slice(
-            this.fromIndex,
-            this.pageSize
-          );
-        }
-      });
-  }
-
-  loadPageData() {
-    this.fromIndex = this.currentPage * this.pageSize;
-
-    this.tableLists = this.partsFamilies.slice(
-      this.fromIndex,
-      this.fromIndex + this.pageSize
-    );
-  }
-  fnHandlePage(event: any) {
-
-    this.currentPage = event.pageIndex;
-    this.pageSize = event.pageSize;
-
-    this.loadPageData();
   }
 
   deleteConfirmation(item: any) {
@@ -140,7 +179,6 @@ export class PartsFamiliesComponent implements OnInit {
       }
     });
   }
-
 
   changeStatus(item: any) {
     let dialogRef = this.dialog.open(DialogComponent, {

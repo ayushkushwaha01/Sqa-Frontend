@@ -1,81 +1,88 @@
-<div class="NewHeader" style="background-color: #f5f5f5; padding: 10px 20px; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
-    <h3 *ngIf="!data" style="margin: 0; font-weight: 400; font-size: 18px;">Add Inspection Record</h3>
-    <h3 *ngIf="data" style="margin: 0; font-weight: 400;">Edit Inspection Record</h3>
+<div class="NewHeader">
+    <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400; font-size: 18px;">
+        {{ data ? 'Edit Inspection Record' : 'Add Inspection Record' }}
+    </h2>
 </div>
 
 <div style="padding: 0 25px 15px 25px;">
-    <form>
+    <form [formGroup]="recordForm">
         <div class="row">
             <div class="col-md-6">
                 
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Stage:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Stage:</label>
                     </div>
                     <div class="col-sm-8">
-                        <mat-select placeholder="Select Stage" class="form-control" style="height: 48px; padding-top: 10px;">
-                            <mat-option value="Incoming">Incoming</mat-option>
-                            <mat-option value="Start Up">Start Up</mat-option>
-                            <mat-option value="Process">Process</mat-option>
-                            <mat-option value="Final">Final</mat-option>
+                        <mat-select placeholder="Select Stage" formControlName="stageId" class="form-control">
+                            <mat-option *ngFor="let stage of stages" [value]="stage.lookupId">
+                                {{ stage.lookupName }}
+                            </mat-option>
                         </mat-select>
                     </div>
                 </div>
 
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">Inspection Date:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Select Supplier:</label>
                     </div>
                     <div class="col-sm-8">
-                        <mat-form-field appearance="outline" class="w-100" style="margin-bottom: -1.25em;">
-                            <input matInput [matDatepicker]="picker" placeholder="Choose inspection date" readonly (click)="picker.open()">
-                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                            <mat-datepicker #picker></mat-datepicker>
-                        </mat-form-field>
-                    </div>
-                </div>
-
-
-
-                       <div class="row" style="margin-bottom: 15px; align-items: center;">
-                    <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Shift:</label>
-                    </div>
-                    <div class="col-sm-8">
-                        <mat-select placeholder="Select Shift" class="form-control" style="height: 48px; padding-top: 10px;">
-                            <mat-option value="Sai">Morning Shift</mat-option>
-                            <mat-option value="Satya">Evening Shift</mat-option>
-                            <mat-option value="Surya">Night Shift</mat-option>
-                            <mat-option value="Vamshi">General Shift</mat-option>
+                        <mat-select placeholder="Select Supplier" formControlName="supplierId" class="form-control">
+                            <mat-option *ngFor="let supplier of suppliers" [value]="supplier.supplierId">
+                                {{ supplier.supplierName }}
+                            </mat-option>
                         </mat-select>
                     </div>
                 </div>
 
-
-
-
-
-
-
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Time:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Inspection Date:</label>
                     </div>
-                    <div class="col-sm-8">
-                        <input type="time" style="height: 48px;" class="form-control" placeholder="Select Time">
+                    <div class="col-sm-8" style="position: relative;">
+                        <input matInput [matDatepicker]="picker" readonly (click)="picker.open()"
+                            formControlName="inspectionDate"
+                            style="height: 38px; width: 100%; padding-left: 12px; padding-right: 45px; border: 1px solid #141414; border-radius: 4px; box-sizing: border-box; background-color: white;"
+                            placeholder="Choose inspection date">
+                        <mat-datepicker-toggle matSuffix [for]="picker"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                        </mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
                     </div>
                 </div>
 
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Inspector:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Shift:</label>
                     </div>
                     <div class="col-sm-8">
-                        <mat-select placeholder="Select Inspector" class="form-control" style="height: 48px; padding-top: 10px;">
-                            <mat-option value="Sai">Sai</mat-option>
-                            <mat-option value="Satya">Satya</mat-option>
-                            <mat-option value="Surya">Surya</mat-option>
-                            <mat-option value="Vamshi">Vamshi</mat-option>
+                        <mat-select placeholder="Select Shift" formControlName="shiftId" class="form-control">
+                            <mat-option *ngFor="let shift of shifts" [value]="shift.lookupId">
+                                {{ shift.lookupName }}
+                            </mat-option>
+                        </mat-select>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Time:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="time" formControlName="time" class="form-control" placeholder="Select Time"
+                            style="height: 38px; width: 100%; padding-left: 12px; border: 1px solid #141414; border-radius: 4px; box-sizing: border-box; background-color: white;">
+                    </div>
+                </div>
+
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
+                    <div class="col-sm-4">
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Inspector:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <mat-select placeholder="Select Inspector" formControlName="inspectorId" class="form-control">
+                            <mat-option *ngFor="let inspector of inspectors" [value]="inspector.userId">
+                                {{ inspector.userName }}
+                            </mat-option>
                         </mat-select>
                     </div>
                 </div>
@@ -84,61 +91,92 @@
 
             <div class="col-md-6">
                 
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Part Family:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Part Family:</label>
                     </div>
                     <div class="col-sm-8">
-                        <mat-select placeholder="Select Part Family" class="form-control" style="height: 48px; padding-top: 10px;">
-                            <mat-option value="Family A">Family A</mat-option>
-                            <mat-option value="Family B">Family B</mat-option>
+                        <mat-select placeholder="Select Part Family" formControlName="partFamilyId" class="form-control" (selectionChange)="onPartFamilyChange($event.value)">
+                            <mat-option *ngFor="let pf of partFamilies" [value]="pf.partFamilyId">
+                                {{ pf.partFamilyName }}
+                            </mat-option>
                         </mat-select>
                     </div>
                 </div>
 
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Part Number:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Part Name:</label>
                     </div>
                     <div class="col-sm-8">
-                        <mat-select placeholder="Select Part Number" class="form-control" style="height: 48px; padding-top: 10px;">
-                            <mat-option value="PN001">PN-001</mat-option>
-                            <mat-option value="PN002">PN-002</mat-option>
+                        <mat-select placeholder="Select Part Name" formControlName="partMasterId" class="form-control" (selectionChange)="onPartMasterChange($event.value)">
+                            <mat-option *ngFor="let code of partCodes" [value]="code.partMasterId">
+                                {{ code.partMasterCode }} - {{ code.partMasterName }}
+                            </mat-option>
                         </mat-select>
                     </div>
                 </div>
 
-                <div class="row" style="margin-bottom: 15px; align-items: center;">
+                <div class="row" style="margin-bottom: 12px; align-items: center;">
                     <div class="col-sm-4">
-                        <label class="add-member-label required" style="font-weight: 500;">  Batch Number:</label>
+                        <label class="add-member-label mt5" style="margin-top:5px; font-weight: bold;">Batch Number:</label>
                     </div>
                     <div class="col-sm-8">
-                        <mat-select placeholder="Select Batch Number" class="form-control" style="height: 48px; padding-top: 10px;">
-                            <mat-option value="Batch 1">Batch 1001</mat-option>
-                            <mat-option value="Batch 2">Batch 1002</mat-option>
+                        <mat-select placeholder="Select Batch Number" formControlName="batchId" class="form-control">
+                            <mat-option *ngFor="let batch of batches" [value]="batch.batchId">
+                                {{ batch.batchNumber }}
+                            </mat-option>
                         </mat-select>
                     </div>
                 </div>
 
-                <div class="row" style="margin-bottom: 15px;">
+                <div class="row" style="margin-bottom: 12px;">
                     <div class="col-sm-4">
-                        <label class="add-member-label mt-1" style="font-weight: 500;">Remarks:</label>
+                        <label class="control-label mt-1" style="font-weight: bold;">Remarks:</label>
                     </div>
-                    <div class="col-sm-8">
-                        <textarea rows="3" class="form-control" placeholder="Enter Remarks" style="height:130px"></textarea>
+                    <div class="col-sm-8" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <textarea formControlName="remarks" class="form-control" rows="4" placeholder="Enter Remarks here..."></textarea>
                     </div>
                 </div>
 
+
+              <div class="row mb-3">
+    <div class="col-sm-4">
+        <label class="control-label fw-bold mt-1">Batch Quantity :</label>
+    </div>
+    <div class="col-sm-8">
+        <input
+            type="number"
+            formControlName="batchQuantity"
+            class="form-control"
+            placeholder="Enter Batch Quantity"
+            min="0">
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-sm-4">
+        <label class="control-label fw-bold mt-1">Sample Quantity :</label>
+    </div>
+    <div class="col-sm-8">
+        <input
+            type="number"
+            formControlName="sampleQuantity"
+            class="form-control"
+            placeholder="Enter Sample Quantity"
+            min="0">
+    </div>
+</div>
             </div>
         </div>
     </form>
 
-    <mat-dialog-actions align="end" style="margin-top: 20px;">
-        <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()" style="background-color: lightgray; color: red; margin-right: 10px;">
-            <mat-icon>cancel</mat-icon> Cancel
+    <mat-dialog-actions align="end" style="margin-top: 15px; display: flex; justify-content: flex-end; margin-right: -20px;">
+        <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()" style="background-color: lightgray; color: red; margin-right: 5px;">
+            <mat-icon>cancel</mat-icon> Close
         </button>
-        <button mat-raised-button type="submit" class="save" color="primary" (click)="close()">
+        <button mat-raised-button class="save" color="primary" style="margin-right: 17px;" (click)="saveRecord()" [disabled]="!recordForm.valid">
             <mat-icon>save</mat-icon> Save
         </button>
     </mat-dialog-actions>
-</div>
+</div>  
