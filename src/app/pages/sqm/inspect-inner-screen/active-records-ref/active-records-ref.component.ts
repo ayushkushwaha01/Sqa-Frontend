@@ -9,6 +9,7 @@ import { ViewDocPhotosComponent } from '../../parts-audits/parts-actions/view-do
 import { UploadstagepopComponent } from './uploadstagepop/uploadstagepop.component';
 import { UploadListComponent } from './upload-list/upload-list.component';
 import { SamplePopComponent } from './sample-pop/sample-pop.component';
+import { InspectionService } from '../../inspection/inspection.service';
 
 @Component({
   selector: 'app-active-records-ref',
@@ -19,67 +20,112 @@ export class ActiveRecordsRefComponent implements OnInit {
 
   @ViewChild('tableContainer') tableContainer!: ElementRef;
   
-  // Variables to hold the dynamic data from the route
+  currentInspectionId: number = 0;
   currentReference: string = '';
   currentPartFamily: string = '';
   currentPartName: string = '';
 
+  pageSize = 10;
+  pageIndex = 0;
+  
+  tableData: any[] = [];
+  pagedData: any[] = [];
+  totalFilteredRecords = 0; // Tracks total count for paginator
+
+  // Category Filtering & Mapping
+  categories: string[] = [];
+  selectedCategory: string = 'All';
+  categoryMap: { [key: string]: any } = {}; // Holds dynamic IDs for each category
+
   constructor(
     private location: Location,
     public dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private inspectionService: InspectionService 
   ) { }
 
   goBack(): void {
     this.location.back();
   }
 
-  // Pagination
-  pageSize = 10;
-  pageIndex = 0;
-  pagedData: any[] = [];
-  
-  // Single array of Supplier Quality Inspection Parameters
-  // Note: The initial partName and partFamily values here will be overwritten dynamically
-  tableData: any[] = [
-    { parameter: 'OUTER DIAMETER', partName: 'Gear Shifter', partFamily: 'Engine Components', spec: '45.00', unit: 'mm', min: 44.5, max: 45.5, defectRate: '1.5%', defects: '2/150', actionLink: '1', special: 'Critical', method: 'Vernier Caliper', s1: 44.8, s2: 45.1, s3: 45.0, s4: 44.9, s5: 45.2, okay: true },
-    { parameter: 'TOTAL LENGTH', partName: 'Drive Shaft', partFamily: 'Transmission', spec: '120.00', unit: 'mm', min: 119.0, max: 121.0, defectRate: '0.8%', defects: '1/120', actionLink: '2', special: 'General', method: 'Height Gauge', s1: 119.5, s2: 120.1, s3: 119.8, s4: 120.5, s5: 120.0, okay: true },
-    { parameter: 'SURFACE ROUGHNESS', partName: 'Cylinder Head', partFamily: 'Engine Components', spec: '1.60', unit: 'Ra', min: 0.1, max: 1.6, defectRate: '4.2%', defects: '5/119', actionLink: '3', special: 'General', method: 'Profilometer', s1: 1.2, s2: 1.4, s3: 1.5, s4: 1.7, s5: 1.3, okay: false },
-    { parameter: 'COATING THICKNESS', partName: 'Brake Caliper', partFamily: 'Braking System', spec: '18.00', unit: 'µm', min: 15, max: 20, defectRate: '1.2%', defects: '1/80', actionLink: '4', special: 'General', method: 'DFT Gauge', s1: 16, s2: 18, s3: 19, s4: 15, s5: 17, okay: true },
-    { parameter: 'HARDNESS', partName: 'Camshaft', partFamily: 'Engine Components', spec: '45.00', unit: 'HRC', min: 43, max: 47, defectRate: '3.1%', defects: '3/96', actionLink: '5', special: 'Critical', method: 'Rockwell Tester', s1: 44, s2: 45, s3: 46, s4: 42, s5: 45, okay: false },
-    { parameter: 'CONCENTRICITY', partName: 'Rotor Assembly', partFamily: 'Braking System', spec: '0.05', unit: 'mm', min: 0.01, max: 0.05, defectRate: '1.1%', defects: '1/90', actionLink: '6', special: 'Critical', method: 'CMM', s1: 0.2, s2: 0.3, s3: 0.1, s4: 0.4, s5: 0.2, okay: true },
-    { parameter: 'VISUAL INSPECTION', partName: 'Dashboard Trim', partFamily: 'Interior', spec: '1.00', unit: 'Defects', min: 1, max: 3, defectRate: '8.5%', defects: '17/200', actionLink: '7', special: 'General', method: 'Visual', s1: 1, s2: 1, s3: 2, s4: 4, s5: 1, okay: false },
-    { parameter: 'THREAD GAUGE', partName: 'Mounting Bolt', partFamily: 'Fasteners', spec: '10.00', unit: 'mm', min: 9.85, max: 10.15, defectRate: '0.5%', defects: '1/200', actionLink: '8', special: 'Critical', method: 'Thread Plug', s1: 9.95, s2: 10.02, s3: 10.05, s4: 9.98, s5: 10.10, okay: true },
-    { parameter: 'WEIGHT', partName: 'Connecting Rod', partFamily: 'Engine Components', spec: '250.00', unit: 'g', min: 245, max: 255, defectRate: '1.2%', defects: '2/165', actionLink: '9', special: 'General', method: 'Weighing Scale', s1: 248, s2: 251, s3: 250, s4: 249, s5: 252, okay: true },
-    { parameter: 'PACKAGING INTEGRITY', partName: 'Headlight Unit', partFamily: 'Electrical', spec: '5.00', unit: 'Rating', min: 4, max: 5, defectRate: '2.0%', defects: '1/50', actionLink: '10', special: 'General', method: 'Visual', s1: 5, s2: 5, s3: 4, s4: 5, s5: 5, okay: true }
-  ];
-
   ngOnInit(): void {
-    // Read the query parameters passed from the main grid
     this.route.queryParams.subscribe(params => {
-      if (params['reference']) {
-        this.currentReference = params['reference'];
-      }
-      
-      if (params['partFamily'] && params['partName']) {
-        this.currentPartFamily = params['partFamily'];
-        this.currentPartName = params['partName'];
+      this.currentInspectionId = Number(params['inspectionId']); 
+      this.currentReference = params['reference'];
+      this.currentPartFamily = params['partFamily'];
+      this.currentPartName = params['partName'];
 
-        // THIS IS THE KEY PART: It dynamically loops through all records and sets 
-        // the partFamily and partName to exactly match the query parameters.
-        this.tableData = this.tableData.map(item => ({
-          ...item,
-          partFamily: this.currentPartFamily,
-          partName: this.currentPartName
-        }));
+      if (this.currentInspectionId && !isNaN(this.currentInspectionId)) {
+        this.loadParameters();
       }
-      
-      // Load the paginated data after applying the updates
-      this.updatePage();
     });
   }
 
-  // Pagination Logic
+  loadParameters() {
+    this.inspectionService.getInspectionParameters(this.currentInspectionId).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          
+          this.tableData = res.data.map((item: any) => {
+            const catName = item.categoryName || item.CategoryName;
+
+            // Store category ID references dynamically so we can use them when saving
+            if (!this.categoryMap[catName]) {
+              this.categoryMap[catName] = {
+                partId: item.partId || item.PartId,
+                partFamilyId: item.partFamilyId || item.PartFamilyId,
+                partNameId: item.partNameId || item.PartNameId
+              };
+            }
+
+            return {
+              id: item.id || item.Id,
+              parameter: item.parameter || item.Parameter,
+              categoryName: catName,
+              spec: item.spec || item.Spec,
+              unit: item.unit || item.Unit,
+              min: item.min || item.Min,
+              max: item.max || item.Max,
+              defects: item.defects || item.Defects || '0',
+              defectRate: '0%', 
+              okay: item.okay || item.Okay,
+              capa: item.capa || item.Capa,
+              method: item.method || item.Method,
+              s1: item.s1 || item.S1,
+              s2: item.s2 || item.S2,
+              s3: item.s3 || item.S3,
+              s4: item.s4 || item.S4,
+              s5: item.s5 || item.S5,
+              remarks: item.remarks || item.Remarks
+            };
+          });
+
+          // Extract unique categories for the buttons
+          const uniqueCategories = new Set(this.tableData.map(x => x.categoryName).filter(c => c));
+          this.categories = ['All', ...Array.from(uniqueCategories)];
+          
+          // Only reset to 'All' if it's the first time loading, 
+          // otherwise keep the user on their current tab after a save refresh.
+          if (!this.categories.includes(this.selectedCategory)) {
+            this.selectedCategory = 'All';
+          }
+
+          this.updatePage();
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load parameters', err);
+      }
+    });
+  }
+
+  // --- Category Selection Method ---
+  selectCategory(category: string) {
+    this.selectedCategory = category;
+    this.pageIndex = 0; // Reset to first page when filtering
+    this.updatePage();
+  }
+
   onPageChange(event: PageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -87,49 +133,99 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   private updatePage(): void {
+    // 1. Filter by Category
+    const filteredData = this.selectedCategory === 'All' 
+      ? this.tableData 
+      : this.tableData.filter(x => x.categoryName === this.selectedCategory);
+
+    // 2. Update Total count for the paginator
+    this.totalFilteredRecords = filteredData.length;
+
+    // 3. Apply Pagination on the filtered list
     const start = this.pageIndex * this.pageSize;
-    this.pagedData = this.tableData.slice(start, start + this.pageSize);
+    this.pagedData = filteredData.slice(start, start + this.pageSize);
   }
 
-  addchecklistaudit() {
-    let dialogRef = this.dialog.open(PartsAddParameterComponent, {
-      height: 'auto',
-      width: '850px'
-    });
-    dialogRef.afterClosed().subscribe(data => {});
-  }
+  // --- Save / Edit Logic ---
 
-  editParameter(item: any) {
-    let dialogRef = this.dialog.open(PartsAddParameterComponent, {
-      height: 'auto',
-      width: '850px',
-      data: item // Tells popup it's in Edit mode
-    });
-    dialogRef.afterClosed().subscribe(data => {
-      // Handle updates if necessary
+  addchecklistaudit() { 
+    if (this.selectedCategory === 'All') {
+      alert("Please select a specific category tab first to add a parameter to it.");
+      return;
+    }
+
+    const dialogRef = this.dialog.open(PartsAddParameterComponent, { height: 'auto', width: '850px' }); 
+    
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.saveParameterToDb(result);
+      }
     });
   }
 
-  opendocpop() {
-    this.dialog.open(ViewDocPhotosComponent, {
-      width: '600px',
-      height: '450px',
+  editParameter(item: any) { 
+    const dialogRef = this.dialog.open(PartsAddParameterComponent, { height: 'auto', width: '850px', data: item }); 
+    
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Ensure the ID and category name are passed back so the backend knows to Update
+        result.id = item.id;
+        result.categoryName = item.categoryName; 
+        this.saveParameterToDb(result);
+      }
     });
   }
 
-  opennotes() {
-    this.dialog.open(AuditrefRemarksPopComponent, {
-      width: '500px',
-      height: 'auto'
+  private saveParameterToDb(result: any) {
+    // If editing from the "All" tab, use the item's specific category. Otherwise, use the selected tab.
+    const targetCategory = (this.selectedCategory === 'All' && result.categoryName) 
+      ? result.categoryName 
+      : this.selectedCategory;
+
+    const categoryIds = this.categoryMap[targetCategory];
+
+    const payload = {
+      InspectionRefId: result.id || 0,
+      InspectionId: this.currentInspectionId,
+      PartId: categoryIds?.partId || null,
+      PartFamilyId: categoryIds?.partFamilyId || null,
+      PartNameId: categoryIds?.partNameId || null,
+      ParameterName: result.parameter,
+      Spec: result.spec,
+      Min: result.min ? result.min.toString() : null,
+      Max: result.max ? result.max.toString() : null,
+      Method: result.method,
+      S1: result.s1 ? result.s1.toString() : null,
+      S2: result.s2 ? result.s2.toString() : null,
+      S3: result.s3 ? result.s3.toString() : null,
+      S4: result.s4 ? result.s4.toString() : null,
+      S5: result.s5 ? result.s5.toString() : null,
+      Remarks: result.remarks
+    };
+
+    // Ensure you added addOrUpdateInspectionParameter to your inspection.service.ts
+    this.inspectionService.addOrUpdateInspectionParameter(payload).subscribe({
+      next: (res) => {
+        if (res.success) {
+          // Reload data to reflect the newly inserted record in the table
+          this.loadParameters(); 
+        } else {
+          alert("Failed to save parameter: " + res.message);
+        }
+      },
+      error: (err) => {
+        console.error("Error saving parameter", err);
+        alert("An error occurred while saving. Check console for details.");
+      }
     });
   }
 
   deleteParameter(item: any): void {
     const confirmDelete = window.confirm('Are you sure you want to delete?');
-    
     if (confirmDelete) {
+      // NOTE: You'll likely want to create a delete method in your C# API later to delete from DB
+      // For now, this just removes it from the frontend array
       const index = this.tableData.indexOf(item);
-      
       if (index > -1) {
         this.tableData.splice(index, 1);
         this.updatePage();
@@ -137,39 +233,20 @@ export class ActiveRecordsRefComponent implements OnInit {
     }
   }
 
+  // --- Utility Modals ---
+
+  opendocpop() { this.dialog.open(ViewDocPhotosComponent, { width: '600px', height: '450px' }); }
+  opennotes() { this.dialog.open(AuditrefRemarksPopComponent, { width: '500px', height: 'auto' }); }
+  uploadstages() { this.dialog.open(UploadstagepopComponent, { width: '800px', height: 'auto' }); }
+  openuploadpop() { this.dialog.open(UploadListComponent, { width: '600px', height: 'auto' }); }
+  opensamplepop() { this.dialog.open(SamplePopComponent, { width: '700px', height: 'auto' }); }
+
   scrollTable(direction: 'left' | 'right') {
     if (this.tableContainer) {
       const container = this.tableContainer.nativeElement;
-      const scrollAmount = 400; // Number of pixels to scroll per click. Adjust if needed.
-      
-      if (direction === 'left') {
-        container.scrollLeft -= scrollAmount;
-      } else {
-        container.scrollLeft += scrollAmount;
-      }
+      const scrollAmount = 400; 
+      if (direction === 'left') container.scrollLeft -= scrollAmount;
+      else container.scrollLeft += scrollAmount;
     }
   }
-
-  uploadstages() {
-    this.dialog.open(UploadstagepopComponent, {
-      width: '800px',
-      height: 'auto'
-    });
-  }
-
-  openuploadpop() {
-    this.dialog.open(UploadListComponent, {
-      width: '600px',
-      height: 'auto'
-    });
-  }
-
-  opensamplepop()
-  {
-      this.dialog.open(SamplePopComponent, {
-      width: '700px',
-      height: 'auto'
-    });
-  }
-
 }

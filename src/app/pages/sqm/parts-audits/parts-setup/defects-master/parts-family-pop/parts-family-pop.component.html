@@ -1,28 +1,30 @@
 <div class="NewHeader">
-  <h1 mat-dialog-title>Parts Families</h1>
+  <h1 mat-dialog-title>Assign Defects: {{ fullPartFamilyItem?.partFamilyName }}</h1>
 </div>
-<div mat-dialog-content style="overflow:hidden!important;">
-  <form class="form-horizontal" novalidate style="margin-top:10px">
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Engine Components</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Transmission Systems</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Chasis and Frame</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Suspension Parts</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Electrical System</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Braking Systems</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Body and Cabin</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Fuel Systems</mat-checkbox></div>
-    <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Cooling Systems</mat-checkbox></div>
-        <div style="margin-bottom: 10px;"><mat-checkbox class="col-sm-6">Steering Systems</mat-checkbox></div>
+
+<div mat-dialog-content style="overflow-x: hidden; max-height: 400px; padding-top: 15px;">
+  <form class="form-horizontal" novalidate>
+    <div class="row">
+      <div *ngFor="let defect of allDefects" class="col-sm-6" style="margin-bottom: 15px;">
+        <mat-checkbox 
+          [checked]="isSelected(defect.defectId)"
+          (change)="toggleSelection(defect.defectId, $event)">
+          {{ defect.defectName }}
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <div *ngIf="allDefects.length === 0" style="padding: 15px; color: gray;">
+      No defects available in Master Table.
+    </div>
   </form>
 </div>
 
-
-<mat-dialog-actions align="end" style="margin-top: 10px;">
-  
-  <button mat-raised-button class="grey" style="color:red" (click)="close()">
-    <mat-icon>cancel</mat-icon>Cancel
+<mat-dialog-actions align="end" style="margin-top: 15px; padding-bottom: 10px;">
+  <button mat-raised-button class="grey" style="color:red; margin-right: 10px;" (click)="close()">
+    <mat-icon>cancel</mat-icon> Cancel
   </button>
-  <button mat-raised-button color="primary" (click)="close()">
-    <mat-icon>save</mat-icon>Save
+  <button mat-raised-button color="primary" (click)="save()">
+    <mat-icon>save</mat-icon> Save
   </button>
 </mat-dialog-actions>

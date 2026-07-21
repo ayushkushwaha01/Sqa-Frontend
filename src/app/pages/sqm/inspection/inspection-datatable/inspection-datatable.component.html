@@ -78,7 +78,7 @@
             </div>
             <div class="col-sm-8">
               <div class="date-input-wrapper">
-                <input matInput [matDatepicker]="picker" placeholder="Select Date" class="form-control date-input" readonly (click)="picker.open()">
+                <input matInput [matDatepicker]="picker" placeholder="Select Date" class="form-control date-input" readonly (click)="picker.open()" [(ngModel)]="filterObj.date" name="dateFilter">
                 <mat-datepicker #picker></mat-datepicker>
               </div>
             </div>
@@ -87,7 +87,7 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Inspector:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Inspector" class="form-control mat-select-custom">
+              <mat-select placeholder="Select Inspector" class="form-control mat-select-custom" [(ngModel)]="filterObj.inspector" name="inspectorFilter">
                 <mat-option value="Rajiv Sharma">Rajiv Sharma</mat-option>
                 <mat-option value="Amit Singh">Amit Singh</mat-option>
                 <mat-option value="Priya Sharma">Priya Sharma</mat-option>
@@ -98,7 +98,7 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Part Family:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Part Family" class="form-control mat-select-custom">
+              <mat-select placeholder="Select Part Family" class="form-control mat-select-custom" [(ngModel)]="filterObj.partFamily" name="partFamilyFilter">
                 <mat-option value="Engine Components">Engine Components</mat-option>
                 <mat-option value="Transmission">Transmission</mat-option>
                 <mat-option value="Electrical">Electrical</mat-option>
@@ -109,7 +109,8 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Part Name:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Part Name" class="form-control mat-select-custom">
+              <mat-select placeholder="Select Part Name" class="form-control mat-select-custom" [(ngModel)]="filterObj.partName" name="partNameFilter">
+                <!-- Keep the search input if you have custom search logic, otherwise normal options work -->
                 <input type="text" class="form-control" placeholder="Search part name..." style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;" (keydown)="$event.stopPropagation()">
                 <mat-option value="Gear Shifter">Gear Shifter</mat-option>
                 <mat-option value="Alternator">Alternator</mat-option>
@@ -118,32 +119,11 @@
             </div>
           </div>
 
-          <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>Method:</b></div>
-            <div class="col-sm-8">
-              <input matInput type="text" placeholder="Enter Method" class="form-control">
-            </div>
-          </div>
-
-          <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>CAPA:</b></div>
-            <div class="col-sm-8">
-              <mat-checkbox color="primary">Requires CAPA</mat-checkbox>
-            </div>
-          </div>
-
-          <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>OK:</b></div>
-            <div class="col-sm-8">
-              <mat-checkbox color="primary">Requires Ok</mat-checkbox>
-            </div>
-          </div>
-
           <div class="col-md-3 col-sm-6 d-flex justify-content-end align-items-center mb-3 gap-2">
-            <button mat-raised-button class="btn-clear">
+            <button mat-raised-button class="btn-clear" type="button" (click)="clearFilter()">
               <mat-icon>settings_backup_restore</mat-icon> Clear
             </button>
-            <button mat-raised-button color="primary" class="btn-search">
+            <button mat-raised-button color="primary" class="btn-search" type="button" (click)="applyFilter()">
               <mat-icon>search</mat-icon> Search
             </button>
           </div>
@@ -155,7 +135,7 @@
 </div>
 
 <div class="table-responsive" id="grid-table-container" #tableContainer style="overflow-x: auto; white-space: nowrap;">
-  <table matSort id="example2" mat-table class="table table-bordered table-hover" style="width: 100%;">
+  <table id="example2" class="table table-bordered table-hover" style="width: 100%;">
     <thead class="tbl-head">
       <tr>
         <th class="text-center">Actions</th>
@@ -195,16 +175,16 @@
 
       <td class="text-link text-center">
   <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
-     [queryParams]="{ reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"> 
+     [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"> 
     {{ item.Reference }} 
   </a>
 </td>
         <td class="text-center">{{ item.stage }}</td>
         <td class="text-center">
-          <mat-checkbox [(ngModel)]="item.Publish" color="primary"></mat-checkbox>
-        </td>
+  <mat-checkbox [(ngModel)]="item.Publish" color="primary" (change)="togglePublish(item)"></mat-checkbox>
+</td>
 
-        <td class="text-center">{{ item.InspectionDate }}</td>
+        <td class="text-center">{{ item.InspectionDate | date:'yyyy-MM-dd' }}</td>
         <td class="text-center">{{ item.Time }}</td>
         <td class="text-center">{{ item.Inspector }}</td>
         <td class="text-center">{{ item.PartFamily }}</td>
@@ -217,9 +197,9 @@
           </a>
         </td>
 
-       <td class="text-center"> 
+      <td class="text-link text-center">
   <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
-     [queryParams]="{ reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"> 
+     [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"> 
     {{ item.Parameters }} 
   </a>
 </td>
@@ -232,7 +212,7 @@
       </tr>
 
       <tr *ngIf="!mockdata || mockdata.length === 0">
-        <td colspan="17" class="text-center">No records found</td>
+        <td colspan="18" class="text-center">No records found</td>
       </tr>
     </tbody>
   </table>
