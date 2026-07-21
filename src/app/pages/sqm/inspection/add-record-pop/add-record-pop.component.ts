@@ -44,7 +44,7 @@ export class AddRecordPopComponent implements OnInit {
       stageId: [null, Validators.required],
       supplierId: [null, Validators.required],
       inspectionDate: [null, Validators.required],
-      shiftId: [null, Validators.required],
+      shiftId: [null],
       time: [null, Validators.required],
       inspectorId: [null, Validators.required],
       partFamilyId: [null, Validators.required],
