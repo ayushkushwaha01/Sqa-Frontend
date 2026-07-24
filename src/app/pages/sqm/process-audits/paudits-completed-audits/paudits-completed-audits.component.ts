@@ -309,4 +309,15 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       }
     });
   }
+
+  // --- GRID SCROLLING ---
+  scrollRight() {
+    const container = document.getElementById('grid-table-container');
+    if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+  }
+  
+  scrollLeft() {
+    const container = document.getElementById('grid-table-container');
+    if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+  }
 }

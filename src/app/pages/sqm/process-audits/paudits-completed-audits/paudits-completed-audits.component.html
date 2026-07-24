@@ -98,7 +98,7 @@
     </div>
   </div>
   
-  <div class="table-responsive bg-white">
+  <div class="table-responsive bg-white" id="grid-table-container" style="scroll-behavior: smooth;">
     <table class="custom-grid-table">
       <thead>
         <tr>
@@ -143,10 +143,6 @@
             {{ getStatusName(item.statusId) }}
           </td>
           
-          <!-- <td class="text-center">
-            <mat-checkbox [checked]="item.isDone" [disabled]="true" color="primary"></mat-checkbox>
-          </td> -->
-
           <td class="text-center">
             <!-- 🔥 Rendered as Interactive Checkbox -->
             <mat-checkbox [checked]="item.isDone" (click)="onDoneClick($event, item)" color="primary"></mat-checkbox>
@@ -154,6 +150,13 @@
         </tr>
       </tbody>
     </table>
+
+    <button class="mine mine-right" mat-fab (click)="scrollRight()">
+      <mat-icon style="color: #37474f">fast_forward</mat-icon>
+    </button>
+    <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+      <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+    </button>
 
     <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)" showFirstLastButtons>
     </mat-paginator>

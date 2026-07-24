@@ -21,11 +21,16 @@ export class PauditsActionsComponent implements OnInit {
   filterToggle: boolean = false;
   totalSize = 0;
   myGroup!: FormGroup;
+  originalTableList: any[] = [];
   tableList: any[] = [];
   parentAuditRef: string = 'Pending...';
   targetCategoryId: any = null;   
   targetChecklistId: any = null; 
   
+  processCategories: string[] = [];
+  suppliers: string[] = [];
+  actionTypes: string[] = [];
+
   pageSize = 5;
   pageIndex = 0;
 
@@ -49,11 +54,12 @@ export class PauditsActionsComponent implements OnInit {
   
   ngOnInit(): void {
     this.myGroup = new FormGroup({
-      Keyword: new FormControl('')
-      // ... Add your filter controls back here if needed
+      Keyword: new FormControl(''),
+      ProcessCategory: new FormControl(''),
+      SupplierName: new FormControl(''),
+      ActionType: new FormControl('')
     });
     
-
     this.loadData();
   }
 
@@ -61,8 +67,14 @@ export class PauditsActionsComponent implements OnInit {
   loadData() {
     this.api.getAllCapas().subscribe((res: any) => {
       if (res.success) {
-        this.tableList = res.data;
+        this.originalTableList = res.data;
+        this.tableList = [...this.originalTableList];
         this.totalSize = this.tableList.length;
+
+        // Extract unique values for dropdowns
+        this.processCategories = [...new Set(res.data.map((item: any) => item.processCategory).filter(Boolean))] as string[];
+        this.suppliers = [...new Set(res.data.map((item: any) => item.supplierName).filter(Boolean))] as string[];
+        this.actionTypes = [...new Set(res.data.map((item: any) => item.actionType).filter(Boolean))] as string[];
       }
     });
   }
@@ -138,6 +150,40 @@ export class PauditsActionsComponent implements OnInit {
     // Add logic to delete CAPA if they confirm
   }
 
-  go() { }
-  clearFilter() { }
+  go() { 
+    const filters = this.myGroup.value;
+    const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
+    const category = filters.ProcessCategory;
+    const supplier = filters.SupplierName;
+    const actionType = filters.ActionType;
+
+    this.tableList = this.originalTableList.filter(item => {
+      let matches = true;
+      if (keyword) {
+        // Search across multiple relevant fields
+        const searchStr = `${item.reference} ${item.actionSubject} ${item.supplierName} ${item.actionType} ${item.auditReference} ${item.processCategory}`.toLowerCase();
+        matches = matches && searchStr.includes(keyword);
+      }
+      if (category) {
+        matches = matches && item.processCategory === category;
+      }
+      if (supplier) {
+        matches = matches && item.supplierName === supplier;
+      }
+      if (actionType) {
+        matches = matches && item.actionType === actionType;
+      }
+      return matches;
+    });
+
+    this.pageIndex = 0; // Reset pagination to first page
+    this.totalSize = this.tableList.length;
+  }
+
+  clearFilter() { 
+    this.myGroup.reset();
+    this.tableList = [...this.originalTableList];
+    this.pageIndex = 0;
+    this.totalSize = this.tableList.length;
+  }
 }
