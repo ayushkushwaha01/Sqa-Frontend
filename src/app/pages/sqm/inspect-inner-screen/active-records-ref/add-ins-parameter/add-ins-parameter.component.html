@@ -1,0 +1,133 @@
+<div class="NewHeader">
+    <h3 *ngIf="!isEditMode" style="padding-top:10px; font-size: 24px;">Add Parameter</h3>
+    <h3 *ngIf="isEditMode" style="padding-top:10px; font-size: 24px;">Edit Parameter</h3>
+</div>
+
+<div>
+    <div fxLayout="row wrap" class="col-sm-12">
+        <!-- Removed the sidebar since there is only one step -->
+        <div class="col-sm-12" style="margin-top: 10px; padding: 0 20px;">
+            <div mat-dialog-content>
+                <form class="form-horizontal row">
+                    
+                    <!-- Left Column -->
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Parameter : </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Parameter"
+                                       [(ngModel)]="localData.parameter" name="parameter">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Spec : </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Spec"
+                                       [(ngModel)]="localData.spec" name="spec">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Min : </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter Min"
+                                       [(ngModel)]="localData.min" name="min">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Max : </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter Max"
+                                       [(ngModel)]="localData.max" name="max">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Special : </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Special"
+                                       [(ngModel)]="localData.special" name="special">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Method : </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Method"
+                                       [(ngModel)]="localData.method" name="method">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">S1: </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter S1 Value"
+                                       [(ngModel)]="localData.s1" name="s1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">S2: </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter S2 Value"
+                                       [(ngModel)]="localData.s2" name="s2">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">S3: </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter S3 Value"
+                                       [(ngModel)]="localData.s3" name="s3">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">S4: </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter S4 Value"
+                                       [(ngModel)]="localData.s4" name="s4">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">S5: </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="number" class="form-control" placeholder="Enter S5 Value"
+                                       [(ngModel)]="localData.s5" name="s5">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Remarks: </label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <input type="text" class="form-control" placeholder="Enter Remarks"
+                                       [(ngModel)]="localData.remarks" name="remarks">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <mat-dialog-actions align="end" style="margin-top: 15px; margin-bottom: 5px;">
+                <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()" style="background-color: #f0f0f0; color: red; margin-right: 10px;">
+                    <mat-icon>cancel</mat-icon> Close
+                </button>
+                <!-- Changed 'Next' to 'Save' since there is only one step -->
+                <button mat-raised-button type="button" class="save" color="primary" (click)="save()">
+                    <mat-icon>save</mat-icon> Save
+                </button>
+            </mat-dialog-actions>
+        </div>
+    </div>
+</div>
+
+
+
+
+
