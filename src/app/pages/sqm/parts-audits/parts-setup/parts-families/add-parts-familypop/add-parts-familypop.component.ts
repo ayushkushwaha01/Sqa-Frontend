@@ -48,10 +48,10 @@ export class AddPartsFamilypopComponent implements OnInit {
       ],
 
       PartFamilyCode: [
-        data?.partFamilyCode || '',
+        data?.partFamilyCode?.toUpperCase() || '',
         [
           Validators.required,
-          Validators.pattern('^[a-zA-Z0-9]{5}$')
+          Validators.pattern('^[A-Z0-9]{5}$')
         ]
       ]
     });
@@ -60,7 +60,11 @@ export class AddPartsFamilypopComponent implements OnInit {
   }
   get f() { return this.myGroup.controls }
 
-
+  onUppercaseInput(event: Event, controlName: string): void {
+    const input = event.target as HTMLInputElement;
+    const upperValue = input.value.toUpperCase();
+    this.myGroup.get(controlName)?.setValue(upperValue, { emitEvent: false });
+  }
   UpsertPartFamily() {
 
     if (this.myGroup.invalid) {

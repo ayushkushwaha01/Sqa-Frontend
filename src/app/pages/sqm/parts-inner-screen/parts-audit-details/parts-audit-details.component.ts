@@ -1,6 +1,12 @@
 import { Location } from '@angular/common';
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { AlertService } from 'src/app/shared/alert.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { ActivatedRoute } from '@angular/router';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-parts-audit-details',
@@ -16,13 +22,13 @@ export class PartsAuditDetailsComponent implements OnInit {
   occurrenceOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   detectionOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  images: string[] = [
-    'assets/img8.jpg',
-    'assets/img-001.jpg',
-    'assets/img-002.jpg',
-    'assets/img-003.jpg',
-    'assets/img5.jpg'
-  ];
+  // images: string[] = [
+  //   'assets/img8.jpg',
+  //   'assets/img-001.jpg',
+  //   'assets/img-002.jpg',
+  //   'assets/img-003.jpg',
+  //   'assets/img5.jpg'
+  // ];
 
   selectedClass: any;
 
@@ -30,72 +36,385 @@ export class PartsAuditDetailsComponent implements OnInit {
   currentSlideIndex = 0;
 
   constructor(
-    private fb: FormBuilder,
-    private location: Location
+    private fb: FormBuilder, private dialog: MatDialog,
+    private location: Location, private partAuditService: PartAuditService, private alertService: AlertService,
+    private setupService: SetupService, private route: ActivatedRoute
   ) { }
-
+  partAuditId: number = 0;
+  auditParameterId: number = 0;
   ngOnInit(): void {
-    this.initForm();
-    this.setupScoreCalculation();
+
+    this.route.queryParams.subscribe(params => {
+
+      this.partAuditId = +params['partAuditId'] || 0;
+      this.auditParameterId = +params['auditParameterId'] || 0;
+
+      console.log('PartAuditId:', this.partAuditId);
+      console.log('AuditParameterId:', this.auditParameterId);
+
+      this.initForm();
+      this.setupScoreCalculation();
+      this.getSeverities();
+      this.getCapa();
+
+
+
+
+    });
+
   }
 
   goBack(): void {
     this.location.back();
   }
 
-  initForm(): void {
-    this.auditForm = this.fb.group({
-      subject: [''],
-      pdfFile: [null],
-      dueDate: [''],
-      completedDate: [''],
-      pdcaStatus: [''],
-      severity: [8],
-      occurrence: [4],
-      detection: [2],
-      sodScore: [{ value: '842', disabled: true }],
-      riskRating: [{ value: 'High', disabled: true }],
-      isResolved: [false],
-      observations: [''],
-      correctiveActions: [''],
-      supplierRemarks: ['']
-    });
+
+
+  severities: any[] = [];
+  getSeverities() {
+    this.setupService.getSeverities()
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.severities = res.data;
+
+        }
+      });
   }
 
-  setupScoreCalculation(): void {
-    this.auditForm.valueChanges.subscribe(values => {
-      if (values.severity && values.occurrence && values.detection) {
+  initForm(): void {
 
-        const sodStr = `${values.severity}${values.occurrence}${values.detection}`;
+    this.auditForm = this.fb.group({
 
-        this.auditForm.get('sodScore')?.setValue(
-          sodStr,
-          { emitEvent: false }
-        );
+      partAuditCapaId: [0],
 
-        const risk = parseInt(sodStr, 10) > 500 ? 'High' : 'Low';
+      partAuditId: [this.partAuditId],
 
-        this.auditForm.get('riskRating')?.setValue(
-          risk,
-          { emitEvent: false }
-        );
+      auditParameterId: [this.auditParameterId],
+      subject: [''],
+
+      dueDate: [''],
+
+      completedDate: [''],
+
+      pdcaStatus: [''],
+
+      severityId: [null],
+
+      occurrence: [null],
+
+      detection: [null],
+
+      sodScore: [''],
+
+      riskRating: [''],
+
+      isResolved: [false],
+
+      class: [''],
+
+      actionType: [''],
+
+      capaSubject: [''],
+
+      observations: [''],
+
+      correctiveActions: [''],
+
+      supplierRemarks: ['']
+
+    });
+
+  }
+
+  save() {
+
+    if (this.auditForm.invalid) {
+      return;
+    }
+
+    const payload = this.auditForm.getRawValue();
+
+    this.partAuditService.upsertCapa(payload).subscribe({
+
+      next: (res: any) => {
+
+        if (res.success) {
+
+          this.alertService.createAlert(res.message);
+
+          this.auditForm.patchValue({
+            partAuditCapaId: res.data.partAuditCapaId
+          });
+
+          if (this.selectedPdfFiles.length > 0) {
+            this.uploadDocuments();
+          }
+
+          if (this.selectedImageFiles.length > 0) {
+            this.uploadImages();
+          }
+
+        }
+
+      },
+
+      error: err => console.error(err)
+
+    });
+
+  }
+
+  selectedPdfFiles: File[] = [];
+  onPdfSelected(event: any) {
+
+    if (event.target.files && event.target.files.length > 0) {
+
+      this.selectedPdfFiles = Array.from(event.target.files);
+
+    }
+
+  }
+
+  uploadDocuments() {
+
+    const formData = new FormData();
+
+    formData.append('partAuditId', this.partAuditId.toString());
+    formData.append('auditParameterId', this.auditParameterId.toString());
+
+    this.selectedPdfFiles.forEach(file => {
+      formData.append('files', file);
+    });
+
+    this.partAuditService.upsertPartsAuditDoc(formData)
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(res.message);
+
+            this.selectedPdfFiles = [];
+
+          }
+
+        },
+
+        error: err => console.error(err)
+
+      });
+
+  }
+
+
+  selectedImageFiles: File[] = [];
+  //images: string[] = [];
+
+  onFileSelected(event: any) {
+
+    if (event.target.files && event.target.files.length > 0) {
+
+      const files = Array.from(event.target.files) as File[];
+
+      files.forEach(file => {
+
+        this.selectedImageFiles.push(file);
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          this.images.push(reader.result as string);
+        };
+
+        reader.readAsDataURL(file);
+
+      });
+
+    }
+
+  }
+
+  uploadImages() {
+
+    const formData = new FormData();
+
+    formData.append('partAuditId', this.partAuditId.toString());
+    formData.append('auditParameterId', this.auditParameterId.toString());
+
+    this.selectedImageFiles.forEach(file => {
+      formData.append('files', file);
+    });
+
+    this.partAuditService.upsertPartsAuditImages(formData)
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(res.message);
+
+            this.selectedImageFiles = [];
+
+          }
+
+        },
+
+        error: err => console.error(err)
+
+      });
+
+  }
+  setupScoreCalculation() {
+
+    this.auditForm.get('severityId')?.valueChanges.subscribe(() => {
+      this.calculateSodScore();
+    });
+
+    this.auditForm.get('occurrence')?.valueChanges.subscribe(() => {
+      this.calculateSodScore();
+    });
+
+    this.auditForm.get('detection')?.valueChanges.subscribe(() => {
+      this.calculateSodScore();
+    });
+
+  }
+  calculateSodScore() {
+
+    const severityId = this.auditForm.get('severityId')?.value;
+    const occurrence = this.auditForm.get('occurrence')?.value ?? '';
+    const detection = this.auditForm.get('detection')?.value ?? '';
+
+    const severity = this.severities.find(x => x.severityId == severityId);
+
+    const severityRating = severity?.rating ?? '';
+
+    const sodScore = `${severityRating}${occurrence}${detection}`;
+
+    this.auditForm.patchValue(
+      {
+        sodScore: sodScore
+      },
+      { emitEvent: false }
+    );
+  }
+
+
+  documents: any[] = [];
+  imageDetails: any[] = [];
+  images: string[] = [];
+  getCapa() {
+
+    const filter = {
+      auditParameterId: this.auditParameterId
+    };
+
+    this.partAuditService.getCapa(filter)
+      .subscribe((res: any) => {
+
+        if (!res.success || !res.data) {
+          return;
+        }
+
+        const capa = res.data.capa;
+
+        this.auditForm.patchValue({
+
+          partAuditCapaId: capa.partAuditCapaId,
+          partAuditId: capa.partAuditId,
+          auditParameterId: capa.auditParameterId,
+          subject: capa.subject,
+          // dueDate: capa.dueDate,
+          // completedDate: capa.completedDate,
+          dueDate: capa.dueDate ? capa.dueDate.substring(0, 10) : '',
+
+          completedDate: capa.completedDate
+            ? capa.completedDate.substring(0, 10)
+            : '',
+          pdcaStatus: capa.pdcaStatus,
+          severityId: capa.severityId,
+          occurrence: capa.occurrence,
+          detection: capa.detection,
+          sodScore: capa.sodScore,
+          riskRating: capa.riskRating,
+          isResolved: capa.isResolved,
+          class: capa.class,
+          actionType: capa.actionType,
+          capaSubject: capa.capaSubject,
+          observations: capa.observations,
+          correctiveActions: capa.correctiveActions,
+          supplierRemarks: capa.supplierRemarks
+
+        });
+
+        // Documents
+        this.documents = res.data.documents || [];
+
+        // Images for gallery
+        this.imageDetails = res.data.images || [];
+
+        this.images = this.imageDetails.map((x: any) => x.imageurl);
+
+      });
+
+  }
+
+
+
+  changeResolvedStatus() {
+
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: 'auto',
+      data: {
+        component: null,
+        title: 'Change Status Confirmation',
+        content: `Are you sure you want to mark this record as ${this.auditForm.get('isResolved')?.value ? 'Not Resolved' : 'Resolved'
+          }?`,
+        isConfirmation: true
       }
     });
-  }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
+    dialogRef.afterClosed().subscribe(result => {
 
-    if (file) {
+      if (!result) {
+        return;
+      }
 
-      const reader = new FileReader();
+      this.partAuditService.updateResolvedStatus({
+        partAuditCapaId: this.auditForm.get('partAuditCapaId')?.value
+      }).subscribe({
 
-      reader.onload = () => {
-        this.images.push(reader.result as string);
-      };
+        next: (res: any) => {
 
-      reader.readAsDataURL(file);
-    }
+          if (res.success) {
+
+            this.auditForm.patchValue({
+              isResolved: res.isResolved
+            });
+
+            this.alertService.createAlert(res.message, 1);
+
+          } else {
+
+            this.alertService.createAlert(res.message, 0);
+
+          }
+
+        },
+
+        error: () => {
+
+          this.alertService.createAlert('Something went wrong.', 0);
+
+        }
+
+      });
+
+    });
+
   }
 
   openSlideshow(index: number): void {

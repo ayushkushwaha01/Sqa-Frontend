@@ -40,8 +40,9 @@
         <table class="custom-grid-table">
             <thead>
                 <tr>
-
+                    <th>Category</th>
                     <th>Parameter</th>
+                    <th>Unit</th>
                     <th>Spec</th>
                     <th class="text-center">Min</th>
                     <th class="text-center">Max</th>
@@ -54,8 +55,9 @@
             <tbody>
                 <tr *ngFor="let item of tableLists">
 
-
+                    <td>{{ item.categoryName || '-' }}</td>
                     <td>{{ item.parmeterName || '-' }}</td>
+                    <td>{{ item.unitName || '-' }}</td>
 
                     <td>{{ item.spec || '-' }}</td>
 

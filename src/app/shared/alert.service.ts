@@ -20,4 +20,13 @@ export class AlertService {
       horizontalPosition: 'right'
     });
   }
+
+  warn(message: string): void {
+    this.createAlert(message, 0);
+  }
+
+  success(message: string): void {
+    this.createAlert(message, 1);
+  }
+
 }

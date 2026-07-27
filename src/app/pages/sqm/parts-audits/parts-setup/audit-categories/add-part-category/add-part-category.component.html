@@ -35,8 +35,10 @@
                     </div>
 
                     <div class="col-sm-8">
+                        <!-- <input type="text" class="form-control" placeholder="Enter Category Code"
+                            formControlName="CategoryCode" maxlength="5"> -->
                         <input type="text" class="form-control" placeholder="Enter Category Code"
-                            formControlName="CategoryCode" maxlength="5">
+                            formControlName="CategoryCode" maxlength="5" (input)="onCategoryCodeInput($event)">
 
                         <small class="text-danger"
                             *ngIf="f['CategoryCode'].touched && f['CategoryCode'].errors?.['required']">
@@ -70,11 +72,3 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-

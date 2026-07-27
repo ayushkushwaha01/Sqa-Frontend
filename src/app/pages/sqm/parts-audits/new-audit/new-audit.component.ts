@@ -40,27 +40,89 @@ export class NewAuditComponent implements OnInit {
 
 
   partsFamilies: any[] = [];
+  // getPartsFamilies() {
+  //   this._setupService.getPartFamilies(null)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.partsFamilies = res.data.data;
+
+  //       }
+  //     });
+  // }
+
+  allPartFamilies: any[] = [];        // All Part Families
+  // Filtered Part Families
+
+  allParts: any[] = [];               // All Parts
+  // Filtered Parts
   getPartsFamilies() {
     this._setupService.getPartFamilies(null)
       .subscribe((res: any) => {
         if (res.success) {
 
-          this.partsFamilies = res.data.data;
+          this.allPartFamilies = res.data.data;
+          this.partsFamilies = [...this.allPartFamilies];
 
         }
       });
   }
 
   parts: any[] = [];
+  // getParts() {
+  //   this._setupService.getPartMaster(null)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.parts = res.data.data;
+
+  //       }
+  //     });
+  // }
   getParts() {
     this._setupService.getPartMaster(null)
       .subscribe((res: any) => {
         if (res.success) {
 
-          this.parts = res.data.data;
+          this.allParts = res.data.data;
+          this.parts = [...this.allParts];
 
         }
       });
+  }
+  onCommodityChange(commodityId: number) {
+
+    this.myGroup.patchValue({
+      partFamilyId: null,
+      partMasterId: null
+    });
+
+    // Filter parts by commodity
+    const filteredParts = this.allParts.filter(
+      x => x.commodityId == commodityId
+    );
+
+    // Build unique Part Family list
+    this.partsFamilies = filteredParts.filter(
+      (item, index, self) =>
+        index === self.findIndex(
+          x => x.partFamilyId === item.partFamilyId
+        )
+    );
+
+    // Clear Part dropdown
+    this.parts = [];
+  }
+  onPartFamilyChange(partFamilyId: number) {
+
+    this.myGroup.patchValue({
+      partMasterId: null
+    });
+
+    this.parts = this.allParts.filter(
+      x => x.partFamilyId == partFamilyId
+    );
+
   }
   originalTableData: any[] = [];
   getCommodities() {
@@ -98,17 +160,30 @@ export class NewAuditComponent implements OnInit {
 
 
   cities: any[] = []
+  allCities: any[] = [];
   getCities() {
     this._setupService.getAllCities()
       .subscribe((res: any) => {
         if (res.success) {
 
-          this.cities = res.data;
+          this.allCities = res.data;
+          this.cities = [...this.allCities];
 
         }
       });
   }
 
+  onStateChange(stateId: number) {
+
+    this.myGroup.patchValue({
+      cityId: null
+    });
+
+    this.cities = this.allCities.filter(
+      x => x.stateId == stateId
+    );
+
+  }
   Auditors: any[] = [];
 
   getAuditors() {
