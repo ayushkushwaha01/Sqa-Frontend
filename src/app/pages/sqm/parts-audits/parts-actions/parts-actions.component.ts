@@ -84,7 +84,7 @@ export class PartsActionsComponent implements OnInit {
   getLookups() {
     this.lookupService.getLookups().subscribe((res: any) => {
       if (res.success) {
-        this.lookups = res.data.filter((x: any) => x.codeId === 11);
+        this.lookups = res.data.filter((x: any) => x.codeId === 8);
       }
     });
   }
