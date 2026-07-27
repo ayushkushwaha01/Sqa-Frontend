@@ -4,6 +4,9 @@ import { AddRecordPopComponent } from '../add-record-pop/add-record-pop.componen
 import { DefectsPopComponent } from './defects-pop/defects-pop.component';
 import { ActiveGridDialogComponent } from '../../process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
 import { InspectionService } from '../inspection.service';
+import { AlertService } from 'src/app/shared/alert.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'app-inspection-datatable',
@@ -15,15 +18,15 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
   // ── ngx-charts Configuration ──
-  public first:  any[] = []; 
-  public multi:  any[] = []; 
-  public triple: any[] = []; 
-  
-  public showLegend    = false;
-  public showLabels    = true;
+  public first: any[] = [];
+  public multi: any[] = [];
+  public triple: any[] = [];
+
+  public showLegend = false;
+  public showLabels = true;
   public explodeSlices = false;
-  public doughnut      = false;
-  public gradient      = false;
+  public doughnut = false;
+  public gradient = false;
   public colorScheme: any = {
     domain: ['#2F3E9E', '#D22E2E', '#378D3B', '#0096A6', '#F47B00', '#606060']
   };
@@ -33,8 +36,8 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   }
 
   // --- Filter Variables ---
-  allMockData: any[] = []; // Stores the unfiltered data
-  mockdata: any[] = [];    // Stores the currently displayed data
+  allMockData: any[] = [];
+  mockdata: any[] = [];
   showFilter = false;
 
   filterObj = {
@@ -47,7 +50,8 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   constructor(
     private dialog: MatDialog,
     private inspectionService: InspectionService,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef,
+    private alertService: AlertService // <-- Inject Alert Service here
   ) { }
 
   ngOnInit(): void {
@@ -58,38 +62,37 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.inspectionService.getAllInspections().subscribe({
       next: (res: any) => {
         if (res && res.success) {
-          // Added fallbacks (||) for case sensitivity to ensure ID and Publish map correctly
           this.allMockData = res.data.map((item: any) => ({
             id: item.inspectionId || item.InspectionId,
-            
             stageId: item.stageId || item.StageId,
             supplierId: item.supplierId || item.SupplierId,
             shiftId: item.shiftId || item.ShiftId,
             inspectorId: item.inspectorId || item.InspectorId,
             partFamilyId: item.partFamilyId || item.PartFamilyId,
-            partMasterId: item.partCodeId || item.PartCodeId, 
-            batchId: item.batchNumberId || item.BatchNumberId,   
-            
+            partMasterId: item.partCodeId || item.PartCodeId,
+            batchId: item.batchNumberId || item.BatchNumberId,
             Reference: item.referenceId || item.ReferenceId,
             Publish: item.publish ?? item.Publish ?? false,
             InspectionDate: item.inspectionDate || item.InspectionDate ? new Date(item.inspectionDate || item.InspectionDate).toISOString() : null,
             Time: item.time || item.Time,
             Inspector: item.inspectorName || item.InspectorName || '-',
             PartFamily: item.partFamilyName || item.PartFamilyName || '-',
-            PartName: item.partMasterCode || item.PartMasterCode || '-', 
+            PartName: item.partMasterCode || item.PartMasterCode || '-',
             PartNumber: item.partMasterCode || item.PartMasterCode || '-',
-            Defects: item.defects || item.Defects || 0,
-            Parameters: item.parameters || item.Parameters || 0,
+
+            // Read the dynamic strings returned from the updated backend
+            Defects: item.defects || item.Defects || '0/0',
+            Parameters: item.parameters || item.Parameters || '0',
+
             Remarks: item.remarks || item.Remarks || '-',
             BatchNumber: item.batchNumber || item.BatchNumber || '-',
-            BatchQuantity: item.batchQuantity || item.BatchQuantity || 0, 
+            BatchQuantity: item.batchQuantity || item.BatchQuantity || 0,
             SampleQuantity: item.sampleQuantity || item.SampleQuantity || 0,
             ErrorRatePct: (item.errorRate ?? item.ErrorRate) != null ? (item.errorRate ?? item.ErrorRate) + '%' : '0%',
-            ErrorRatePPM: (item.errorRate ?? item.ErrorRate) != null ? ((item.errorRate ?? item.ErrorRate) * 10000) : 0, 
+            ErrorRatePPM: (item.errorRate ?? item.ErrorRate) != null ? ((item.errorRate ?? item.ErrorRate) * 10000) : 0,
             stage: item.stageName || item.StageName || 'Unassigned'
           }));
 
-          // Initialize grid with full data
           this.mockdata = [...this.allMockData];
           this.updateChartData();
           this.cdr.detectChanges();
@@ -103,36 +106,19 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // --- NEW: Filter Methods ---
   applyFilter() {
     this.mockdata = this.allMockData.filter(item => {
       let matches = true;
-
-      // Filter by Date
       if (this.filterObj.date && item.InspectionDate) {
         const itemDate = new Date(item.InspectionDate).toDateString();
         const filterDate = new Date(this.filterObj.date).toDateString();
         if (itemDate !== filterDate) matches = false;
       }
-
-      // Filter by Inspector
-      if (this.filterObj.inspector && item.Inspector !== this.filterObj.inspector) {
-        matches = false;
-      }
-
-      // Filter by Part Family
-      if (this.filterObj.partFamily && item.PartFamily !== this.filterObj.partFamily) {
-        matches = false;
-      }
-
-      // Filter by Part Name
-      if (this.filterObj.partName && item.PartName !== this.filterObj.partName) {
-        matches = false;
-      }
-
+      if (this.filterObj.inspector && item.Inspector !== this.filterObj.inspector) matches = false;
+      if (this.filterObj.partFamily && item.PartFamily !== this.filterObj.partFamily) matches = false;
+      if (this.filterObj.partName && item.PartName !== this.filterObj.partName) matches = false;
       return matches;
     });
-
     this.updateChartData();
   }
 
@@ -158,55 +144,88 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.triple = Object.keys(inspectorCounts).map(key => ({ name: key, value: inspectorCounts[key] }));
   }
 
-  scrollLeft()  { this.tableContainer?.nativeElement.scrollBy({ left: -300, behavior: 'smooth' }); }
-  scrollRight() { this.tableContainer?.nativeElement.scrollBy({ left:  300, behavior: 'smooth' }); }
+  scrollLeft() { this.tableContainer?.nativeElement.scrollBy({ left: -300, behavior: 'smooth' }); }
+  scrollRight() { this.tableContainer?.nativeElement.scrollBy({ left: 300, behavior: 'smooth' }); }
 
   // -------------------------------------------------------------
   // ACTIONS (Add, Edit, Delete, Archive, Publish)
   // -------------------------------------------------------------
 
-  addrecord(data: any) { 
-    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: null }); 
-    dialogRef.afterClosed().subscribe(res => { if(res) this.loadData(); });
+  addrecord(data: any) {
+    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: null });
+    dialogRef.afterClosed().subscribe(res => { if (res) this.loadData(); });
   }
 
-  openEditDialog(item: any) { 
-    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: item }); 
-    dialogRef.afterClosed().subscribe(res => { if(res) this.loadData(); });
+  openEditDialog(item: any) {
+    const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: item });
+    dialogRef.afterClosed().subscribe(res => { if (res) this.loadData(); });
   }
 
-  deleteConfirmation(item: any) { 
-    if(confirm('Are you sure you want to delete this record?')) {
-      this.inspectionService.deleteInspection(item.id).subscribe({
-        next: (res) => { if(res.success) this.loadData(); },
-        error: (err) => alert('Failed to delete record')
-      });
-    }
+  deleteConfirmation(item: any) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: {
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to delete this record?',
+        confirmText: 'Delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.inspectionService.deleteInspection(item.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.alertService.createAlert('Record deleted successfully!');
+              this.loadData();
+            }
+          },
+          error: (err) => this.alertService.createAlert('Failed to delete record')
+        });
+      }
+    });
   }
 
-  archiveRecord(item: any) { 
-    if(confirm('Are you sure you want to archive this record?')) {
-      this.inspectionService.archiveInspection(item.id).subscribe({
-        next: (res) => { if(res.success) this.loadData(); },
-        error: (err) => alert('Failed to archive record')
-      });
-    }
+  archiveRecord(item: any) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: {
+        title: 'Archive Confirmation',
+        content: 'Are you sure you want to archive this record?',
+        confirmText: 'Archive'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.inspectionService.archiveInspection(item.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.alertService.createAlert('Record archived successfully!');
+              this.loadData();
+            }
+          },
+          error: (err) => this.alertService.createAlert('Failed to archive record')
+        });
+      }
+    });
   }
 
-togglePublish(item: any) {
+  togglePublish(item: any) {
     if (!item.id) {
-      alert("Error: Inspection ID is missing.");
+      this.alertService.createAlert("Error: Inspection ID is missing."); // <-- Replace native alert
       item.Publish = !item.Publish; // Revert
       return;
     }
 
-    // Send both the ID and the current checkbox state (item.Publish)
     this.inspectionService.togglePublish(item.id, item.Publish).subscribe({
-      next: (res) => { 
-        console.log('Publish status updated successfully to: ', item.Publish); 
+      next: (res) => {
+        this.alertService.createAlert(`Record ${item.Publish ? 'published' : 'unpublished'} successfully!`); // <-- Success Alert
       },
       error: (err) => {
-        alert('Failed to update publish status. Check console for details.');
+        this.alertService.createAlert('Failed to update publish status. Check console for details.'); // <-- Error Alert
         console.error(err);
         item.Publish = !item.Publish; // Revert checkbox if API fails
         this.cdr.detectChanges();
@@ -214,14 +233,22 @@ togglePublish(item: any) {
     });
   }
 
-  openDefectsPop(item: any) { this.dialog.open(DefectsPopComponent,   { width: '1400px', height: 'auto', data: item }); }
-  
-  openGridView(data:any) {
+  openDefectsPop(item: any) {
+    const dialogRef = this.dialog.open(DefectsPopComponent, { width: '1400px', height: 'auto', data: item });
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.alertService.createAlert('Defects saved successfully!');
+        this.loadData();
+      }
+    });
+  }
+
+  openGridView(data: any) {
     this.dialog.open(ActiveGridDialogComponent, {
       width: '650px',
       height: 'auto',
       maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog' 
+      panelClass: 'no-scroll-dialog'
     });
   }
 

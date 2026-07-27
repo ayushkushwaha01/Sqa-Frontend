@@ -10,6 +10,10 @@ import { UploadstagepopComponent } from './uploadstagepop/uploadstagepop.compone
 import { UploadListComponent } from './upload-list/upload-list.component';
 import { SamplePopComponent } from './sample-pop/sample-pop.component';
 import { InspectionService } from '../../inspection/inspection.service';
+import { AddInsParameterComponent } from './add-ins-parameter/add-ins-parameter.component';
+import { AlertService } from 'src/app/shared/alert.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'app-active-records-ref',
@@ -19,7 +23,7 @@ import { InspectionService } from '../../inspection/inspection.service';
 export class ActiveRecordsRefComponent implements OnInit {
 
   @ViewChild('tableContainer') tableContainer!: ElementRef;
-  
+
   currentInspectionId: number = 0;
   currentReference: string = '';
   currentPartFamily: string = '';
@@ -27,21 +31,21 @@ export class ActiveRecordsRefComponent implements OnInit {
 
   pageSize = 10;
   pageIndex = 0;
-  
+
   tableData: any[] = [];
   pagedData: any[] = [];
-  totalFilteredRecords = 0; // Tracks total count for paginator
+  totalFilteredRecords = 0;
 
-  // Category Filtering & Mapping
   categories: string[] = [];
   selectedCategory: string = 'All';
-  categoryMap: { [key: string]: any } = {}; // Holds dynamic IDs for each category
+  categoryMap: { [key: string]: any } = {};
 
   constructor(
     private location: Location,
     public dialog: MatDialog,
     private route: ActivatedRoute,
-    private inspectionService: InspectionService 
+    private inspectionService: InspectionService,
+    private alertService: AlertService // <-- Inject Alert Service
   ) { }
 
   goBack(): void {
@@ -50,7 +54,7 @@ export class ActiveRecordsRefComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.currentInspectionId = Number(params['inspectionId']); 
+      this.currentInspectionId = Number(params['inspectionId']);
       this.currentReference = params['reference'];
       this.currentPartFamily = params['partFamily'];
       this.currentPartName = params['partName'];
@@ -65,11 +69,10 @@ export class ActiveRecordsRefComponent implements OnInit {
     this.inspectionService.getInspectionParameters(this.currentInspectionId).subscribe({
       next: (res: any) => {
         if (res && res.success) {
-          
+
           this.tableData = res.data.map((item: any) => {
             const catName = item.categoryName || item.CategoryName;
 
-            // Store category ID references dynamically so we can use them when saving
             if (!this.categoryMap[catName]) {
               this.categoryMap[catName] = {
                 partId: item.partId || item.PartId,
@@ -86,8 +89,9 @@ export class ActiveRecordsRefComponent implements OnInit {
               unit: item.unit || item.Unit,
               min: item.min || item.Min,
               max: item.max || item.Max,
+              special: item.special || item.Special, // <-- Map Special field for edit mode
               defects: item.defects || item.Defects || '0',
-              defectRate: '0%', 
+              defectRate: '0%',
               okay: item.okay || item.Okay,
               capa: item.capa || item.Capa,
               method: item.method || item.Method,
@@ -100,12 +104,9 @@ export class ActiveRecordsRefComponent implements OnInit {
             };
           });
 
-          // Extract unique categories for the buttons
           const uniqueCategories = new Set(this.tableData.map(x => x.categoryName).filter(c => c));
           this.categories = ['All', ...Array.from(uniqueCategories)];
-          
-          // Only reset to 'All' if it's the first time loading, 
-          // otherwise keep the user on their current tab after a save refresh.
+
           if (!this.categories.includes(this.selectedCategory)) {
             this.selectedCategory = 'All';
           }
@@ -119,10 +120,9 @@ export class ActiveRecordsRefComponent implements OnInit {
     });
   }
 
-  // --- Category Selection Method ---
   selectCategory(category: string) {
     this.selectedCategory = category;
-    this.pageIndex = 0; // Reset to first page when filtering
+    this.pageIndex = 0;
     this.updatePage();
   }
 
@@ -133,29 +133,24 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   private updatePage(): void {
-    // 1. Filter by Category
-    const filteredData = this.selectedCategory === 'All' 
-      ? this.tableData 
+    const filteredData = this.selectedCategory === 'All'
+      ? this.tableData
       : this.tableData.filter(x => x.categoryName === this.selectedCategory);
 
-    // 2. Update Total count for the paginator
     this.totalFilteredRecords = filteredData.length;
 
-    // 3. Apply Pagination on the filtered list
     const start = this.pageIndex * this.pageSize;
     this.pagedData = filteredData.slice(start, start + this.pageSize);
   }
 
-  // --- Save / Edit Logic ---
-
-  addchecklistaudit() { 
+  addchecklistaudit() {
     if (this.selectedCategory === 'All') {
-      alert("Please select a specific category tab first to add a parameter to it.");
+      this.alertService.createAlert("Please select a specific category tab first to add a parameter to it."); // <-- Using AlertService
       return;
     }
 
-    const dialogRef = this.dialog.open(PartsAddParameterComponent, { height: 'auto', width: '850px' }); 
-    
+    const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '850px' });
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.saveParameterToDb(result);
@@ -163,23 +158,21 @@ export class ActiveRecordsRefComponent implements OnInit {
     });
   }
 
-  editParameter(item: any) { 
-    const dialogRef = this.dialog.open(PartsAddParameterComponent, { height: 'auto', width: '850px', data: item }); 
-    
+  editParameter(item: any) {
+    const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '850px', data: item });
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Ensure the ID and category name are passed back so the backend knows to Update
         result.id = item.id;
-        result.categoryName = item.categoryName; 
+        result.categoryName = item.categoryName;
         this.saveParameterToDb(result);
       }
     });
   }
 
   private saveParameterToDb(result: any) {
-    // If editing from the "All" tab, use the item's specific category. Otherwise, use the selected tab.
-    const targetCategory = (this.selectedCategory === 'All' && result.categoryName) 
-      ? result.categoryName 
+    const targetCategory = (this.selectedCategory === 'All' && result.categoryName)
+      ? result.categoryName
       : this.selectedCategory;
 
     const categoryIds = this.categoryMap[targetCategory];
@@ -194,6 +187,7 @@ export class ActiveRecordsRefComponent implements OnInit {
       Spec: result.spec,
       Min: result.min ? result.min.toString() : null,
       Max: result.max ? result.max.toString() : null,
+      Special: result.special, // <-- Pass special value to payload
       Method: result.method,
       S1: result.s1 ? result.s1.toString() : null,
       S2: result.s2 ? result.s2.toString() : null,
@@ -203,37 +197,44 @@ export class ActiveRecordsRefComponent implements OnInit {
       Remarks: result.remarks
     };
 
-    // Ensure you added addOrUpdateInspectionParameter to your inspection.service.ts
     this.inspectionService.addOrUpdateInspectionParameter(payload).subscribe({
       next: (res) => {
         if (res.success) {
-          // Reload data to reflect the newly inserted record in the table
-          this.loadParameters(); 
+          this.alertService.createAlert(res.message || "Parameter saved successfully!"); // <-- Success Alert
+          this.loadParameters();
         } else {
-          alert("Failed to save parameter: " + res.message);
+          this.alertService.createAlert("Failed to save parameter: " + res.message); // <-- Error Alert
         }
       },
       error: (err) => {
         console.error("Error saving parameter", err);
-        alert("An error occurred while saving. Check console for details.");
+        this.alertService.createAlert("An error occurred while saving. Check console for details."); // <-- Error Alert
       }
     });
   }
 
   deleteParameter(item: any): void {
-    const confirmDelete = window.confirm('Are you sure you want to delete?');
-    if (confirmDelete) {
-      // NOTE: You'll likely want to create a delete method in your C# API later to delete from DB
-      // For now, this just removes it from the frontend array
-      const index = this.tableData.indexOf(item);
-      if (index > -1) {
-        this.tableData.splice(index, 1);
-        this.updatePage();
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: {
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to delete this parameter?',
+        confirmText: 'Delete'
       }
-    }
-  }
+    });
 
-  // --- Utility Modals ---
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const index = this.tableData.indexOf(item);
+        if (index > -1) {
+          this.tableData.splice(index, 1);
+          this.updatePage();
+          this.alertService.createAlert("Parameter deleted successfully.");
+        }
+      }
+    });
+  }
 
   opendocpop() { this.dialog.open(ViewDocPhotosComponent, { width: '600px', height: '450px' }); }
   opennotes() { this.dialog.open(AuditrefRemarksPopComponent, { width: '500px', height: 'auto' }); }
@@ -244,9 +245,41 @@ export class ActiveRecordsRefComponent implements OnInit {
   scrollTable(direction: 'left' | 'right') {
     if (this.tableContainer) {
       const container = this.tableContainer.nativeElement;
-      const scrollAmount = 400; 
+      const scrollAmount = 400;
       if (direction === 'left') container.scrollLeft -= scrollAmount;
       else container.scrollLeft += scrollAmount;
     }
+  }
+
+
+
+
+
+
+
+
+  // Add this method inside your ActiveRecordsRefComponent class
+
+  toggleOkay(item: any, isChecked: boolean) {
+    // Optimistically update the UI
+    item.okay = isChecked;
+
+    this.inspectionService.toggleOkayStatus(item.id, isChecked).subscribe({
+      next: (res) => {
+        if (res && res.success) {
+          this.alertService.createAlert("Okay status updated successfully.");
+        } else {
+          // Revert UI on failure
+          item.okay = !isChecked;
+          this.alertService.createAlert("Failed to update status: " + res.message);
+        }
+      },
+      error: (err) => {
+        // Revert UI on error
+        item.okay = !isChecked;
+        console.error("Error toggling okay status", err);
+        this.alertService.createAlert("An error occurred while updating the status.");
+      }
+    });
   }
 }

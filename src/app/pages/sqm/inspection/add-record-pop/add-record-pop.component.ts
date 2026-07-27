@@ -5,6 +5,8 @@ import { SetupService } from "src/app/pages/setup/setup.service";
 import { LookupService } from "src/app/pages/admin/lookup/lookup.service";
 import { ManageUsersService } from "src/app/pages/admin/manage-user/manage-users.service";
 import { InspectionService } from "../inspection.service";
+import { AlertService } from "src/app/shared/alert.service";
+ 
 
 @Component({
   selector: "app-add-record-pop",
@@ -32,6 +34,7 @@ export class AddRecordPopComponent implements OnInit {
     private lookupService: LookupService,
     private manageUsersService: ManageUsersService,
     private inspectionService: InspectionService,
+    private alertService: AlertService // <-- Inject Alert Service
   ) {}
 
   ngOnInit() {
@@ -88,13 +91,8 @@ export class AddRecordPopComponent implements OnInit {
   loadDropdownData() {
     this.lookupService.getLookups().subscribe((res: any) => {
       if (res.success && res.data) {
-        this.stages = res.data.filter(
-          (item: any) =>
-            item.codeMasterName === "Inspection-Stage" && item.isActive,
-        );
-        this.shifts = res.data.filter(
-          (item: any) => item.codeMasterName === "Shift" && item.isActive,
-        );
+        this.stages = res.data.filter((item: any) => item.codeMasterName === "Inspection-Stage" && item.isActive);
+        this.shifts = res.data.filter((item: any) => item.codeMasterName === "Shift" && item.isActive);
       }
     });
 
@@ -106,9 +104,7 @@ export class AddRecordPopComponent implements OnInit {
 
     this.manageUsersService.getAllUsers().subscribe((res: any) => {
       if (res.success && res.data) {
-        this.inspectors = res.data.filter(
-          (user: any) => user.isInspector && user.isActive,
-        );
+        this.inspectors = res.data.filter((user: any) => user.isInspector && user.isActive);
       }
     });
 
@@ -118,33 +114,19 @@ export class AddRecordPopComponent implements OnInit {
       }
     });
 
-    this.setupService
-      .getPartMaster({ Keyword: "", Status: "" })
-      .subscribe((res: any) => {
+    this.setupService.getPartMaster({ Keyword: "", Status: "" }).subscribe((res: any) => {
         if (res.success && res.data && res.data.data) {
-          this.allPartCodes = res.data.data.filter(
-            (item: any) => item.isActive,
-          );
+          this.allPartCodes = res.data.data.filter((item: any) => item.isActive);
           const partFamilyId = this.recordForm.get("partFamilyId")?.value;
-          this.partCodes = partFamilyId
-            ? this.allPartCodes.filter(
-                (item: any) => item.partFamilyId == partFamilyId,
-              )
-            : [];
+          this.partCodes = partFamilyId ? this.allPartCodes.filter((item: any) => item.partFamilyId == partFamilyId) : [];
         }
       });
 
-    this.setupService
-      .getBatchMaster({ Keyword: "", Status: "" })
-      .subscribe((res: any) => {
+    this.setupService.getBatchMaster({ Keyword: "", Status: "" }).subscribe((res: any) => {
         if (res.success && res.data && res.data.data) {
           this.allBatches = res.data.data.filter((item: any) => item.isActive);
           const partMasterId = this.recordForm.get("partMasterId")?.value;
-          this.batches = partMasterId
-            ? this.allBatches.filter(
-                (item: any) => item.partMasterId == partMasterId,
-              )
-            : [];
+          this.batches = partMasterId ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId) : [];
         }
       });
   }
@@ -155,31 +137,28 @@ export class AddRecordPopComponent implements OnInit {
 
       const payload = {
         ...formData,
-        // If editing, include the existing ID; if adding, default to 0
         inspectionId: this.data && this.data.id ? this.data.id : 0, 
         partCodeId: formData.partMasterId,
         batchNumberId: formData.batchId,
-        inspectionDate: formData.inspectionDate
-          ? new Date(formData.inspectionDate).toISOString()
-          : null,
-        createdBy: 1, // FIX: Hardcoded to bypass Foreign Key error
+        inspectionDate: formData.inspectionDate ? new Date(formData.inspectionDate).toISOString() : null,
+        createdBy: 1, 
       };
 
-      // Use the single unified service method for both Add and Edit
       this.inspectionService.addInspection(payload).subscribe({
         next: (res: any) => {
           if (res && res.success) {
-            this.dialogRef.close(true);
+            this.alertService.createAlert("Record saved successfully!"); // <-- Success Alert added
+            this.dialogRef.close(true); // Triggers loadData() in parent component
           } else {
-            alert("Failed to save record: " + (res.message || "Unknown error"));
+            this.alertService.createAlert("Failed to save record: " + (res.message || "Unknown error")); // <-- Error Alert
           }
         },
         error: (err) => {
           console.error("Error saving record", err);
           if (err.status === 400 && err.error && err.error.errors) {
-            alert("Validation Error: " + JSON.stringify(err.error.errors));
+            this.alertService.createAlert("Validation Error: " + JSON.stringify(err.error.errors)); // <-- Validation Alert
           } else {
-            alert("An error occurred while saving. Check console for details.");
+            this.alertService.createAlert("An error occurred while saving. Check console for details."); // <-- Generic Error Alert
           }
         },
       });
@@ -193,20 +172,14 @@ export class AddRecordPopComponent implements OnInit {
   }
 
   onPartFamilyChange(partFamilyId: any) {
-    this.partCodes = partFamilyId
-      ? this.allPartCodes.filter(
-          (item: any) => item.partFamilyId == partFamilyId,
-        )
-      : [];
+    this.partCodes = partFamilyId ? this.allPartCodes.filter((item: any) => item.partFamilyId == partFamilyId) : [];
     this.recordForm.get("partMasterId")?.setValue(null);
     this.recordForm.get("batchId")?.setValue(null);
     this.batches = [];
   }
 
   onPartMasterChange(partMasterId: any) {
-    this.batches = partMasterId
-      ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId)
-      : [];
+    this.batches = partMasterId ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId) : [];
     this.recordForm.get("batchId")?.setValue(null);
   }
 }
