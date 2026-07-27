@@ -34,11 +34,18 @@
       </thead>
       <tbody>
         <tr *ngFor="let audit of auditData">
-          <td class="text-link">
+          <!-- <td class="text-link">
             <a [routerLink]="['/app','supplier-login','inner-screen','process-ref']">
               {{ audit.ref }}
             </a>
-          </td>
+          </td> -->
+          <!-- Inside sup-proactivegrid.component.html -->
+<td class="text-link">
+  <a [routerLink]="['/app','supplier-login','inner-screen','process-ref']"
+     [queryParams]="{ id: audit.processAuditId, ref: audit.ref }">
+    {{ audit.ref }}
+  </a>
+</td>
           <td>{{ audit.commodity }}</td>
           <td>{{ audit.location }}</td>
           <td>{{ audit.supplier }}</td>
@@ -47,17 +54,16 @@
           <td class="text-link text-center">{{ audit.action }}</td>
           <td class="text-link text-center" (click)="openscorepdf('processaudit.pdf')">{{ audit.score }}</td>
           <td class="text-center">
-  <span class="status-badge"
-        [ngClass]="{
+            <span class="status-badge" [ngClass]="{
           'status-open': audit.status === 'Open',
           'status-progress': audit.status === 'In Progress',
           'status-review': audit.status === 'Pending Review',
           'status-completed': audit.status === 'Completed',
           'status-closed': audit.status === 'Closed'
         }">
-    {{ audit.status }}
-  </span>
-</td>
+              {{ audit.status }}
+            </span>
+          </td>
           <td class="text-center">
             <mat-checkbox [checked]="audit.done" (click)="onDoneClick($event, audit)" color="primary">
             </mat-checkbox>
