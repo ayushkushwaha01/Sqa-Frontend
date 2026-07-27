@@ -1,175 +1,114 @@
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
-   <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
-    class="filter-hover margin-right-10" >
+  <!-- <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
+    class="filter-hover margin-right-10">
     <mat-icon class="">warning</mat-icon> Alerts (12)
-  </button>
+  </button> -->
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
     class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
     <mat-icon class="">filter_list</mat-icon> Filter
   </button>
 
-  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns" (click)="processgrid()">
+  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
+    (click)="openColumnSelector()">
     <mat-icon>grid_on</mat-icon> Grid Columns
   </button>
 </div>
 
 <div class="col-sm-12" style="overflow: hidden; width: 100%;">
 
-  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px;">
-    <div style="margin-top: 10px; width: 100%;">
-      <form [formGroup]="myGroup">
+  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle">
+    <div style="margin-top:10px; width:100%;">
+      <form [formGroup]="filterForm">
+
         <mat-card class="filter">
           <mat-card-content>
+
             <div class="row col-lg-12 col-sm-12">
-              <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Keyword:</b></div>
-                <div class="col-sm-8">
-                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search by keyword" />
-                </div>
-              </div>
 
-              <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Process Category :</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="TractorIdSections"
-                    placeholder="Select Process Category">
-                    <mat-option *ngFor="let section of TractorIdSections" [value]="section.item_id">
-                      {{ section.item_text }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div>
-
-              <div class="col-sm-4 row me-2 mt-3">
+              <!-- Keyword -->
+              <div class="col-md-3 row me-2 mt-3">
                 <div class="col-sm-4 newMarginClass">
-                  <b>Select Supplier Name:</b>
+                  <b>Keyword :</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ResponsibleSections"
-                    placeholder="Select Supplier Name">
-                    <mat-option *ngFor="let section of responsibleSections" [value]="section.item_id">
-                      {{ section.item_text }}
-                    </mat-option>
-                  </mat-select>
+                  <input type="text" class="form-control" formControlName="keyword" placeholder="Search Keyword">
                 </div>
               </div>
 
-              <div class="col-sm-4 row me-2 mt-3">
+              <!-- Action Type -->
+              <div class="col-md-3 row me-2 mt-3">
                 <div class="col-sm-4 newMarginClass">
                   <b>Action Type :</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ResponsibleSectionLeadId"
-                    placeholder="Select Action Type">
-                    <mat-option *ngFor="let item of resSectionFilterLeads" [value]="item.UserId">
-                      {{ item.UserName }}
+                  <mat-select class="form-control" formControlName="actionType" placeholder="Select Action Type">
+
+                    <mat-option value="">All</mat-option>
+                    <mat-option value="Containment">
+                      Containment
                     </mat-option>
+
+                    <mat-option value="Corrective">
+                      Corrective
+                    </mat-option>
+
+                    <mat-option value="Preventive">
+                      Preventive
+                    </mat-option>
+
                   </mat-select>
                 </div>
               </div>
 
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Sub Group:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="SubGroupId" placeholder="Select Sub Group">
-                    <mat-option *ngFor="let item of FilterSubgroup" [value]="item.SubGroupId">
-                      {{ item.SubGroupName }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>ORC Status:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ORCStatuses" placeholder="Select ORC Status">
-                    <mat-option *ngFor="let status of ORCStatuses" [value]="status.item_id">
-                      {{ status.item_text }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>New / Regular:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="IsNew" placeholder="Select New or Regular">
-                    <mat-option [value]="true">New</mat-option>
-                    <mat-option [value]="false">Regular</mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
+              <!-- From Date -->
+              <div class="col-md-3 row me-2 mt-3">
                 <div class="col-sm-4 newMarginClass">
-                  <b>Failure Effect:</b>
+                  <b>From Date :</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ScoreMatrix" placeholder="Select Failure Effect">
-                    <mat-option *ngFor="let item of scorematrix" [value]="item.ScoreMatrixId">
-                      {{ item.ScoreMatrixName }}
-                    </mat-option>
-                  </mat-select>
+                  <input type="date" class="form-control" formControlName="fromDate">
                 </div>
-              </div> -->
+              </div>
 
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Probability:</b></div>
+              <!-- To Date -->
+              <div class="col-md-3 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass">
+                  <b>To Date :</b>
+                </div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="Probability" placeholder="Select Probability">
-                    <mat-option *ngFor="let num of [1,2,3,4,5,6,7,8,9,10]" [value]="num">
-                      {{ num }}
-                    </mat-option>
-                  </mat-select>
+                  <input type="date" class="form-control" formControlName="toDate">
                 </div>
-              </div> -->
+              </div>
 
-              <!-- <div class="col-sm-4 row me-2 mt-4">
-                <div class="col-sm-4 newMarginClass"><b>Part Code:</b></div>
-                <div class="col-sm-8">
-                  <input type="text" formControlName="PartCode" class="form-control" placeholder="Search by Part Code" />
-                </div>
-              </div> -->
+              <!-- Buttons -->
+              <div class="col-sm-12 mt-4">
 
-              <!-- <div class="col-sm-4 row me-2 mt-4">
-                <div class="col-sm-4 newMarginClass"><b>Detection:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="CategoryId" placeholder="Select Detection">
-                    <mat-option *ngFor="let item of categories" [value]="item.CategoryId">
-                      {{ item.CategoryName }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-4">
-                <div class="col-sm-4 newMarginClass"><b>Project Lead</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="sortOrder" placeholder="Select Project Lead">
-                    <mat-option value="ASC">ASC</mat-option>
-                    <mat-option value="DESC">DESC</mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-               
-
-              <div class="col-sm-12 pull-right mt-3" style="margin-left: -15px;">
                 <a (click)="filterToggle = !filterToggle" class="pull-right"
-                  style="font-size: 25px; cursor: pointer; margin-left: 5px">
-                  <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                  style="font-size:25px;cursor:pointer;margin-left:5px;">
+                  <i class="fa fa-angle-double-up"></i>
                 </a>
 
-                <button mat-raised-button class="pull-right btn-default margin-right-10" (click)="clearFilter()">
-                  <mat-icon>settings_backup_restore</mat-icon>Clear
+                <button mat-raised-button type="button" class="pull-right btn-default margin-right-10"
+                  (click)="clearFilters()">
+
+                  <mat-icon>settings_backup_restore</mat-icon>
+                  Clear
                 </button>
-                <button mat-raised-button style="margin-right: 10px;" color="primary" class="pull-right" (click)="go()">
-                  <mat-icon>search</mat-icon>Search
+
+                <button mat-raised-button type="button" color="primary" class="pull-right" style="margin-right:10px;"
+                  (click)="getCapas()">
+
+                  <mat-icon>search</mat-icon>
+                  Search
                 </button>
+
               </div>
+
             </div>
+
           </mat-card-content>
         </mat-card>
+
       </form>
     </div>
   </div>
@@ -180,100 +119,370 @@
       <table mat-table class="table table-bordered table-hover">
         <thead class="tbl-head">
           <tr>
-            <th mat-header-cell mat-sort-header class="text-center">Action</th>
-            <th mat-header-cell mat-sort-header class="text-center">Status</th>
-            <th mat-header-cell mat-sort-header class="text-center">Resolved </th>
-            <th mat-header-cell mat-sort-header class="text-center">Docs</th>
-            <!-- <th mat-header-cell mat-sort-header class="text-center">Photos </th> -->
-            <th mat-header-cell mat-sort-header class="text-center">Reference </th>
-            <th mat-header-cell mat-sort-header class="text-center">CAPA Subject</th>
-            <th mat-header-cell mat-sort-header class="text-center">Supplier Name</th>
-            <th mat-header-cell mat-sort-header class="text-center">Action Type</th>
-            <th mat-header-cell mat-sort-header class="text-center">Audit Reference</th>
-            <!-- <th mat-header-cell mat-sort-header class="text-center">Process Area</th> -->
-            <th mat-header-cell mat-sort-header class="text-center">Process Category</th>
-            <th mat-header-cell mat-sort-header class="text-center">Description</th>
-            <th mat-header-cell mat-sort-header class="text-center">Supplier Remarks</th>
-            <th mat-header-cell mat-sort-header class="text-center">Log Date</th>
-            <th mat-header-cell mat-sort-header class="text-center"> Due Date</th>
-             <th mat-header-cell mat-sort-header class="text-center">Delay In Days</th>
-            <th mat-header-cell mat-sort-header class="text-center">Completion Date</th>
-               <th mat-header-cell mat-sort-header class="text-center">Severity</th>
-                  <th mat-header-cell mat-sort-header class="text-center">Occurrence</th>
-                     <th mat-header-cell mat-sort-header class="text-center">Detection</th>
-                        <th mat-header-cell mat-sort-header class="text-center">Risk Rating</th>
-                           <th mat-header-cell mat-sort-header class="text-center">Rating</th>
-                            <th mat-header-cell mat-sort-header class="text-center">PDCA Status</th>
-                              <!-- <th mat-header-cell mat-sort-header class="text-center">Action  Type</th> -->
+
+            <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+              <!-- Action -->
+              <th *ngSwitchCase="'Action'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Action
+              </th>
+
+              <!-- Status -->
+              <th *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Status
+              </th>
+
+              <!-- Resolved -->
+              <th *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Resolved
+              </th>
+
+              <!-- Docs -->
+              <th *ngSwitchCase="'Docs'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Docs
+              </th>
+
+              <!-- Reference -->
+              <th *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Reference
+              </th>
+
+              <!-- CAPA Subject -->
+              <th *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                CAPA Subject
+              </th>
+
+              <!-- Action Type -->
+              <th *ngSwitchCase="'Action Type'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Action Type
+              </th>
+
+              <!-- Description -->
+              <th *ngSwitchCase="'Description'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Description
+              </th>
+
+              <!-- Supplier Remarks -->
+              <th *ngSwitchCase="'Supplier Remarks'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Supplier Remarks
+              </th>
+
+              <!-- Log Date -->
+              <th *ngSwitchCase="'Log Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Log Date
+              </th>
+
+              <!-- Due Date -->
+              <th *ngSwitchCase="'Due Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Due Date
+              </th>
+
+              <!-- Delay In Days -->
+              <th *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Delay In Days
+              </th>
+
+              <!-- Completion Date -->
+              <th *ngSwitchCase="'Completion Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Completion Date
+              </th>
+
+              <!-- Severity -->
+              <th *ngSwitchCase="'Severity'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Severity
+              </th>
+
+              <!-- Occurrence -->
+              <th *ngSwitchCase="'Occurrence'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Occurrence
+              </th>
+
+              <!-- Detection -->
+              <th *ngSwitchCase="'Detection'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Detection
+              </th>
+
+              <!-- SOD Score -->
+              <th *ngSwitchCase="'SOD Score'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                SOD Score
+              </th>
+
+              <!-- Risk Rating -->
+              <th *ngSwitchCase="'Risk Rating'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                Risk Rating
+              </th>
+
+              <!-- PDCA Status -->
+              <th *ngSwitchCase="'PDCA Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                PDCA Status
+              </th>
+
+            </ng-container>
+
           </tr>
         </thead>
 
-       <tbody>
-          <tr *ngFor="let applicant of tableList">
-            <td class="text-center">
-              <a matTooltip="Edit" (click)="editrow()">
-                <i class="fa fa-edit"></i>
-              </a>
-              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
-                <i class="fa fa-trash red"></i>
-              </a>
-            </td>
-            <td class="text-center">
-              <mat-select [(ngModel)]="applicant.status" class="form-control">
-                <mat-option value="WIP">WIP</mat-option>
-                <mat-option value="Open">Open</mat-option>
-                <mat-option value="Closed">Closed</mat-option>
-                <mat-option value="Pending">Pending</mat-option>
-                <mat-option value="In Progress">In Progress</mat-option>
-                <mat-option value="Completed">Completed</mat-option>
-              </mat-select>
-            </td>
-            <td class="text-center">
-              <mat-checkbox [checked]="applicant.resolved === true" color="primary"></mat-checkbox>
-            </td>
-            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto()">{{ applicant.docs }}</td>
-            
-            <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','parts-inner-screen','parts-audit-reference']">
-                {{ applicant.reference }}
-              </a>
-            </td>
-            <td class="text-center">{{ applicant.actionSubject }}</td>
-              
-            <td class="text-center">{{ applicant.supplierName }}</td>
-            <td class="text-center">{{ applicant.actionType }}</td>
-            <td class="text-center">{{ applicant.auditReference }}</td>
-            <td class="text-center">{{ applicant.processCategory }}</td>
-            
-            <td class="text-center">
-              <mat-icon (click)="imageSource1()"   style="color: blue; cursor: pointer;">info</mat-icon>
-            </td>
-            <td class="text-center">
-              <mat-icon (click)="imageSource1()"  style="color: blue; cursor: pointer;">info</mat-icon>
-            </td>
-            
-            <td class="text-center">{{ applicant.logDate }}</td>
-            <td class="text-center">{{ applicant.dueDate }}</td>
-            <td class="text-center">{{ applicant.delayInDays ?? '-' }}</td>
-            <td class="text-center">{{ applicant.completion ?? '-' }}</td>
+        <tbody>
 
-            <td class="text-center">{{ applicant.severity }}</td>
-            <td class="text-center">{{ applicant.occurrence }}</td>
-            <td class="text-center">{{ applicant.detection }}</td>
-            
-            <td class="text-center" style="min-width: 120px;">
-              <mat-select [(ngModel)]="applicant.riskRating" class="form-control" 
-               >
-                <mat-option value="High">High</mat-option>
-                <mat-option value="Medium">Medium</mat-option>
-                <mat-option value="Low">Low</mat-option>
-              </mat-select>
-            </td>
-            
-            <td class="text-center">{{ applicant.rating }}</td>
-            <td class="text-center">{{ applicant.pdcaStatus }}</td>
-            <!-- <td class="text-center">{{ applicant.capaActionType }}</td> -->
+          <tr *ngFor="let applicant of tableLists">
+
+            <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+              <!-- Action -->
+              <td *ngSwitchCase="'Action'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <a matTooltip="Edit">
+                  <i class="fa fa-edit"></i>
+                </a>
+
+                <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
+                  <i class="fa fa-trash red"></i>
+                </a>
+
+              </td>
+
+              <!-- Status -->
+              <td *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <!-- 
+                <mat-select [(ngModel)]="applicant.status" class="form-control">
+                  <mat-option value="WIP">WIP</mat-option>
+                  <mat-option value="Open">Open</mat-option>
+                  <mat-option value="Closed">Closed</mat-option>
+                  <mat-option value="Pending">Pending</mat-option>
+                  <mat-option value="In Progress">In Progress</mat-option>
+                  <mat-option value="Completed">Completed</mat-option>
+                </mat-select> -->
+                <mat-select class="form-control" style="width:120px" [(ngModel)]="applicant.statusId"
+                  (selectionChange)="changeStatus(applicant)">
+
+                  <mat-option *ngFor="let item of lookups" [value]="item.lookupId">
+
+                    {{ item.lookupName }}
+
+                  </mat-option>
+
+                </mat-select>
+
+              </td>
+
+              <!-- Resolved -->
+              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-checkbox [checked]="applicant.isResolved" color="primary" disabled>
+                </mat-checkbox>
+
+              </td>
+
+              <!-- Docs -->
+              <td *ngSwitchCase="'Docs'" class="text-center text-primary" style="cursor:pointer"
+                [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+                [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+                (click)="docsPhoto(applicant)">
+
+                {{ applicant.docCount }}
+
+              </td>
+
+              <!-- Reference -->
+              <td *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ '2026/PART/' + (applicant.partAuditId | number:'6.0') }}
+
+              </td>
+
+              <!-- CAPA Subject -->
+              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.capaSubject || '-' }}
+
+              </td>
+
+              <!-- Action Type -->
+              <td *ngSwitchCase="'Action Type'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.actionType || '-' }}
+
+              </td>
+
+              <!-- Description -->
+              <td *ngSwitchCase="'Description'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-icon style="color:blue;cursor:pointer">
+                  info
+                </mat-icon>
+
+              </td>
+
+              <!-- Supplier Remarks -->
+              <td *ngSwitchCase="'Supplier Remarks'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-icon style="color:blue;cursor:pointer" [matTooltip]="applicant.supplierRemarks || 'No Remarks'"
+                  matTooltipPosition="above">
+                  info
+                </mat-icon>
+
+              </td>
+
+              <!-- Log Date -->
+              <td *ngSwitchCase="'Log Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.createdDate | date:'MM/dd/yyyy' }}
+
+              </td>
+
+              <!-- Due Date -->
+              <td *ngSwitchCase="'Due Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.dueDate | date:'MM/dd/yyyy' }}
+
+              </td>
+
+              <!-- Delay In Days -->
+              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.delayInDays ?? '-' }}
+
+              </td>
+
+              <!-- Completion Date -->
+              <td *ngSwitchCase="'Completion Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.completedDate | date:'MM/dd/yyyy' }}
+
+              </td>
+
+              <!-- Severity -->
+              <td *ngSwitchCase="'Severity'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.severityRating }}
+
+              </td>
+
+              <!-- Occurrence -->
+              <td *ngSwitchCase="'Occurrence'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.occurrence ?? '-' }}
+
+              </td>
+
+              <!-- Detection -->
+              <td *ngSwitchCase="'Detection'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.detection ?? '-' }}
+
+              </td>
+
+              <!-- SOD Score -->
+              <td *ngSwitchCase="'SOD Score'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.sodScore ?? '-' }}
+
+              </td>
+
+              <!-- Risk Rating -->
+              <td *ngSwitchCase="'Risk Rating'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <mat-select [(ngModel)]="applicant.riskRating" class="form-control">
+
+                  <mat-option value="High">High</mat-option>
+                  <mat-option value="Medium">Medium</mat-option>
+                  <mat-option value="Low">Low</mat-option>
+
+                </mat-select>
+
+              </td>
+
+              <!-- PDCA Status -->
+              <td *ngSwitchCase="'PDCA Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.pdcaStatus || '-' }}
+
+              </td>
+
+            </ng-container>
+
           </tr>
+
+          <tr *ngIf="tableLists.length === 0">
+            <td colspan="7" class="text-center py-4 center">
+              No Data Available
+            </td>
+          </tr>
+
         </tbody>
       </table>
 
@@ -285,9 +494,10 @@
       </button>
 
     </div>
-    
+
     <div style="width: 100%;">
-      <mat-paginator [length]="totalSize" [pageSize]="5" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons>
+      <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+        [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
       </mat-paginator>
     </div>
   </div>

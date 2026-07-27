@@ -9,6 +9,7 @@ import { SetupService } from 'src/app/pages/setup/setup.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
 
 @Component({
   selector: 'app-parts-master',
@@ -30,13 +31,14 @@ export class PartsMasterComponent implements OnInit {
   tableLists: any[] = [];
 
   constructor(private dialog: MatDialog,
-    private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+    private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder, private api: CommodityService
   ) { }
 
 
 
   ngOnInit(): void {
     this.formInit();
+    this.getCommodities();
     this.getPartsMasters();
 
     this.updatePage();
@@ -56,21 +58,43 @@ export class PartsMasterComponent implements OnInit {
   formInit() {
     this.filterForm = this.fb.group({
       Keyword: [''],
-      Status: ['']
+      Status: [''],
+      CommodityId: [null],
     });
   }
   clearFilter() {
-    this.filterForm.reset({ Keyword: '', Status: '' });
+    this.filterForm.reset({ Keyword: '', Status: '', CommodityId: null, });
     this.getPartsMasters();
   }
 
 
 
+  originalTableData: any[] = [];
+  getCommodities() {
+    this.api.getCommodities().subscribe((res: any) => {
+      if (res.success) {
+        this.originalTableData = res.data;
+
+      }
+    });
+  }
+
 
 
   partsMasters: any[] = [];
   getPartsMasters() {
-    this._setupService.getPartMaster(this.filterForm.value)
+    const filter = { ...this.filterForm.value };
+
+    Object.keys(filter).forEach(key => {
+      if (
+        filter[key] === null ||
+        filter[key] === '' ||
+        filter[key] === undefined
+      ) {
+        delete filter[key];
+      }
+    });
+    this._setupService.getPartMaster(filter)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -186,30 +210,36 @@ export class PartsMasterComponent implements OnInit {
 
   addpart(data: any): void {
 
-    this.dialog.open(AddPartspopComponent, {
+    const dialogRef = this.dialog.open(AddPartspopComponent, {
       width: '650px',
       disableClose: true,
       data: data
     });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.getPartsMasters();
+      }
+    });
+
   }
 
 
+  opensuppliers(item: any) {
 
-opensuppliers(item: any) {
+    const dialogRef = this.dialog.open(PartsMasterSuppliersComponent, {
+      width: '650px',
+      disableClose: true,
+      data: item
+    });
 
-  const dialogRef = this.dialog.open(PartsMasterSuppliersComponent, {
-    width: '650px',
-    disableClose: true,
-    data: item
-  });
+    dialogRef.afterClosed().subscribe((result) => {
 
-  dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.getPartsMasters();   // Refresh grid after save
+      }
 
-    if (result) {
-      this.getPartsMasters();   // Refresh grid after save
-    }
+    });
 
-  });
-
-}
+  }
 }

@@ -1,10 +1,11 @@
 <div class="dialog-header pt-2" style="height:50px">
-    <h2 mat-dialog-title class="m-0 text-center text-white pb-2 pt-2 mt-2" style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">List Of Documents</h2>
+    <h2 mat-dialog-title class="m-0 text-center text-white pb-2 pt-2 mt-2"
+        style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">List Of Documents</h2>
 </div>
 
 <div mat-dialog-content class="pt-4 overflow-hidden">
     <form class="form-horizontal">
-        
+
         <div class="row align-items-center mb-3">
             <div class="col-sm-3">
                 <label class="control-label font-weight-bold mb-0">
@@ -12,7 +13,8 @@
                 </label>
             </div>
             <div class="col-sm-9">
-                <input type="text" class="form-control" placeholder="Enter Document Title">
+                <input type="text" class="form-control" [(ngModel)]="docTitle" name="docTitle"
+                    placeholder="Enter Document Title">
             </div>
         </div>
 
@@ -23,16 +25,17 @@
                 </label>
             </div>
             <div class="col-sm-9">
-                <input type="file" class="form-control" style="padding: 3px;">
+                <input type="file" class="form-control" style="padding:3px" (change)="onPdfSelected($event)">
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-sm-12 d-flex justify-content-end">
-                <button mat-raised-button color="primary" class="save-btn">
-    <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">save</mat-icon>
-    Save
-</button>
+                <button mat-raised-button color="primary" class="save-btn" (click)="uploadDocuments()">
+
+                    <mat-icon>save</mat-icon>
+                    Save
+                </button>
             </div>
         </div>
 
@@ -49,33 +52,54 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let doc of pagedDocs">
-                    <td>{{ doc.title }}</td>
-                    <td class="text-center">{{ doc.date }}</td>
+
+                <tr *ngFor="let doc of tableLists">
+
+                    <td>{{doc.docTitlte}}</td>
+
                     <td class="text-center">
-                        <mat-icon class="action-icon text-primary" matTooltip="Download">cloud_download</mat-icon>
+                        {{doc.createdDate | date:'MM/dd/yyyy'}}
                     </td>
-                    <td class="text-center manage-icons">
-                        <i class="fa fa-edit edit-icon mr-2 pe-2" matTooltip="Edit" style="color: cornflowerblue; cursor: pointer; font-size: 16px;"></i>
-                        <i class="fa fa-trash delete-icon" matTooltip="Delete" style="color: red; cursor: pointer; font-size: 16px;"></i>
+
+                    <td class="text-center">
+
+                        <a [href]="doc.docurl" target="_blank">
+
+                            <mat-icon color="primary">
+                                cloud_download
+                            </mat-icon>
+
+                        </a>
+
                     </td>
+
+                    <td class="text-center">
+
+                        <!-- <i class="fa fa-edit" style="color:cornflowerblue;cursor:pointer">
+                        </i> -->
+
+                        &nbsp;
+
+                        <i class="fa fa-trash" style="color:red;cursor:pointer" (click)="deleteConfirmation(doc)">
+                        </i>
+
+                    </td>
+
                 </tr>
-             
+
             </tbody>
         </table>
 
-        <mat-paginator 
-            [length]="documents.length" 
-            [pageSize]="pageSize" 
-            [pageSizeOptions]="[5, 10, 25, 50]" 
-            (page)="onPageChange($event)">
+        <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+            [pageSizeOptions]="[5,10,25,50]" (page)="fnHandlePage($event)" showFirstLastButtons>
         </mat-paginator>
     </div>
 </div>
 
 <mat-dialog-actions align="end" class="pb-2 pe-3">
     <button mat-raised-button class="close-btn" (click)="closeDialog()">
-        <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">cancel</mat-icon> 
+        <mat-icon
+            style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">cancel</mat-icon>
         Close
     </button>
 </mat-dialog-actions>

@@ -1,7 +1,13 @@
 <div class="NewHeader">
     <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
-        {{ isEditMode ? 'Update Parts Audit' : 'Add Parts Audit' }}
+
+        {{ data?.partAuditId ? 'Edit' : 'Add' }} Parts Audit
     </h2>
+
+    <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
+        {{ data?.partMasterId ? 'Edit' : 'Add' }} Parameter
+    </h2>
+
 </div>
 
 <div>
@@ -18,11 +24,21 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select Commodity" formControlName="commodityId">
+                        <!-- <mat-select class="form-control" placeholder="Select Commodity" formControlName="commodityId">
 
                             <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
 
                                 {{ item.name }}
+
+                            </mat-option>
+
+                        </mat-select> -->
+                        <mat-select class="form-control" formControlName="commodityId" placeholder="Select Commodity"
+                            (selectionChange)="onCommodityChange($event.value)">
+
+                            <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
+
+                                {{item.name}}
 
                             </mat-option>
 
@@ -39,12 +55,22 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select Part Family"
+                        <!-- <mat-select class="form-control" placeholder="Select Part Family"
                             formControlName="partFamilyId">
 
                             <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
 
                                 {{ item.partFamilyName }}
+
+                            </mat-option>
+
+                        </mat-select> -->
+                        <mat-select class="form-control" formControlName="partFamilyId" placeholder="Select Part Family"
+                            (selectionChange)="onPartFamilyChange($event.value)">
+
+                            <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
+
+                                {{item.partFamilyName}}
 
                             </mat-option>
 
@@ -103,12 +129,20 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select State" formControlName="stateId">
+                        <!-- <mat-select class="form-control" placeholder="Select State" formControlName="stateId">
 
                             <mat-option *ngFor="let item of states" [value]="item.stateId">
 
                                 {{ item.stateName }}
 
+                            </mat-option>
+
+                        </mat-select> -->
+                        <mat-select class="form-control" placeholder="Select State" formControlName="stateId"
+                            (selectionChange)="onStateChange($event.value)">
+
+                            <mat-option *ngFor="let item of states" [value]="item.stateId">
+                                {{ item.stateName }}
                             </mat-option>
 
                         </mat-select>
@@ -165,12 +199,28 @@
                         </label>
                     </div>
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-8" style="position: relative;">
 
-                        <input matInput [matDatepicker]="picker" class="form-control" formControlName="auditDate"
-                            placeholder="MM/DD/YYYY">
+                        <input matInput [matDatepicker]="picker" formControlName="auditDate" placeholder="MM/DD/YYYY"
+                            style="
+                height: 38px;
+                width: 100%;
+                padding-left: 12px;
+                padding-right: 45px;
+                border: 1px solid #141414;
+                border-radius: 4px;
+                box-sizing: border-box;
+                background-color: white;
+            ">
 
-                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker-toggle matSuffix [for]="picker" style="
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+            ">
+                        </mat-datepicker-toggle>
+
                         <mat-datepicker #picker></mat-datepicker>
 
                     </div>
@@ -179,7 +229,7 @@
                 <!-- Remarks -->
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <label class="add-member-label mt-2 fw-bold">
+                        <label class=" mt-2 fw-bold">
                             Remarks :
                         </label>
                     </div>
@@ -202,7 +252,7 @@
                     <mat-icon>cancel</mat-icon> Close
                 </button>
                 <button mat-raised-button type="button" class="save" color="primary" style="margin-right: 17px;"
-                    (click)="UpsertPartAudit()">
+                    [disabled]="myGroup.invalid" (click)="UpsertPartAudit()">
 
                     <mat-icon>save</mat-icon>
                     {{ myGroup.get('partAuditId')?.value ? 'Update' : 'Save' }}

@@ -28,6 +28,7 @@ import { PartsActionsGridComponent } from './parts-actions/parts-actions-grid/pa
 import { PartsActionsEditComponent } from './parts-actions/parts-actions-edit/parts-actions-edit.component';
 import { PartsActionsDocsComponent } from './parts-actions/parts-actions-docs/parts-actions-docs.component';
 import { MatCardModule } from "@angular/material/card";
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const routes: Routes = [
   {
@@ -107,7 +108,8 @@ const routes: Routes = [
     MatNativeDateModule,
     MatInputModule,
     MatFormFieldModule,
-    MatCardModule
-]
+    MatCardModule,
+    MatTooltipModule
+  ]
 })
 export class PartsAuditsModule { }

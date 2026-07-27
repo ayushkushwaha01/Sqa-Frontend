@@ -48,16 +48,20 @@ export class AddPartCategoryComponent implements OnInit {
       ),
 
       CategoryCode: new FormControl(
-        data?.categoryCode || '',
+        data?.categoryCode?.toUpperCase() || '',
         [
           Validators.required,
-          Validators.pattern('^[a-zA-Z0-9]{5}$')
+          Validators.pattern('^[A-Z0-9]{5}$')
         ]
       )
     });
   }
   get f() { return this.myGroup.controls }
-
+  onCategoryCodeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const upperValue = input.value.toUpperCase();
+    this.myGroup.get('CategoryCode')?.setValue(upperValue, { emitEvent: false });
+  }
 
   UpsertPartAuditCategory() {
 

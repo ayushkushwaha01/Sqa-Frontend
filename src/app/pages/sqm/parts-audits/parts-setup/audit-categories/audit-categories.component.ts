@@ -6,6 +6,7 @@ import { SetupService } from 'src/app/pages/setup/setup.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { DownloadExcelService } from 'src/app/shared/download-excel.service';
 
 @Component({
   selector: 'app-audit-categories',
@@ -21,6 +22,7 @@ export class AuditCategoriesComponent implements OnInit {
 
   constructor(private dialog: MatDialog,
     private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+    private downLoadExcelService: DownloadExcelService
   ) { }
 
   filterForm!: FormGroup;
@@ -167,6 +169,24 @@ export class AuditCategoriesComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  }
+
+  exportAsXLSX(): void {
+    if (!this.partAuditCategories || this.partAuditCategories.length === 0) {
+      this.alertService.warn('No data available to export.');
+      return;
+    }
+
+    const excelData = this.partAuditCategories.map((x: any) => ({
+      'Category Name': x.categoryName,
+      'Category Code': x.categoryCode,
+      'Status': x.isActive ? 'Active' : 'Inactive'
+    }));
+
+    this.downLoadExcelService.exportAsExcelFile(
+      excelData,
+      'PartAuditCategories_' + new Date().toLocaleString()
+    );
   }
 
 }

@@ -10,6 +10,7 @@ import { SetupService } from 'src/app/pages/setup/setup.service';
 import { FormBuilder } from '@angular/forms';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ActivatedRoute } from '@angular/router';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-parts-audit-reference',
@@ -113,6 +114,58 @@ export class PartsAuditReferenceComponent implements OnInit {
       this.fromIndex,
       this.fromIndex + this.pageSize
     );
+  }
+
+
+
+  changeOkay(item: any) {
+
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: 'auto',
+      data: {
+        component: null,
+        title: 'Change Status Confirmation',
+        content: `Are you sure you want to mark this record as ${item.okay ? 'Not Okay' : 'Okay'}?`,
+        isConfirmation: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result) {
+        return;
+      }
+
+      this.partAuditService.updateOkayStatusinnerscreen({
+        auditParameterId: item.auditParameterId
+      }).subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            item.okay = res.okay;
+
+            this.alertService.createAlert(res.message, 1);
+
+          } else {
+
+            this.alertService.createAlert(res.message, 0);
+
+          }
+
+        },
+
+        error: () => {
+
+          this.alertService.createAlert('Something went wrong.', 0);
+
+        }
+
+      });
+
+    });
+
   }
 
   goBack(): void {

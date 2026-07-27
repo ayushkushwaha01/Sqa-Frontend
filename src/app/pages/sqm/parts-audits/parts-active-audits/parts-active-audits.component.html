@@ -13,9 +13,16 @@
   </div>
 
   <div class="toolbar-row">
-    <mat-checkbox style="margin-right: 16px;     margin-top: 6px;">
+    <!-- <mat-checkbox style="margin-right: 16px;     margin-top: 6px;" formControlName="done">
       Mask Done
-    </mat-checkbox>
+    </mat-checkbox> -->
+    <form [formGroup]="filterForm" style="margin-right: 16px;     margin-top: 6px;">
+
+      <mat-checkbox formControlName="done">
+        Mark Done
+      </mat-checkbox>
+
+    </form>
     <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
 
       <mat-icon>grid_on</mat-icon>
@@ -429,9 +436,9 @@
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              <a style="cursor:pointer;text-decoration:underline;color:#1976d2;">
+              <a style="cursor:pointer;text-decoration:underline;color:black;">
 
-                CAPA
+                {{ audit.resolvedCapaCount }}/{{ audit.totalCapaCount }}
 
               </a>
 
@@ -496,6 +503,13 @@
           </ng-container>
 
         </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="7" class="text-center py-4 center">
+            No Data Available
+          </td>
+        </tr>
+
 
       </tbody>
 
