@@ -16,6 +16,7 @@ import { UploadstagepopComponent } from './active-records-ref/uploadstagepop/upl
 import { UploadListComponent } from './active-records-ref/upload-list/upload-list.component';
 import { SamplePopComponent } from './active-records-ref/sample-pop/sample-pop.component';
 import { AddSamplesComponent } from './add-samples/add-samples.component';
+import { AddInsParameterComponent } from './active-records-ref/add-ins-parameter/add-ins-parameter.component';
 
 const routes: Routes = [
   {
@@ -41,7 +42,8 @@ const routes: Routes = [
     UploadstagepopComponent,
     UploadListComponent,
     SamplePopComponent,
-    AddSamplesComponent
+    AddSamplesComponent,
+    AddInsParameterComponent
   ],
   imports: [
     CommonModule,
