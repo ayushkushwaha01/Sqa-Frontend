@@ -78,6 +78,11 @@ import { AlertService } from 'src/app/shared/alert.service';
 })
 export class LoginComponent implements OnInit {
   public form: FormGroup;
+  public passwordType: string = 'password';
+
+  public togglePassword() {
+    this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -102,26 +107,48 @@ export class LoginComponent implements OnInit {
 
       this.api.login(credentials).subscribe({
         next: (res: any) => {
-          if (res.success) {
-            // 1. Save Token and User Data
-            localStorage.setItem('jwt_token', res.token);
-            sessionStorage.setItem('jwt_token', res.token);
-            localStorage.setItem('UserName', res.userData.userName);
-            localStorage.setItem('UserId', res.userData.userId);
-            localStorage.setItem('RoleId', res.userData.roleId);
+          // if (res.success) {
+          //   // 1. Save Token and User Data
+          //   localStorage.setItem('jwt_token', res.token);
+          //   sessionStorage.setItem('jwt_token', res.token);
+          //   localStorage.setItem('UserName', res.userData.userName);
+          //   localStorage.setItem('UserId', res.userData.userId);
+          //   localStorage.setItem('RoleId', res.userData.roleId);
             
-            // We still save UserType in case you want to hide/show buttons later based on who is logged in!
-            localStorage.setItem('UserType', res.userData.userType);
+          //   // We still save UserType in case you want to hide/show buttons later based on who is logged in!
+          //   localStorage.setItem('UserType', res.userData.userType);
 
-            // 2. Show Success Toast
-            this.alertService.createAlert('Login Successful', 1);
+          //   // 2. Show Success Toast
+          //   this.alertService.createAlert('Login Successful', 1);
 
-            // 3. Exact same landing page for ALL users (Admin & Supplier)
-            this.router.navigate(['/app/sqm/sqmd']);
+          //   // 3. Exact same landing page for ALL users (Admin & Supplier)
+          //   this.router.navigate(['/app/sqm/sqmd']);
             
-          } else {
-            this.alertService.createAlert(res.message || 'Invalid Email or Password', 0);
-          }
+          // } else {
+          //   this.alertService.createAlert(res.message || 'Invalid Email or Password', 0);
+          // }
+
+
+          // Inside login.component.ts -> onSubmit -> next: (res: any)
+if (res.success) {
+    // 1. Save Token and User Data
+    localStorage.setItem('jwt_token', res.token);
+    sessionStorage.setItem('jwt_token', res.token);
+    localStorage.setItem('UserName', res.userData.userName);
+    localStorage.setItem('UserId', res.userData.userId);
+    localStorage.setItem('RoleId', res.userData.roleId);
+    localStorage.setItem('UserType', res.userData.userType); // "Internal" or "Supplier"
+
+    // 2. Show Success Toast
+    this.alertService.createAlert('Login Successful', 1);
+
+    // 3. 🔥 Route users based on their UserType 🔥
+    if (res.userData.userType === 'Supplier') {
+        this.router.navigate(['/app/supplier-login/dashboard']);
+    } else {
+        this.router.navigate(['/app/sqm/sqmd']);
+    }
+}
         },
         error: (err) => {
           console.error(err);

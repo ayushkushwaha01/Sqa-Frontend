@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Menu } from './menu.model';
-import { verticalMenuItems, horizontalMenuItems, clientMenuItems } from './menu';
+// 🔥 Added supplierMenuItems to the import here
+import { verticalMenuItems, horizontalMenuItems, clientMenuItems, supplierMenuItems } from './menu';
 
 @Injectable()
 export class MenuService {
@@ -14,9 +15,17 @@ export class MenuService {
     return verticalMenuItems;
   }
 
+  // 🔥 UPDATED METHOD: Dynamically checks UserType to serve the correct menu 🔥
   public getHorizontalMenuItems():Array<Menu> {
-    return horizontalMenuItems;
+    const userType = localStorage.getItem('UserType');
+
+    if (userType === 'Supplier') {
+      return supplierMenuItems;
+    } else {
+      return horizontalMenuItems;
+    }
   }
+
   public getClientMenuItems():Array<Menu> {
     return clientMenuItems;
   }

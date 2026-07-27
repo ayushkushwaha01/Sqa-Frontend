@@ -15,19 +15,15 @@
                         <mat-icon class="color:white">person</mat-icon>
                     </button>
 
-                    <!-- <img src="../../assets/optionmatrixlogo.png" alt="MG" style="height:53px;width: 250px;margin-left: 20px;"> -->
-                    <span style="margin-left: 20px;    font-size: 20px;">
-                        <img src="../../assets/logo@133.png" alt="QS" style="height: 47px;
-    width: 154px;
-    margin-right: -257px;
-    margin-top: 1px;">
-                        <!-- <span style="color:white; font-size:25px">Q SQUARE</span> -->
-                        <!-- <span>Square</span> -->
-                    </span>
+                    <a routerLink="/"
+                        style="margin-left: 20px; display: inline-flex; align-items: center; text-decoration: none;">
+                        <img src="../../assets/sqa-logo.svg" alt="SQA - Supplier Quality Audits"
+                            style="height: 40px; width: auto;">
+                    </a>
                     <!-- <a *ngIf="settings.menu == 'horizontal'" mat-raised-button color="accent" routerLink="/" (click)="closeSubMenus()" class="small-logo">G</a>
                     <a *ngIf="settings.menu == 'horizontal'" class="logo" routerLink="/" (click)="closeSubMenus()">GRADUS</a>   -->
                 </div>
-                <div style="z-index: 22;     margin-left: 108px;">
+                <div style="z-index: 22;">
                     <app-horizontal-menu fxShow.gt-sm="true" fxShow="false" [menuParentId]="0"></app-horizontal-menu>
                 </div>
                 <div fxLayout="row" fxLayoutAlign="end center">
@@ -35,7 +31,7 @@
                         style="margin-right:15px; cursor: pointer; color: white;">
                         notifications
                     </mat-icon> -->
-                   <app-user-notification></app-user-notification>
+                    <app-user-notification></app-user-notification>
 
                     <app-fullscreen></app-fullscreen>
                     <app-user-menu></app-user-menu>

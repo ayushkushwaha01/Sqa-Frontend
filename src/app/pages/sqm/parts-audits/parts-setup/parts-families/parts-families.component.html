@@ -58,15 +58,13 @@
         <tr *ngFor="let item of tableLists">
           <td>{{ item.partFamilyName }}</td>
           <td class="text-center">{{ item.partFamilyCode }}</td>
-          
+
           <td class="text-center">
-  <a class="text-blue" 
-     style="cursor: pointer; text-decoration: underline; font-weight: bold;"
-     (click)="openDefectsPopup(item)" 
-     matTooltip="Click to assign defects">
-     {{ getDefectsCount(item) }} / {{ totalDefectsCount }}
-  </a>
-</td>
+            <a class="text-blue" style="cursor: pointer; text-decoration: underline; font-weight: bold;"
+              (click)="openDefectsPopup(item)" matTooltip="Click to assign defects">
+              {{ getDefectsCount(item) }} / {{ totalDefectsCount }}
+            </a>
+          </td>
 
           <td class="text-center">
             <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
@@ -74,7 +72,7 @@
               {{ item.isActive ? 'Active' : 'Inactive' }}
             </a>
           </td>
-          
+
           <td class="text-center">
             <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
               [routerLink]="['../families-inner-grid']" [queryParams]="{ partFamilyId: item.partFamilyId }"
@@ -88,11 +86,19 @@
             <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteConfirmation(item)">delete</mat-icon>
           </td>
         </tr>
+
+        <tr *ngIf="tableLists.length === 0">
+          <td colspan="4" class="text-center py-4">
+            No Data Available
+          </td>
+        </tr>
+
       </tbody>
     </table>
 
-    <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
-      [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
-    </mat-paginator>
+
   </div>
+  <mat-paginator [length]="totalSize" [pageIndex]="currentPage" [pageSize]="pageSize"
+    [pageSizeOptions]="[5,10,25,50,100]" (page)="fnHandlePage($event)" showFirstLastButtons>
+  </mat-paginator>
 </div>

@@ -1,6 +1,9 @@
 <div class="NewHeader">
-    <h3 *ngIf="!isEditMode" style="padding-top:10px; font-size: 24px;">Add Parameter</h3>
-    <h3 *ngIf="isEditMode" style="padding-top:10px; font-size: 24px;">Edit Parameter</h3>
+    <!-- <h3 *ngIf="!isEditMode" style="padding-top:10px; font-size: 24px;">Add Parameter</h3>
+    <h3 *ngIf="isEditMode" style="padding-top:10px; font-size: 24px;">Edit Parameter</h3> -->
+    <h2 style="padding-top:0px; padding-left:20px; font-weight:400; font-size:18px;">
+        {{ data?.auditParameterId ? 'Edit' : 'Add' }} Parameter
+    </h2>
 </div>
 
 <div>
@@ -34,6 +37,20 @@
                                     formControlName="ParmeterName">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Unit :</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <mat-select class="form-control" placeholder="Select Unit" formControlName="UnitId">
+
+                                    <mat-option *ngFor="let item of lookups" [value]="item.lookupId">
+
+                                        {{ item.lookupName }}
+
+                                    </mat-option>
+
+                                </mat-select>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label class="control-label col-sm-4">Spec :</label>
@@ -45,14 +62,16 @@
                         <div class="form-group">
                             <label class="control-label col-sm-4">Min :</label>
                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                                <input type="number" class="form-control" placeholder="Enter Min" formControlName="Min">
+                                <input type="number" class="form-control" placeholder="Enter Min" formControlName="Min"
+                                    (keypress)="allowNumericOnly($event)">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="control-label col-sm-4">Max :</label>
                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                                <input type="number" class="form-control" placeholder="Enter Max" formControlName="Max">
+                                <input type="number" class="form-control" placeholder="Enter Max" formControlName="Max"
+                                    (keypress)="allowNumericOnly($event)">
                             </div>
                         </div>
 

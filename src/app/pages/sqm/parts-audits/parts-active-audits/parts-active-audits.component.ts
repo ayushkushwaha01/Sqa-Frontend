@@ -33,6 +33,15 @@ export class PartsActiveAuditsComponent implements OnInit {
   tableLists: any[] = [];
   ngOnInit(): void {
     this.fomrInit();
+    this.filterForm.get('done')?.valueChanges.subscribe(value => {
+
+      console.log('Done changed:', value);
+
+      setTimeout(() => {
+        this.getPartsAuidt();
+      });
+
+    });
     this.getPartsAuidt();
     this.getLookups();
     this.getPartsFamilies();
@@ -68,7 +77,8 @@ export class PartsActiveAuditsComponent implements OnInit {
       cityId: [null],
       statusId: [null],
       fromDate: [null],
-      toDate: [null]
+      toDate: [null],
+      done: [false]
     });
   }
 
@@ -196,6 +206,7 @@ export class PartsActiveAuditsComponent implements OnInit {
         delete filter[key];
       }
     });
+    console.log('Filter:', filter);
 
     this.partAuditService.getPartAudits(filter)
       .subscribe((res: any) => {

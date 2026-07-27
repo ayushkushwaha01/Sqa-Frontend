@@ -52,4 +52,65 @@ export class PartAuditService {
     });
   }
 
+
+  // For Part Audit  inner screen
+
+  updateOkayStatusinnerscreen(data: any) {
+    return this.http.post(this.apiUrl + 'PartsAuditInnerScreen/okay-status-change', data);
+  }
+  upsertCapa(data: any) {
+    return this.http.post(this.apiUrl + 'PartsAuditInnerScreen/upsert-capa', data);
+  }
+  getCapa(filter: any) {
+    return this.http.get(this.apiUrl + 'PartsAuditInnerScreen/get-capa', {
+      params: filter
+    });
+  }
+  upsertPartsAuditDoc(data: any) {
+    return this.http.post(this.apiUrl + 'PartsAuditInnerScreen/upload-docs', data);
+  }
+  upsertPartsAuditImages(data: any) {
+    return this.http.post(this.apiUrl + 'PartsAuditInnerScreen/upload-images', data);
+  }
+  updateResolvedStatus(data: any) {
+    return this.http.post(
+      this.apiUrl + 'PartsAuditInnerScreen/resolved-status-change',
+      data
+    );
+  }
+
+  getAllCaps(filter: any) {
+    return this.http.get(
+      this.apiUrl + 'PartsAuditInnerScreen/get-all-capas',
+      {
+        params: filter
+      }
+    );
+  }
+  getDocs(auditParameterId: any) {
+    return this.http.get(this.apiUrl + 'PartsAuditInnerScreen/get-docs', {
+      params: { auditParameterId }
+    });
+  }
+
+  deleteDoc(data: any) {
+    return this.http.post(
+      this.apiUrl + 'PartsAuditInnerScreen/delete-doc',
+      data
+    );
+  }
+
+  deleteCapa(data: any) {
+    return this.http.post(
+      this.apiUrl + 'PartsAuditInnerScreen/delete-capa',
+      data
+    );
+  }
+
+  updateCapaStatus(data: any) {
+    return this.http.post(
+      this.apiUrl + 'PartsAuditInnerScreen/update-capa-status',
+      data
+    );
+  }
 }

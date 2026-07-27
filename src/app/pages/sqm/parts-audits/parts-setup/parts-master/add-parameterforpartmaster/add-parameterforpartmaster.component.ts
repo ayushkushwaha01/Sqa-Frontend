@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { LookupService } from 'src/app/pages/admin/lookup/lookup.service';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { AlertService } from 'src/app/shared/alert.service';
 
@@ -11,7 +12,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 })
 export class AddParameterforpartmasterComponent implements OnInit {
 
- isEditMode: boolean = false;
+  isEditMode: boolean = false;
 
   isDragOver = false;
   selectedFileName: string = '';
@@ -22,13 +23,14 @@ export class AddParameterforpartmasterComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<AddParameterforpartmasterComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
+    private lookupService: LookupService
   ) { }
 
   ngOnInit(): void {
     this.partMasterId = this.data.partMasterId;
     console.log(this.partMasterId);
     this.formInit(this.data);
-
+    this.getLookups();
     this.getPartAuditCategories();
 
   }
@@ -54,16 +56,29 @@ export class AddParameterforpartmasterComponent implements OnInit {
         data?.spec || ''
       ],
 
+      // Min: [
+      //   data?.min || ''
+      // ],
+
+      // Max: [
+      //   data?.max || ''
+      // ],
       Min: [
-        data?.min || ''
+        data?.min || '',
+        [Validators.pattern('^[0-9]*$')]
       ],
 
       Max: [
-        data?.max || ''
+        data?.max || '',
+        [Validators.pattern('^[0-9]*$')]
       ],
 
       Method: [
         data?.method || ''
+      ],
+      UnitId: [
+        data?.unitId || null,
+        Validators.required
       ]
 
     });
@@ -71,6 +86,26 @@ export class AddParameterforpartmasterComponent implements OnInit {
 
   get f() {
     return this.myGroup.controls;
+  }
+
+  allowNumericOnly(event: KeyboardEvent): boolean {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+
+  lookups: any[] = [];
+
+  getLookups() {
+    this.lookupService.getLookups().subscribe((res: any) => {
+      if (res.success) {
+        this.lookups = res.data.filter((x: any) => x.codeId === 3);
+      }
+    });
   }
 
 

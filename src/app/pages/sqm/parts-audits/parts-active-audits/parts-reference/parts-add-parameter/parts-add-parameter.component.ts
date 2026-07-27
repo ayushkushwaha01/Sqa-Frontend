@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { PartAuditService } from '../../../part-audit.service';
+import { LookupService } from 'src/app/pages/admin/lookup/lookup.service';
 
 @Component({
   selector: 'app-parts-add-parameter',
@@ -23,12 +24,13 @@ export class PartsAddParameterComponent implements OnInit {
     public dialogRef: MatDialogRef<PartsAddParameterComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
     private _setupService: SetupService,
-    private alertService: AlertService, private partauditservice: PartAuditService
+    private alertService: AlertService, private partauditservice: PartAuditService, private lookupService: LookupService
   ) { }
 
   ngOnInit(): void {
     console.log('Received data:', this.data);
     this.formInit(this.data);
+    this.getLookups();
   }
 
   formInit(data: any) {
@@ -57,9 +59,18 @@ export class PartsAddParameterComponent implements OnInit {
 
       Spec: [data?.spec || ''],
 
-      Min: [data?.min || ''],
+      // Min: [data?.min || ''],
 
-      Max: [data?.max || ''],
+      // Max: [data?.max || ''],
+      Min: [
+        data?.min || '',
+        [Validators.pattern('^[0-9]*$')]
+      ],
+
+      Max: [
+        data?.max || '',
+        [Validators.pattern('^[0-9]*$')]
+      ],
 
       Method: [data?.method || ''],
 
@@ -75,7 +86,11 @@ export class PartsAddParameterComponent implements OnInit {
 
       Remarks: [data?.remarks || ''],
 
-      Okay: [data?.okay || false]
+      Okay: [data?.okay || false],
+      UnitId: [
+        data?.unitId || null,
+        Validators.required
+      ]
 
     });
   }
@@ -84,6 +99,24 @@ export class PartsAddParameterComponent implements OnInit {
     return this.myGroup.controls;
   }
 
+  allowNumericOnly(event: KeyboardEvent): boolean {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  lookups: any[] = [];
+
+  getLookups() {
+    this.lookupService.getLookups().subscribe((res: any) => {
+      if (res.success) {
+        this.lookups = res.data.filter((x: any) => x.codeId === 3);
+      }
+    });
+  }
   UpsertParameter(): void {
 
     if (this.myGroup.invalid) {
