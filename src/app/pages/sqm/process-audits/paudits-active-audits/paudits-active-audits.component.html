@@ -103,7 +103,7 @@
     </div>
   </div>
 
-  <div class="table-responsive">
+  <div class="table-responsive" id="grid-table-container" style="scroll-behavior: smooth;">
     <table class="audit-table">
       <thead>
         <tr>
@@ -171,6 +171,13 @@
         </tr>
       </tbody>
     </table>
+
+    <button class="mine mine-right" mat-fab (click)="scrollRight()">
+      <mat-icon style="color: #37474f">fast_forward</mat-icon>
+    </button>
+    <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+      <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+    </button>
 
     <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)" aria-label="Select page">
     </mat-paginator>

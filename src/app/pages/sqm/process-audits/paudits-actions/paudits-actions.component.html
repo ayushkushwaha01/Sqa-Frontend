@@ -32,10 +32,10 @@
               <div class="col-sm-4 row me-2 mt-3">
                 <div class="col-sm-4 newMarginClass"><b>Process Category :</b></div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="TractorIdSections"
+                  <mat-select class="form-control" formControlName="ProcessCategory"
                     placeholder="Select Process Category">
-                    <mat-option *ngFor="let section of TractorIdSections" [value]="section.item_id">
-                      {{ section.item_text }}
+                    <mat-option *ngFor="let category of processCategories" [value]="category">
+                      {{ category }}
                     </mat-option>
                   </mat-select>
                 </div>
@@ -46,10 +46,10 @@
                   <b>Select Supplier Name:</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ResponsibleSections"
+                  <mat-select class="form-control" formControlName="SupplierName"
                     placeholder="Select Supplier Name">
-                    <mat-option *ngFor="let section of responsibleSections" [value]="section.item_id">
-                      {{ section.item_text }}
+                    <mat-option *ngFor="let supplier of suppliers" [value]="supplier">
+                      {{ supplier }}
                     </mat-option>
                   </mat-select>
                 </div>
@@ -60,10 +60,10 @@
                   <b>Action Type :</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ResponsibleSectionLeadId"
+                  <mat-select class="form-control" formControlName="ActionType"
                     placeholder="Select Action Type">
-                    <mat-option *ngFor="let item of resSectionFilterLeads" [value]="item.UserId">
-                      {{ item.UserName }}
+                    <mat-option *ngFor="let action of actionTypes" [value]="action">
+                      {{ action }}
                     </mat-option>
                   </mat-select>
                 </div>

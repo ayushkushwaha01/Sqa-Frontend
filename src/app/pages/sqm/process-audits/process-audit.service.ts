@@ -46,4 +46,24 @@ export class ProcessAuditService {
   deleteInnerScreenDocument(payload: any) {
     return this.http.post(this.apiUrl + 'ProcessAuditInnerScreen/delete-document', payload);
   }
+
+
+  //supplier related APIs 
+
+  // Update these two methods in your process-audit.service.ts
+getAllAuditsSupplier(supplierId?: number) { 
+  let url = this.apiUrl + 'ProcessAudits/get-all';
+  if (supplierId) {
+    url += `?supplierId=${supplierId}`;
+  }
+  return this.http.get(url); 
+}
+
+getAllCapasSupplie(supplierId?: number) { 
+  let url = this.apiUrl + 'ProcessAuditInnerScreen/get-all-capas';
+  if (supplierId) {
+    url += `?supplierId=${supplierId}`;
+  }
+  return this.http.get(url); 
+}
 }

@@ -146,13 +146,25 @@
         {{ applicant.docs }}
       </td>
 
-      <td class="text-center">
-        <!-- Conditional red text logic applied here -->
-        <a [routerLink]="['/app','supplier-login','inner-screen','capa-ref']"
+      <!-- <td class="text-center">
+         <a [routerLink]="['/app','supplier-login','inner-screen','capa-ref']"
            [ngStyle]="{'color': applicant.isAlert ? 'red' : 'blue', 'font-weight': applicant.isAlert ? 'bold' : 'normal'}">
           {{ applicant.reference }}
         </a>
-      </td>
+      </td> -->
+
+    <td class="text-center">
+  <a [routerLink]="['/app','supplier-login','inner-screen','capa-ref']"
+     [queryParams]="{ 
+        id: applicant.processAuditId, 
+        ref: applicant.auditReference, 
+        categoryId: applicant.processCategoryId, 
+        checklistId: applicant.checklistId 
+     }"
+     [ngStyle]="{'color': applicant.isAlert ? 'red' : 'blue', 'font-weight': applicant.isAlert ? 'bold' : 'normal'}">
+    {{ applicant.reference }}
+  </a>
+</td>
 
       <td class="text-center">{{ applicant.actionSubject }}</td>
       <td class="text-center">{{ applicant.supplierName }}</td>

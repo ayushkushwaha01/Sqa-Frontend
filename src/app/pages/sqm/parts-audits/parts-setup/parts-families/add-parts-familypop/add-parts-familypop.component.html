@@ -35,8 +35,11 @@
                     </div>
 
                     <div class="col-sm-8">
+                        <!-- <input type="text" class="form-control" placeholder="Enter Part Code"
+                            formControlName="PartFamilyCode" maxlength="5" > -->
                         <input type="text" class="form-control" placeholder="Enter Part Code"
-                            formControlName="PartFamilyCode" maxlength="5">
+                            formControlName="PartFamilyCode" maxlength="5"
+                            (input)="onUppercaseInput($event, 'PartFamilyCode')">
 
                         <small class="text-danger"
                             *ngIf="f['PartFamilyCode'].touched && f['PartFamilyCode'].errors?.['required']">
