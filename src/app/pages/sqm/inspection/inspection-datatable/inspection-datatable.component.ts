@@ -6,6 +6,7 @@ import { ActiveGridDialogComponent } from '../../process-audits/paudits-active-a
 import { InspectionService } from '../inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { PageEvent } from '@angular/material/paginator';
 
 
 @Component({
@@ -38,13 +39,26 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   // --- Filter Variables ---
   allMockData: any[] = [];
   mockdata: any[] = [];
+  pagedMockdata: any[] = [];
+  pageSize = 5;
+  pageIndex = 0;
+  totalSize = 0;
   showFilter = false;
+
+  inspectors: string[] = [];
+  partFamilies: string[] = [];
+  partNames: string[] = [];
+  filteredPartNames: string[] = [];
+  batchNumbers: string[] = [];
+  partNameSearch = '';
 
   filterObj = {
     date: null as Date | null,
     inspector: '',
     partFamily: '',
-    partName: ''
+    partName: '',
+    partNumber: '',
+    batchNumber: ''
   };
 
   constructor(
@@ -94,7 +108,11 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
           }));
 
           this.mockdata = [...this.allMockData];
+          this.populateFilterDropdowns();
+          this.pageIndex = 0;
+          this.updatePagedList();
           this.updateChartData();
+          this.cdr.detectChanges();
           this.cdr.detectChanges();
         }
       },
@@ -106,25 +124,67 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     });
   }
 
+  populateFilterDropdowns() {
+    this.inspectors = Array.from(new Set(this.allMockData.map(item => item.Inspector).filter(item => item && item !== '-'))).sort();
+    this.partFamilies = Array.from(new Set(this.allMockData.map(item => item.PartFamily).filter(item => item && item !== '-'))).sort();
+    this.partNames = Array.from(new Set(this.allMockData.map(item => item.PartName).filter(item => item && item !== '-'))).sort();
+    this.filteredPartNames = [...this.partNames];
+    this.batchNumbers = Array.from(new Set(this.allMockData.map(item => item.BatchNumber).filter(item => item && item !== '-'))).sort();
+  }
+
+  filterPartNames(search: string) {
+    this.partNameSearch = search;
+    const term = search.toLowerCase().trim();
+    this.filteredPartNames = this.partNames.filter(name => name.toLowerCase().includes(term));
+  }
+
+  updatePagedList() {
+    const startIndex = this.pageIndex * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.pagedMockdata = this.mockdata.slice(startIndex, endIndex);
+    this.totalSize = this.mockdata.length;
+  }
+
+  onPageChange(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    this.updatePagedList();
+  }
+
   applyFilter() {
     this.mockdata = this.allMockData.filter(item => {
       let matches = true;
-      if (this.filterObj.date && item.InspectionDate) {
-        const itemDate = new Date(item.InspectionDate).toDateString();
-        const filterDate = new Date(this.filterObj.date).toDateString();
-        if (itemDate !== filterDate) matches = false;
+      if (this.filterObj.date) {
+        if (!item.InspectionDate) {
+          matches = false;
+        } else {
+          const itemDate = new Date(item.InspectionDate).toDateString();
+          const filterDate = new Date(this.filterObj.date).toDateString();
+          if (itemDate !== filterDate) matches = false;
+        }
       }
       if (this.filterObj.inspector && item.Inspector !== this.filterObj.inspector) matches = false;
       if (this.filterObj.partFamily && item.PartFamily !== this.filterObj.partFamily) matches = false;
       if (this.filterObj.partName && item.PartName !== this.filterObj.partName) matches = false;
+
+      // New filters
+      if (this.filterObj.partNumber && !item.PartNumber?.toLowerCase().includes(this.filterObj.partNumber.toLowerCase().trim())) matches = false;
+      if (this.filterObj.batchNumber && item.BatchNumber !== this.filterObj.batchNumber) matches = false;
+
       return matches;
     });
+    this.pageIndex = 0;
+    this.updatePagedList();
     this.updateChartData();
   }
 
   clearFilter() {
-    this.filterObj = { date: null, inspector: '', partFamily: '', partName: '' };
+    this.filterObj = { date: null, inspector: '', partFamily: '', partName: '', partNumber: '', batchNumber: '' };
+    this.partNameSearch = '';
+    this.filteredPartNames = [...this.partNames];
     this.mockdata = [...this.allMockData];
+    this.pageIndex = 0;
+    this.updatePagedList();
     this.updateChartData();
   }
 

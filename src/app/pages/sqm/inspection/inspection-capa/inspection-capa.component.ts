@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 
 import { EditissuesComponent } from 'src/app/editissues/editissues.component';
@@ -17,6 +17,7 @@ import { PartsActionsEditComponent } from '../../parts-audits/parts-actions/part
 import { InspectionService } from '../inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { InspectionDocspopComponent } from './inspection-docspop/inspection-docspop.component';
+import { CapaEditPopComponent } from './capa-edit-pop/capa-edit-pop.component';
 
 @Component({
   selector: 'app-inspection-capa',
@@ -28,10 +29,16 @@ export class InspectionCapaComponent implements OnInit {
 
   filterToggle: boolean = false;
   totalSize = 0;
+  pageSize = 5;
+  pageIndex = 0;
+  pagedTableList: any[] = [];
   myGroup!: FormGroup;
 
   tableList: any[] = [];
   originalTableList: any[] = [];
+  processCategories: string[] = [];
+  supplierNames: string[] = [];
+  actionTypes: string[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   someElementRef: any;
@@ -128,81 +135,28 @@ export class InspectionCapaComponent implements OnInit {
     this.fetchPendingCapas();
   }
 
-  // fetchPendingCapas() {
-  //     this.inspectionService.getPendingCapaRecords().subscribe({
-  //       next: (res: any) => {
-  //         if (res.success && res.data) {
-  //           this.tableList = res.data.map((item: any) => {
-
-  //             let delay = 0;
-  //             if (item.dueDate && !item.completion) {
-  //               const due = new Date(item.dueDate);
-  //               const now = new Date();
-  //               const diffTime = Math.abs(now.getTime() - due.getTime());
-  //               if (now > due) {
-  //                 delay = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  //               }
-  //             }
-
-  //             return {
-  //               capaId: item.capaId, 
-  //               inspectionRefId: item.inspectionRefId || item.InspectionRefId,
-  //               status: item.status, 
-  //               resolved: item.resolved, 
-  //               docs: item.docs,
-  //               actionSubject: item.actionSubject,
-  //               supplierName: item.supplierName,
-  //               actionType: item.actionType,
-  //               auditReference: item.auditReference,
-  //               processCategory: item.processCategory,
-  //               description: item.description,
-  //               supplierRemarks: item.supplierRemarks,
-  //               logDate: this.datePipe.transform(item.logDate, 'dd-MMM-yyyy'),
-  //               dueDate: this.datePipe.transform(item.dueDate, 'dd-MMM-yyyy'),
-  //               completion: item.completion ? this.datePipe.transform(item.completion, 'dd-MMM-yyyy') : '-',
-  //               reference: item.reference,
-  //               delayInDays: delay > 0 ? delay : null,
-  //               severity: item.severity,
-  //               occurrence: item.occurrence,
-  //               detection: item.detection,
-
-  //               // No more mapping! Just pass the database string directly to the UI
-  //               riskRating: item.riskRating, 
-
-  //               rating: item.rating,
-  //               pdcaStatus: item.pdcaStatus
-  //             };
-  //           });
-
-  //           this.originalTableList = [...this.tableList];
-  //           this.totalSize = this.tableList.length;
-  //         }
-  //       },
-  //       error: (err) => {
-  //         console.error("Error fetching CAPA records:", err);
-  //       }
-  //     });
-  //   }
-
-  fetchPendingCapas() {
+  
+ fetchPendingCapas() {
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
           this.tableList = res.data.map((item: any) => {
 
             let delay = 0;
-            if (item.dueDate && !item.completion) {
-              const due = new Date(item.dueDate);
-              const now = new Date();
-              const diffTime = Math.abs(now.getTime() - due.getTime());
-              if (now > due) {
-                delay = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (item.etaDate) {
+              const eta = new Date(item.etaDate);
+              const completion = item.completion ? new Date(item.completion) : new Date();
+              eta.setHours(0, 0, 0, 0);
+              completion.setHours(0, 0, 0, 0);
+              const diffTime = completion.getTime() - eta.getTime();
+              if (diffTime > 0) {
+                delay = Math.floor(diffTime / (1000 * 60 * 60 * 24));
               }
             }
 
             return {
               capaId: item.capaId,
-              inspectionRefId: item.inspectionRefId, // <-- Will now successfully grab the ID
+              inspectionRefId: item.inspectionRefId, 
               status: item.status,
               resolved: item.resolved,
               docs: item.docs,
@@ -213,9 +167,17 @@ export class InspectionCapaComponent implements OnInit {
               processCategory: item.processCategory,
               description: item.description,
               supplierRemarks: item.supplierRemarks,
-              logDate: this.datePipe.transform(item.logDate, 'dd-MMM-yyyy'),
-              dueDate: this.datePipe.transform(item.dueDate, 'dd-MMM-yyyy'),
+              
+              // --- MAPPED MISSING FIELDS HERE ---
+              etaDate: item.etaDate ? this.datePipe.transform(item.etaDate, 'dd-MMM-yyyy') : '-',
+              auditorRemarks: item.auditorRemarks || '-',
+              auditeeResponse: item.auditeeResponse || '-',
+              
+              // Safely transform existing dates
+              logDate: item.logDate ? this.datePipe.transform(item.logDate, 'dd-MMM-yyyy') : '-',
+              dueDate: item.dueDate ? this.datePipe.transform(item.dueDate, 'dd-MMM-yyyy') : '-',
               completion: item.completion ? this.datePipe.transform(item.completion, 'dd-MMM-yyyy') : '-',
+              
               reference: item.reference,
               delayInDays: delay > 0 ? delay : null,
               severity: item.severity,
@@ -228,13 +190,21 @@ export class InspectionCapaComponent implements OnInit {
           });
 
           this.originalTableList = [...this.tableList];
-          this.totalSize = this.tableList.length;
+          this.pageIndex = 0;
+          this.updatePagedList();
+          this.populateFilterDropdowns();
         }
       },
       error: (err) => {
         console.error("Error fetching CAPA records:", err);
       }
     });
+  }
+
+  populateFilterDropdowns() {
+    this.processCategories = Array.from(new Set(this.originalTableList.map(item => item.processCategory).filter(Boolean))).sort();
+    this.supplierNames = Array.from(new Set(this.originalTableList.map(item => item.supplierName).filter(Boolean))).sort();
+    this.actionTypes = Array.from(new Set(this.originalTableList.map(item => item.actionType).filter(Boolean))).sort();
   }
 
   onInlineChange(applicant: any) {
@@ -294,9 +264,30 @@ export class InspectionCapaComponent implements OnInit {
   }
 
   deleteConfirmation(item: any) {
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: 'auto',
-      data: { ProjectId: item.ProjectId, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?' }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: {
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to permanently delete this CAPA record?',
+        confirmText: 'Delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.inspectionService.deleteCapa(item.capaId).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.alertService.createAlert('CAPA deleted successfully!', 1);
+              this.fetchPendingCapas();
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to delete CAPA', 0);
+            }
+          },
+          error: (err) => this.alertService.createAlert('An error occurred while deleting the CAPA record.', 0)
+        });
+      }
     });
   }
 
@@ -342,12 +333,20 @@ export class InspectionCapaComponent implements OnInit {
     });
   }
 
-  editrow() {
-    this.dialog.open(ProcessActionsEditComponent, {
+  editrow(applicant: any) {
+    const dialogRef = this.dialog.open(CapaEditPopComponent, {
       width: '650px',
       height: 'auto',
       maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog'
+      panelClass: 'no-scroll-dialog',
+      data: applicant // Pass the row data here
+    });
+
+    // Refresh the grid if the dialog was saved successfully
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.fetchPendingCapas();
+      }
     });
   }
 
@@ -360,35 +359,52 @@ export class InspectionCapaComponent implements OnInit {
     });
   }
 
+  updatePagedList() {
+    const startIndex = this.pageIndex * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.pagedTableList = this.tableList.slice(startIndex, endIndex);
+    this.totalSize = this.tableList.length;
+  }
+
+  onPageChange(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    this.updatePagedList();
+  }
+
   go() {
     const filters = this.myGroup.value;
-    const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
+    const keyword = filters.Keyword ? filters.Keyword.toLowerCase().trim() : '';
+    const processCategory = filters.TractorIdSections;
+    const supplierName = filters.ResponsibleSections;
+    const actionType = filters.ResponsibleSectionLeadId;
 
     this.tableList = this.originalTableList.filter(item => {
       let isMatch = true;
 
       if (keyword) {
-        isMatch = isMatch && (
-          (item.actionSubject && item.actionSubject.toLowerCase().includes(keyword)) ||
-          (item.supplierName && item.supplierName.toLowerCase().includes(keyword)) ||
-          (item.description && item.description.toLowerCase().includes(keyword))
-        );
+        isMatch = isMatch && !!(item.actionSubject && item.actionSubject.toLowerCase().includes(keyword));
+      }
+      if (processCategory) {
+        isMatch = isMatch && item.processCategory === processCategory;
+      }
+      if (supplierName) {
+        isMatch = isMatch && item.supplierName === supplierName;
+      }
+      if (actionType) {
+        isMatch = isMatch && item.actionType === actionType;
       }
       return isMatch;
     });
 
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.pageIndex = 0;
+    this.updatePagedList();
   }
 
   clearFilter() {
     this.myGroup.reset();
     this.tableList = [...this.originalTableList];
-
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.pageIndex = 0;
+    this.updatePagedList();
   }
-
 }
