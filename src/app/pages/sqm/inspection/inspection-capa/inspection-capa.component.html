@@ -14,9 +14,9 @@
   </button>
 </div>
 
-<div class="col-sm-12" style="overflow: hidden; width: 100%;">
+<div class="col-sm-12" style="overflow: hidden; width: 100%; padding: 0px;">
 
-  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px;">
+  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px; padding: 0px;">
     <div style="margin-top: 10px; width: 100%;">
       <form [formGroup]="myGroup">
         <mat-card class="filter">
@@ -34,8 +34,8 @@
                 <div class="col-sm-8">
                   <mat-select class="form-control" formControlName="TractorIdSections"
                     placeholder="Select Process Category">
-                    <mat-option *ngFor="let section of TractorIdSections" [value]="section.item_id">
-                      {{ section.item_text }}
+                    <mat-option *ngFor="let category of processCategories" [value]="category">
+                      {{ category }}
                     </mat-option>
                   </mat-select>
                 </div>
@@ -48,8 +48,8 @@
                 <div class="col-sm-8">
                   <mat-select class="form-control" formControlName="ResponsibleSections"
                     placeholder="Select Supplier Name">
-                    <mat-option *ngFor="let section of responsibleSections" [value]="section.item_id">
-                      {{ section.item_text }}
+                    <mat-option *ngFor="let supplier of supplierNames" [value]="supplier">
+                      {{ supplier }}
                     </mat-option>
                   </mat-select>
                 </div>
@@ -62,8 +62,8 @@
                 <div class="col-sm-8">
                   <mat-select class="form-control" formControlName="ResponsibleSectionLeadId"
                     placeholder="Select Action Type">
-                    <mat-option *ngFor="let item of resSectionFilterLeads" [value]="item.UserId">
-                      {{ item.UserName }}
+                    <mat-option *ngFor="let action of actionTypes" [value]="action">
+                      {{ action }}
                     </mat-option>
                   </mat-select>
                 </div>
@@ -97,19 +97,25 @@
           <tr>
             <th mat-header-cell mat-sort-header class="text-center">Action</th>
             <th mat-header-cell mat-sort-header class="text-center">Status</th>
-            <th mat-header-cell mat-sort-header class="text-center">Resolved </th>
+            <th mat-header-cell mat-sort-header class="text-center">Resolved</th>
             <th mat-header-cell mat-sort-header class="text-center">Docs</th>
-            <th mat-header-cell mat-sort-header class="text-center">Reference </th>
-            <th mat-header-cell mat-sort-header class="text-center"> Subject</th>
+            <th mat-header-cell mat-sort-header class="text-center">Reference</th>
+            <th mat-header-cell mat-sort-header class="text-center">Subject</th>
             <th mat-header-cell mat-sort-header class="text-center">Supplier Name</th>
             <th mat-header-cell mat-sort-header class="text-center">Action Type</th>
             <th mat-header-cell mat-sort-header class="text-center">Audit Reference</th>
             <th mat-header-cell mat-sort-header class="text-center">Process Category</th>
-            <th mat-header-cell mat-sort-header class="text-center">Description</th>
+            <!-- <th mat-header-cell mat-sort-header class="text-center">Description</th> -->
             <th mat-header-cell mat-sort-header class="text-center">Supplier Remarks</th>
             <th mat-header-cell mat-sort-header class="text-center">Log Date</th>
-            <th mat-header-cell mat-sort-header class="text-center"> Due Date</th>
+            
+            <!-- FIXED: These are now properly formatted as <th> headers -->
+            <th mat-header-cell mat-sort-header class="text-center">Due Date</th>
+            <th mat-header-cell mat-sort-header class="text-center">ETA Date</th>
+            <th mat-header-cell mat-sort-header class="text-center">Auditor Remarks</th>
+            <th mat-header-cell mat-sort-header class="text-center">Auditee Response</th>
             <th mat-header-cell mat-sort-header class="text-center">Delay In Days</th>
+            
             <th mat-header-cell mat-sort-header class="text-center">Completion Date</th>
             <th mat-header-cell mat-sort-header class="text-center">Severity</th>
             <th mat-header-cell mat-sort-header class="text-center">Occurrence</th>
@@ -121,9 +127,9 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let applicant of tableList">
+          <tr *ngFor="let applicant of pagedTableList">
             <td class="text-center">
-              <a matTooltip="Edit" (click)="editrow()">
+              <a matTooltip="Edit" (click)="editrow(applicant)">
                 <i class="fa fa-edit"></i>
               </a>
               <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
@@ -131,10 +137,8 @@
               </a>
             </td>
 
-            <!-- Updated Status Select to use integer bindings -->
             <td class="text-center">
-              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onInlineChange(applicant)"
-                class="form-control">
+              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onInlineChange(applicant)" class="form-control">
                 <mat-option [value]="1">WIP</mat-option>
                 <mat-option [value]="2">Open</mat-option>
                 <mat-option [value]="3">Closed</mat-option>
@@ -144,52 +148,51 @@
               </mat-select>
             </td>
 
-            <!-- Updated Checkbox to use two-way binding -->
             <td class="text-center">
-              <mat-checkbox [(ngModel)]="applicant.resolved" (change)="onInlineChange(applicant)"
-                color="primary"></mat-checkbox>
+              <mat-checkbox [(ngModel)]="applicant.resolved" (change)="onInlineChange(applicant)" color="primary"></mat-checkbox>
             </td>
 
-          <td class="text-center" style="color: blue; cursor: pointer; text-decoration: underline;" (click)="docsPhoto(applicant.capaId)">
-  {{ applicant.docs }}
-</td>
+            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant.capaId)">
+              {{ applicant?.docs }}
+            </td>
 
             <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']" [queryParams]="{ inspectionRefId: applicant.inspectionRefId }">
-                {{ applicant.reference }} 
+              <a [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']" [queryParams]="{ inspectionRefId: applicant?.inspectionRefId }">
+                {{ applicant?.reference }} 
               </a>
             </td>
-            <td class="text-center">{{ applicant.actionSubject }}</td>
+            
+            <td class="text-center">{{ applicant?.actionSubject }}</td>
+            <td class="text-center">{{ applicant?.supplierName }}</td>
+            <td class="text-center">{{ applicant?.actionType }}</td>
+            <td class="text-center">{{ applicant?.auditReference }}</td>
+            <td class="text-center">{{ applicant?.processCategory }}</td>
+            <!-- <td class="text-center">{{ applicant?.description }}</td> -->
+            <td class="text-center">{{ applicant?.supplierRemarks }}</td>
+            <td class="text-center">{{ applicant?.logDate }}</td>
+            
+            <!-- Safe bindings for the missing fields inside TBODY where 'applicant' exists -->
+            <td class="text-center">{{ applicant?.dueDate }}</td>
+            <td class="text-center">{{ applicant?.etaDate }}</td>
+            <td class="text-center">{{ applicant?.auditorRemarks }}</td>
+            <td class="text-center">{{ applicant?.auditeeResponse }}</td>
+            <td class="text-center">{{ applicant?.delayInDays ?? '-' }}</td>
+            
+            <td class="text-center">{{ applicant?.completion ?? '-' }}</td>
+            <td class="text-center">{{ applicant?.severity }}</td>
+            <td class="text-center">{{ applicant?.occurrence }}</td>
+            <td class="text-center">{{ applicant?.detection }}</td>
 
-            <td class="text-center">{{ applicant.supplierName }}</td>
-            <td class="text-center">{{ applicant.actionType }}</td>
-            <td class="text-center">{{ applicant.auditReference }}</td>
-            <td class="text-center">{{ applicant.processCategory }}</td>
-
-            <td class="text-center">{{ applicant.description }}</td>
-            <td class="text-center">{{ applicant.supplierRemarks }}</td>
-
-            <td class="text-center">{{ applicant.logDate }}</td>
-            <td class="text-center">{{ applicant.dueDate }}</td>
-            <td class="text-center">{{ applicant.delayInDays ?? '-' }}</td>
-            <td class="text-center">{{ applicant.completion ?? '-' }}</td>
-
-            <td class="text-center">{{ applicant.severity }}</td>
-            <td class="text-center">{{ applicant.occurrence }}</td>
-            <td class="text-center">{{ applicant.detection }}</td>
-
-            <!-- Updated Risk Rating Select to use integer bindings -->
             <td class="text-center" style="min-width: 120px;">
-              <mat-select [(ngModel)]="applicant.riskRating" (selectionChange)="onInlineChange(applicant)"
-                class="form-control">
+              <mat-select [(ngModel)]="applicant.riskRating" (selectionChange)="onInlineChange(applicant)" class="form-control">
                 <mat-option value="High">High</mat-option>
                 <mat-option value="Medium">Medium</mat-option>
                 <mat-option value="Low">Low</mat-option>
               </mat-select>
             </td>
 
-            <td class="text-center">{{ applicant.rating }}</td>
-            <td class="text-center">{{ applicant.pdcaStatus }}</td>
+            <td class="text-center">{{ applicant?.rating }}</td>
+            <td class="text-center">{{ applicant?.pdcaStatus }}</td>
           </tr>
         </tbody>
       </table>
@@ -204,7 +207,7 @@
     </div>
 
     <div style="width: 100%;">
-      <mat-paginator [length]="totalSize" [pageSize]="5" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons>
+      <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons (page)="onPageChange($event)">
       </mat-paginator>
     </div>
   </div>

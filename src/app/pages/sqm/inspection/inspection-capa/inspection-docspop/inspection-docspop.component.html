@@ -4,9 +4,6 @@
 
 <div mat-dialog-content class="pt-4 overflow-hidden">
     <form class="form-horizontal">
-        
-        
-
         <div class="row align-items-center mb-3">
             <div class="col-sm-3">
                 <label class="control-label font-weight-bold mb-0">
@@ -26,7 +23,6 @@
 </button>
             </div>
         </div>
-
     </form>
 
     <div class="table-responsive mt-2">
@@ -47,11 +43,10 @@
                         <mat-icon class="action-icon text-primary" matTooltip="View" (click)="viewDoc(doc)">visibility</mat-icon>
                     </td>
                     <td class="text-center manage-icons">
-                         
-                        <i class="fa fa-trash delete-icon" matTooltip="Delete" style="color: red; cursor: pointer; font-size: 16px;"></i>
+                        <!-- ADDED CLICK EVENT HERE -->
+                        <i class="fa fa-trash delete-icon" matTooltip="Delete" style="color: red; cursor: pointer; font-size: 16px;" (click)="deleteDoc(doc)"></i>
                     </td>
                 </tr>
-             
             </tbody>
         </table>
 

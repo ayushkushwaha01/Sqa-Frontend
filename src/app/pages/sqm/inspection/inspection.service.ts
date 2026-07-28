@@ -103,4 +103,21 @@ export class InspectionService {
   getCapaDocuments(capaId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}InspectionCapa/GetCapaDocuments/${capaId}`);
   }
+
+
+
+
+
+  // Add this inside InspectionService class
+  updateCapaDetails(payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}InspectionCapa/UpdateCapaDetails`, payload);
+  }
+
+  deleteCapa(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}InspectionCapa/DeleteCapa/${id}`);
+  }
+
+   getAllArchived(): Observable<any> {
+    return this.http.get(this.apiUrl + "DataTable/get-all-archive");
+  }
 }

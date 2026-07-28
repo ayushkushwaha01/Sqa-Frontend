@@ -1,110 +1,114 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-sm-12">
+<div class="container-fluid" style="padding: 0px;">
+  <div class="row" style="margin: 0px;">
+    <div class="col-sm-12" style="padding: 0px;">
       <div class="expanded-filter-content">
-        <div class="row">
-          <!-- Date -->
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="row align-items-center">
-              <div class="col-sm-4 newMarginClass">
-                <b>Date:</b>
-              </div>
-              <div class="col-sm-8">
-                <input
-                  type="date"
-                  class="form-control"
-                  placeholder="Select Date"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Inspector -->
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="row align-items-center">
-              <div class="col-sm-4 newMarginClass">
-                <b>Inspector:</b>
-              </div>
-              <div class="col-sm-8">
-                <select class="form-control">
-                  <option selected disabled>Select Inspector</option>
-                  <option>Rajiv Sharma</option>
-                  <option>Amit Singh</option>
-                  <option>Priya Sharma</option>
-                </select>
+        <form [formGroup]="myGroup">
+          <div class="row">
+            <!-- Inspection Date -->
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="row align-items-center">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Inspection Date:</b>
+                </div>
+                <div class="col-sm-8">
+                  <input
+                    type="date"
+                    class="form-control"
+                    formControlName="inspectionDate"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Part Family -->
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="row align-items-center">
-              <div class="col-sm-4 newMarginClass">
-                <b>Part Family:</b>
-              </div>
-              <div class="col-sm-8">
-                <select class="form-control">
-                  <option selected disabled>Select Part Family</option>
-                  <option>Engine Components</option>
-                  <option>Transmission</option>
-                  <option>Electrical</option>
-                </select>
+            <!-- Inspector -->
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="row align-items-center">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Inspector:</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select formControlName="inspector" class="form-control mat-select-custom" placeholder="Select Inspector">
+                    <mat-option *ngFor="let inspector of inspectors" [value]="inspector">
+                      {{ inspector }}
+                    </mat-option>
+                  </mat-select>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Part Name -->
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="row align-items-center">
-              <div class="col-sm-4 newMarginClass">
-                <b>Part Name:</b>
-              </div>
-              <div class="col-sm-8">
-                <input
-                  type="text"
-                  class="form-control mb-2"
-                  placeholder="Search Part Name"
-                />
+            <!-- Part Family -->
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="row align-items-center">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Part Family:</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select formControlName="partFamily" class="form-control mat-select-custom" placeholder="Select Part Family">
+                    <mat-option *ngFor="let family of partFamilies" [value]="family">
+                      {{ family }}
+                    </mat-option>
+                  </mat-select>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Method -->
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="row align-items-center">
-              <div class="col-sm-4 newMarginClass">
-                <b>Method:</b>
-              </div>
-              <div class="col-sm-8">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Enter Method"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- CAPA -->
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="row align-items-center">
-              <div class="col-sm-4 newMarginClass">
-                <b>CAPA:</b>
-              </div>
-              <div class="col-sm-8 pt-2">
-                <input type="checkbox" id="capa" />
-                <label for="capa" class="ms-1">Requires CAPA</label>
+            <!-- Part Name -->
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="row align-items-center">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Part Name:</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select formControlName="partName" class="form-control mat-select-custom" placeholder="Select Part Name">
+                    <input type="text" class="form-control" [value]="partNameSearch" placeholder="Search part name..." style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;" (keydown)="$event.stopPropagation()" (input)="filterPartNames($any($event.target).value)">
+                    <mat-option *ngFor="let name of filteredPartNames" [value]="name">
+                      {{ name }}
+                    </mat-option>
+                  </mat-select>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Buttons -->
-          <div class="col-12 text-end mt-2">
-            <button type="button" class="btn btn-secondary me-2">Clear</button>
+            <!-- Part Number -->
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="row align-items-center">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Part Number:</b>
+                </div>
+                <div class="col-sm-8">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="partNumber"
+                    placeholder="Enter Part Number"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <button type="button" class="btn btn-primary">Search</button>
+            <!-- Batch Number -->
+            <div class="col-lg-4 col-md-6 mb-3">
+              <div class="row align-items-center">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Batch Number:</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select formControlName="batchNumber" class="form-control mat-select-custom" placeholder="Select Batch Number">
+                    <mat-option *ngFor="let batch of batchNumbers" [value]="batch">
+                      {{ batch }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-12 text-end mt-2">
+              <button type="button" class="btn btn-secondary me-2" (click)="clearFilter()">Clear</button>
+              <button type="button" class="btn btn-primary" (click)="go()">Search</button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>
@@ -114,7 +118,7 @@
   class="table-responsive"
   id="grid-table-container"
   #tableContainer
-  style="overflow-x: auto; white-space: nowrap"
+  style="overflow-x: auto; white-space: nowrap; margin-top: 20px;"
 >
   <table
     matSort
@@ -146,7 +150,7 @@
     </thead>
 
     <tbody>
-      <tr *ngFor="let item of mockdata">
+      <tr *ngFor="let item of pagedMockdata">
         <td class="text-center">
           <a
             matTooltip="Edit Record"
@@ -165,9 +169,9 @@
           </a>
 
           <a
-            matTooltip="Archive Record"
+            matTooltip="Unarchive Record"
             style="cursor: pointer"
-            (click)="archiveRecord(item)"
+            (click)="unarchiveRecord(item)"
           >
             <i class="fa fa-undo" style="color: #28a745"></i>
           </a>
@@ -179,8 +183,9 @@
               '/app',
               'sqm',
               'inspect-inner-screen',
-              'active-records',
+              'active-records'
             ]"
+            [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"
           >
             {{ item.Reference }}
           </a>
@@ -189,6 +194,7 @@
         <td class="text-center">
           <mat-checkbox
             [(ngModel)]="item.Publish"
+            (change)="togglePublish(item)"
             color="primary"
           ></mat-checkbox>
         </td>
@@ -214,7 +220,19 @@
           </a>
         </td>
 
-        <td class="text-center">{{ item.Parameters }}</td>
+        <td class="text-link text-center">
+          <a
+            [routerLink]="[
+              '/app',
+              'sqm',
+              'inspect-inner-screen',
+              'active-records'
+            ]"
+            [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"
+          >
+            {{ item.Parameters }}
+          </a>
+        </td>
         <td class="text-center">{{ item.Remarks }}</td>
         <td class="text-center">{{ item.BatchNumber }}</td>
         <td class="text-center">{{ item.BatchQuantity }}</td>
@@ -228,6 +246,11 @@
       </tr>
     </tbody>
   </table>
+</div>
+
+<div style="width: 100%;">
+  <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons (page)="onPageChange($event)">
+  </mat-paginator>
 </div>
 
 <div
