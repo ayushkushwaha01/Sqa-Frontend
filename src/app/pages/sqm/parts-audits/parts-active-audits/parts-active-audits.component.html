@@ -351,7 +351,7 @@
               <a [routerLink]="['/app/sqm/parts-inner-screen/parts-audit-reference']" [queryParams]="{
             partMasterId: audit.partMasterId,
             partFamilyId: audit.partFamilyId,
-            partAuditId: audit.partAuditId
+            partAuditId: audit.partAuditId,done:audit.done
         }">
 
                 {{ '2026/PART/' + (audit.partAuditId | number:'6.0') }}

@@ -87,12 +87,11 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select Part" formControlName="partMasterId">
+                        <mat-select class="form-control" placeholder="Select Part" formControlName="partMasterId"
+                            (selectionChange)="onPartChange($event.value)">
 
                             <mat-option *ngFor="let item of parts" [value]="item.partMasterId">
-
                                 {{ item.partMasterName }}
-
                             </mat-option>
 
                         </mat-select>
@@ -110,7 +109,7 @@
                     <div class="col-sm-8">
                         <mat-select class="form-control" placeholder="Select Supplier" formControlName="supplierId">
 
-                            <mat-option *ngFor="let item of Suppliers" [value]="item.supplierId">
+                            <mat-option *ngFor="let item of filteredSuppliers" [value]="item.supplierId">
 
                                 {{ item.supplierName }}
 

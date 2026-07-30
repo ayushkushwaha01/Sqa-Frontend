@@ -146,6 +146,35 @@ export class NewAuditComponent implements OnInit {
       });
   }
 
+
+  filteredSuppliers: any[] = [];
+
+
+
+  onPartChange(partMasterId: number) {
+
+    // Find selected part
+    const selectedPart = this.allParts.find(x => x.partMasterId == partMasterId);
+
+    if (!selectedPart || !selectedPart.supplierIds) {
+      this.filteredSuppliers = [];
+      this.myGroup.get('supplierId')?.setValue(null);
+      return;
+    }
+
+    // Convert "3,1" => [3,1]
+    const supplierIds = selectedPart.supplierIds
+      .split(',')
+      .map((x: string) => Number(x));
+
+    // Filter suppliers
+    this.filteredSuppliers = this.Suppliers.filter(s =>
+      supplierIds.includes(s.supplierId)
+    );
+
+    // Clear previous selection
+    this.myGroup.get('supplierId')?.setValue(null);
+  }
   states: any[] = []
   getStates() {
     this._setupService.getAllStates()
