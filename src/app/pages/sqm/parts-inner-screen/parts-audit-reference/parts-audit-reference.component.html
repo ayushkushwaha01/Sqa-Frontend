@@ -63,7 +63,8 @@
       <!-- <button mat-raised-button class="btn-black" (click)="opendocpop()">
         <mat-icon class="icon-sm" style="margin-top: 7px;">upload</mat-icon> Upload File
       </button> -->
-      <button mat-raised-button color="primary" class="btn-blue" (click)="addchecklistaudit()">
+      <button mat-raised-button color="primary" class="btn-blue" [ngClass]="{ 'disable-custom': done }"
+        (click)="!done && addchecklistaudit()">
         <mat-icon class="icon-sm" style="margin-top: 7px;">person_add</mat-icon> Add Parameter
       </button>
     </div>
@@ -114,7 +115,7 @@
               </mat-icon>
             </td>
             <td class="text-center">
-              <a *ngIf="!item.okay" style="color: blue; cursor: pointer; text-decoration: underline;"
+              <a *ngIf="!item.okay && !done" style="color: blue; cursor: pointer; text-decoration: underline;"
                 [routerLink]="['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']" [queryParams]="{
       partAuditId: item.partAuditId,
       auditParameterId: item.auditParameterId
@@ -123,26 +124,28 @@
                 View
               </a>
 
-              <span *ngIf="item.okay" style="color:#9e9e9e;cursor:not-allowed;">
+              <span *ngIf="item.okay && !done" style="color:#9e9e9e;cursor:not-allowed;">
                 NA
               </span>
             </td>
 
 
             <td class="text-center">
-              <mat-checkbox [checked]="item.okay" color="primary" (click)="changeOkay(item)">
+              <mat-checkbox [checked]="item.okay" color="primary" [ngClass]="{ 'disable-custom': done }"
+                (click)="!done && changeOkay(item)">
               </mat-checkbox>
             </td>
 
             <td class="text-center manage-icons">
-              <mat-icon class="edit-icon" matTooltip="Edit"
+              <mat-icon class="edit-icon" matTooltip="Edit" [ngClass]="{ 'disable-custom': done }"
                 style="color: cornflowerblue; font-size:18px; margin-right:8px; cursor:pointer;"
-                (click)="addchecklistaudit(item)">
+                (click)="!done && addchecklistaudit(item)">
                 edit
               </mat-icon>
 
-              <mat-icon class="delete-icon" matTooltip="Delete" style="color: red; font-size: 18px; cursor: pointer;"
-                (click)="deleteParameter(item)">delete</mat-icon>
+              <mat-icon class="delete-icon" matTooltip="Delete" [ngClass]="{ 'disable-custom': done }"
+                style="color: red; font-size: 18px; cursor: pointer;"
+                (click)="!done && deleteParameter(item)">delete</mat-icon>
             </td>
 
           </tr>

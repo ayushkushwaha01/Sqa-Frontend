@@ -39,6 +39,7 @@ export class PartsAuditReferenceComponent implements OnInit {
   partFamilyId: number = 0;
   PartId: number = 0;
   partAuditId: number = 0;
+  done: boolean = false;
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
 
@@ -46,6 +47,7 @@ export class PartsAuditReferenceComponent implements OnInit {
       this.partFamilyId = +params['partFamilyId'] || 0;
       this.partAuditId = +params['partAuditId'] || 0;
       this.PartId = +params['PartId'] || 0;
+      this.done = params['done'] === 'true';
 
       console.log('PartMasterId:', this.partMasterId);
       console.log('PartFamilyId:', this.partFamilyId);
