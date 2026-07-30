@@ -3,14 +3,8 @@
     <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px;">
       <h3 style="text-align: center; margin: 0 0 8px; font-size: 15px; color: #333;">Inspection by Stage</h3>
       <div class="w-100" style="height: 350px; display: flex; justify-content: center;">
-        <ngx-charts-pie-chart
-          [scheme]="colorScheme"
-          [results]="first"
-          [legend]="showLegend"
-          [explodeSlices]="explodeSlices"
-          [labels]="showLabels"
-          [doughnut]="doughnut"
-          [gradient]="gradient"
+        <ngx-charts-pie-chart [scheme]="colorScheme" [results]="first" [legend]="showLegend"
+          [explodeSlices]="explodeSlices" [labels]="showLabels" [doughnut]="doughnut" [gradient]="gradient"
           (select)="onSelect($event)">
         </ngx-charts-pie-chart>
       </div>
@@ -21,14 +15,8 @@
     <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px;">
       <h3 style="text-align: center; margin: 0 0 8px; font-size: 15px; color: #333;">Distribution by Part Family</h3>
       <div class="w-100" style="height: 350px; display: flex; justify-content: center;">
-        <ngx-charts-pie-chart
-          [scheme]="colorScheme"
-          [results]="multi"
-          [legend]="showLegend"
-          [explodeSlices]="explodeSlices"
-          [labels]="showLabels"
-          [doughnut]="doughnut"
-          [gradient]="gradient"
+        <ngx-charts-pie-chart [scheme]="colorScheme" [results]="multi" [legend]="showLegend"
+          [explodeSlices]="explodeSlices" [labels]="showLabels" [doughnut]="doughnut" [gradient]="gradient"
           (select)="onSelect($event)">
         </ngx-charts-pie-chart>
       </div>
@@ -39,14 +27,8 @@
     <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 15px;">
       <h3 style="text-align: center; margin: 0 0 8px; font-size: 15px; color: #333;">By Inspector</h3>
       <div class="w-100" style="height: 350px; display: flex; justify-content: center;">
-        <ngx-charts-pie-chart
-          [scheme]="colorScheme"
-          [results]="triple"
-          [legend]="showLegend"
-          [explodeSlices]="explodeSlices"
-          [labels]="showLabels"
-          [doughnut]="doughnut"
-          [gradient]="gradient"
+        <ngx-charts-pie-chart [scheme]="colorScheme" [results]="triple" [legend]="showLegend"
+          [explodeSlices]="explodeSlices" [labels]="showLabels" [doughnut]="doughnut" [gradient]="gradient"
           (select)="onSelect($event)">
         </ngx-charts-pie-chart>
       </div>
@@ -56,8 +38,8 @@
 
 <div class="d-flex justify-content-end align-items-center mb-3 gap-2">
   <button mat-raised-button class="btn-dark" (click)="openGridView(null)">
-      <mat-icon>grid_on</mat-icon> Grid View
-    </button>
+    <mat-icon>grid_on</mat-icon> Grid View
+  </button>
   <button mat-raised-button style="background-color: #000000; color: #ffffff;" (click)="showFilter = !showFilter">
     <mat-icon>filter_list</mat-icon> Filter
   </button>
@@ -71,14 +53,15 @@
     <div class="expanded-filter-content">
       <form>
         <div class="row">
-          
+
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass">
               <b>Inspection Date:</b>
             </div>
             <div class="col-sm-8">
               <div class="date-input-wrapper">
-                <input matInput [matDatepicker]="picker" placeholder=" Select Date" class="form-control date-input" readonly (click)="picker.open()" [(ngModel)]="filterObj.date" name="dateFilter">
+                <input matInput [matDatepicker]="picker" placeholder=" Select Date" class="form-control date-input"
+                  readonly (click)="picker.open()" [(ngModel)]="filterObj.date" name="dateFilter">
                 <mat-datepicker #picker></mat-datepicker>
               </div>
             </div>
@@ -87,7 +70,8 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Inspector:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Inspector" class="form-control mat-select-custom" [(ngModel)]="filterObj.inspector" name="inspectorFilter">
+              <mat-select placeholder="Select Inspector" class="form-control mat-select-custom"
+                [(ngModel)]="filterObj.inspector" name="inspectorFilter">
                 <mat-option *ngFor="let inspector of inspectors" [value]="inspector">
                   {{ inspector }}
                 </mat-option>
@@ -98,7 +82,8 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Part Family:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Part Family" class="form-control mat-select-custom" [(ngModel)]="filterObj.partFamily" name="partFamilyFilter">
+              <mat-select placeholder="Select Part Family" class="form-control mat-select-custom"
+                [(ngModel)]="filterObj.partFamily" name="partFamilyFilter">
                 <mat-option *ngFor="let family of partFamilies" [value]="family">
                   {{ family }}
                 </mat-option>
@@ -109,8 +94,11 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Part Name:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Part Name" class="form-control mat-select-custom" [(ngModel)]="filterObj.partName" name="partNameFilter">
-                <input type="text" class="form-control" [value]="partNameSearch" placeholder="Search part name..." style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;" (keydown)="$event.stopPropagation()" (input)="filterPartNames($any($event.target).value)">
+              <mat-select placeholder="Select Part Name" class="form-control mat-select-custom"
+                [(ngModel)]="filterObj.partName" name="partNameFilter">
+                <input type="text" class="form-control" [value]="partNameSearch" placeholder="Search part name..."
+                  style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;"
+                  (keydown)="$event.stopPropagation()" (input)="filterPartNames($any($event.target).value)">
                 <mat-option *ngFor="let name of filteredPartNames" [value]="name">
                   {{ name }}
                 </mat-option>
@@ -121,14 +109,16 @@
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Part Number:</b></div>
             <div class="col-sm-8">
-              <input type="text" class="form-control" placeholder="Enter Part Number" [(ngModel)]="filterObj.partNumber" name="partNumberFilter">
+              <input type="text" class="form-control" placeholder="Enter Part Number" [(ngModel)]="filterObj.partNumber"
+                name="partNumberFilter">
             </div>
           </div>
 
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
             <div class="col-sm-4 newMarginClass"><b>Batch Number:</b></div>
             <div class="col-sm-8">
-              <mat-select placeholder="Select Batch Number" class="form-control mat-select-custom" [(ngModel)]="filterObj.batchNumber" name="batchNumberFilter">
+              <mat-select placeholder="Select Batch Number" class="form-control mat-select-custom"
+                [(ngModel)]="filterObj.batchNumber" name="batchNumberFilter">
                 <mat-option *ngFor="let batch of batchNumbers" [value]="batch">
                   {{ batch }}
                 </mat-option>
@@ -190,16 +180,16 @@
           </a>
         </td>
 
-      <td class="text-link text-center">
-  <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
-     [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"> 
-    {{ item.Reference }} 
-  </a>
-</td>
+        <td class="text-link text-center">
+          <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
+            [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }">
+            {{ item.Reference }}
+          </a>
+        </td>
         <td class="text-center">{{ item.stage }}</td>
         <td class="text-center">
-  <mat-checkbox [(ngModel)]="item.Publish" color="primary" (change)="togglePublish(item)"></mat-checkbox>
-</td>
+          <mat-checkbox [(ngModel)]="item.Publish" color="primary" (change)="togglePublish(item)"></mat-checkbox>
+        </td>
 
         <td class="text-center">{{ item.InspectionDate | date:'yyyy-MM-dd' }}</td>
         <td class="text-center">{{ item.Time }}</td>
@@ -209,17 +199,18 @@
         <td class="text-center">{{ item.PartNumber }}</td>
 
         <td class="text-center">
-          <a style="color: #007bff; cursor: pointer; text-decoration: underline; font-weight: 500;" (click)="openDefectsPop(item)">
+          <a style="color: #007bff; cursor: pointer; text-decoration: underline; font-weight: 500;"
+            (click)="openDefectsPop(item)">
             {{ item.Defects }}
           </a>
         </td>
 
-      <td class="text-link text-center">
-  <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
-     [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }"> 
-    {{ item.Parameters }} 
-  </a>
-</td>
+        <td class="text-link text-center">
+          <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
+            [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }">
+            {{ item.Parameters }}
+          </a>
+        </td>
         <td class="text-center">{{ item.Remarks }}</td>
         <td class="text-center">{{ item.BatchNumber }}</td>
         <td class="text-center">{{ item.BatchQuantity }}</td>
@@ -236,7 +227,8 @@
 </div>
 
 <div style="width: 100%;">
-  <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons (page)="onPageChange($event)">
+  <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons (page)="onPageChange($event)">
   </mat-paginator>
 </div>
 

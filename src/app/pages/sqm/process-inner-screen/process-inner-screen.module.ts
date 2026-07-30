@@ -56,7 +56,7 @@ const routes: Routes = [
   exports: [RouterModule],
   declarations: [
     ProcessAuditDetailsComponent,
-    ProcessInnerScreenComponent,
+     
     ProcessAuditReferenceComponent,
     ProcessCompletedReferenceComponent
   ]

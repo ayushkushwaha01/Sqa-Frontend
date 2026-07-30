@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   mode: 1,
-  apiUrl: 'https://localhost:7202/api/'
+  // apiUrl: 'https://localhost:7202/api/'
+  apiUrl: 'https://qasqaapi.optionmatrix.co.in/api/' // <-- Added api/ here
 };
 
 /*
