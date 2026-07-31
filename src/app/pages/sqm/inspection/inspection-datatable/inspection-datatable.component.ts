@@ -72,47 +72,57 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.loadData();
   }
 
-  loadData() {
+loadData() {
     this.inspectionService.getAllInspections().subscribe({
       next: (res: any) => {
         if (res && res.success) {
-          this.allMockData = res.data.map((item: any) => ({
-            id: item.inspectionId || item.InspectionId,
-            stageId: item.stageId || item.StageId,
-            supplierId: item.supplierId || item.SupplierId,
-            shiftId: item.shiftId || item.ShiftId,
-            inspectorId: item.inspectorId || item.InspectorId,
-            partFamilyId: item.partFamilyId || item.PartFamilyId,
-            partMasterId: item.partCodeId || item.PartCodeId,
-            batchId: item.batchNumberId || item.BatchNumberId,
-            Reference: item.referenceId || item.ReferenceId,
-            Publish: item.publish ?? item.Publish ?? false,
-            InspectionDate: item.inspectionDate || item.InspectionDate ? new Date(item.inspectionDate || item.InspectionDate).toISOString() : null,
-            Time: item.time || item.Time,
-            Inspector: item.inspectorName || item.InspectorName || '-',
-            PartFamily: item.partFamilyName || item.PartFamilyName || '-',
-            PartName: item.partMasterCode || item.PartMasterCode || '-',
-            PartNumber: item.partMasterCode || item.PartMasterCode || '-',
+          this.allMockData = res.data.map((item: any) => {
+            
+            // Safely parse the "50%" string into a number (50) for the PPM calculation
+            const rawErrorRateStr = (item.errorRate ?? item.ErrorRate) || '0';
+            const parsedErrorRate = parseFloat(rawErrorRateStr.toString().replace('%', ''));
 
-            // Read the dynamic strings returned from the updated backend
-            Defects: item.defects || item.Defects || '0/0',
-            Parameters: item.parameters || item.Parameters || '0',
+            return {
+              id: item.inspectionId || item.InspectionId,
+              stageId: item.stageId || item.StageId,
+              supplierId: item.supplierId || item.SupplierId,
+              shiftId: item.shiftId || item.ShiftId,
+              inspectorId: item.inspectorId || item.InspectorId,
+              partFamilyId: item.partFamilyId || item.PartFamilyId,
+              partMasterId: item.partCodeId || item.PartCodeId,
+              batchId: item.batchNumberId || item.BatchNumberId,
+              Reference: item.referenceId || item.ReferenceId,
+              Publish: item.publish ?? item.Publish ?? false,
+              InspectionDate: item.inspectionDate || item.InspectionDate ? new Date(item.inspectionDate || item.InspectionDate).toISOString() : null,
+              Time: item.time || item.Time,
+              Inspector: item.inspectorName || item.InspectorName || '-',
+              PartFamily: item.partFamilyName || item.PartFamilyName || '-',
+              PartName: item.partMasterCode || item.PartMasterCode || '-',
+              PartNumber: item.partMasterCode || item.PartMasterCode || '-',
 
-            Remarks: item.remarks || item.Remarks || '-',
-            BatchNumber: item.batchNumber || item.BatchNumber || '-',
-            BatchQuantity: item.batchQuantity || item.BatchQuantity || 0,
-            SampleQuantity: item.sampleQuantity || item.SampleQuantity || 0,
-            ErrorRatePct: (item.errorRate ?? item.ErrorRate) != null ? (item.errorRate ?? item.ErrorRate) + '%' : '0%',
-            ErrorRatePPM: (item.errorRate ?? item.ErrorRate) != null ? ((item.errorRate ?? item.ErrorRate) * 10000) : 0,
-            stage: item.stageName || item.StageName || 'Unassigned'
-          }));
+              Defects: item.defects || item.Defects || '0/0',
+              Parameters: item.parameters || item.Parameters || '0',
+
+              Remarks: item.remarks || item.Remarks || '-',
+              BatchNumber: item.batchNumber || item.BatchNumber || '-',
+              BatchQuantity: item.batchQuantity || item.BatchQuantity || 0,
+              SampleQuantity: item.sampleQuantity || item.SampleQuantity || 0,
+              
+              // Ensure percentage formatting is kept for the Pct column
+              ErrorRatePct: rawErrorRateStr.toString().includes('%') ? rawErrorRateStr : `${rawErrorRateStr}%`,
+              
+              // Calculate PPM by multiplying the parsed number by 1000
+              ErrorRatePPM: isNaN(parsedErrorRate) ? 0 : (parsedErrorRate * 1000),
+              
+              stage: item.stageName || item.StageName || 'Unassigned'
+            };
+          });
 
           this.mockdata = [...this.allMockData];
           this.populateFilterDropdowns();
           this.pageIndex = 0;
           this.updatePagedList();
           this.updateChartData();
-          this.cdr.detectChanges();
           this.cdr.detectChanges();
         }
       },

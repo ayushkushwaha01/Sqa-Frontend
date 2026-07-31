@@ -323,13 +323,22 @@ export class InspectionCapaComponent implements OnInit {
     });
   }
 
-  docsPhoto(capaId: number) {
-    this.dialog.open(InspectionDocspopComponent, {
+  docsPhoto(applicant: any) {
+    const dialogRef = this.dialog.open(InspectionDocspopComponent, {
       width: '750px', // slightly wider to accommodate the nice table
       height: 'auto',
       maxHeight: '90vh',
       panelClass: 'no-scroll-dialog',
-      data: { capaId: capaId } // Send the CapaId to the popup
+      data: { 
+        capaId: applicant.capaId,
+        inspectionRefId: applicant.inspectionRefId
+      } // Send the CapaId and inspectionRefId to the popup
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.fetchPendingCapas();
+      }
     });
   }
 

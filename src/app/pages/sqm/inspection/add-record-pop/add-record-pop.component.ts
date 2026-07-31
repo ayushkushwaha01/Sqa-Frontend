@@ -74,6 +74,9 @@ export class AddRecordPopComponent implements OnInit {
         sampleQuantity: this.data.SampleQuantity,
       });
 
+      this.recordForm.get('partFamilyId')?.disable();
+      this.recordForm.get('partMasterId')?.disable();
+
       setTimeout(() => {
         if (this.data.partFamilyId) {
           this.onPartFamilyChange(this.data.partFamilyId);
@@ -133,7 +136,7 @@ export class AddRecordPopComponent implements OnInit {
 
  saveRecord() {
     if (this.recordForm.valid) {
-      const formData = this.recordForm.value;
+      const formData = this.recordForm.getRawValue();
 
       const payload = {
         ...formData,

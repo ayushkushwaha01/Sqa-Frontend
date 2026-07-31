@@ -3,24 +3,24 @@
 </div>
 
 <div mat-dialog-content class="pt-4 overflow-hidden">
-    <form class="form-horizontal">
+    <form class="form-horizontal" (submit)="uploadDocument($event)">
         <div class="row align-items-center mb-3">
             <div class="col-sm-3">
                 <label class="control-label font-weight-bold mb-0">
-                    Upload Doc:<span class="text-danger">*</span>
+                    Upload Doc/Image:<span class="text-danger">*</span>
                 </label>
             </div>
             <div class="col-sm-9">
-                <input type="file" class="form-control" style="padding: 3px;">
+                <input id="fileUploadInput" type="file" accept="image/*,.pdf" class="form-control" style="padding: 3px;" (change)="onFileSelected($event)">
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-sm-12 d-flex justify-content-end">
-                <button mat-raised-button color="primary" class="save-btn">
-    <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">save</mat-icon>
-    Save
-</button>
+                <button mat-raised-button color="primary" class="save-btn" type="submit" [disabled]="!selectedFile">
+                    <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin-right: 4px; margin-top: 4px;">save</mat-icon>
+                    Save
+                </button>
             </div>
         </div>
     </form>

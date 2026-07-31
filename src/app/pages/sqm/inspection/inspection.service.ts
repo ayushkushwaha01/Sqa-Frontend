@@ -38,7 +38,6 @@ export class InspectionService {
     );
   }
 
-  // Fetch inner screen parameters
   getInspectionParameters(inspectionId: number): Observable<any> {
     return this.http.get(
       `${this.apiUrl}InspectionRef/GetParametersByInspectionId/${inspectionId}`,
@@ -56,7 +55,6 @@ export class InspectionService {
     return this.http.post(`${this.apiUrl}InspectionRef/UpdateSamples`, data);
   }
 
-
   toggleOkayStatus(id: number, status: boolean): Observable<any> {
     return this.http.put(
       `${this.apiUrl}InspectionRef/toggle-ok/${id}?status=${status}`,
@@ -68,30 +66,22 @@ export class InspectionService {
     return this.http.get(`${this.apiUrl}InspectionCapa/GetCapaByInspectionId/${inspectionRefId}`);
   }
 
-  // Save or Update CAPA
   saveCapa(capaData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}InspectionCapa/SaveCapa`, capaData);
   }
 
-  // Add this inside InspectionService
   deleteCapaDocument(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}InspectionCapa/delete-document`, payload);
   }
 
-
-  // Fetch defects for a specific inspection record
   getDefectsByInspection(inspectionId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}InspectionDefects/GetDefectsByInspection/${inspectionId}`);
   }
 
-  // Update defect statuses
   updateDefectsStatus(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}InspectionDefects/UpdateDefectsStatus`, payload);
   }
 
-
-
-  // Add this inside InspectionService class
   getPendingCapaRecords(): Observable<any> {
     return this.http.get(`${this.apiUrl}InspectionCapa/GetPendingCapaRecords`);
   }
@@ -104,11 +94,6 @@ export class InspectionService {
     return this.http.get(`${this.apiUrl}InspectionCapa/GetCapaDocuments/${capaId}`);
   }
 
-
-
-
-
-  // Add this inside InspectionService class
   updateCapaDetails(payload: any): Observable<any> {
     return this.http.put(`${this.apiUrl}InspectionCapa/UpdateCapaDetails`, payload);
   }
@@ -117,7 +102,74 @@ export class InspectionService {
     return this.http.delete(`${this.apiUrl}InspectionCapa/DeleteCapa/${id}`);
   }
 
-   getAllArchived(): Observable<any> {
+  getAllArchived(): Observable<any> {
     return this.http.get(this.apiUrl + "DataTable/get-all-archive");
   }
+
+  deleteInspectionParameter(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}InspectionRef/DeleteParameter/${id}`);
+  }
+
+  getDefectStats(year: number, month: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}InspectionDefects/GetDefectStats/${year}/${month}`);
+  }
+
+  updateDefectsList(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}InspectionRef/UpdateDefectsList`, payload);
+  }
+
+  getDefectsList(inspectionRefId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}InspectionRef/GetDefectsByInspectionRefId/${inspectionRefId}`);
+  }
+
+  // --- Analytics Dashboard APIs ---
+
+  getMonthlyErrorRates(year: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/monthly-error-rates/${year}`);
+  }
+
+  getDailyErrorRates(year: number, month: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/daily-error-rates/${year}/${month}`);
+  }
+
+  getHourlyErrorRates(year: number, month: number, day: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/hourly-error-rates/${year}/${month}/${day}`);
+  }
+
+  getShiftErrorRates(year: number, month: number, day: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/shift-error-rates/${year}/${month}/${day}`);
+  }
+
+  getMonthlyDefectCounts(year: number, month: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/monthly-defect-counts/${year}/${month}`);
+  }
+
+  getDailyDefectCounts(year: number, month: number, day: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/daily-defect-counts/${year}/${month}/${day}`);
+  }
+
+  getMonthlyPartFamilyCounts(year: number, month: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/monthly-part-family-counts/${year}/${month}`);
+  }
+
+  getDailyPartFamilyCounts(year: number, month: number, day: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}Analytics/daily-part-family-counts/${year}/${month}/${day}`);
+  }
+
+  getTopDefectCounts(year: number, month: number, day?: number): Observable<any> {
+    let url = `${this.apiUrl}Analytics/top-defect-counts/${year}/${month}`;
+    if (day) {
+      url += `/${day}`;
+    }
+    return this.http.get(url);
+  }
+
+  getTopInspectorCounts(year: number, month: number, day?: number): Observable<any> {
+    let url = `${this.apiUrl}Analytics/top-inspector-counts/${year}/${month}`;
+    if (day) {
+      url += `/${day}`;
+    }
+    return this.http.get(url);
+  }
+
 }
