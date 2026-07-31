@@ -1,5 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { InspectionService } from '../../../inspection/inspection.service';
+ 
 
 @Component({
   selector: 'app-upload-list',
@@ -7,30 +9,38 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./upload-list.component.scss']
 })
 export class UploadListComponent implements OnInit {
-changeAddStep(arg0: number) {
-throw new Error('Method not implemented.');
-}
-onFileSelected($event: Event) {
-throw new Error('Method not implemented.');
-}
-selectedFiles: any;
-onDragLeave($event: DragEvent) {
-throw new Error('Method not implemented.');
-}
-onDrop($event: DragEvent) {
-throw new Error('Method not implemented.');
-}
-onDragOver($event: DragEvent) {
-throw new Error('Method not implemented.');
-}
-
+  
+  defectsString: string = 'Loading...';  
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    public dialogRef: MatDialogRef<UploadListComponent>
+    public dialogRef: MatDialogRef<UploadListComponent>,
+    private inspectionService: InspectionService // <-- Inject service
   ) { }
 
   ngOnInit(): void {
+    if (this.data && this.data.id) {
+      this.fetchDefects(this.data.id);
+    } else {
+      this.defectsString = 'No ID provided.';
+    }
+  }
+
+  fetchDefects(id: number) {
+    this.inspectionService.getDefectsList(id).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.data && res.data.length > 0) {
+          // Join the list of strings with a comma and a space
+          this.defectsString = res.data.join(', ');
+        } else {
+          this.defectsString = 'No defects recorded.';
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load defects', err);
+        this.defectsString = 'Error loading defects.';
+      }
+    });
   }
 
   close(): void {

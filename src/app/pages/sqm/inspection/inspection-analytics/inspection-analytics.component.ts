@@ -3,6 +3,8 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import * as Highcharts from 'highcharts';
 import { DefectsPopMasterComponent } from '../inspection-datatable/defects-pop-master/defects-pop-master.component';
 import { MatDialog } from '@angular/material/dialog';
+import { forkJoin } from 'rxjs';
+import { InspectionService } from '../inspection.service';
 
 @Component({
   selector: 'app-inspection-analytics',
@@ -13,27 +15,34 @@ export class InspectionAnalyticsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   Highcharts: typeof Highcharts = Highcharts;
-  
-  // 1. ADD THIS VARIABLE FOR THE HARD RESET
-  chartsReady = true; 
 
-  // ADD THE MISSING UPDATE FLAG HERE
-  updateFlag = false;
+  chartsReady = true;
 
-  // Toggle states
   isDailyView = false;
   showFilter = false;
 
-  // --- Active Data Variables ---
-  activeIncoming = '';
-  activeStartUp = '';
-  activeProcess = '';
-  activeFinal = '';
+  // Filter Data
+  selectedYear: number = new Date().getFullYear();
+  selectedMonth: number = new Date().getMonth() + 1; // 1-12
+  selectedDay: number = new Date().getDate();
+
+  availableYears = [2024, 2025, 2026, 2027];
+  availableMonths = [
+    { value: 1, name: 'Jan' }, { value: 2, name: 'Feb' }, { value: 3, name: 'Mar' },
+    { value: 4, name: 'Apr' }, { value: 5, name: 'May' }, { value: 6, name: 'Jun' },
+    { value: 7, name: 'Jul' }, { value: 8, name: 'Aug' }, { value: 9, name: 'Sep' },
+    { value: 10, name: 'Oct' }, { value: 11, name: 'Nov' }, { value: 12, name: 'Dec' }
+  ];
+  availableDays: number[] = [];
+
+  // Active Data Variables
+  activeIncoming = '0%';
+  activeStartUp = '0%';
+  activeProcess = '0%';
+  activeFinal = '0%';
 
   activeAnnualPpmOptions: Highcharts.Options = {};
   activeMonthlyPpmOptions: Highcharts.Options = {};
-  activeAnnualCopqOptions: Highcharts.Options = {};
-  activeMonthlyCopqOptions: Highcharts.Options = {};
   activeDefectsPieOptions: Highcharts.Options = {};
   activeProductsPieOptions: Highcharts.Options = {};
 
@@ -42,37 +51,49 @@ export class InspectionAnalyticsComponent implements OnInit {
   activeInspectorActivities: any[] = [];
   paginatedInspectorActivities: any[] = [];
 
-  // Reusable color palette for charts
   pieColors = ['#2caffe', '#544fc5', '#00e272', '#fe6a35', '#6b8abc', '#d568fb', '#2ee0ca', '#fa4b42', '#feb56a', '#91e8e1'];
- 
 
-  constructor(private dialog: MatDialog) { }
+  constructor(
+    private dialog: MatDialog,
+    private inspectionService: InspectionService
+  ) { }
 
   ngOnInit(): void {
-    this.setMonthlyData();
+    // this.updateDaysInMonth();
+    // this.fetchAnalyticsData();
+  }
+
+  updateDaysInMonth(): void {
+    const days = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+    this.availableDays = Array.from({ length: days }, (_, i) => i + 1);
+
+    if (this.selectedDay > days) {
+      this.selectedDay = days;
+    }
+  }
+
+  fetchAnalyticsData(): void {
+    this.chartsReady = false;
+    if (this.isDailyView) {
+      this.setDailyData();
+    } else {
+      this.setMonthlyData();
+    }
   }
 
   switchToDaily(): void {
     if (!this.isDailyView) {
-      this.chartsReady = false; // Destroy charts
       this.isDailyView = true;
-      this.setDailyData();
       if (this.paginator) this.paginator.firstPage();
-      
-      // Recreate charts immediately after data is set
-      setTimeout(() => { this.chartsReady = true; }, 0); 
+      this.fetchAnalyticsData();
     }
   }
 
   switchToMonthly(): void {
     if (this.isDailyView) {
-      this.chartsReady = false; // Destroy charts
       this.isDailyView = false;
-      this.setMonthlyData();
       if (this.paginator) this.paginator.firstPage();
-      
-      // Recreate charts immediately after data is set
-      setTimeout(() => { this.chartsReady = true; }, 0); 
+      this.fetchAnalyticsData();
     }
   }
 
@@ -81,123 +102,131 @@ export class InspectionAnalyticsComponent implements OnInit {
   }
 
   setMonthlyData(): void {
-    this.activeIncoming = '1.12%';
-    this.activeStartUp = '2.62%';
-    this.activeProcess = '3.22%';
-    this.activeFinal = '1.12%';
+    // 6 Specific endpoints for Monthly View
+    forkJoin({
+      annualPpm: this.inspectionService.getMonthlyErrorRates(this.selectedYear),
+      monthlyPpm: this.inspectionService.getDailyErrorRates(this.selectedYear, this.selectedMonth),
+      partFamilies: this.inspectionService.getMonthlyPartFamilyCounts(this.selectedYear, this.selectedMonth),
+      allDefects: this.inspectionService.getMonthlyDefectCounts(this.selectedYear, this.selectedMonth),
+      topDefects: this.inspectionService.getTopDefectCounts(this.selectedYear, this.selectedMonth),
+      inspectors: this.inspectionService.getTopInspectorCounts(this.selectedYear, this.selectedMonth)
+    }).subscribe(responses => {
 
-    this.activeAnnualPpmOptions = this.createColumnChart('Annual Defect Rate PPM Trend', 'PPM', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], [50, 75, 100, 120, 140, 160, 130, 148.5, 180, 200, 150, 110]);
-    this.activeMonthlyPpmOptions = this.createSplineChart('Monthly Defect Rate PPM Trend', 'PPM', Array.from({length: 31}, (_, i) => (i + 1).toString()), [50, 70, 60, 50, 80, 75, 100, 95, 120, 110, 80, 60, 50, 90, 85, 75, 100, 130, 140, 120, 90, 85, 70, 60, 110, 250, 260, 240, 230, 220, 210]);
+      // Safely map data arrays using || []
+      const annualDataList = responses.annualPpm.data || responses.annualPpm.Data || [];
+      const annualCats = annualDataList.map((d: any) => d.monthName);
+      const annualValues = annualDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+      this.activeAnnualPpmOptions = this.createColumnChart(`Annual Defect Rate PPM Trend (${this.selectedYear})`, 'PPM', annualCats, annualValues);
 
-    // Define table data first
-    const allDefects = [
-      { defect: 'Pin Mark', qty: 4000 },
-      { defect: 'Patch Mark', qty: 7000 },
-      { defect: 'Oil Mark', qty: 12455 },
-      { defect: 'Gate Cut NG', qty: 8676 },
-      { defect: 'Flash', qty: 3538 },
-      { defect: 'Damage', qty: 3100 },
-      { defect: 'Short Fill', qty: 2500 },
-      { defect: 'Burn Mark', qty: 1800 },
-      { defect: 'Scratch', qty: 1200 },
-      { defect: 'Deformation', qty: 900 }
-    ];
+      const monthlyDataList = responses.monthlyPpm.data || responses.monthlyPpm.Data || [];
+      const monthlyCats = monthlyDataList.map((d: any) => d.dayNumber ? d.dayNumber.toString() : '');
+      const monthlyValues = monthlyDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+      this.activeMonthlyPpmOptions = this.createSplineChart(`Daily Defect Rate PPM Trend (${this.selectedMonth}/${this.selectedYear})`, 'PPM', monthlyCats, monthlyValues);
 
-    // Dynamically map table data to pie chart
-    this.activeDefectsPieOptions = this.createPieChart(
-      allDefects.map((item, index) => ({
-        name: item.defect,
-        y: item.qty,
-        color: this.pieColors[index % this.pieColors.length]
-      }))
-    );
+      // Pie Chart uses allDefects
+      const allDefectList = responses.allDefects.data || responses.allDefects.Data || [];
+      this.activeDefectsPieOptions = this.createPieChart(
+        allDefectList.map((item: any, index: number) => ({
+          name: item.defectName,
+          y: item.count,
+          color: this.pieColors[index % this.pieColors.length]
+        }))
+      );
 
-    this.topDefectsLeft = allDefects.slice(0, 5);
-    this.topDefectsRight = allDefects.slice(5, 10);
+      // Table uses topDefects
+      const topDefectList = responses.topDefects.data || responses.topDefects.Data || [];
+      const mappedTableDefects = topDefectList.map((item: any) => ({ defect: item.defectName, qty: item.count }));
+      this.topDefectsLeft = mappedTableDefects.slice(0, 5);
+      this.topDefectsRight = mappedTableDefects.slice(5, 10);
 
-    this.activeProductsPieOptions = this.createPieChart([
-      { name: 'Engine Components', y: 12, color: '#2caffe' },
-      { name: 'Transmission Systems', y: 8, color: '#544fc5' },
-      { name: 'Chassis and Frame', y: 0, color: '#00e272' },
-      { name: 'Suspension Parts', y: 15, color: '#fe6a35' },
-      { name: 'Electrical Systems', y: 0, color: '#6b8abc' },
-      { name: 'Braking Systems', y: 10, color: '#d568fb' },
-      { name: 'Body and Cabin', y: 20, color: '#2ee0ca' },
-      { name: 'Fuel Systems', y: 0, color: '#fa4b42' },
-      { name: 'Cooling Systems', y: 12, color: '#feb56a' },
-      { name: 'Steering Systems', y: 8, color: '#91e8e1' }
-    ]);
+      const pfList = responses.partFamilies.data || responses.partFamilies.Data || [];
+      this.activeProductsPieOptions = this.createPieChart(
+        pfList.map((item: any, index: number) => ({
+          name: item.partFamilyName,
+          y: item.count,
+          color: this.pieColors[index % this.pieColors.length]
+        }))
+      );
 
-    this.activeInspectorActivities = [
-      { inspector: 'Sai', qty: 4000, records: 120, ppm: '30,000' },
-      { inspector: 'Satya', qty: 12455, records: 340, ppm: '27,298' },
-      { inspector: 'Surya', qty: 8676, records: 210, ppm: '24,205' },
-      { inspector: 'Vamshi', qty: 45345, records: 850, ppm: '18,745' },
-      { inspector: 'Kiran', qty: 10200, records: 190, ppm: '18,627' },
-      { inspector: 'Ravi', qty: 8900, records: 145, ppm: '16,292' },
-      { inspector: 'Anil', qty: 5400, records: 80, ppm: '14,815' }
-    ];
-    this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+      const inspectorDocs = responses.inspectors.data || responses.inspectors.Data || [];
+      this.activeInspectorActivities = inspectorDocs.map((item: any) => ({
+        inspector: item.inspectorName,
+        qty: item.count,
+        records: item.count,
+        ppm: 'N/A'
+      }));
 
-    // Trigger chart update
-    this.updateFlag = true;
+      this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+
+      // Using setTimeout ensures Angular completely unmounts old charts before mounting new ones, preventing 'columns' error
+      setTimeout(() => {
+        this.chartsReady = true;
+      }, 50);
+    });
   }
 
   setDailyData(): void {
-    this.activeIncoming = '0.45%';
-    this.activeStartUp = '1.02%';
-    this.activeProcess = '1.80%';
-    this.activeFinal = '0.50%';
+    // 6 Specific endpoints for Daily View
+    forkJoin({
+      hourlyPpm: this.inspectionService.getHourlyErrorRates(this.selectedYear, this.selectedMonth, this.selectedDay),
+      shiftPpm: this.inspectionService.getShiftErrorRates(this.selectedYear, this.selectedMonth, this.selectedDay),
+      partFamilies: this.inspectionService.getDailyPartFamilyCounts(this.selectedYear, this.selectedMonth, this.selectedDay),
+      allDefects: this.inspectionService.getDailyDefectCounts(this.selectedYear, this.selectedMonth, this.selectedDay),
+      topDefects: this.inspectionService.getTopDefectCounts(this.selectedYear, this.selectedMonth, this.selectedDay),
+      inspectors: this.inspectionService.getTopInspectorCounts(this.selectedYear, this.selectedMonth, this.selectedDay)
+    }).subscribe(responses => {
 
-    let hours = Array.from({length: 24}, (_, i) => `${i}:00`);
-    this.activeAnnualPpmOptions = this.createColumnChart('Hourly PPM Trend', 'PPM', hours, [10, 15, 12, 8, 20, 25, 30, 40, 50, 45, 60, 55, 65, 70, 80, 85, 90, 75, 60, 50, 40, 30, 20, 15]);
-    this.activeMonthlyPpmOptions = this.createSplineChart('Shift PPM Trend', 'PPM', ['Shift 1', 'Shift 2', 'Shift 3'], [45, 80, 30]);
+      // Safely map data arrays using || []
+      const hourlyDataList = responses.hourlyPpm.data || responses.hourlyPpm.Data || [];
+      const hourlyCats = hourlyDataList.map((d: any) => d.time);
+      const hourlyValues = hourlyDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+      this.activeAnnualPpmOptions = this.createColumnChart(`Hourly PPM Trend (${this.selectedDay}/${this.selectedMonth}/${this.selectedYear})`, 'PPM', hourlyCats, hourlyValues);
 
-    // Define table data first
-    const allDefects = [
-      { defect: 'Damage', qty: 250 },
-      { defect: 'Flash', qty: 150 },
-      { defect: 'Gate Cut NG', qty: 100 },
-      { defect: 'Oil Mark', qty: 80 },
-      { defect: 'Scratch', qty: 60 },
-      { defect: 'Pin Mark', qty: 40 },
-      { defect: 'Burn Mark', qty: 30 },
-      { defect: 'Short Fill', qty: 20 },
-      { defect: 'Patch Mark', qty: 10 },
-      { defect: 'Deformation', qty: 5 }
-    ];
+      const shiftDataList = responses.shiftPpm.data || responses.shiftPpm.Data || [];
+      const shiftCats = shiftDataList.map((d: any) => d.shiftName);
+      const shiftValues = shiftDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+      this.activeMonthlyPpmOptions = this.createSplineChart(`Shift PPM Trend`, 'PPM', shiftCats, shiftValues);
 
-    // Dynamically map table data to pie chart
-    this.activeDefectsPieOptions = this.createPieChart(
-      allDefects.map((item, index) => ({
-        name: item.defect,
-        y: item.qty,
-        color: this.pieColors[index % this.pieColors.length]
-      }))
-    );
+      // Pie Chart uses allDefects
+      const allDefectList = responses.allDefects.data || responses.allDefects.Data || [];
+      this.activeDefectsPieOptions = this.createPieChart(
+        allDefectList.map((item: any, index: number) => ({
+          name: item.defectName,
+          y: item.count,
+          color: this.pieColors[index % this.pieColors.length]
+        }))
+      );
 
-    this.topDefectsLeft = allDefects.slice(0, 5);
-    this.topDefectsRight = allDefects.slice(5, 10);
+      // Table uses topDefects
+      const topDefectList = responses.topDefects.data || responses.topDefects.Data || [];
+      const mappedTableDefects = topDefectList.map((item: any) => ({ defect: item.defectName, qty: item.count }));
+      this.topDefectsLeft = mappedTableDefects.slice(0, 5);
+      this.topDefectsRight = mappedTableDefects.slice(5, 10);
 
-    this.activeProductsPieOptions = this.createPieChart([
-      { name: 'Engine Components', y: 12, color: '#2caffe' },
-      { name: 'Transmission Systems', y: 8, color: '#544fc5' },
-      { name: 'Suspension Parts', y: 15, color: '#fe6a35' },
-      { name: 'Braking Systems', y: 10, color: '#d568fb' },
-      { name: 'Body and Cabin', y: 20, color: '#2ee0ca' },
-      { name: 'Cooling Systems', y: 12, color: '#feb56a' },
-      { name: 'Steering Systems', y: 8, color: '#91e8e1' }
-    ]);
+      const pfList = responses.partFamilies.data || responses.partFamilies.Data || [];
+      this.activeProductsPieOptions = this.createPieChart(
+        pfList.map((item: any, index: number) => ({
+          name: item.partFamilyName,
+          y: item.count,
+          color: this.pieColors[index % this.pieColors.length]
+        }))
+      );
 
-    this.activeInspectorActivities = [
-      { inspector: 'Sai', qty: 250, records: 12, ppm: '48,000' },
-      { inspector: 'Surya', qty: 250, records: 15, ppm: '60,000' },
-      { inspector: 'Vamshi', qty: 100, records: 8, ppm: '80,000' }
-    ];
-    this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+      const inspectorDocs = responses.inspectors.data || responses.inspectors.Data || [];
+      this.activeInspectorActivities = inspectorDocs.map((item: any) => ({
+        inspector: item.inspectorName,
+        qty: item.count,
+        records: item.count,
+        ppm: 'N/A'
+      }));
 
-    // Trigger chart update
-    this.updateFlag = true;
+      this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+
+      // Using setTimeout ensures Angular completely unmounts old charts before mounting new ones, preventing 'columns' error
+      setTimeout(() => {
+        this.chartsReady = true;
+      }, 50);
+    });
   }
 
   handlePageEvent(event: PageEvent) {
@@ -222,7 +251,7 @@ export class InspectionAnalyticsComponent implements OnInit {
       series: [{ type: 'column', name: yTitle, data: data, color: '#2caffe' }],
       credits: { enabled: false },
       legend: { enabled: false },
-      accessibility: { enabled: false } 
+      accessibility: { enabled: false }
     };
   }
 
@@ -235,7 +264,7 @@ export class InspectionAnalyticsComponent implements OnInit {
       series: [{ type: 'spline', name: yTitle, data: data, color: '#2caffe' }],
       credits: { enabled: false },
       legend: { enabled: false },
-      accessibility: { enabled: false } 
+      accessibility: { enabled: false }
     };
   }
 
@@ -245,14 +274,11 @@ export class InspectionAnalyticsComponent implements OnInit {
       title: { text: '' },
       series: [{ type: 'pie', innerSize: '50%', data: data }],
       credits: { enabled: false },
-      accessibility: { enabled: false } 
+      accessibility: { enabled: false }
     };
   }
-
 
   openheatmapname() {
     this.dialog.open(DefectsPopMasterComponent, { width: '1400px', height: 'auto' });
   }
-
-
 }

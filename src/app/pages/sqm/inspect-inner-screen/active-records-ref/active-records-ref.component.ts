@@ -87,11 +87,12 @@ export class ActiveRecordsRefComponent implements OnInit {
               categoryName: catName,
               spec: item.spec || item.Spec,
               unit: item.unit || item.Unit,
+              unitId: item.unitId || item.UnitId,
               min: item.min || item.Min,
               max: item.max || item.Max,
               special: item.special || item.Special, // <-- Map Special field for edit mode
               defects: item.defects || item.Defects || '0',
-              defectRate: '0%',
+              defectRate: item.defectRate || '0',
               okay: item.okay || item.Okay,
               capa: item.capa || item.Capa,
               method: item.method || item.Method,
@@ -185,6 +186,7 @@ export class ActiveRecordsRefComponent implements OnInit {
       PartNameId: categoryIds?.partNameId || null,
       ParameterName: result.parameter,
       Spec: result.spec,
+      UnitId: result.unitId || null,
       Min: result.min ? result.min.toString() : null,
       Max: result.max ? result.max.toString() : null,
       Special: result.special, // <-- Pass special value to payload
@@ -226,22 +228,56 @@ export class ActiveRecordsRefComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        const index = this.tableData.indexOf(item);
-        if (index > -1) {
-          this.tableData.splice(index, 1);
-          this.updatePage();
-          this.alertService.createAlert("Parameter deleted successfully.");
-        }
+        // Call the API to soft delete the parameter
+        this.inspectionService.deleteInspectionParameter(item.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              // Remove from local tableData array
+              const index = this.tableData.findIndex(x => x.id === item.id);
+              if (index > -1) {
+                this.tableData.splice(index, 1);
+                this.updatePage(); // Refresh the table UI
+                this.alertService.createAlert("Parameter deleted successfully.");
+              }
+            } else {
+              this.alertService.createAlert("Failed to delete parameter: " + res.message);
+            }
+          },
+          error: (err) => {
+            console.error("Error deleting parameter", err);
+            this.alertService.createAlert("An error occurred while deleting the parameter.");
+          }
+        });
       }
     });
   }
 
   opendocpop() { this.dialog.open(ViewDocPhotosComponent, { width: '600px', height: '450px' }); }
   opennotes() { this.dialog.open(AuditrefRemarksPopComponent, { width: '500px', height: 'auto' }); }
-  uploadstages() { this.dialog.open(UploadstagepopComponent, { width: '800px', height: 'auto' }); }
-  openuploadpop() { this.dialog.open(UploadListComponent, { width: '600px', height: 'auto' }); }
+  // uploadstages() { this.dialog.open(UploadstagepopComponent, { width: '800px', height: 'auto' }); }
+  openuploadpop(item: any) {
+    this.dialog.open(UploadListComponent, {
+      width: '600px',
+      height: 'auto',
+      data: { id: item.id } // <-- Pass the InspectionRefId here
+    });
+  }
   opensamplepop() { this.dialog.open(SamplePopComponent, { width: '700px', height: 'auto' }); }
 
+
+  uploadstages(item: any) {
+    const dialogRef = this.dialog.open(UploadstagepopComponent, {
+      width: '800px',
+      height: 'auto',
+      data: { id: item.id } // Pass the InspectionRefId to the dialog
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadParameters(); // Refresh table if save was successful
+      }
+    });
+  }
   scrollTable(direction: 'left' | 'right') {
     if (this.tableContainer) {
       const container = this.tableContainer.nativeElement;
