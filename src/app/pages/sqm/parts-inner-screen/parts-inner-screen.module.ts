@@ -30,6 +30,7 @@ const routes: Routes = [
       {
         path: "parts-audit-reference",
         component: PartsAuditReferenceComponent,
+        data: { breadcrumb: 'Parts Audit Reference' }
       },
       {
         path: "parts-completed-reference",
@@ -66,4 +67,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class PartsInnerScreen {}
+export class PartsInnerScreen { }

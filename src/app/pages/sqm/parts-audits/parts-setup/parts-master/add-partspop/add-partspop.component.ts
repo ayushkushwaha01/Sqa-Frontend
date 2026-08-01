@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -88,7 +89,7 @@ export class AddPartspopComponent implements OnInit {
         data?.partMasterCode || '',
         [
           Validators.required,
-          Validators.pattern('^[a-zA-Z0-9]{5}$')
+          Validators.pattern('^[a-zA-Z0-9]{1,5}$')
         ]
       ],
 
@@ -131,10 +132,11 @@ export class AddPartspopComponent implements OnInit {
 
         },
 
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
 
           console.error(err);
-          this.alertService.createAlert('Something went wrong.', 0);
+          const message = err.error?.message || 'Something went wrong.';
+          this.alertService.createAlert(message, 0);
 
         }
 

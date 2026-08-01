@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -51,7 +52,7 @@ export class AddPartsFamilypopComponent implements OnInit {
         data?.partFamilyCode?.toUpperCase() || '',
         [
           Validators.required,
-          Validators.pattern('^[A-Z0-9]{5}$')
+          Validators.pattern('^[A-Z0-9]{1,5}$')
         ]
       ]
     });
@@ -73,15 +74,19 @@ export class AddPartsFamilypopComponent implements OnInit {
     }
 
     this._setupService.upsertPartFamily(this.myGroup.value)
-      .subscribe((data: any) => {
-
-        if (data.success) {
-          this.alertService.createAlert(data.message, 1);
-          this.dialogRef.close(true);
-        } else {
-          this.alertService.createAlert(data.message, 0);
+      .subscribe({
+        next: (data: any) => {
+          if (data.success) {
+            this.alertService.createAlert(data.message, 1);
+            this.dialogRef.close(true);
+          } else {
+            this.alertService.createAlert(data.message, 0);
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          const message = err.error?.message || 'Something went wrong';
+          this.alertService.createAlert(message, 0);
         }
-
       });
   }
 
