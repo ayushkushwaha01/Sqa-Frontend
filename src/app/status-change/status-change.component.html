@@ -1,10 +1,10 @@
 <div class="dialog-container">
   <div class="dialog-header">
-    <h2 class="dialog-title">Confirm Status Change</h2>
+    <h2 class="dialog-title">{{ data?.title || 'Confirm Status Change' }}</h2>
   </div>
 
   <div class="dialog-content">
-    <p class="confirm-text">Are you sure you want to change the status?</p>
+    <p class="confirm-text">{{ data?.content || 'Are you sure you want to change the status?' }}</p>
   </div>
 
   <div class="dialog-actions">

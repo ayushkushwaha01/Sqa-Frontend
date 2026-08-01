@@ -22,6 +22,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { QuillModule } from 'ngx-quill';
 import { AuditCategoriesComponent } from '../../../parts-audits/parts-setup/audit-categories/audit-categories.component';
 import { AddQuestionPopComponent } from './audit-categories-innerscreen/question-pop/question-pop.component';
 import { CommodityMasterComponent } from '../commodity-master/commodity-master.component';
@@ -60,7 +61,7 @@ const routes: Routes = [
     MatInputModule,
     MatFormFieldModule,
     MatCheckboxModule,
-
+    QuillModule.forRoot()
   ]
 })
 export class processauditcategoriesmodule { }

@@ -34,7 +34,7 @@ export class PauditsNewAuditComponent implements OnInit {
       cityId: [this.data ? this.data.cityId : null, Validators.required],
       auditorId: [this.data ? this.data.auditorId : null, Validators.required],
       auditDate: [this.data ? this.data.auditDate : null, Validators.required],
-      remarks: [this.data ? this.data.remarks : null, Validators.required],
+      remarks: [this.data ? this.data.remarks : null],
       statusId: [this.data ? this.data.statusId : null], // Optional on creation
       isDone: [this.data ? this.data.isDone : false]
     });

@@ -1,6 +1,6 @@
 <div class="custom-layout-wrapper">
   <div *ngIf="isMasterRoute()" style="width:100%">
-    
+
     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px;">
       <button mat-raised-button
         style="background-color: #1a1a1a; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
@@ -17,35 +17,32 @@
       </button>
     </div>
 
-    <div class="row" *ngIf="showFilters" style="margin-left: 5px; margin-bottom: 15px; width: 100%;">
-      <div class="col-sm-12 flex-p w-100">
-        <mat-card class="filter" style="box-shadow: 5px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 5px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 1px rgba(0, 0, 0, 0.12) !important;">
-          <mat-card-content>
-            <div class="row col-sm-12" style="align-items: center;">
-              <div class="col-sm-4 row me-2" style="align-items: center;">
-                <div class="col-sm-3 newMarginClass"><b>Keyword:</b></div>
-                <div class="col-sm-9">
-                  <input type="text" [(ngModel)]="selectedKeyword" class="form-control"
-                    placeholder="Search by Name, Code...">
-                </div>
+    <div class="row" *ngIf="showFilters" style="margin-left: 0px; margin-bottom: 15px; width: 100%;">
+      <div class="col-sm-12 w-100 p-0">
+        <mat-card class="filter"
+          style="box-shadow: none !important; border: 1px solid #e0e0e0; background-color: #f8f9fa; border-radius: 6px;">
+          <mat-card-content style="padding: 12px 16px;">
+            <div class="row align-items-center">
+              <div class="col-md-4 d-flex align-items-center">
+                <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Keyword:</label>
+                <input type="text" [(ngModel)]="selectedKeyword" class="form-control"
+                  placeholder="Search by Name, Code..." style="flex: 1;">
               </div>
-              <div class="col-sm-4 row" style="align-items: center;">
-                <div class="col-sm-3 newMarginClass"><b>Status:</b></div>
-                <div class="col-sm-8">
-                  <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus">
-                    <mat-option value="Active">Active</mat-option>
-                    <mat-option value="Inactive">Inactive</mat-option>
-                  </mat-select>
-                </div>
+              <div class="col-md-4 d-flex align-items-center">
+                <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Status:</label>
+                <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus"
+                  style="flex: 1;">
+                  <mat-option value="Active">Active</mat-option>
+                  <mat-option value="Inactive">Inactive</mat-option>
+                </mat-select>
               </div>
-              <div class="col-sm-4 mt-2" style="margin-left: -25px;">
-                <button mat-raised-button class="pull-right btn-default margin-right-10"
-                  (click)="onClear()">
-                  <mat-icon>settings_backup_restore</mat-icon> Clear
-                </button>
-                <button mat-raised-button color="primary" class="pull-right margin-right-10"
-                  (click)="onGo()">
+              <div class="col-md-4 d-flex justify-content-end align-items-center gap-2">
+                <button mat-raised-button color="primary" (click)="onGo()">
                   <mat-icon>search</mat-icon> Search
+                </button>
+                <button mat-raised-button class="btn-default" (click)="onClear()"
+                  style="background-color: #e0e0e0; color: #333;">
+                  <mat-icon>settings_backup_restore</mat-icon> Clear
                 </button>
               </div>
             </div>
@@ -69,19 +66,23 @@
           <tr *ngFor="let item of tableData">
             <td>{{ item.name }}</td>
             <td class="text-center">
-              <a routerLink="inner-grid" [queryParams]="{ id: item.commodityId }" style="cursor: pointer; color: blue; text-decoration: underline;">
+              <a routerLink="inner-grid" [queryParams]="{ id: item.commodityId }"
+                style="cursor: pointer; color: blue; text-decoration: underline;">
                 {{ item.targetCount }}
               </a>
             </td>
             <td class="text-center">{{ item.code }}</td>
             <td class="text-center">
-              <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'" matTooltip="Click to Change Status" (click)="toggleStatus(item)" style="cursor: pointer;">
+              <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
+                matTooltip="Click to Change Status" (click)="toggleStatus(item)" style="cursor: pointer;">
                 {{ item.isActive ? 'Active' : 'Inactive' }}
               </a>
             </td>
             <td class="text-center manage-icons">
-              <mat-icon class="edit-icon" matTooltip="Edit" (click)="addCommodity(item)" style="cursor: pointer; color: blue; margin-right: 8px;">edit</mat-icon>
-              <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteCommodity(item)" style="cursor: pointer; color: red;">delete</mat-icon>
+              <mat-icon class="edit-icon" matTooltip="Edit" (click)="addCommodity(item)"
+                style="cursor: pointer; color: blue; margin-right: 8px;">edit</mat-icon>
+              <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteCommodity(item)"
+                style="cursor: pointer; color: red;">delete</mat-icon>
             </td>
           </tr>
           <tr *ngIf="tableData.length === 0">
@@ -90,7 +91,8 @@
         </tbody>
       </table>
 
-      <mat-paginator [length]="tableData.length" [pageSize]="10" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+      <mat-paginator [length]="tableData.length" [pageSize]="10" [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons></mat-paginator>
     </div>
   </div>
 

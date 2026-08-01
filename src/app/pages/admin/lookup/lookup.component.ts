@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { PageEvent } from '@angular/material/paginator';
 import { AddLookupDialogComponent } from './add-lookup-dialog/add-lookup-dialog.component';
 import { LookupService } from './lookup.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
@@ -14,8 +15,13 @@ import { AlertService } from 'src/app/shared/alert.service';
 export class LookupComponent implements OnInit {
   tableData: any[] = [];
   filteredData: any[] = [];
+  pagedData: any[] = [];
   codeMasters: any[] = [];
   selectedCodeFilter: number | null = null;
+
+  pageIndex: number = 0;
+  pageSize: number = 10;
+  pageSizeOptions: number[] = [5, 10, 25, 50, 100];
 
   constructor(
     public dialog: MatDialog, 
@@ -37,7 +43,7 @@ export class LookupComponent implements OnInit {
   getLookups() {
     this.api.getLookups().subscribe((res: any) => {
       if(res.success) {
-        this.tableData = res.data;
+        this.tableData = (res.data || []).sort((a: any, b: any) => (b.lookupId || 0) - (a.lookupId || 0));
         this.filterTable(); // Apply initial filter if any
       }
     });
@@ -45,6 +51,7 @@ export class LookupComponent implements OnInit {
 
   refresh() {
     this.selectedCodeFilter = null;
+    this.pageIndex = 0;
     this.getLookups();
   }
 
@@ -52,8 +59,26 @@ export class LookupComponent implements OnInit {
     if (this.selectedCodeFilter) {
       this.filteredData = this.tableData.filter(x => x.codeId === this.selectedCodeFilter);
     } else {
-      this.filteredData = this.tableData;
+      this.filteredData = [...this.tableData];
     }
+    this.pageIndex = 0;
+    this.updatePage();
+  }
+
+  updatePage() {
+    const maxPageIndex = Math.max(0, Math.ceil(this.filteredData.length / this.pageSize) - 1);
+    if (this.pageIndex > maxPageIndex) {
+      this.pageIndex = maxPageIndex;
+    }
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    this.pagedData = this.filteredData.slice(start, end);
+  }
+
+  onPageChange(event: PageEvent) {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePage();
   }
 
   addlookup(item: any) {

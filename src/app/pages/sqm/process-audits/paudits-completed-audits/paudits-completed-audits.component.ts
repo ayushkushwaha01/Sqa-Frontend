@@ -5,6 +5,7 @@ import { ActiveGridDialogComponent } from '../paudits-active-audits/activeaudits
 import { ProcessAuditService } from '../process-audit.service';
 import { AlertService } from 'src/app/shared/alert.service'; // 🔥 Added this
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component'; // 🔥 Added this
+import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 import * as Highcharts from 'highcharts';
 
 @Component({
@@ -231,7 +232,6 @@ export class PauditsCompletedAuditsComponent implements OnInit {
 
   filter() {
     const keyword = this.filterForm.value.Keyword?.toLowerCase() || '';
-    const statusId = this.filterForm.value.Status;
     const commodity = this.filterForm.value.Commodity;
     const state = this.filterForm.value.State;
     const city = this.filterForm.value.City;
@@ -239,7 +239,6 @@ export class PauditsCompletedAuditsComponent implements OnInit {
 
     this.filteredAuditData = this.originalAuditData.filter((item: any) => {
       let matchesKeyword = true;
-      let matchesStatus = true;
       let matchesCommodity = true;
       let matchesState = true;
       let matchesCity = true;
@@ -250,16 +249,17 @@ export class PauditsCompletedAuditsComponent implements OnInit {
           (item.auditReference && item.auditReference.toLowerCase().includes(keyword)) ||
           (item.supplierName && item.supplierName.toLowerCase().includes(keyword)) ||
           (item.auditorName && item.auditorName.toLowerCase().includes(keyword)) ||
-          (item.commodityName && item.commodityName.toLowerCase().includes(keyword));
+          (item.commodityName && item.commodityName.toLowerCase().includes(keyword)) ||
+          (item.stateName && item.stateName.toLowerCase().includes(keyword)) ||
+          (item.cityName && item.cityName.toLowerCase().includes(keyword));
       }
 
-      if (statusId) { matchesStatus = item.statusId === statusId; }
       if (commodity) { matchesCommodity = item.commodityName === commodity; }
       if (state) { matchesState = item.stateName === state; }
       if (city) { matchesCity = item.cityName === city; }
       if (supplier) { matchesSupplier = item.supplierName === supplier; }
 
-      return matchesKeyword && matchesStatus && matchesCommodity && matchesState && matchesCity && matchesSupplier;
+      return matchesKeyword && matchesCommodity && matchesState && matchesCity && matchesSupplier;
     });
     this.pageIndex = 0; // Reset to first page on filter
   }
@@ -274,15 +274,15 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault(); 
 
-    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',
       panelClass: 'no-padding-dialog',
+      disableClose: true,
       data: {
         title: 'Confirm Action',
         content: audit.isDone
           ? 'Are you sure you want to mark this audit as Not Done? It will be moved back to Active Audits.'
-          : 'Are you sure you want to mark this audit as Done?',
-        isConfirmation: true
+          : 'Are you sure you want to mark this audit as Done?'
       }
     });
 

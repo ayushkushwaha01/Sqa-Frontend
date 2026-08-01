@@ -23,6 +23,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { QuillModule } from 'ngx-quill';
 
 // Components
 import { ProcessAuditsComponent } from './process-audits.component';
@@ -64,12 +65,12 @@ const routes: Routes = [
       {
         path: 'setup',
         component: PauditsSetupComponent,
-        data: { breadcrumb: 'Setup', description: 'Configure settings, categories, and master data.' },
+        data: { breadcrumb: 'Setup', description: 'Configure process audit setup and master data.' },
         children: [
           { path: '', redirectTo: 'process-cat', pathMatch: 'full' },
           {
             path: 'process-cat',
-            data: { breadcrumb: 'Categories' },
+            data: { breadcrumb: 'Process Audit Categories', description: 'Configure process audit category master data.' },
             children: [
               { path: '', component: ProcessAuditsCategoriesComponent },
               { path: 'inner', component: AuditCategoriesInnerscreenComponent, data: { breadcrumb: 'Category Detail' } }
@@ -79,7 +80,7 @@ const routes: Routes = [
           {
             path: 'commodity',
             loadChildren: () => import('./paudits-setup/commodity-master/commodity-master.module').then(m => m.CommodityMasterModule),
-            data: { breadcrumb: 'Commodity Master' }
+            data: { breadcrumb: 'Commodity Master', description: 'Configure commodity master data and quarterly targets.' }
           },
         ]
       },
@@ -137,6 +138,7 @@ const routes: Routes = [
     MatCardModule,
     MatDialogModule,
     MatTooltipModule,
+    QuillModule.forRoot()
   ]
 })
 export class ProcessAuditsModule { }

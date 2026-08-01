@@ -15,6 +15,15 @@ export class AddQuestionPopComponent implements OnInit {
   isEditMode: boolean = false;
   questionForm: FormGroup;
 
+  quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['clean']
+    ]
+  };
+
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<AddQuestionPopComponent>,

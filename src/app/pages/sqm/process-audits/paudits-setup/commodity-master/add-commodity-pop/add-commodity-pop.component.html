@@ -1,33 +1,35 @@
 <div class="NewHeader">
-    <h3 style="padding: 15px; margin: 0; font-weight: 400; font-size: 18px; color: white; background-color: #283593;">
+    <h2 style="padding-top:0px; padding-left: 20px; font-weight: 400;font-size: 18px;">
         {{ isEditMode ? 'Update Commodity' : 'Add Commodity' }}
-    </h3>
+    </h2>
 </div>
 
-<div mat-dialog-content style="padding: 20px;">
+<div mat-dialog-content style="padding: 20px 25px 10px 25px;">
     <form [formGroup]="form">
-        <div class="row mb-3 align-items-center">
-            <div class="col-sm-4 fw-bold text-end">
+        <div class="row mb-3 align-items-center mx-0">
+            <div class="col-sm-4 fw-bold p-0">
                 Commodity Name: <span class="text-danger">*</span>
             </div>
-            <div class="col-sm-8">
+            <div class="col-sm-8 p-0">
                 <input type="text" class="form-control" formControlName="name" placeholder="Enter Commodity Name">
             </div>
         </div>
 
-        <div class="row mb-3 align-items-center">
-            <div class="col-sm-4 fw-bold text-end">
+        <div class="row mb-3 align-items-center mx-0">
+            <div class="col-sm-4 fw-bold p-0">
                 Commodity Code: <span class="text-danger">*</span>
             </div>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" formControlName="code" placeholder="Enter Commodity Code">
+            <div class="col-sm-8 p-0">
+                <input type="text" class="form-control" formControlName="code" placeholder="Enter Commodity Code"
+                    (input)="onCodeInput($event)" maxlength="5">
             </div>
         </div>
     </form>
 </div>
 
-<mat-dialog-actions align="end" style="padding: 15px;">
-    <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()" style="background-color: lightgray; color: red; margin-right: 5px;">
+<mat-dialog-actions align="end"
+    style="padding: 15px 25px 20px 25px !important; margin: 0 -25px -20px -25px !important; display: flex !important; justify-content: flex-end !important; gap: 12px;">
+    <button mat-raised-button class="btn-default" (click)="close()" style="background-color: #e0e0e0; color: #333;">
         <mat-icon>cancel</mat-icon> Close
     </button>
     <button mat-raised-button type="submit" class="save" color="primary" [disabled]="!form.valid" (click)="save()">

@@ -36,14 +36,6 @@
                 </div>
               </div>
               <div class="col-sm-4 row">
-                <div class="col-sm-4 d-flex align-items-center"><b>Status:</b></div>
-                <div class="col-sm-8">
-                  <mat-select placeholder="Select Status" class="form-control" formControlName="Status">
-                    <mat-option *ngFor="let option of statusLookups" [value]="option.lookupId">{{option.lookupName}}</mat-option>
-                  </mat-select>
-                </div>
-              </div>
-              <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>Commodity:</b></div>
                 <div class="col-sm-8">
                   <mat-select placeholder="Select Commodity" class="form-control" formControlName="Commodity">
@@ -51,10 +43,18 @@
                   </mat-select>
                 </div>
               </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Supplier:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Supplier" class="form-control" formControlName="Supplier">
+                    <mat-option *ngFor="let opt of uniqueSuppliers" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
             </div>
 
             <!-- ROW 2 -->
-            <div class="row col-sm-12 mb-3">
+            <div class="row col-sm-12 mb-1">
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>State:</b></div>
                 <div class="col-sm-8">
@@ -71,19 +71,7 @@
                   </mat-select>
                 </div>
               </div>
-              <div class="col-sm-4 row">
-                <div class="col-sm-4 d-flex align-items-center"><b>Supplier:</b></div>
-                <div class="col-sm-8">
-                  <mat-select placeholder="Select Supplier" class="form-control" formControlName="Supplier">
-                    <mat-option *ngFor="let opt of uniqueSuppliers" [value]="opt">{{opt}}</mat-option>
-                  </mat-select>
-                </div>
-              </div>
-            </div>
-
-            <!-- ROW 3 (Buttons) -->
-            <div class="row col-sm-12">
-              <div class="col-sm-12 text-end">
+              <div class="col-sm-4 d-flex align-items-center justify-content-end">
                 <button mat-raised-button class="btn-default me-2" (click)="clearFilter()">
                   <mat-icon>settings_backup_restore</mat-icon> Clear
                 </button>

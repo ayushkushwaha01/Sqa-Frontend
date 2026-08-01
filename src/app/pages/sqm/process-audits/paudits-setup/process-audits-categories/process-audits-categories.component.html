@@ -17,34 +17,28 @@
   </div>
 
   <div class="row" *ngIf="showFilters" style="margin-left: 5px; margin-bottom: 15px;">
-    <div class="col-sm-12 flex-p w-100">
-      <mat-card class="filter" style="box-shadow: 5px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 5px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 1px rgba(0, 0, 0, 0.12) !important;">
-        <mat-card-content>
-          <div class="row col-sm-12" style="align-items: center;">
-            <div class="col-sm-4 row me-2" style="align-items: center;">
-              <div class="col-sm-3 newMarginClass"><b>Keyword:</b></div>
-              <div class="col-sm-9">
-                <input type="text" [(ngModel)]="selectedCategory" class="form-control"
-                  placeholder="Search by Name, Code...">
-              </div>
+    <div class="col-sm-12 w-100 p-0">
+      <mat-card class="filter" style="box-shadow: none !important; border: 1px solid #e0e0e0; background-color: #f8f9fa; border-radius: 6px;">
+        <mat-card-content style="padding: 12px 16px;">
+          <div class="row align-items-center">
+            <div class="col-md-4 d-flex align-items-center">
+              <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Keyword:</label>
+              <input type="text" [(ngModel)]="selectedCategory" class="form-control"
+                placeholder="Search by Name, Code..." style="flex: 1;">
             </div>
-            <div class="col-sm-4 row" style="align-items: center;">
-              <div class="col-sm-3 newMarginClass"><b>Status:</b></div>
-              <div class="col-sm-8">
-                <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus">
-                  <mat-option value="Active">Active</mat-option>
-                  <mat-option value="Inactive">Inactive</mat-option>
-                </mat-select>
-              </div>
+            <div class="col-md-4 d-flex align-items-center">
+              <label style="font-weight: bold; width: 80px; margin-bottom: 0;">Status:</label>
+              <mat-select placeholder="Select Status" class="form-control" [(ngModel)]="selectedStatus" style="flex: 1;">
+                <mat-option value="Active">Active</mat-option>
+                <mat-option value="Inactive">Inactive</mat-option>
+              </mat-select>
             </div>
-            <div class="col-sm-4 mt-2" style="margin-left: -25px;">
-              <button mat-raised-button class="pull-right btn-default margin-right-10"
-                (click)="onClear()">
-                <mat-icon>settings_backup_restore</mat-icon> Clear
-              </button>
-              <button mat-raised-button color="primary" class="pull-right margin-right-10"
-                (click)="onSearch()">
+            <div class="col-md-4 d-flex justify-content-end align-items-center gap-2">
+              <button mat-raised-button color="primary" (click)="onSearch()">
                 <mat-icon>search</mat-icon> Search
+              </button>
+              <button mat-raised-button class="btn-default" (click)="onClear()" style="background-color: #e0e0e0; color: #333;">
+                <mat-icon>settings_backup_restore</mat-icon> Clear
               </button>
             </div>
           </div>
@@ -68,7 +62,7 @@
         <tr *ngFor="let item of tableData">
           <td>{{ item.name }}</td>
           <td class="text-center">{{ item.code }}</td>
-          <td class="text-center"> 
+          <td class="text-center">
             <!-- 🔥 Data bound to item.processCategoryId and item.checklistCount -->
             <a [routerLink]="['inner']" class="text-blue" [queryParams]="{ id: item.processCategoryId }"
               style=" cursor: pointer;" matTooltip="View Details">
@@ -81,9 +75,11 @@
               {{ item.isActive ? 'Active' : 'Inactive' }}
             </a>
           </td>
-         <td class="text-center manage-icons">
-            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addCategory(item)" style="cursor: pointer; margin-right: 10px;"></i>
-            <i class="fa fa-trash text-danger" matTooltip="Delete" style="cursor: pointer;" (click)="deleteCategory(item)"></i>
+          <td class="text-center manage-icons">
+            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addCategory(item)"
+              style="cursor: pointer; margin-right: 10px;"></i>
+            <i class="fa fa-trash text-danger" matTooltip="Delete" style="cursor: pointer;"
+              (click)="deleteCategory(item)"></i>
           </td>
         </tr>
         <tr *ngIf="tableData.length === 0">
@@ -93,5 +89,6 @@
     </table>
   </div>
 
-  <mat-paginator [length]="tableData.length" [pageSize]="4" [pageSizeOptions]="[4, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+  <mat-paginator [length]="tableData.length" [pageSize]="4" [pageSizeOptions]="[4, 10, 25, 50]"
+    showFirstLastButtons></mat-paginator>
 </div>

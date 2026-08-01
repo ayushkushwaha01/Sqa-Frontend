@@ -49,25 +49,27 @@ const routes: Routes = [
     children: [
       {
         path: 'parts-cat',
-        loadChildren: () => import('./audit-categories/audit-categories.module').then(m => m.AuditCategoriesModule)
+        loadChildren: () => import('./audit-categories/audit-categories.module').then(m => m.AuditCategoriesModule),
+        data: { breadcrumb: 'Parts Audit Categories', description: 'Configure parts audit category master data.' }
       },
       {
         path: 'families',
+        data: { breadcrumb: 'Parts Families', description: 'Configure parts families master data.' },
         children: [
           { path: '', component: PartsFamiliesComponent }, // Default view when hitting /families
-          { path: 'families-inner-grid', component: FamiliesInnerGridComponent } // Child view
+          { path: 'families-inner-grid', component: FamiliesInnerGridComponent, data: { breadcrumb: 'Family Detail' } } // Child view
         ]
       },
-      { path: 'master', component: PartsMasterComponent },
-      { path: 'batchmaster', component: BatchMasterComponent },
-      { path: 'defectsmaster', component: DefectsMasterComponent },
-      { path: 'vender-rating', component: VenderRatingComponent },
-      { path: 'supplier-master', component: SupplierMasterComponent },
-      { path: 'city-master', component: CityMasterComponent },
-      { path: 'severity-master', component: SeverityMasterComponent },
-      { path: 'state-master', component: StateMasterComponent },
+      { path: 'master', component: PartsMasterComponent, data: { breadcrumb: 'Parts Master', description: 'Configure parts master data.' } },
+      { path: 'batchmaster', component: BatchMasterComponent, data: { breadcrumb: 'Batch Master', description: 'Configure batch master data.' } },
+      { path: 'defectsmaster', component: DefectsMasterComponent, data: { breadcrumb: 'Defects Master', description: 'Configure defects master data.' } },
+      { path: 'vender-rating', component: VenderRatingComponent, data: { breadcrumb: 'Vendor Rating', description: 'Configure vendor rating master data.' } },
+      { path: 'supplier-master', component: SupplierMasterComponent, data: { breadcrumb: 'Supplier Master', description: 'Configure supplier master data.' } },
+      { path: 'city-master', component: CityMasterComponent, data: { breadcrumb: 'City Master', description: 'Configure city master data.' } },
+      { path: 'severity-master', component: SeverityMasterComponent, data: { breadcrumb: 'Severity Master', description: 'Configure severity master data.' } },
+      { path: 'state-master', component: StateMasterComponent, data: { breadcrumb: 'State Master', description: 'Configure state master data.' } },
       { path: '', redirectTo: 'parts-cat', pathMatch: 'full' },
-      { path: 'parts-parameter', component: PartsParameterComponent },
+      { path: 'parts-parameter', component: PartsParameterComponent, data: { breadcrumb: 'Parts Parameter' } },
     ]
   }
 ];

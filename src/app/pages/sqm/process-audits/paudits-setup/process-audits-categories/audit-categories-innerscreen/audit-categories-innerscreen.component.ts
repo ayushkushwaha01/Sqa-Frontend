@@ -43,7 +43,7 @@ export class AuditCategoriesInnerscreenComponent implements OnInit {
 
   onAddQuestion(item: any): void {
     const dialogRef = this.dialog.open(AddQuestionPopComponent, {
-      width: '650px',
+      width: '720px',
       disableClose: true,
       data: { categoryId: this.categoryId, item: item } // Pass the FK to the popup
     });
@@ -65,6 +65,46 @@ export class AuditCategoriesInnerscreenComponent implements OnInit {
 
   goBack() {
     this.location.back();
+  }
+
+  toggleMandatory(item: any, isChecked: boolean): void {
+    item.isMandatory = isChecked;
+    const payload = {
+      checklistId: item.checklistId,
+      processCategoryId: item.processCategoryId || this.categoryId,
+      question: item.question,
+      guideline: item.guideline,
+      isMandatory: isChecked,
+      isPriority: item.isPriority
+    };
+    this.api.upsertChecklist(payload).subscribe((res: any) => {
+      if (res.success) {
+        this.alertService.createAlert('Updated Mandatory setting', 1);
+      } else {
+        item.isMandatory = !isChecked;
+        this.alertService.createAlert(res.message || 'Error updating setting', 0);
+      }
+    });
+  }
+
+  togglePriority(item: any, isChecked: boolean): void {
+    item.isPriority = isChecked;
+    const payload = {
+      checklistId: item.checklistId,
+      processCategoryId: item.processCategoryId || this.categoryId,
+      question: item.question,
+      guideline: item.guideline,
+      isMandatory: item.isMandatory,
+      isPriority: isChecked
+    };
+    this.api.upsertChecklist(payload).subscribe((res: any) => {
+      if (res.success) {
+        this.alertService.createAlert('Updated Priority setting', 1);
+      } else {
+        item.isPriority = !isChecked;
+        this.alertService.createAlert(res.message || 'Error updating setting', 0);
+      }
+    });
   }
 
 

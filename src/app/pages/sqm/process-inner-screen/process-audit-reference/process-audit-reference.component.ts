@@ -312,12 +312,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           this.alertService.createAlert(res.message, 1);
-          
-          // Auto advance to next question
-          const currentIndex = this.processSteps.findIndex(s => s.checklistId === this.selectedStep.checklistId);
-          if(currentIndex < this.processSteps.length - 1) {
-            this.selectStep(this.processSteps[currentIndex + 1]); 
-          }
+          this.loadSavedResponse();
         } else {
           this.alertService.createAlert(res.message, 0);
         }

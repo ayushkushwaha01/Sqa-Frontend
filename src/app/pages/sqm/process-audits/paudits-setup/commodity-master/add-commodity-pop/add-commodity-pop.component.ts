@@ -20,7 +20,7 @@ export class AddCommodityPopComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
-      code: ['', Validators.required]
+      code: ['', [Validators.required, Validators.maxLength(5)]]
     });
   }
 
@@ -30,6 +30,13 @@ export class AddCommodityPopComponent implements OnInit {
       this.commodityId = this.data.commodityId;
       this.form.patchValue({ name: this.data.name, code: this.data.code });
     }
+  }
+
+  onCodeInput(event: any): void {
+    const inputVal = event.target.value || '';
+    const upperVal = inputVal.toUpperCase().slice(0, 5);
+    this.form.get('code')?.setValue(upperVal, { emitEvent: false });
+    event.target.value = upperVal;
   }
 
   save(): void {

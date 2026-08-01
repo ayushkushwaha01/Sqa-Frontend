@@ -52,9 +52,7 @@
       <!-- DYNAMIC GUIDELINE -->
       <div>Process Level Guidelines:</div>
       <div class="custom-guideline mb-4" style="padding: 15px; background-color: #f8f9fa; border-left: 4px solid #099ff0; border-radius: 4px;">
-        <p style="margin-bottom: 6px; font-size: 14px; color: #555;">
-          {{ selectedStep?.guideline }}
-        </p>
+        <div style="font-size: 14px; color: #555;" [innerHTML]="selectedStep?.guideline || 'NA'"></div>
       </div>
 
       <!-- COLORED RATING BUTTONS -->

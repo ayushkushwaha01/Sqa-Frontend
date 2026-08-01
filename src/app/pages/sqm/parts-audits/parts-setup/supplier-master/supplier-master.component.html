@@ -17,47 +17,50 @@
             <form [formGroup]="filterForm">
                 <mat-card class="filter">
                     <mat-card-content>
-    <div class="d-flex flex-wrap align-items-center w-100" style="gap: 15px;">
+                        <div class="d-flex flex-wrap align-items-center w-100" style="gap: 15px;">
 
-        <div class="d-flex align-items-center flex-grow-1">
-            <b class="me-2 text-nowrap">Supplier:</b>
-            <input type="text" formControlName="supplierName" class="form-control" placeholder="Search Supplier...">
-        </div>
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">Supplier:</b>
+                                <input type="text" formControlName="supplierName" class="form-control"
+                                    placeholder="Search Supplier...">
+                            </div>
 
-        <div class="d-flex align-items-center flex-grow-1">
-            <b class="me-2 text-nowrap">Contact:</b>
-            <input type="text" formControlName="contactPerson" class="form-control" placeholder="Search Contact...">
-        </div>
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">Contact:</b>
+                                <input type="text" formControlName="contactPerson" class="form-control"
+                                    placeholder="Search Contact...">
+                            </div>
 
-        <div class="d-flex align-items-center flex-grow-1">
-            <b class="me-2 text-nowrap">State:</b>
-            <mat-select formControlName="stateName" placeholder="Select State" class="form-control">
-                <mat-option *ngFor="let state of uniqueStates" [value]="state">
-                    {{state}}
-                </mat-option>
-            </mat-select>
-        </div>
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">State:</b>
+                                <mat-select formControlName="stateName" placeholder="Select State" class="form-control">
+                                    <mat-option *ngFor="let state of uniqueStates" [value]="state">
+                                        {{state}}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
 
-        <div class="d-flex align-items-center flex-grow-1">
-            <b class="me-2 text-nowrap">Status:</b>
-            <mat-select formControlName="status" placeholder="Select Status" class="form-control">
-                <mat-option *ngFor="let option of Status" [value]="option.value">
-                    {{option.name}}
-                </mat-option>
-            </mat-select>
-        </div>
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <b class="me-2 text-nowrap">Status:</b>
+                                <mat-select formControlName="status" placeholder="Select Status" class="form-control">
+                                    <mat-option *ngFor="let option of Status" [value]="option.value">
+                                        {{option.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </div>
 
-        <div class="d-flex align-items-center" style="margin-left: auto;">
-            <button mat-raised-button color="primary" class="me-2" (click)="applyFilter()" style="margin-right: 8px;">
-                <mat-icon>search</mat-icon> Search
-            </button>
-            <button mat-raised-button class="btn-default" (click)="clearFilter()">
-                <mat-icon>settings_backup_restore</mat-icon> Clear
-            </button>
-        </div>
+                            <div class="d-flex align-items-center" style="margin-left: auto;">
+                                <button mat-raised-button color="primary" class="me-2" (click)="applyFilter()"
+                                    style="margin-right: 8px;">
+                                    <mat-icon>search</mat-icon> Search
+                                </button>
+                                <button mat-raised-button class="btn-default" (click)="clearFilter()">
+                                    <mat-icon>settings_backup_restore</mat-icon> Clear
+                                </button>
+                            </div>
 
-    </div>
-</mat-card-content>
+                        </div>
+                    </mat-card-content>
                 </mat-card>
             </form>
         </div>
@@ -90,8 +93,8 @@
                         </mat-icon>
                     </td>
 
-                    <td class="text-center" [style.color]="item.isActive ? 'blue' : 'red'" 
-                        style="font-weight: 500; cursor: pointer;" (click)="toggleStatus(item)" 
+                    <td class="text-center" [style.color]="item.isActive ? 'blue' : 'red'"
+                        style="font-weight: 500; cursor: pointer;" (click)="toggleStatus(item)"
                         matTooltip="Click to Toggle">
                         {{ item.isActive ? 'Active' : 'Inactive' }}
                     </td>

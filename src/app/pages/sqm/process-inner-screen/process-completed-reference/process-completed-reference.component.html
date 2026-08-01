@@ -72,9 +72,7 @@
 
       <div> Process Level Guidelines :</div>
       <div class="custom-guideline mb-4" style="gap: 5px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #099ff0; border-radius: 4px;"> 
-        <p style="margin-bottom: 6px; font-size: 14px; color: #555;" *ngFor="let guideline of currentGuidelines; let i = index">
-          <strong>{{ i + 1 }}.</strong> {{ guideline }}
-        </p>
+        <div style="margin-bottom: 6px; font-size: 14px; color: #555;" *ngFor="let guideline of currentGuidelines" [innerHTML]="guideline"></div>
       </div>
     <label class="fw-bold mb-2">Rating :</label>
       <div class="d-flex gap-3 mb-4">

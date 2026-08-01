@@ -2,60 +2,64 @@
   <div class="col-sm-8" style="padding-left: 0;">
     <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 15px;">
 
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <label class="mb-0 fw-bold">Filter By Code:</label>
-      <mat-select class="form-control" style="width: 200px;" placeholder="All Codes" [(ngModel)]="selectedCodeFilter"
-        (selectionChange)="filterTable()">
-        <mat-option [value]="null">All</mat-option>
-        <mat-option *ngFor="let code of codeMasters" [value]="code.codeId">
-          {{ code.codeName }}
-        </mat-option>
-      </mat-select>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <label class="mb-0 fw-bold">Filter By Code:</label>
+        <mat-select class="form-control" style="width: 200px;" placeholder="All Codes" [(ngModel)]="selectedCodeFilter"
+          (selectionChange)="filterTable()">
+          <mat-option [value]="null">All</mat-option>
+          <mat-option *ngFor="let code of codeMasters" [value]="code.codeId">
+            {{ code.codeName }}
+          </mat-option>
+        </mat-select>
+      </div>
+
+      <button mat-raised-button
+        style="background-color: #1a1a1a; color: white; padding: 0; min-width: 40px; width: 40px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+        (click)="refresh()" matTooltip="Refresh Grid">
+        <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin: 0;">refresh</mat-icon>
+      </button>
+
+      <button mat-raised-button color="primary" (click)="addlookup(null)">
+        <mat-icon>add</mat-icon> Add Lookup
+      </button>
     </div>
 
-    <button mat-raised-button
-      style="background-color: #1a1a1a; color: white; padding: 0; min-width: 40px; width: 40px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-      (click)="refresh()" matTooltip="Refresh Grid">
-      <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin: 0;">refresh</mat-icon>
-    </button>
+    <div class="table-responsive bg-white shadow-sm">
+      <table class="custom-grid-table">
+        <thead>
+          <tr>
+            <th>Lookup Name</th>
+            <th>Code Name</th>
+            <th class="text-center" style="width: 150px;">Status</th>
+            <th class="text-center" style="width: 150px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of pagedData">
+            <td>{{ item.lookupName }}</td>
+            <td>{{ item.codeMasterName }}</td>
+            <td class="text-center">
+              <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'" style="cursor:pointer;"
+                (click)="toggleStatus(item)">
+                {{ item.isActive ? 'Active' : 'Inactive' }}
+              </a>
+            </td>
+            <td class="text-center">
+              <i class="fa fa-edit text-primary" style="cursor: pointer; margin-right: 15px;" matTooltip="Edit"
+                (click)="addlookup(item)"></i>
+              <i class="fa fa-trash text-danger" style="cursor: pointer;" matTooltip="Delete"
+                (click)="deleteLookup(item)"></i>
+            </td>
+          </tr>
+          <tr *ngIf="pagedData.length === 0">
+            <td colspan="4" class="text-center text-muted" style="padding: 15px;">No Lookups Found</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <button mat-raised-button color="primary" (click)="addlookup(null)">
-      <mat-icon>add</mat-icon> Add Lookup
-    </button>
+      <mat-paginator [length]="filteredData.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
+        [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" showFirstLastButtons>
+      </mat-paginator>
+    </div>
   </div>
-
-  <div class="table-responsive bg-white shadow-sm">
-    <table class="custom-grid-table">
-      <thead>
-        <tr>
-          <th>Lookup Name</th>
-          <th>Code Name</th>
-          <th class="text-center" style="width: 150px;">Status</th>
-          <th class="text-center" style="width: 150px;">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of filteredData">
-          <td>{{ item.lookupName }}</td>
-          <td>{{ item.codeMasterName }}</td>
-          <td class="text-center">
-            <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'" style="cursor:pointer;"
-              (click)="toggleStatus(item)">
-              {{ item.isActive ? 'Active' : 'Inactive' }}
-            </a>
-          </td>
-          <td class="text-center">
-            <i class="fa fa-edit text-primary" style="cursor: pointer; margin-right: 15px;" matTooltip="Edit"
-              (click)="addlookup(item)"></i>
-            <i class="fa fa-trash text-danger" style="cursor: pointer;" matTooltip="Delete"
-              (click)="deleteLookup(item)"></i>
-          </td>
-        </tr>
-        <tr *ngIf="filteredData.length === 0">
-          <td colspan="4" class="text-center text-muted" style="padding: 15px;">No Lookups Found</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 </div>
