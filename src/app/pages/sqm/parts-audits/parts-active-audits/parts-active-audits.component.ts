@@ -78,7 +78,8 @@ export class PartsActiveAuditsComponent implements OnInit {
       statusId: [null],
       fromDate: [null],
       toDate: [null],
-      done: [false]
+      done: [false],
+      Archive: [false]
     });
   }
 
@@ -95,7 +96,8 @@ export class PartsActiveAuditsComponent implements OnInit {
       cityId: null,
       statusId: null,
       fromDate: null,
-      toDate: null
+      toDate: null,
+      Archive: false
     });
 
     this.getPartsAuidt();
@@ -424,6 +426,62 @@ export class PartsActiveAuditsComponent implements OnInit {
       }
     });
   }
+  changeArchiveStatus(item: any) {
+
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: 'auto',
+      data: {
+        component: null,
+        title: 'Archive Confirmation',
+        content: `Are you sure you want to ${item.archive ? 'Unarchive' : 'Archive'} this record?`,
+        isConfirmation: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((data: any) => {
+
+      if (data) {
+
+        const payload = {
+          ...item,
+          archive: !item.archive
+        };
+
+        this.partAuditService.archiveStatusChange(payload)
+          .subscribe({
+
+            next: (res: any) => {
+
+              if (res.success) {
+                this.getPartsAuidt();
+
+                this.alertService.createAlert(res.message, 1);
+
+                // Update local value
+                item.archive = !item.archive;
+
+              }
+              else {
+
+                this.alertService.createAlert(res.message, 0);
+
+              }
+
+            },
+
+            error: () => {
+
+              this.alertService.createAlert('Something went wrong.', 0);
+
+            }
+
+          });
+
+      }
+
+    });
+
+  }
 
 
   scrollGrid(side: 'left' | 'right') {
@@ -651,7 +709,7 @@ export class PartsActiveAuditsComponent implements OnInit {
     'Report',
     'Status',
     'Done',
-    'Manage'
+    'Actions'
   ];
 
   activeColumns: string[] = [];
@@ -674,7 +732,7 @@ export class PartsActiveAuditsComponent implements OnInit {
       'Report': 120,
       'Status': 150,
       'Done': 100,
-      'Manage': 120
+      'Actions': 120
 
     };
 

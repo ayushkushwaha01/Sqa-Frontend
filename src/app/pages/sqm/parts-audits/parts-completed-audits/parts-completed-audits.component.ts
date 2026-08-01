@@ -72,7 +72,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
       statusId: [null],
       fromDate: [null],
       toDate: [null],
-      done: [true]
+      Archive: [true]
     });
   }
 
@@ -90,7 +90,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
       statusId: null,
       fromDate: null,
       toDate: null,
-      done: true
+      Archive: true
 
     });
 
@@ -283,6 +283,63 @@ export class PartsCompletedAuditsComponent implements OnInit {
   }
 
 
+
+  changeArchiveStatus(item: any) {
+
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: 'auto',
+      data: {
+        component: null,
+        title: 'Archive Confirmation',
+        content: `Are you sure you want to ${item.archive ? 'Unarchive' : 'Archive'} this record?`,
+        isConfirmation: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((data: any) => {
+
+      if (data) {
+
+        const payload = {
+          ...item,
+          archive: !item.archive
+        };
+
+        this.partAuditService.archiveStatusChange(payload)
+          .subscribe({
+
+            next: (res: any) => {
+
+              if (res.success) {
+                this.getPartsAuidt();
+
+                this.alertService.createAlert(res.message, 1);
+
+                // Update local value
+                item.archive = !item.archive;
+
+              }
+              else {
+
+                this.alertService.createAlert(res.message, 0);
+
+              }
+
+            },
+
+            error: () => {
+
+              this.alertService.createAlert('Something went wrong.', 0);
+
+            }
+
+          });
+
+      }
+
+    });
+
+  }
 
   bindCommodityChart() {
 
@@ -646,7 +703,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
     'CAPA',
     'Report',
     'Status',
-    'Done',
+    'Actions',
     'Manage'
   ];
 
@@ -669,7 +726,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
       'CAPA': 120,
       'Report': 120,
       'Status': 150,
-      'Done': 100,
+      'Actions': 80,
       'Manage': 120
 
     };

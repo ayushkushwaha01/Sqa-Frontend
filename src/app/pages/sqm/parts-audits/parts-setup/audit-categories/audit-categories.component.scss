@@ -99,7 +99,8 @@
   width: 100%;
   border-collapse: collapse;
 
-  th, td {
+  th,
+  td {
     font-family: Roboto, "Helvetica Neue", sans-serif;
     font-size: 14px;
     padding: 10px 14px;
@@ -107,25 +108,38 @@
     vertical-align: middle;
   }
 
- 
 
-  tbody tr:nth-child(even) { background-color: #f9f9f9; }
-  tbody tr:nth-child(odd) { background-color: #ffffff; }
-  tbody tr:hover { background-color: #f1f5f9; }
+
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  tbody tr:hover {
+    background-color: #f1f5f9;
+  }
 
   /* Dynamic Status Colors */
   .status-link {
     cursor: pointer;
     font-weight: 400;
     text-decoration: none;
-    
+
     &:hover {
       text-decoration: underline;
     }
   }
 
-  .text-blue { color: #0000ff !important; }
-  .text-red { color: #ff0000 !important; }
+  .text-blue {
+    color: #0000ff !important;
+  }
+
+  .text-red {
+    color: #ff0000 !important;
+  }
 
   /* Action Icons */
   .manage-icons {
@@ -136,8 +150,14 @@
       cursor: pointer;
       margin: 0 8px;
     }
-    .edit-icon { color: cornflowerblue; } 
-    .delete-icon { color: red; } 
+
+    .edit-icon {
+      color: cornflowerblue;
+    }
+
+    .delete-icon {
+      color: red;
+    }
   }
 }
 
@@ -165,7 +185,7 @@
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
     color: #333 !important;
-    max-width: calc(100% - 24px) !important;   // leave room for arrow
+    max-width: calc(100% - 24px) !important; // leave room for arrow
   }
 
   ::ng-deep .mat-select-placeholder {
@@ -208,7 +228,8 @@
   padding: 0 14px !important;
   line-height: 36px !important;
 
-  mat-icon, .mat-icon {
+  mat-icon,
+  .mat-icon {
     font-size: 16px !important;
     width: 16px !important;
     height: 16px !important;
@@ -228,7 +249,8 @@
   padding: 0 14px !important;
   line-height: 36px !important;
 
-  mat-icon, .mat-icon {
+  mat-icon,
+  .mat-icon {
     font-size: 16px !important;
     width: 16px !important;
     height: 16px !important;
@@ -236,25 +258,28 @@
     font-family: 'Material Icons' !important;
   }
 }
-td {
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-    font-size: 14px;
-    padding: 10px 12px;
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-  }
 
-  th {
+td {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+th {
   background-color: #3f3f3f;
   color: white;
   padding: 12px;
   font-size: 14px;
-  border: 1px solid #e1e1e1;  /* already correct */
+  border: 1px solid #e1e1e1;
+  /* already correct */
 }
 
 
 .custom-mat-input {
-  width: 200px !important; /* Slightly wider than select, adjust if needed */
+  width: 200px !important;
+  /* Slightly wider than select, adjust if needed */
   height: 36px !important;
   background-color: white !important;
   border: 1px solid #ccc !important;
@@ -269,7 +294,7 @@ td {
 
   /* Matches the green focus border from your image */
   &:focus {
-    border: 1px solid #0c6b4b !important; 
+    border: 1px solid #0c6b4b !important;
   }
 
   &::placeholder {
@@ -277,4 +302,8 @@ td {
     font-size: 13px !important;
     opacity: 1 !important;
   }
+}
+
+::ng-deep .btn-go {
+  color: #1485cc !important;
 }

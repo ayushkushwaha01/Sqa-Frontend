@@ -85,8 +85,16 @@ export class PartsAuditReferenceComponent implements OnInit {
           console.log(this.categoriesparameters);
           console.log(this.tableData);
           console.log(this.pagedData);
+          // if (this.categoriesparameters.length > 0) {
+          //   this.selectCategory(this.categoriesparameters[0]);
+          // }
           if (this.categoriesparameters.length > 0) {
-            this.selectCategory(this.categoriesparameters[0]);
+
+            const selected = this.categoriesparameters.find(
+              x => x.partId === this.selectedCategory?.partId
+            );
+
+            this.selectCategory(selected || this.categoriesparameters[0]);
           }
 
         }
@@ -292,7 +300,7 @@ export class PartsAuditReferenceComponent implements OnInit {
   addchecklistaudit(item?: any) {
 
     const dialogRef = this.dialog.open(PartsAddParameterComponent, {
-      width: '850px',
+      width: '800px',
       height: 'auto',
       //data: item || null
       data: {

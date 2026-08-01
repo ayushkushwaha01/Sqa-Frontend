@@ -305,11 +305,11 @@
 
             <!-- Done -->
 
-            <th *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+            <th *ngSwitchCase="'Actions'" class="text-center" [class.frozen-col]="i < frozenCount"
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              Done
+              Actions
 
             </th>
 
@@ -442,7 +442,7 @@
 
               <a href="assets/processaudit.pdf" target="_blank" style="text-decoration:underline;color:#1976d2;">
 
-                Report
+                {{audit.okayPercentage}}%
 
               </a>
 
@@ -467,14 +467,13 @@
             </td>
 
             <!-- Done -->
-            <td *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+            <td *ngSwitchCase="'Actions'" class="text-center" [class.frozen-col]="i < frozenCount"
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              <mat-checkbox [checked]="!!audit.done" color="primary"
-                (click)="$event.preventDefault(); changeDoneStatus(audit)">
-
-              </mat-checkbox>
+              <i class="fas" [ngClass]="audit.archive ? 'fa-box-open archive-icon' : 'fa-archive archive-icon'"
+                [matTooltip]="audit.archive ? 'Unarchive' : 'Archive'" (click)="changeArchiveStatus(audit)">
+              </i>
 
             </td>
 

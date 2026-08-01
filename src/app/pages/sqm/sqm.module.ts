@@ -45,7 +45,7 @@ const routes: Routes = [
     {
         path: 'parts-inner-screen',
         loadChildren: () => import('./parts-inner-screen/parts-inner-screen.module').then(m => m.PartsInnerScreen),
-        data: { breadcrumb: 'Parts Details', description: 'Detailed view of a parts audit.' }
+        data: { breadcrumb: '', description: '' }
     },
     {
         path: 'inspection',

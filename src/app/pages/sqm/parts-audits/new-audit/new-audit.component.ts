@@ -26,6 +26,7 @@ export class NewAuditComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('Received data:', this.data);
+    this.isEditMode = !!this.data?.partAuditId;
     this.formInit(this.data);
     this.getPartsFamilies();
     this.getCommodities();
@@ -34,6 +35,11 @@ export class NewAuditComponent implements OnInit {
     this.getCities();
     this.getAuditors();
     this.getParts();
+    if (this.isEditMode) {
+
+      this.myGroup.get('partFamilyId')?.disable();
+      this.myGroup.get('partMasterId')?.disable();
+    }
 
   }
 
@@ -86,6 +92,10 @@ export class NewAuditComponent implements OnInit {
 
           this.allParts = res.data.data;
           this.parts = [...this.allParts];
+          if (this.isEditMode && this.data?.partMasterId && this.Suppliers.length > 0) {
+            this.onPartChange(this.data.partMasterId);
+            this.myGroup.get('supplierId')?.setValue(this.data.supplierId);
+          }
 
         }
       });
@@ -141,6 +151,11 @@ export class NewAuditComponent implements OnInit {
         if (res.success) {
 
           this.Suppliers = res.data;
+          if (this.isEditMode && this.data?.partMasterId && this.allParts.length > 0) {
+            this.onPartChange(this.data.partMasterId);
+            this.myGroup.get('supplierId')?.setValue(this.data.supplierId);
+          }
+
 
         }
       });
@@ -153,27 +168,20 @@ export class NewAuditComponent implements OnInit {
 
   onPartChange(partMasterId: number) {
 
-    // Find selected part
     const selectedPart = this.allParts.find(x => x.partMasterId == partMasterId);
 
     if (!selectedPart || !selectedPart.supplierIds) {
       this.filteredSuppliers = [];
-      this.myGroup.get('supplierId')?.setValue(null);
       return;
     }
 
-    // Convert "3,1" => [3,1]
     const supplierIds = selectedPart.supplierIds
       .split(',')
       .map((x: string) => Number(x));
 
-    // Filter suppliers
     this.filteredSuppliers = this.Suppliers.filter(s =>
       supplierIds.includes(s.supplierId)
     );
-
-    // Clear previous selection
-    this.myGroup.get('supplierId')?.setValue(null);
   }
   states: any[] = []
   getStates() {
@@ -324,9 +332,11 @@ export class NewAuditComponent implements OnInit {
 
       remakrs: [
         data?.remakrs || ''
-      ]
+      ],
+
 
     });
+
   }
 
   get f() {
@@ -339,6 +349,9 @@ export class NewAuditComponent implements OnInit {
       this.myGroup.markAllAsTouched();
       return;
     }
+    this.myGroup.get('partFamilyId')?.enable();
+    this.myGroup.get('partMasterId')?.enable();
+
 
     this.partAuditService.upsertPartAudit(this.myGroup.value)
       .subscribe({

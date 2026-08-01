@@ -322,13 +322,13 @@
 
             </th>
 
-            <!-- Manage -->
+            <!-- Actions -->
 
-            <th *ngSwitchCase="'Manage'" class="text-center" [class.frozen-col]="i < frozenCount"
+            <th *ngSwitchCase="'Actions'" class="text-center" [class.frozen-col]="i < frozenCount"
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              Manage
+              Actions
 
             </th>
 
@@ -451,7 +451,7 @@
 
               <a href="assets/processaudit.pdf" target="_blank" style="text-decoration:underline;color:#1976d2;">
 
-                Report
+                {{audit.okayPercentage}}%
 
               </a>
 
@@ -488,7 +488,7 @@
             </td>
 
             <!-- Manage -->
-            <td *ngSwitchCase="'Manage'" class="text-center manage-icons" [class.frozen-col]="i < frozenCount"
+            <td *ngSwitchCase="'Actions'" class="text-center manage-icons" [class.frozen-col]="i < frozenCount"
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
@@ -496,6 +496,10 @@
               </i>
 
               <i class="fas fa-trash delete-icon" title="Delete" (click)="deleteConfirmation(audit)">
+              </i>
+              <i class="fas" [ngClass]="audit.archive ? 'fa-box-open archive-icon' : 'fa-archive archive-icon'"
+                [matTooltip]="audit.done ? (audit.archive ? 'Unarchive' : 'Archive') : 'Mark as Done first'"
+                [class.disabled-icon]="!audit.done" (click)="audit.done && changeArchiveStatus(audit)">
               </i>
 
             </td>

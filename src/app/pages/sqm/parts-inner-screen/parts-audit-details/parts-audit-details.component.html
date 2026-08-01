@@ -75,7 +75,7 @@
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
-            Select Due Date :
+            Due Date :
           </label>
 
           <div class="col-sm-7">
@@ -85,7 +85,7 @@
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
-            Select Completed Date :
+            Completed Date :
           </label>
 
           <div class="col-sm-7">
@@ -123,7 +123,7 @@
 
               <mat-option *ngFor="let s of severities" [value]="s.severityId">
 
-                {{s.severityName}}
+                {{s.rating}} - {{s.severityName}}
 
               </mat-option>
 
@@ -175,7 +175,7 @@
           </div>
         </div>
 
-        <div class="row form-group mt-3 align-items-center">
+        <!-- <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
             Risk Rating :
           </label>
@@ -183,9 +183,9 @@
           <div class="col-sm-7">
             <input type="text" value="High" class="form-control input-risk">
           </div>
-        </div>
+        </div> -->
 
-        <div class="row form-group mt-3 align-items-center">
+        <!-- <div class="row form-group mt-3 align-items-center">
 
           <label class="control-label col-sm-4 font-weight-bold">
             Mark as Resolved:
@@ -198,7 +198,7 @@
 
           </div>
 
-        </div>
+        </div> -->
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
             Class :

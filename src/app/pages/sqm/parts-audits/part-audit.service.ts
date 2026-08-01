@@ -113,4 +113,10 @@ export class PartAuditService {
       data
     );
   }
+  archiveStatusChange(data: any) {
+    return this.http.post(
+      this.apiUrl + 'PartsAudit/archive-status-change',
+      data
+    );
+  }
 }

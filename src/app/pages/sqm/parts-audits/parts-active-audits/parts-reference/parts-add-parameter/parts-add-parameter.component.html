@@ -8,24 +8,9 @@
 
 <div>
     <div fxLayout="row wrap" class="col-sm-12">
-        <div class="col-sm-2" style="margin-bottom: 10px;">
-            <div class="m-auto pills pt-2 pr-0">
-                <ul class="nav col-12 flex-column pr-0">
-                    <li class="nav-item" style="margin-top: 10px;"
-                        [ngClass]=" addStep == 1 ? 'active nav-item' : 'nav-item'" (click)="changeAddStep(1)"
-                        routerLinkActive="active">
-                        <a mat-raised-button class="nav-link text-left py-2 width ">Overview</a>
-                    </li>
-                    <!-- <li class="nav-item" style="margin-top: 10px;"
-                        [ngClass]=" addStep == 2 ? 'active nav-item': 'nav-item'" (click)="changeAddStep(2)"
-                        routerLinkActive="active">
-                        <a mat-raised-button class="nav-link text-left py-2 width">Diagnosis</a>
-                    </li> -->
-                </ul>
-            </div>
-        </div>
 
-        <div *ngIf="addStep == 1" class="col-sm-10" style="margin-top: 0px;padding-left:20px;">
+
+        <div *ngIf="addStep == 1" class="col-sm-12" style="margin-top: 0px;padding-left:20px;">
             <div mat-dialog-content>
                 <form class="form-horizontal" [formGroup]="myGroup">
                     <div class="col-sm-6">
@@ -142,7 +127,7 @@
                 </form>
             </div>
 
-            <mat-dialog-actions align="end" style="margin-top: 15px; margin-bottom: -5px;">
+            <mat-dialog-actions align="end" style="margin-top: 15px; margin-bottom: -5px;margin-right: 16px;">
                 <button mat-raised-button class="ms-2 add-dark-hover btn-default" (click)="close()"
                     style="background-color: lightgray; color: red;margin-right: 5px;">
                     <mat-icon>cancel</mat-icon> Close
