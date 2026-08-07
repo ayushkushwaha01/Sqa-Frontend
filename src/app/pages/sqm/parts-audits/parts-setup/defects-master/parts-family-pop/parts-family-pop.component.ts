@@ -11,6 +11,7 @@ import { AlertService } from 'src/app/shared/alert.service'; // Adjust path if n
 export class PartsFamilyPopComponent implements OnInit {
 
   allDefects: any[] = [];
+  defectColumns: any[][] = [];
   selectedIds: Set<number> = new Set<number>();
   
   // Store the full row data passed from the parent grid
@@ -25,6 +26,10 @@ export class PartsFamilyPopComponent implements OnInit {
 
   ngOnInit(): void {
     this.allDefects = this.data.allDefects || [];
+    this.defectColumns = [];
+    for (let i = 0; i < this.allDefects.length; i += 10) {
+      this.defectColumns.push(this.allDefects.slice(i, i + 10));
+    }
     this.fullPartFamilyItem = this.data.fullItem; // Get the complete item
     
     // Load previously selected defects into the Set

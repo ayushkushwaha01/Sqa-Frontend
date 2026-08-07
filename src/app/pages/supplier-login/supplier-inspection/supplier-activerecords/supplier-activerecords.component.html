@@ -1,5 +1,3 @@
-
-
 <div style="margin-left: 16px;">
 
 <div class="row" style="margin: 16px 0;">
@@ -184,7 +182,7 @@
   </thead>
 
   <tbody>
-    <tr *ngFor="let item of mockdata">
+    <tr *ngFor="let item of inspectionData">
       <td class="text-center">
         <a
           matTooltip="Edit Record"
@@ -200,18 +198,19 @@
           <i class="fa fa-trash" style="color: red;"></i>
         </a>
 
-        <a
+        <!-- <a
           matTooltip="Archive Record"
           style="cursor: pointer;"
          >
           <i class="fa fa-archive" style="color: gray;"></i>
-        </a>
+        </a> -->
       </td>
 
       <td class="text-link text-center">
         <a
         [routerLink]="['/app','supplier-login','inner-screen','ins-active-ref']"
           [queryParams]="{
+            id: item.id,
             reference: item.Reference,
             partFamily: item.PartFamily,
             partName: item.PartName
@@ -225,7 +224,8 @@
       <td class="text-center">
         <mat-checkbox
           [(ngModel)]="item.Publish"
-          color="primary">
+          color="primary"
+          [disabled]="true">
         </mat-checkbox>
       </td>
 
@@ -264,7 +264,7 @@
       <td class="text-center">{{ item.ErrorRatePPM }}</td>
     </tr>
 
-    <tr *ngIf="!mockdata || mockdata.length === 0">
+    <tr *ngIf="!inspectionData || inspectionData.length === 0">
       <td colspan="18" class="text-center">
         No records found
       </td>

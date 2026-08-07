@@ -19,6 +19,7 @@
 
 <div class="col-sm-12" style="overflow: hidden; width: 100%;">
 
+ <!-- Filter Form -->
  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px;">
    <div style="margin-top: 10px; width: 100%;">
      <form [formGroup]="myGroup">
@@ -127,30 +128,27 @@
        </thead>
 
        <tbody>
-         <tr *ngFor="let applicant of tableList">
+         <!-- 🔥 Bound to pagedTableList so pagination works -->
+         <tr *ngFor="let applicant of pagedTableList">
            <td class="text-center">
              <a matTooltip="Edit" [routerLink]="['/app','supplier-login','inner-screen','ins-active-ref']" >
                <i class="fa fa-edit"></i>
              </a>
-             <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
-               <i class="fa fa-trash red"></i>
+             <a matTooltip="Delete" style="margin-left: 5px; cursor: pointer;" (click)="deleteConfirmation(applicant)">
+               <i class="fa fa-trash" style="color: red;"></i>
              </a>
            </td>
 
-           <td class="text-center">
-             {{applicant.status}}
-           </td>
+           <td class="text-center">{{applicant.status}}</td>
 
            <td class="text-center">
-             <mat-checkbox [checked]="applicant.resolved === true" color="primary">
-             </mat-checkbox>
+             <mat-checkbox [checked]="applicant.resolved === true" color="primary"></mat-checkbox>
            </td>
 
            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto()">
              {{ applicant.docs }}
            </td>
 
-           <!-- UPDATED REFERENCE COLUMN -->
            <td class="text-center">
              <a [routerLink]="['/app','supplier-login','inner-screen','ins-active-ref']" 
                 [style.color]="applicant.isAlert ? 'red' : 'blue'"
@@ -166,24 +164,20 @@
            <td class="text-center">{{ applicant.processCategory }}</td>
 
            <td class="text-center">
-             <mat-icon (click)="imageSource1()" style="color: blue; cursor: pointer;">
-               info
-             </mat-icon>
+             <mat-icon (click)="imageSource1()" style="color: blue; cursor: pointer;">info</mat-icon>
            </td>
 
            <td class="text-center">
-             <mat-icon (click)="imageSource1()" style="color: blue; cursor: pointer;">
-               info
-             </mat-icon>
+             <mat-icon (click)="imageSource1()" style="color: blue; cursor: pointer;">info</mat-icon>
            </td>
 
            <td class="text-center">{{ applicant.logDate }}</td>
            <td class="text-center">{{ applicant.dateCreated }}</td>
            <td class="text-center">{{ applicant.dueDate }}</td>
-           <td class="text-center">{{ applicant.dateResolved ?? '-' }}</td>
-           <td class="text-center">{{ applicant.dateClosed ?? '-' }}</td>
-           <td class="text-center">{{ applicant.delayInDays ?? '-' }}</td>
-           <td class="text-center">{{ applicant.completion ?? '-' }}</td>
+           <td class="text-center">{{ applicant.dateResolved }}</td>
+           <td class="text-center">{{ applicant.dateClosed }}</td>
+           <td class="text-center">{{ applicant.delayInDays }}</td>
+           <td class="text-center">{{ applicant.completion }}</td>
            <td class="text-center">{{ applicant.severity }}</td>
            <td class="text-center">{{ applicant.occurrence }}</td>
            <td class="text-center">{{ applicant.detection }}</td>
@@ -199,6 +193,10 @@
            <td class="text-center">{{ applicant.rating }}</td>
            <td class="text-center">{{ applicant.pdcaStatus }}</td>
          </tr>
+         
+         <tr *ngIf="!pagedTableList || pagedTableList.length === 0">
+           <td colspan="25" class="text-center">No records found.</td>
+         </tr>
        </tbody>
      </table>
 
@@ -212,7 +210,9 @@
    </div>
 
    <div style="width: 100%;">
-     <mat-paginator [length]="totalSize" [pageSize]="5" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons>
+     <!-- 🔥 Bound (page) event to run updatePagination() -->
+     <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]" 
+       showFirstLastButtons (page)="onPageChange($event)">
      </mat-paginator>
    </div>
  </div>

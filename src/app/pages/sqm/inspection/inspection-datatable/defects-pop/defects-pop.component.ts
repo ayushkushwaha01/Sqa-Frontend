@@ -12,6 +12,7 @@ export class DefectsPopComponent implements OnInit {
 
   gridCells: any[] = [];
   inspectionId: number;
+  isReadOnly: boolean = false;
 
   // New Color Mapping: 1=Green, 2=Blue, 3=Yellow, 4=Orange, 5=Red
   palette: { [key: number]: any } = {
@@ -29,6 +30,7 @@ export class DefectsPopComponent implements OnInit {
   ) {
     // Extract the inspectionId passed from the datatable
     this.inspectionId = this.data.id;
+    this.isReadOnly = (this.data && this.data.isReadOnly) || localStorage.getItem('UserType') === 'Supplier';
   }
 
   ngOnInit(): void {
@@ -62,6 +64,7 @@ export class DefectsPopComponent implements OnInit {
   }
 
   toggleColor(cell: any): void {
+    if (this.isReadOnly) return;
     // Cycle logic: 5 -> 1 -> 2 -> 3 -> 4 -> 5
     cell.status = (cell.status % 5) + 1;
     

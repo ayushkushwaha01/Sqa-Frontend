@@ -9,10 +9,20 @@ import { environment } from "src/environments/environment";
 export class InspectionService {
   apiUrl = environment.apiUrl;
 
+  selectedYear: number = new Date().getFullYear();
+  selectedMonth: number = new Date().getMonth() + 1;
+
   constructor(private http: HttpClient) { }
 
-  getAllInspections(): Observable<any> {
-    return this.http.get(this.apiUrl + "DataTable/get-all-records");
+  getAllInspections(supplierId?: number): Observable<any> {
+    let url = `${this.apiUrl}DataTable/get-all-records`;
+
+    // 🔥 Only append the query parameter if supplierId is actually provided and is a number
+    if (supplierId !== undefined && supplierId !== null) {
+      url += `?supplierId=${supplierId}`;
+    }
+
+    return this.http.get(url);
   }
 
   addInspection(data: any): Observable<any> {
@@ -82,8 +92,12 @@ export class InspectionService {
     return this.http.post(`${this.apiUrl}InspectionDefects/UpdateDefectsStatus`, payload);
   }
 
-  getPendingCapaRecords(): Observable<any> {
-    return this.http.get(`${this.apiUrl}InspectionCapa/GetPendingCapaRecords`);
+ getPendingCapaRecords(supplierId?: number): Observable<any> {
+    let url = `${this.apiUrl}InspectionCapa/GetPendingCapaRecords`;
+    if (supplierId !== undefined && supplierId !== null) {
+      url += `?supplierId=${supplierId}`;
+    }
+    return this.http.get(url);
   }
 
   updateCapaInlineStatus(payload: any): Observable<any> {
