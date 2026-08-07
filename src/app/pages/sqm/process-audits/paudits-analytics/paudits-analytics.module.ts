@@ -25,7 +25,7 @@ import { ProcessFastenersComponent } from './analytics-commodity/process-fastene
 import { ProcessNonmetallicComponent } from './analytics-commodity/process-nonmetallic/process-nonmetallic.component';
 import { ProcessSheetmetalComponent } from './analytics-commodity/process-sheetmetal/process-sheetmetal.component';
 import { ProcessProprietaryComponent } from './analytics-commodity/process-proprietary/process-proprietary.component';
-import { ReactiveFormsModule } from '@angular/forms';
+
 
 const routes: Routes = [
   {
@@ -77,11 +77,8 @@ const routes: Routes = [
     MatButtonModule,
     MatInputModule,
     CanvasJSAngularChartsModule,
-    ReactiveFormsModule
-  ]
     ReactiveFormsModule,
-    FormsModule,
-    CanvasJSAngularChartsModule
-]
+    FormsModule
+  ]
 })
 export class PauditsAnalyticsModule { }
