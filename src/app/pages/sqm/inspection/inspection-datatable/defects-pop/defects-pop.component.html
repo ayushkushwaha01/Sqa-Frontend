@@ -3,7 +3,7 @@
   <div class="header d-flex justify-content-between align-items-center mb-3">
     <h3 style="margin: 0; font-weight: 500;">Defects Overview</h3>
     <div>
-      <button mat-raised-button color="primary" (click)="saveAndClose()" style="margin-right: 12px;">
+      <button *ngIf="!isReadOnly" mat-raised-button color="primary" (click)="saveAndClose()" style="margin-right: 12px;">
         <mat-icon>save</mat-icon> Save & Close
       </button>
       <button mat-icon-button (click)="close()">
@@ -17,10 +17,11 @@
     
     <div class="grid-cell p-2 border text-center" 
          *ngFor="let cell of gridCells" 
-         (click)="toggleColor(cell)"
+         (click)="isReadOnly ? null : toggleColor(cell)"
          [style.backgroundColor]="cell.bgColor"
          [style.color]="cell.textColor"
-         style="cursor: pointer; min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; border-radius: 4px; user-select: none;">
+         [style.cursor]="isReadOnly ? 'default' : 'pointer'"
+         style="min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; border-radius: 4px; user-select: none;">
       {{ cell.label }}
     </div>
 

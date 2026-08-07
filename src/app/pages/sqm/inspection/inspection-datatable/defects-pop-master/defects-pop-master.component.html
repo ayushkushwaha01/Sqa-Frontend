@@ -1,7 +1,7 @@
 <div class="defects-dialog-container">
   
   <div class="header">
-    <h3 style="margin: 0; font-weight: 500;">Defects Overview</h3>
+    <h3 style="margin: 0; font-weight: 500;">Defects Overview - {{ getMonthName(selectedMonth) }} {{ selectedYear }}</h3>
     <button mat-icon-button (click)="close()">
       <mat-icon>close</mat-icon>
     </button>
@@ -10,9 +10,10 @@
   <div class="grid-container">
     <div class="grid-cell" 
          *ngFor="let cell of gridCells" 
-         (click)="toggleColor(cell)"
+         (click)="isReadOnly ? null : toggleColor(cell)"
          [style.backgroundColor]="cell.bgColor"
-         [style.color]="cell.textColor">
+         [style.color]="cell.textColor"
+         [style.cursor]="isReadOnly ? 'default' : 'pointer'">
       {{ cell.label }}
     </div>
   </div>

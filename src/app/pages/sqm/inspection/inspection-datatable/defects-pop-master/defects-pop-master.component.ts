@@ -11,10 +11,36 @@ import { InspectionService } from '../../inspection.service';
 export class DefectsPopMasterComponent implements OnInit {
 
   gridCells: any[] = [];
-  selectedYear: number = new Date().getFullYear();
-  selectedMonth: number = new Date().getMonth() + 1; // 1-12
+  selectedYear: number;
+  selectedMonth: number;
+  isReadOnly: boolean = false;
 
-  constructor(private inspectionService: InspectionService) {}
+  palette: { [key: number]: any } = {
+    1: { bgColor: '#4c9a2a', textColor: '#ffffff' }, // Green
+    2: { bgColor: '#3b82f6', textColor: '#ffffff' }, // Blue
+    3: { bgColor: '#fcd34d', textColor: '#ffffff' }, // Yellow
+    4: { bgColor: '#f8a000', textColor: '#ffffff' }, // Orange
+    5: { bgColor: '#dc2626', textColor: '#ffffff' }  // Red
+  };
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<DefectsPopMasterComponent>,
+    private inspectionService: InspectionService
+  ) {
+    this.selectedYear = this.inspectionService.selectedYear;
+    this.selectedMonth = this.inspectionService.selectedMonth;
+    this.isReadOnly = (this.data && this.data.isReadOnly) || localStorage.getItem('UserType') === 'Supplier';
+
+    if (this.data) {
+      if (this.data.year) {
+        this.selectedYear = Number(this.data.year);
+      }
+      if (this.data.month) {
+        this.selectedMonth = Number(this.data.month);
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.fetchDefectData();
@@ -35,16 +61,19 @@ export class DefectsPopMasterComponent implements OnInit {
 
   mapToGrid(defectsData: any[]): void {
     // Map API data to UI blocks
-    this.gridCells = defectsData.map(defect => ({
-      // Example label output: "Scratch \n Count: 3 \n Avg: 2"
-      label: `${defect.defectName}\nCount: ${defect.count}\nAvg: ${defect.averageStatus}`,
-      bgColor: this.getColorBasedOnAverage(defect.averageStatus),
-      textColor: '#000000',
-      rawData: defect // Keep raw data if needed for clicking/toggling
-    }));
+    this.gridCells = defectsData.map(defect => {
+      const color = this.getColorBasedOnAverage(defect.averageStatus);
+      return {
+        // Example label output: "Scratch \n Count: 3 \n Avg: 2"
+        label: `${defect.defectName}\nCount: ${defect.count}\nAvg: ${defect.averageStatus}`,
+        bgColor: color.bgColor,
+        textColor: color.textColor,
+        rawData: defect // Keep raw data if needed for clicking/toggling
+      };
+    });
 
     // Optional: Fill remaining blocks to always maintain the 5x10 (50 blocks) grid look
-    const maxGridBlocks = 50; 
+    const maxGridBlocks = 50;
     while (this.gridCells.length < maxGridBlocks) {
       this.gridCells.push({
         label: '-',
@@ -55,20 +84,28 @@ export class DefectsPopMasterComponent implements OnInit {
   }
 
   // Define your status color logic here
-  getColorBasedOnAverage(avgStatus: number): string {
-    if (avgStatus <= 2) return '#ffcccc'; // Red-ish for bad
-    if (avgStatus <= 4) return '#fff2cc'; // Yellow-ish for medium
-    return '#d9ead3';                     // Green-ish for good (5)
+  getColorBasedOnAverage(avgStatus: number): any {
+    const status = Math.round(avgStatus);
+    return this.palette[status] || this.palette[5]; // Fallback to 5 (Red)
   }
 
   toggleColor(cell: any): void {
+    if (this.isReadOnly) return;
     if (cell.label === '-') return; // ignore empty cells
     console.log('Clicked defect:', cell.rawData);
     // Add custom toggle logic if needed
   }
 
   close(): void {
-    // Logic to close dialog
+    this.dialogRef.close();
+  }
+
+  getMonthName(monthNum: number): string {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[monthNum - 1] || '';
   }
 
 }

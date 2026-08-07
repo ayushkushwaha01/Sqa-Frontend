@@ -5,12 +5,14 @@
 <div mat-dialog-content style="overflow-x: hidden; max-height: 400px; padding-top: 15px;">
   <form class="form-horizontal" novalidate>
     <div class="row">
-      <div *ngFor="let defect of allDefects" class="col-sm-6" style="margin-bottom: 15px;">
-        <mat-checkbox 
-          [checked]="isSelected(defect.defectId)"
-          (change)="toggleSelection(defect.defectId, $event)">
-          {{ defect.defectName }}
-        </mat-checkbox>
+      <div *ngFor="let col of defectColumns" class="col-sm-4" style="margin-bottom: 15px;">
+        <div *ngFor="let defect of col" style="margin-bottom: 8px;">
+          <mat-checkbox 
+            [checked]="isSelected(defect.defectId)"
+            (change)="toggleSelection(defect.defectId, $event)">
+            {{ defect.defectName }}
+          </mat-checkbox>
+        </div>
       </div>
     </div>
 

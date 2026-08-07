@@ -59,8 +59,8 @@ export class InspectionAnalyticsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // this.updateDaysInMonth();
-    // this.fetchAnalyticsData();
+    this.updateDaysInMonth();
+    this.fetchAnalyticsData();
   }
 
   updateDaysInMonth(): void {
@@ -70,6 +70,9 @@ export class InspectionAnalyticsComponent implements OnInit {
     if (this.selectedDay > days) {
       this.selectedDay = days;
     }
+
+    this.inspectionService.selectedYear = this.selectedYear;
+    this.inspectionService.selectedMonth = this.selectedMonth;
   }
 
   fetchAnalyticsData(): void {
@@ -279,6 +282,13 @@ export class InspectionAnalyticsComponent implements OnInit {
   }
 
   openheatmapname() {
-    this.dialog.open(DefectsPopMasterComponent, { width: '1400px', height: 'auto' });
+    this.dialog.open(DefectsPopMasterComponent, {
+      width: '1400px',
+      height: 'auto',
+      data: {
+        year: this.selectedYear,
+        month: this.selectedMonth
+      }
+    });
   }
 }

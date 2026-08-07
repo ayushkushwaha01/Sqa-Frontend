@@ -20,6 +20,24 @@ export class UploadstagepopComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    if (this.data && this.data.id) {
+      this.fetchDefects(this.data.id);
+    }
+  }
+
+  fetchDefects(id: number): void {
+    this.inspectionService.getDefectsList(id).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.data && res.data.length > 0) {
+          this.defectsText = res.data.join(', ');
+        } else {
+          this.defectsText = '';
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load defects', err);
+      }
+    });
   }
 
   saveDefects(): void {
@@ -44,7 +62,7 @@ export class UploadstagepopComponent implements OnInit {
         if (res.success) {
           this.alertService.createAlert("Defects uploaded successfully!");
           // Close the dialog and pass 'true' to trigger a table refresh in the parent
-          this.dialogRef.close(true); 
+          this.dialogRef.close(true);
         } else {
           this.alertService.createAlert("Failed: " + res.message);
         }
