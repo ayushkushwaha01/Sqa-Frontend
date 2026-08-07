@@ -76,7 +76,7 @@
                     <th>City</th>
                     <th class="text-center">Address Details</th>
                     <th class="text-center">Status</th>
-                    <th class="text-center">Actions</th>
+                    <th class="text-center" style="width: 120px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -102,10 +102,10 @@
                     <td class="text-center">
                         <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;"
                             (click)="addSupplier(item)">
-                            <mat-icon style="color: cornflowerblue; font-size: 20px;">edit</mat-icon>
+                            <i class="fa fa-edit text-primary"></i>
                         </a>
                         <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteSupplier(item)">
-                            <mat-icon style="color: red; font-size: 20px;">delete</mat-icon>
+                            <i class="fa fa-trash text-danger"></i>
                         </a>
                     </td>
                 </tr>

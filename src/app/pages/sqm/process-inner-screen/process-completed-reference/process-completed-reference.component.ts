@@ -612,7 +612,7 @@ export class ProcessCompletedReferenceComponent implements OnInit {
 
 
 
-  classOptions = ['Regular', 'Important', 'Critical'];
+  classOptions = ['Regular', 'Important', 'Critical', 'Fitment', 'Safety'];
   selectedClass = '';
 
   isSlideshowOpen = false;

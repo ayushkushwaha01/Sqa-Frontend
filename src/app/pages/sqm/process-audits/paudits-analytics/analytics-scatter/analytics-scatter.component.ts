@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
 import HC_exporting from 'highcharts/modules/exporting';
 import HC_exportData from 'highcharts/modules/export-data';
 import HC_accessibility from 'highcharts/modules/accessibility';
-
-// Initialize required Highcharts modules
+import { ProcessAnalyticsService } from '../process-analytics.service';
+ 
 HC_exporting(Highcharts);
 HC_exportData(Highcharts);
 HC_accessibility(Highcharts);
@@ -18,30 +19,66 @@ export class AnalyticsScatterComponent implements OnInit {
 
   Highcharts: typeof Highcharts = Highcharts;
   chartOptions: Highcharts.Options = {};
+  filterForm!: FormGroup;
 
-  // Recreating the data points visually extracted from the image
-  auditData: [number, number][] = [
-    [1, 72], [2, 78], [3, 80], [4, 85], [5, 88], 
-    [6, 76], [7, 83], [8, 90], [9, 82], [10, 86], 
-    [11, 79], [12, 84], [13, 91], [14, 75], [15, 89], 
-    [16, 77], [17, 81], [18, 93], [19, 85], [20, 88], 
-    [21, 74], [22, 79], [23, 87], [24, 82], [25, 90], 
-    [26, 80], [27, 84], [28, 76], [29, 83], [30, 92], 
-    [31, 86]
-  ];
+  // Holds live [Day, Score] points from the database
+  auditData: [number, number][] = [];
+  isLoading: boolean = false;
+  updateFlag: boolean = false;
+  hasNoData: boolean = false;
 
-  constructor() { }
+  constructor(
+    private fb: FormBuilder,
+    private analyticsService: ProcessAnalyticsService // 🔥 Service injected
+  ) {
+    // Default to Current Month Name ("August") and Current Year ("2026")
+    const currentMonthName = new Date().toLocaleString('en-US', { month: 'long' });
+    const currentYear = new Date().getFullYear().toString();
+
+    this.filterForm = this.fb.group({
+      month: [currentMonthName],
+      year: [currentYear]
+    });
+  }
 
   ngOnInit(): void {
     this.initChart();
+    this.loadScatterData();
+  }
+
+  loadScatterData(): void {
+    this.isLoading = true;
+    const month = this.filterForm?.value?.month || new Date().toLocaleString('en-US', { month: 'long' });
+    const year = this.filterForm?.value?.year || new Date().getFullYear().toString();
+
+    this.analyticsService.getScatterAnalytics(month, Number(year)).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        if (res && res.success && Array.isArray(res.data)) {
+          this.auditData = res.data;
+        } else if (Array.isArray(res)) {
+          this.auditData = res;
+        } else {
+          this.auditData = [];
+        }
+        this.hasNoData = this.auditData.length === 0;
+        this.updateChart();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.auditData = [];
+        this.hasNoData = true;
+        console.error('Failed to load scatter plot data', err);
+      }
+    });
   }
 
   initChart(): void {
     this.chartOptions = {
       chart: {
         type: 'scatter',
-        // zoomType: 'xy',
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        animation: false
       },
       title: {
         text: 'Scatter plot for Process Audits',
@@ -53,9 +90,7 @@ export class AnalyticsScatterComponent implements OnInit {
         margin: 40
       },
       xAxis: {
-        title: {
-          text: 'Day of the Month'
-        },
+        title: { text: 'Day of the Month' },
         min: 1,
         max: 31,
         tickInterval: 1,
@@ -64,12 +99,10 @@ export class AnalyticsScatterComponent implements OnInit {
         tickColor: '#ccd6eb'
       },
       yAxis: {
-        title: {
-          text: 'Score'
-        },
-        min: 70,
-        max: 95,
-        tickInterval: 5,
+        title: { text: 'Score' },
+        min: 0,
+        max: 100,
+        tickInterval: 10,
         gridLineColor: '#e6e6e6',
         gridLineWidth: 1
       },
@@ -84,14 +117,13 @@ export class AnalyticsScatterComponent implements OnInit {
         borderWidth: 1,
         borderColor: '#cccccc',
         padding: 10,
-        itemStyle: {
-          fontWeight: 'normal'
-        }
+        itemStyle: { fontWeight: 'normal' }
       },
       plotOptions: {
         scatter: {
+          animation: false,
           marker: {
-            radius: 5,
+            radius: 6,
             symbol: 'circle',
             states: {
               hover: {
@@ -100,23 +132,16 @@ export class AnalyticsScatterComponent implements OnInit {
               }
             }
           },
-          states: {
-            hover: {
-              // marker: {
-              //   enabled: false
-              // }
-            }
-          },
           tooltip: {
-            headerFormat: '<b>{series.name}</b><br>',
-            pointFormat: 'Day: {point.x}, Score: {point.y}'
+            headerFormat: '<b>Audit Score</b><br>',
+            pointFormat: 'Day: <b>{point.x}</b><br>Score: <b>{point.y}</b>'
           }
         }
       },
       series: [{
         type: 'scatter',
         name: 'Score',
-        color: '#b0c4de', // Light blue matching the image
+        color: '#b0c4de',
         data: this.auditData
       }],
       exporting: {
@@ -124,23 +149,28 @@ export class AnalyticsScatterComponent implements OnInit {
         buttons: {
           contextButton: {
             symbolStroke: '#666',
-            theme: {
-              fill: 'transparent'
-            }
+            theme: { fill: 'transparent' }
           }
         }
       },
-      credits: {
-        enabled: true,
-        text: 'Highcharts.com',
-        position: {
-          align: 'right',
-          verticalAlign: 'bottom',
-          x: -10,
-          y: -5
-        }
-      }
+      credits: { enabled: false }
     };
   }
 
+  updateChart(): void {
+    this.chartOptions = {
+      ...this.chartOptions,
+      series: [{
+        type: 'scatter',
+        name: 'Score',
+        color: '#b0c4de',
+        data: this.auditData
+      }]
+    };
+    this.updateFlag = true;
+  }
+
+  refreshData(): void {
+    this.loadScatterData();
+  }
 }

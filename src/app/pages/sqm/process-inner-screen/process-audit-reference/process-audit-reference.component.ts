@@ -4,6 +4,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProcessAuditService } from '../../process-audits/process-audit.service';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-process-audit-reference',
@@ -11,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./process-audit-reference.component.scss']
 })
 export class ProcessAuditReferenceComponent implements OnInit {
+  isSaving: boolean = false; // Add loading state
 
   // Dynamic Master Data
   categories: any[] = [];
@@ -25,7 +27,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   detections = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   pdcaStatuses = ['Plan', 'Do', 'Check', 'Act'];
   actionTypes = ['Containment', 'Corrective', 'Preventive'];
-  classOptions = ['Regular', 'Important', 'Critical'];
+  classOptions = ['Regular', 'Important', 'Critical', 'Fitment', 'Safety'];
 
   // Form Bindings
   rating = '5';
@@ -274,52 +276,113 @@ export class ProcessAuditReferenceComponent implements OnInit {
   goBack(): void { this.location.back(); }
 
   // --- SAVE RECORD ---
-  saveData() {
-    const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+  // saveData() {
+  //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
 
-    const payload = {
-      processAuditId: parentAuditId,
-      processCategoryId: this.selectedCategory?.processCategoryId,
-      checklistId: this.selectedStep?.checklistId,
-      guideline: this.selectedStep?.guideline, // Sending the guideline text
-      rating: this.rating,
-      severityId: this.selectedSeverityId,
-      occurrence: this.selectedOccurrence,
-      detection: this.selectedDetection,
-      compliance: this.complianceStatus,
+  //   const payload = {
+  //     processAuditId: parentAuditId,
+  //     processCategoryId: this.selectedCategory?.processCategoryId,
+  //     checklistId: this.selectedStep?.checklistId,
+  //     guideline: this.selectedStep?.guideline, // Sending the guideline text
+  //     rating: this.rating,
+  //     severityId: this.selectedSeverityId,
+  //     occurrence: this.selectedOccurrence,
+  //     detection: this.selectedDetection,
+  //     compliance: this.complianceStatus,
       
-      // CAPA
-      class: this.selectedClass,
-      capaSubject: this.capaSubject,
-      dueDate: this.dueDate,
-      completedDate: this.completedDate,
-      pdcaStatus: this.pdcaStatus,
-      isResolved: this.isResolved,
-      actionType: this.actionType,
-      remarks: this.remarks,
-      correctiveActions: this.correctiveActions,
-      supplierRemarks: this.supplierRemarks
-    };
+  //     // CAPA
+  //     class: this.selectedClass,
+  //     capaSubject: this.capaSubject,
+  //     dueDate: this.dueDate,
+  //     completedDate: this.completedDate,
+  //     pdcaStatus: this.pdcaStatus,
+  //     isResolved: this.isResolved,
+  //     actionType: this.actionType,
+  //     remarks: this.remarks,
+  //     correctiveActions: this.correctiveActions,
+  //     supplierRemarks: this.supplierRemarks
+  //   };
 
-    const formData = new FormData();
-    formData.append('jsonData', JSON.stringify(payload));
+  //   const formData = new FormData();
+  //   formData.append('jsonData', JSON.stringify(payload));
 
-    // Append both file arrays separately so the backend gets everything
-    this.selectedFiles.forEach(file => { formData.append('files', file); });
-    this.selectedImageFiles.forEach(file => { formData.append('files', file); });
+  //   // Append both file arrays separately so the backend gets everything
+  //   this.selectedFiles.forEach(file => { formData.append('files', file); });
+  //   this.selectedImageFiles.forEach(file => { formData.append('files', file); });
 
-    this.api.saveInnerScreenDetails(formData).subscribe({
-      next: (res: any) => {
-        if (res.success) {
-          this.alertService.createAlert(res.message, 1);
-          this.loadSavedResponse();
-        } else {
-          this.alertService.createAlert(res.message, 0);
-        }
-      },
-      error: () => this.alertService.createAlert('Error saving response', 0)
-    });
-  }
+  //   this.api.saveInnerScreenDetails(formData).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success) {
+  //         this.alertService.createAlert(res.message, 1);
+  //         this.loadSavedResponse();
+  //       } else {
+  //         this.alertService.createAlert(res.message, 0);
+  //       }
+  //     },
+  //     error: () => this.alertService.createAlert('Error saving response', 0)
+  //   });
+  // }
+
+  saveData() {
+  const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+
+  const payload = {
+    processAuditId: parentAuditId,
+    processCategoryId: this.selectedCategory?.processCategoryId,
+    checklistId: this.selectedStep?.checklistId,
+    guideline: this.selectedStep?.guideline,
+    rating: this.rating,
+    severityId: this.selectedSeverityId,
+    occurrence: this.selectedOccurrence,
+    detection: this.selectedDetection,
+    compliance: this.complianceStatus,
+    
+    // CAPA fields
+    class: this.selectedClass,
+    capaSubject: this.capaSubject,
+    dueDate: this.dueDate,
+    completedDate: this.completedDate,
+    pdcaStatus: this.pdcaStatus,
+    isResolved: this.isResolved,
+    actionType: this.actionType,
+    remarks: this.remarks,
+    correctiveActions: this.correctiveActions,
+    supplierRemarks: this.supplierRemarks
+  };
+
+  const formData = new FormData();
+  formData.append('jsonData', JSON.stringify(payload));
+
+  // Append both file arrays separately so backend receives all uploads
+  this.selectedFiles.forEach(file => { 
+    formData.append('files', file); 
+  });
+  this.selectedImageFiles.forEach(file => { 
+    formData.append('files', file); 
+  });
+
+  this.isSaving = true;
+
+  this.api.saveInnerScreenDetails(formData).subscribe({
+    next: (res: any) => {
+      this.isSaving = false;
+      if (res.success) {
+        // Clear local selected files immediately to avoid duplicate UI display before refresh
+        this.selectedFiles = [];
+        this.selectedImageFiles = [];
+
+        this.alertService.createAlert(res.message, 1);
+        this.loadSavedResponse(); 
+      } else {
+        this.alertService.createAlert(res.message || 'Error saving response', 0);
+      }
+    },
+    error: () => {
+      this.isSaving = false;
+      this.alertService.createAlert('Error saving response', 0);
+    }
+  });
+}
 
   resetForm() {
     this.rating = '5';
@@ -344,4 +407,150 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.galleryImages = [];
     this.uploadedDocs = [];
   }
+
+  // Add this method inside ProcessAuditReferenceComponent class
+
+// deleteImage(index: number, imgUrl: string): void {
+//   // 1. If it's a local Base64 preview that hasn't been saved to DB yet
+//   if (imgUrl.startsWith('data:')) {
+//     this.galleryImages.splice(index, 1);
+//     const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
+//     if (localIndex >= 0) {
+//       this.selectedImageFiles.splice(localIndex, 1);
+//     }
+//     return;
+//   }
+
+//   // 2. Safely grab the IDs even after a page refresh
+//   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+//   // 🔥 FIXED: Changed this.checklistId to this.targetChecklistId
+//   const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
+
+//   if (!parentAuditId || !stepChecklistId) {
+//     this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
+//     return;
+//   }
+
+//   const payload = {
+//     processAuditId: parentAuditId,
+//     checklistId: stepChecklistId,
+//     fileUrl: imgUrl
+//   };
+
+//   this.api.deleteInnerScreenDocument(payload).subscribe({
+//     next: (res: any) => {
+//       if (res.success) {
+//         this.alertService.createAlert('Image deleted successfully', 1);
+//         this.loadSavedResponse(); // 🔥 Reloads clean data from DB
+//       } else {
+//         this.alertService.createAlert(res.message || 'Failed to delete image', 0);
+//       }
+//     },
+//     error: () => this.alertService.createAlert('Error deleting image', 0)
+//   });
+// }
+
+deleteImage(index: number, imgUrl: string): void {
+  // 1. Open the confirmation popup FIRST for ANY image
+  const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    width: '360px',
+    panelClass: 'no-padding-dialog',
+    data: { 
+      title: 'Delete Confirmation', 
+      content: 'Are you sure you want to delete this image?', 
+      isConfirmation: true 
+    }
+  });
+
+  // 2. Only proceed if the user clicks "Yes / Confirm"
+  dialogRef.afterClosed().subscribe((result: any) => {
+    if (result) {
+      // A. If it's a local Base64 preview that hasn't been saved to DB yet
+      if (imgUrl.startsWith('data:')) {
+        this.galleryImages.splice(index, 1);
+        const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
+        if (localIndex >= 0) {
+          this.selectedImageFiles.splice(localIndex, 1);
+        }
+        this.alertService.createAlert('Image removed', 1);
+        return;
+      }
+
+      // B. If it's an existing S3 image saved in the database
+      const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+      const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
+
+      if (!parentAuditId || !stepChecklistId) {
+        this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
+        return;
+      }
+
+      const payload = {
+        processAuditId: parentAuditId,
+        checklistId: stepChecklistId,
+        fileUrl: imgUrl
+      };
+
+      this.api.deleteInnerScreenDocument(payload).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.alertService.createAlert('Image deleted successfully', 1);
+            this.loadSavedResponse(); // Reload clean data from DB
+          } else {
+            this.alertService.createAlert(res.message || 'Failed to delete image', 0);
+          }
+        },
+        error: () => this.alertService.createAlert('Error deleting image', 0)
+      });
+    }
+  });
+}
+
+// Replace removeApiDoc(index: number) with this:
+
+deleteDocument(index: number, doc: any): void {
+  // 1. Check if we have the required IDs before making an API call
+  const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+  const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
+
+  if (!parentAuditId || !stepChecklistId || !doc?.url) {
+    // Fallback: If it's just a local item or IDs are missing, remove from UI array
+    this.uploadedDocs.splice(index, 1);
+    return;
+  }
+
+  // 2. Open confirmation popup
+  const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    width: '360px',
+    panelClass: 'no-padding-dialog',
+    data: { 
+      title: 'Delete Confirmation', 
+      content: 'Are you sure you want to delete this document?', 
+      isConfirmation: true 
+    }
+  });
+
+  // 3. Call backend API if confirmed
+  dialogRef.afterClosed().subscribe((result: any) => {
+    if (result) {
+      const payload = {
+        processAuditId: parentAuditId,
+        checklistId: stepChecklistId,
+        fileUrl: doc.url // Your backend C# RemoveKey() will match and remove this from PdfDocs
+      };
+
+      this.api.deleteInnerScreenDocument(payload).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.alertService.createAlert('Document deleted successfully', 1);
+            this.loadSavedResponse(); // 🔥 Reloads clean data directly from the DB
+          } else {
+            this.alertService.createAlert(res.message || 'Failed to delete document', 0);
+          }
+        },
+        error: () => this.alertService.createAlert('Error deleting document', 0)
+      });
+    }
+  });
+}
 }

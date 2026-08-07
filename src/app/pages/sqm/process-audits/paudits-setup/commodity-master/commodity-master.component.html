@@ -59,7 +59,7 @@
             <th class="text-center">Targets</th>
             <th class="text-center">Commodity Code</th>
             <th class="text-center" style="width: 150px;">Status</th>
-            <th class="text-center" style="width: 150px;">Actions</th>
+            <th class="text-center" style="width: 120px;">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -79,10 +79,10 @@
               </a>
             </td>
             <td class="text-center manage-icons">
-              <mat-icon class="edit-icon" matTooltip="Edit" (click)="addCommodity(item)"
-                style="cursor: pointer; color: blue; margin-right: 8px;">edit</mat-icon>
-              <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteCommodity(item)"
-                style="cursor: pointer; color: red;">delete</mat-icon>
+              <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addCommodity(item)"
+                style="cursor: pointer; margin-right: 10px;"></i>
+              <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteCommodity(item)"
+                style="cursor: pointer;"></i>
             </td>
           </tr>
           <tr *ngIf="tableData.length === 0">

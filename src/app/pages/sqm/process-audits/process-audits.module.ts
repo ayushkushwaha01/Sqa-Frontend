@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Angular Material Imports
@@ -46,6 +47,7 @@ import { ProcessDocPopComponent } from './paudits-actions/process-doc-pop/proces
 import { AuditCategoriesInnerscreenComponent } from './paudits-setup/process-audits-categories/audit-categories-innerscreen/audit-categories-innerscreen.component';
 import { AddQuestionPopComponent } from './paudits-setup/process-audits-categories/audit-categories-innerscreen/question-pop/question-pop.component';
 import { ViewGuidelineComponent } from './paudits-setup/view-guideline/view-guideline.component';
+import { AuditSummaryReportComponent } from './audit-summary-report/audit-summary-report.component';
 
 const routes: Routes = [
   {
@@ -89,6 +91,10 @@ const routes: Routes = [
       { path: 'user-manual', component: PauditsUserManualComponent, data: { breadcrumb: 'User Manual' } },
       { path: 'help-desk', component: PauditsHelpDeskComponent, data: { breadcrumb: 'Help Desk' } },
       { path: 'actions', component: PauditsActionsComponent, data: { breadcrumb: 'Actions' } },
+      {
+    path: 'audit-summary-report',
+    component: AuditSummaryReportComponent
+  }
     ]
   }
 ];
@@ -114,7 +120,8 @@ const routes: Routes = [
     ProcessDocPopComponent,
     AuditCategoriesInnerscreenComponent,
     AddQuestionPopComponent,
-    ViewGuidelineComponent
+    ViewGuidelineComponent,
+    AuditSummaryReportComponent
   ],
   imports: [
     CommonModule,

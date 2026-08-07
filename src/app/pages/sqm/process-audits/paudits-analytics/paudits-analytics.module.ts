@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input'; //
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 import { AnalyticsSummaryComponent } from './analytics-summary/analytics-summary.component';
 import { ProcessCastingComponent } from './analytics-commodity/process-casting/process-casting.component';
@@ -78,5 +79,9 @@ const routes: Routes = [
     CanvasJSAngularChartsModule,
     ReactiveFormsModule
   ]
+    ReactiveFormsModule,
+    FormsModule,
+    CanvasJSAngularChartsModule
+]
 })
 export class PauditsAnalyticsModule { }

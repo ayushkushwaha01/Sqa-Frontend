@@ -73,9 +73,41 @@ export class PauditsNewAuditComponent implements OnInit {
     }
   }
 
+  // save() {
+  //   if (this.form.valid) {
+  //     this.api.upsertAudit(this.form.value).subscribe((res: any) => {
+  //       if(res.success) {
+  //         this.alertService.createAlert(this.data ? 'Audit Updated Successfully' : 'Audit Created Successfully', 1);
+  //         this.dialogRef.close(true);
+  //       } else {
+  //         this.alertService.createAlert(res.message || 'Error occurred', 0);
+  //       }
+  //     });
+  //   } else {
+  //     this.form.markAllAsTouched();
+  //   }
+  // }
+  
+
+  // After Fixing the date isshue 1 day before
+
   save() {
     if (this.form.valid) {
-      this.api.upsertAudit(this.form.value).subscribe((res: any) => {
+      // Create a copy of the form values so we don't mutate the UI form directly
+      const payload = { ...this.form.value };
+
+      // 🔥 FIX: Extract the exact local Year, Month, and Day without UTC timezone shift
+      if (payload.auditDate) {
+        const d = new Date(payload.auditDate);
+        const year = d.getFullYear();
+        const month = ('0' + (d.getMonth() + 1)).slice(-2);
+        const day = ('0' + d.getDate()).slice(-2);
+        
+        // Sends "2026-08-13" directly to C# so it never shifts back a day
+        payload.auditDate = `${year}-${month}-${day}`;
+      }
+
+      this.api.upsertAudit(payload).subscribe((res: any) => {
         if(res.success) {
           this.alertService.createAlert(this.data ? 'Audit Updated Successfully' : 'Audit Created Successfully', 1);
           this.dialogRef.close(true);

@@ -613,7 +613,7 @@ export class SupplierProcessRefComponent implements OnInit {
 
 
 
-  classOptions = ['Regular', 'Important', 'Critical'];
+  classOptions = ['Regular', 'Important', 'Critical', 'Fitment', 'Safety'];
   selectedClass = '';
 
   isSlideshowOpen = false;

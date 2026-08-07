@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs'; 
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +36,8 @@ export class ProcessAuditService {
     return this.http.post(this.apiUrl + 'ProcessAuditInnerScreen/save-checklist-response', formData); 
   }
 
+  
+
 
   //CAPA Grid Main Menu-Item APIs
   getAllCapas() { return this.http.get(this.apiUrl + 'ProcessAuditInnerScreen/get-all-capas'); }
@@ -66,4 +69,11 @@ getAllCapasSupplie(supplierId?: number) {
   }
   return this.http.get(url); 
 }
+
+
+// Add inside ProcessAuditService class
+getAuditSummaryReport(processAuditId: number): Observable<any> {
+  return this.http.get(this.apiUrl + `ProcessAudits/get-audit-summary-report?processAuditId=${processAuditId}`);
+}
+
 }
