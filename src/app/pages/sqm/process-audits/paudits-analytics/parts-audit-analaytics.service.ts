@@ -32,6 +32,11 @@ export class PartsAuditAnalayticsService {
   getDashboardperformance(filter: any) {
     return this.http.get(this.apiUrl + 'PartsAuditDashboard/get-performance', { params: filter });
   }
+  getPdf(filter: any) {
+    return this.http.get(this.apiUrl + 'PartsAuditDashboard/get-pdf', {
+      params: filter
+    });
+  }
 
 
 

@@ -454,7 +454,8 @@
                 {{audit.okayPercentage}}%
 
               </a> -->
-              <a [routerLink]="['/app/sqm/parts-inner-screen/pdfref']">
+              <a [routerLink]="['/app/sqm/parts-inner-screen/pdfref']"
+                [queryParams]="{ partAuditId: audit.partAuditId }">
                 {{audit.okayPercentage}}%
 
               </a>

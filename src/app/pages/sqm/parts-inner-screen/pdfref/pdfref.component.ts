@@ -6,6 +6,7 @@ import HighchartsMore from 'highcharts/highcharts-more';
 import HighchartsSolidGauge from 'highcharts/modules/solid-gauge';
 import html2pdf from 'html2pdf.js';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { PartsAuditAnalayticsService } from '../../process-audits/paudits-analytics/parts-audit-analaytics.service';
 
 HighchartsMore(Highcharts);
 HighchartsSolidGauge(Highcharts);
@@ -43,31 +44,118 @@ export class PdfrefComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private PartAuditService: PartAuditService
+    private PartAuditDashboardService: PartsAuditAnalayticsService
   ) { }
 
   ngOnInit(): void {
-    const auditId = Number(this.route.snapshot.queryParamMap.get('id'));
-    // if (auditId) {
-    //   this.loadReport(auditId);
-    // }
+
+    this.route.queryParams.subscribe(params => {
+
+      const partAuditId = +params['partAuditId'];
+
+      if (partAuditId) {
+        this.loadReport(partAuditId);
+      }
+
+    });
+
+  }
+  loadReport(partAuditId: number) {
+
+    this.loading = true;
+
+    this.PartAuditDashboardService
+      .getPdf({ PartAuditId: partAuditId })
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            const d = res.data;
+
+            this.reportData = {
+
+              header: {
+
+                auditReference: d.auditDetails.partAuditId,
+
+                commodityName: d.auditDetails.commodityName,
+
+                supplierName: d.auditDetails.supplierName,
+
+                cityName: d.auditDetails.cityName,
+
+                stateName: d.auditDetails.stateName,
+
+                auditorName: d.auditDetails.auditorName,
+
+                auditDate: d.auditDetails.auditDate,
+
+                overallScore: d.auditDetails.okayPercentage + '%',
+
+                rating: d.auditDetails.subject
+
+              },
+
+              sodRiskScore: d.displaySODScore,
+
+              categoryScores: d.categoryPerformance,
+
+              ncStatus: this.buildNcStatus(d.statusDistribution),
+
+              majorNCs: d.topCriticalNCs,
+
+              improvementPoints: d.topSafetyNCs,
+
+              forgingProcess: d.forgingProcess
+
+            };
+
+            this.initCharts();
+
+          }
+
+          this.loading = false;
+
+        },
+
+        error: () => {
+
+          this.loading = false;
+
+        }
+
+      });
+
   }
 
-  // loadReport(auditId: number): void {
-  //   this.loading = true;
-  //   this.auditService.getAuditSummaryReport(auditId).subscribe({
-  //     next: (res: any) => {
-  //       if (res.success && res.data) {
-  //         this.reportData = res.data;
-  //         this.initCharts();
-  //         this.loading = false;
-  //       }
-  //     },
-  //     error: () => {
-  //       this.loading = false;
-  //     }
-  //   });
-  // }
+
+  buildNcStatus(statusData: any[]) {
+
+    return {
+
+      totalNC: statusData.reduce((a: number, b: any) => a + b.count, 0),
+
+      closed:
+        statusData.find(x =>
+          x.statusName.toLowerCase().includes('closed'))?.count || 0,
+
+      rcaInProgress:
+        statusData.find(x =>
+          x.statusName.toLowerCase().includes('rca'))?.count || 0,
+
+      cmIdentified:
+        statusData.find(x =>
+          x.statusName.toLowerCase().includes('identified'))?.count || 0,
+
+      cmImplementing:
+        statusData.find(x =>
+          x.statusName.toLowerCase().includes('implement'))?.count || 0
+
+    };
+
+  }
 
   initCharts(): void {
     // 1. FINDING DISTRIBUTION DONUT CHART
@@ -171,9 +259,11 @@ export class PdfrefComponent implements OnInit {
     };
 
     // 3. RADAR / SPIDER CHART
-    const cats = (this.reportData.categoryScores || []) as any[];
-    const catNames = cats.length > 0 ? cats.map((c: any) => c.categoryName) : ['QMS', 'MM', 'PPC', 'IMC', '5S'];
-    const catScores = cats.length > 0 ? cats.map((c: any) => c.percentage) : [0, 0, 0, 0, 0];
+    const cats = this.reportData.categoryScores;
+
+    const catNames = cats.map((x: any) => x.categoryName);
+
+    const catScores = cats.map((x: any) => x.percentage);
 
     this.spiderChartOptions = {
       chart: {
