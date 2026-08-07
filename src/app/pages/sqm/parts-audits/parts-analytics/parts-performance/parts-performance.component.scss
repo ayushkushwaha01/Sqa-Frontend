@@ -79,8 +79,10 @@
 .chart-container {
   flex: 2;
   min-width: 0;
-  min-height: 420px;      /* ← gives Highcharts a measurable parent height */
-  display: block;         /* ← remove flex so chart fills naturally */
+  min-height: 420px;
+  /* ← gives Highcharts a measurable parent height */
+  display: block;
+  /* ← remove flex so chart fills naturally */
   overflow: visible;
 }
 
@@ -107,4 +109,9 @@ td {
 
 tr:nth-child(even) td {
   background-color: #f9f9f9;
+}
+
+.btn-clear {
+  background: #3f4a54 !important;
+  color: #fff !important;
 }

@@ -19,6 +19,8 @@ import { PartsAuditDetailsComponent } from "./parts-audit-details/parts-audit-de
 import { PartsAuditReferenceComponent } from "./parts-audit-reference/parts-audit-reference.component";
 import { PartsCompletedReferenceComponent } from "./parts-completed-reference/parts-completed-reference.component";
 import { AuditrefRemarksPopComponent } from "./parts-audit-reference/auditref-remarks-pop/auditref-remarks-pop.component";
+import { PdfrefComponent } from './pdfref/pdfref.component';
+import { HighchartsChartModule } from "highcharts-angular";
 // import { MatDialogModule } from "@angular/material/dialog";
 
 const routes: Routes = [
@@ -30,11 +32,16 @@ const routes: Routes = [
       {
         path: "parts-audit-reference",
         component: PartsAuditReferenceComponent,
-        data: { breadcrumb: 'Parts Audit Reference' }
+        data: { breadcrumb: 'Active Audit Dashboard' }
       },
       {
         path: "parts-completed-reference",
         component: PartsCompletedReferenceComponent,
+      },
+      {
+        path: "pdfref",
+        component: PdfrefComponent,
+        data: { breadcrumb: 'Part Audit Summary' }
       },
       { path: "", redirectTo: "parts-audit-details", pathMatch: "full" },
     ],
@@ -48,6 +55,7 @@ const routes: Routes = [
     PartsAuditReferenceComponent,
     PartsCompletedReferenceComponent,
     AuditrefRemarksPopComponent,
+    PdfrefComponent,
   ],
   imports: [
     CommonModule,
@@ -64,6 +72,7 @@ const routes: Routes = [
     MatDialogModule, // ← FIXES mat-dialog-actions in AuditrefRemarksPopComponent
     MatFormFieldModule,
     MatInputModule,
+    HighchartsChartModule
   ],
   exports: [RouterModule],
 })

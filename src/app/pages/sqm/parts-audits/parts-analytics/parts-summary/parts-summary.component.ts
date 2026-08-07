@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
+import { AlertService } from 'src/app/shared/alert.service';
+import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
+import { PartsAuditAnalayticsService } from '../../../process-audits/paudits-analytics/parts-audit-analaytics.service';
+import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
 
 @Component({
   selector: 'app-parts-summary',
@@ -9,29 +15,262 @@ import * as Highcharts from 'highcharts';
 export class PartsSummaryComponent implements OnInit {
 
   Highcharts: typeof Highcharts = Highcharts;
+  constructor(
+    private dialog: MatDialog,
+    private fb: FormBuilder,
+    private alertService: AlertService,
+    private api: CommodityService,
+    private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
+    private manageUsersService: ManageUsersService
+  ) { }
 
-  // ✅ Filter model for ngModel bindings
-  filters = {
-    vertical: '',
-    engineer: '',
-    year: '',
-    month: ''
-  };
+  filterForm!: FormGroup;
 
-  onSearch(): void {
-    console.log('Filters applied:', this.filters);
-    // call your API / filter logic here
+
+  ngOnInit(): void {
+    this.forminit();
+    this.getAuditors();
+    this.getSummary();
+  }
+  getSummary() {
+
+    const filter = { ...this.filterForm.value };
+
+    Object.keys(filter).forEach(key => {
+
+      if (
+        filter[key] === null ||
+        filter[key] === undefined ||
+        filter[key] === '' ||
+        filter[key] === 'null'
+      ) {
+        delete filter[key];
+      }
+
+    });
+
+    this.PartsAuditAnalayticsService.getCapaDashboardSummary(filter)
+      .subscribe((res: any) => {
+
+        if (res.success) {
+
+          this.bindDashboard(res.data);
+
+        }
+
+      });
+
+  }
+  months = [
+    { name: 'January', value: 1 },
+    { name: 'February', value: 2 },
+    { name: 'March', value: 3 },
+    { name: 'April', value: 4 },
+    { name: 'May', value: 5 },
+    { name: 'June', value: 6 },
+    { name: 'July', value: 7 },
+    { name: 'August', value: 8 },
+    { name: 'September', value: 9 },
+    { name: 'October', value: 10 },
+    { name: 'November', value: 11 },
+    { name: 'December', value: 12 }
+  ];
+
+  years: number[] = [2023, 2024, 2025, 2026];
+
+
+  forminit() {
+    this.filterForm = this.fb.group({
+      auditorId: [null],
+      Year: [null],
+      month: [null]
+    });
+  }
+  onClearFilter() {
+    this.filterForm.reset({
+      auditorId: null,
+      Year: null,
+      month: null
+    });
+    this.getSummary();
+
+
   }
 
+  bindDashboard(data: any) {
+
+    this.tableData = {
+      checked: data.checked,
+      nc: data.nc,
+      safety: data.safety,
+      critical: data.critical,
+      important: data.important,
+      fitment: data.fitment,
+      regular: data.regular
+    };
+
+    this.loadDistributionChart(data.distributionByClass);
+
+    this.loadIssuesChart(data.issuesCorrected);
+
+    this.loadPdcaChart(data.pdcaDistribution);
+
+  }
+
+  loadDistributionChart(data: any) {
+
+    this.distributionByClassOptions = {
+
+      ...this.distributionByClassOptions,
+
+      series: [{
+
+        type: 'pie',
+
+        data: [
+
+          {
+            name: 'Safety',
+            y: data.safety,
+            color: '#3498db'
+          },
+
+          {
+            name: 'Critical',
+            y: data.critical,
+            color: '#e74c3c'
+          },
+
+          {
+            name: 'Important',
+            y: data.important,
+            color: '#f39c12'
+          },
+
+          {
+            name: 'Fitment',
+            y: data.fitment,
+            color: '#2ecc71'
+          },
+
+          {
+            name: 'Regular',
+            y: data.regular,
+            color: '#9b59b6'
+          }
+
+        ]
+
+      }]
+
+    };
+
+  }
+  loadIssuesChart(data: any) {
+
+    this.issuesCorrectedOptions = {
+
+      ...this.issuesCorrectedOptions,
+
+      series: [{
+
+        type: 'pie',
+
+        data: [
+
+          {
+            name: 'Corrected',
+            y: data.corrected,
+            color: '#87CEEB'
+          },
+
+          {
+            name: 'Pending',
+            y: data.pending,
+            color: '#27ae60'
+          },
+
+          {
+            name: 'Overdue',
+            y: data.overdue,
+            color: '#e74c3c'
+          }
+
+        ]
+
+      }]
+
+    };
+
+  }
+
+  loadPdcaChart(data: any) {
+
+    this.pdcaDistributionOptions = {
+
+      ...this.pdcaDistributionOptions,
+
+      series: [{
+
+        type: 'pie',
+
+        data: [
+
+          {
+            name: 'Plan',
+            y: data.plan,
+            color: '#3498db'
+          },
+
+          {
+            name: 'Do',
+            y: data.do,
+            color: '#f39c12'
+          },
+
+          {
+            name: 'Check',
+            y: data.check,
+            color: '#9b59b6'
+          },
+
+          {
+            name: 'Act',
+            y: data.act,
+            color: '#2ecc71'
+          }
+
+        ]
+
+      }]
+
+    };
+
+  }
+
+
+  Auditors: any[] = [];
+
+  getAuditors() {
+    this.manageUsersService.getAllUsers()
+      .subscribe((res: any) => {
+        if (res.success) {
+          this.Auditors = res.data;
+          //this.Auditors = res.data.data.filter((user: any) => user.isAuditor === true);
+        }
+      });
+  }
+
+
+
   tableData = {
-    checked: 250,
-    nc: 80,
-    parameters: 7702,
-    safety: 19,
-    critical: 1,
-    important: 5,
-    fitment: 146,
-    awaitingReports: 175
+    checked: 0,
+    nc: 0,
+    safety: 0,
+    critical: 0,
+    important: 0,
+    fitment: 0,
+    regular: 0
   };
 
   private piePlotOptions: Highcharts.Options['plotOptions'] = {
@@ -103,6 +342,5 @@ export class PartsSummaryComponent implements OnInit {
     }]
   };
 
-  constructor() { }
-  ngOnInit(): void { }
+
 }

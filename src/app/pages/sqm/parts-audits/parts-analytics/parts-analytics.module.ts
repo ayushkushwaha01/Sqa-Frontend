@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { PartsAnalyticsComponent } from './parts-analytics.component';
 import { PartsCommodityComponent } from './parts-commodity/parts-commodity.component';
 import { PartsPerformanceComponent } from './parts-performance/parts-performance.component';
-import { PartsScatterComponent } from './parts-scatter/parts-scatter.component'; 
+import { PartsScatterComponent } from './parts-scatter/parts-scatter.component';
 import { PartsBellcurveComponent } from './parts-bellcurve/parts-bellcurve.component';
 import { PartsParetoComponent } from './parts-pareto/parts-pareto.component';
 import { PartsInnerActionsComponent } from './parts-inner-actions/parts-inner-actions.component';
@@ -38,13 +38,13 @@ const routes: Routes = [
     children: [
       { path: 'commodity', loadChildren: () => import('./parts-commodity/parts-commodity.module').then(m => m.PartsCommodityModule) },
       { path: 'performance', component: PartsPerformanceComponent },
-      { path: 'analyticsactions', component: PartsInnerActionsComponent }, 
+      { path: 'analyticsactions', component: PartsInnerActionsComponent },
       { path: 'scatter', component: PartsScatterComponent },
-      { path: 'bell-curve', component: PartsBellcurveComponent }, 
+      { path: 'bell-curve', component: PartsBellcurveComponent },
       { path: 'pareto', component: PartsParetoComponent },
       { path: 'summary', component: PartsSummaryComponent },
-      
-      { path: '', redirectTo: 'commodity', pathMatch: 'full' }
+
+      { path: '', redirectTo: 'performance', pathMatch: 'full' }
     ]
   }
 ];
@@ -66,7 +66,7 @@ const routes: Routes = [
     // PartsSheetmetalComponent,
     // PartsAllComponent,
     // PartsCastingComponent,
-   
+
   ],
   imports: [
     CommonModule,
@@ -80,6 +80,6 @@ const routes: Routes = [
     // ✅ ADDED: Add it to the imports array here
     CanvasJSAngularChartsModule,
     FlexLayoutModule
-]
+  ]
 })
 export class PartsAnalyticsModule { }

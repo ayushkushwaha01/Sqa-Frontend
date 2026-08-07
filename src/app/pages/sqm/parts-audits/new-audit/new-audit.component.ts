@@ -351,9 +351,17 @@ export class NewAuditComponent implements OnInit {
     }
     this.myGroup.get('partFamilyId')?.enable();
     this.myGroup.get('partMasterId')?.enable();
+    const payload = { ...this.myGroup.value };
+
+    if (payload.auditDate) {
+      const date = new Date(payload.auditDate);
+
+      payload.auditDate =
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
 
 
-    this.partAuditService.upsertPartAudit(this.myGroup.value)
+    this.partAuditService.upsertPartAudit(payload)
       .subscribe({
 
         next: (res: any) => {

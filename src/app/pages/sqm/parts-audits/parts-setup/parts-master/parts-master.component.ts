@@ -94,19 +94,20 @@ export class PartsMasterComponent implements OnInit {
         delete filter[key];
       }
     });
-    this._setupService.getPartMaster(filter)
-      .subscribe((res: any) => {
-        if (res.success) {
 
-          this.partsMasters = res.data.data;
-          this.totalSize = res.data.totalRecords;
+    this._setupService.getPartMaster(filter).subscribe((res: any) => {
+      if (res.success) {
 
-          this.tableLists = this.partsMasters.slice(
-            this.fromIndex,
-            this.pageSize
-          );
-        }
-      });
+        this.partsMasters = res.data.data || [];
+        this.totalSize = res.data.toatalRecords || 0;
+
+        this.currentPage = 0;
+        this.loadPageData();
+
+        console.log('Total Size:', this.totalSize);
+        console.log('Data Length:', this.partsMasters.length);
+      }
+    });
   }
 
   loadPageData() {
