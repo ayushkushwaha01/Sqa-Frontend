@@ -51,7 +51,7 @@
           <th class="text-center" style="width: 200px;">Defects</th>
           <th class="text-center" style="width: 150px;">Status</th>
           <th class="text-center" style="width: 150px;">Parameters</th>
-          <th class="text-center" style="width: 190px;">Actions</th>
+          <th class="text-center" style="width: 120px;">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -82,8 +82,8 @@
           </td>
 
           <td class="text-center manage-icons">
-            <mat-icon class="edit-icon" matTooltip="Edit" (click)="addPartFamily(item)">edit</mat-icon>
-            <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteConfirmation(item)">delete</mat-icon>
+            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addPartFamily(item)" style="margin-right: 10px; cursor: pointer;"></i>
+            <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)" style="cursor: pointer;"></i>
           </td>
         </tr>
 

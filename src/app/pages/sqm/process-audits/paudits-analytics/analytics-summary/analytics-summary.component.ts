@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
-
+import { ProcessAnalyticsService } from '../process-analytics.service';
+import { ProcessAuditService } from '../../process-audit.service';
+ 
 @Component({
   selector: 'app-analytics-summary',
   templateUrl: './analytics-summary.component.html',
@@ -9,101 +12,122 @@ import * as Highcharts from 'highcharts';
 export class AnalyticsSummaryComponent implements OnInit {
 
   Highcharts: typeof Highcharts = Highcharts;
+  filterForm!: FormGroup;
 
-  // ✅ Filter model for ngModel bindings
-  filters = {
-    vertical: '',
-    engineer: '',
-    year: '',
-    month: ''
-  };
-
-  onSearch(): void {
-    console.log('Filters applied:', this.filters);
-    // call your API / filter logic here
-  }
+  commodities: any[] = [];
+  auditors: any[] = [];
 
   tableData = {
-    checked: 250,
-    nc: 80,
-    parameters: 7702,
-    safety: 19,
-    critical: 1,
-    important: 5,
-    fitment: 146,
-    awaitingReports: 175
+    checked: 0,
+    nc: 0,
+    safety: 0,
+    critical: 0,
+    important: 0,
+    fitment: 0,
+    regular: 0
   };
 
-  // ✅ FIX: Added 'size' and 'distance' to force a uniform, large chart size
   private piePlotOptions: Highcharts.Options['plotOptions'] = {
     pie: {
-      size: '80%', // Locks the pie size so it doesn't shrink
+      size: '80%',
       allowPointSelect: true,
       cursor: 'pointer',
       dataLabels: {
         enabled: true,
         format: '<b>{point.name}</b>: {point.percentage:.1f}%',
-        distance: 15 // Brings labels slightly closer to the pie to prevent clipping
+        distance: 15
       },
       showInLegend: false
     }
   };
 
-  // Chart 1: Distribution by Class
-  distributionByClassOptions: Highcharts.Options = {
-    chart: { type: 'pie', backgroundColor: 'transparent' },
-    title: { text: 'Distribution by Class' },
-    credits: { enabled: false },
-    tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
-    plotOptions: this.piePlotOptions,
-    series: [{
-      type: 'pie',
-      name: 'Percentage',
-      data: [
-        { name: 'Regular', y: 50, color: '#27ae60' },     // Green
-        { name: 'Important', y: 30, color: '#f39c12' },   // Orange
-        { name: 'Critical', y: 20, color: '#e74c3c' }     // Red
-      ]
-    }]
-  };
+  distributionByClassOptions: Highcharts.Options = {};
+  issuesCorrectedOptions: Highcharts.Options = {};
+  pdcaDistributionOptions: Highcharts.Options = {};
 
-  // Chart 2: Issues Corrected
-  issuesCorrectedOptions: Highcharts.Options = {
-    chart: { type: 'pie', backgroundColor: 'transparent' },
-    title: { text: 'Issues Corrected' },
-    credits: { enabled: false },
-    tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
-    plotOptions: this.piePlotOptions,
-    series: [{
-      type: 'pie',
-      name: 'Percentage',
-      data: [
-        { name: 'Corrected', y: 11, color: '#87CEEB' },
-        { name: 'Pending', y: 77, color: '#27ae60' },
-        { name: 'Overdue', y: 11, color: '#e74c3c' }
-      ]
-    }]
-  };
+  constructor(
+    private fb: FormBuilder,
+    private analyticsService: ProcessAnalyticsService,
+    private auditService: ProcessAuditService
+  ) {
+    const currentYear = new Date().getFullYear().toString();
 
-  // Chart 3: PDCA Distribution
-  pdcaDistributionOptions: Highcharts.Options = {
-    chart: { type: 'pie', backgroundColor: 'transparent' },
-    title: { text: 'PDCA Distribution' },
-    credits: { enabled: false },
-    tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
-    plotOptions: this.piePlotOptions,
-    series: [{
-      type: 'pie',
-      name: 'Percentage',
-      data: [
-        { name: 'Plan', y: 25, color: '#3498db' },   // Blue
-        { name: 'Do', y: 35, color: '#e67e22' },     // Orange
-        { name: 'Check', y: 20, color: '#9b59b6' },  // Purple
-        { name: 'Act', y: 20, color: '#2ecc71' }     // Green
-      ]
-    }]
-  };
+    this.filterForm = this.fb.group({
+      commodityId: [null],
+      auditorId: [null],
+      year: [currentYear],
+      month: [null]
+    });
+  }
 
-  constructor() { }
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.initEmptyCharts();
+    this.loadDropdowns();
+    this.loadSummaryData();
+  }
+
+  loadDropdowns(): void {
+    this.auditService.getCommodities().subscribe((res: any) => {
+      if (res.success) this.commodities = res.data;
+    });
+
+    this.auditService.getUsers().subscribe((res: any) => {
+      if (res.success) {
+        this.auditors = res.data.filter((u: any) => u.isAuditor === true);
+      }
+    });
+  }
+
+  onSearch(): void {
+    this.loadSummaryData();
+  }
+
+  loadSummaryData(): void {
+    const { commodityId, auditorId, year, month } = this.filterForm.value;
+
+    this.analyticsService.getSummaryAnalytics(commodityId, auditorId, Number(year), Number(month)).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          // 1. Update Table
+          const t = res.data.tableData;
+          this.tableData = {
+            checked: t.checked,
+            nc: t.nc,
+            safety: t.safety,
+            critical: t.critical,
+            important: t.important,
+            fitment: t.fitment,
+            regular: t.regular
+          };
+
+          // 2. Update Charts
+          this.distributionByClassOptions = this.buildPieChart('Distribution by Class', res.data.classDistribution);
+          this.issuesCorrectedOptions = this.buildPieChart('Issues Corrected', res.data.issuesCorrected);
+          this.pdcaDistributionOptions = this.buildPieChart('PDCA Distribution', res.data.pdcaDistribution);
+        }
+      },
+      error: () => console.error('Failed to load Summary analytics')
+    });
+  }
+
+  private buildPieChart(title: string, dataPoints: any[]): Highcharts.Options {
+    return {
+      chart: { type: 'pie', backgroundColor: 'transparent' },
+      title: { text: title },
+      credits: { enabled: false },
+      tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y} items)</b>' },
+      plotOptions: this.piePlotOptions,
+      series: [{
+        type: 'pie',
+        name: 'CAPAs',
+        data: dataPoints.length > 0 ? dataPoints : [{ name: 'No Data', y: 1, color: '#e0e0e0' }]
+      }]
+    };
+  }
+
+  initEmptyCharts(): void {
+    this.distributionByClassOptions = this.buildPieChart('Distribution by Class', []);
+    this.issuesCorrectedOptions = this.buildPieChart('Issues Corrected', []);
+    this.pdcaDistributionOptions = this.buildPieChart('PDCA Distribution', []);
+  }
 }

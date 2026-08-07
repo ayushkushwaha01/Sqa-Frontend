@@ -52,10 +52,10 @@
             <td style="padding: 10px;">{{ row.q3 }}</td>
             <td style="padding: 10px;">{{ row.q4 }}</td>
             <td class="action-cell text-center" style="padding: 10px;">
-              <mat-icon class="edit-icon" matTooltip="Edit" (click)="ontarget(row)"
-                style="color: blue; padding-right: 10px; cursor: pointer;">edit</mat-icon>
-              <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteTarget(row)"
-                style="color: red; padding: 5px; cursor: pointer;">delete</mat-icon>
+              <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="ontarget(row)"
+                style="padding-right: 10px; cursor: pointer;"></i>
+              <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteTarget(row)"
+                style="padding: 5px; cursor: pointer;"></i>
             </td>
           </tr>
           <tr *ngIf="currentGridData.length === 0">

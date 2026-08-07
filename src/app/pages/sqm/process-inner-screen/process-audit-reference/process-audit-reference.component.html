@@ -113,11 +113,23 @@
           </div>
           <div class="file-list" style="width: 100%;">
             <!-- Existing API Docs -->
-            <div *ngFor="let doc of uploadedDocs; let i = index" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #e3f2fd; margin-top: 4px;">
+            <!-- <div *ngFor="let doc of uploadedDocs; let i = index" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #e3f2fd; margin-top: 4px;">
               <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
               <a [href]="doc.url" target="_blank" style="text-decoration: none; color: #1485cc;">{{ doc.title }}</a>
               <button mat-icon-button style="margin-left: auto;" (click)="removeApiDoc(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
-            </div>
+            </div> -->
+
+            <!-- Existing API Docs -->
+<div *ngFor="let doc of uploadedDocs; let i = index" 
+     style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 13px; background: #e3f2fd; margin-top: 6px; border-radius: 4px;">
+  <mat-icon style="font-size: 18px; color: #1485cc;">insert_drive_file</mat-icon>
+  <a [href]="doc.url" target="_blank" style="text-decoration: none; color: #1485cc; font-weight: 500;">{{ doc.title }}</a>
+  
+  <!-- 🔥 Pass both index 'i' and 'doc' to the delete method -->
+  <button mat-icon-button style="margin-left: auto;" (click)="deleteDocument(i, doc)" matTooltip="Delete Document">
+    <mat-icon style="font-size: 18px; color: red;">close</mat-icon>
+  </button>
+</div>
             <!-- Newly Selected Files -->
             <div *ngFor="let file of selectedFiles; let i = index" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #f5f5f5; margin-top: 4px;">
               <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
@@ -195,22 +207,45 @@
   </div>
 
   <div class="row mt-3 mb-5 align-items-end">
-    <div class="col-md-10">
+    <!-- <div class="col-md-10">
       <div class="gallery-container d-flex align-items-center p-2">
         <div class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
           <mat-icon>add</mat-icon>
         </div>
         <div *ngFor="let img of galleryImages; let i = index" class="gallery-item me-2 border cursor-pointer bg-white" (click)="openSlideshow(i)">
           <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
+
         </div>
       </div>
+    </div> -->
+
+    <!-- Replace your existing gallery-container section with this -->
+<div class="col-md-10">
+  <div class="gallery-container d-flex align-items-center p-2">
+    <div class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
+      <mat-icon>add</mat-icon>
     </div>
+    
+    <div *ngFor="let img of galleryImages; let i = index" class="gallery-item me-2 border cursor-pointer bg-white" style="position: relative;" (click)="openSlideshow(i)">
+      <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
+      
+      <!-- Delete Icon Badge -->
+      <i class="fa fa-trash" 
+         matTooltip="Delete Image"
+         style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 13px; cursor: pointer;"
+         (click)="$event.stopPropagation(); deleteImage(i, img)">
+      </i>
+    </div>
+  </div>
+</div>
 
     <!-- SAVE BUTTON BINDING -->
     <div class="col-md-2 text-end">
-      <button mat-raised-button class="custom-save-btn" style="background-color: #1485cc" (click)="saveData()">
-        <span class="mat-button-wrapper" style=" color: rgb(255, 255, 255);">
-          <mat-icon>save</mat-icon> Save
+      <button mat-raised-button class="custom-save-btn" style="background-color: #1485cc" (click)="saveData()" [disabled]="isSaving">
+        <span class="mat-button-wrapper" style="color: rgb(255, 255, 255); display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <mat-spinner *ngIf="isSaving" diameter="20" style="margin: 0;"></mat-spinner>
+          <mat-icon *ngIf="!isSaving">save</mat-icon> 
+          <span>{{ isSaving ? 'Saving...' : 'Save' }}</span>
         </span>
       </button>
     </div>
