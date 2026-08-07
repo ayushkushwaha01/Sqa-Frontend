@@ -184,7 +184,7 @@
                 <div class="bottom-box red-box">
                     <div class="bottom-box-title">MAJOR NCS</div>
                     <ul class="bottom-list" *ngIf="(reportData.majorNCs?.length || 0) > 0">
-                        <li *ngFor="let nc of reportData.majorNCs">{{ nc }}</li>
+                        <li *ngFor="let nc of reportData.majorNCs"> {{nc.subject}}</li>
                     </ul>
                     <div class="no-data-sm" *ngIf="(reportData.majorNCs?.length || 0) === 0">
                         <i>No major NCs identified</i>
@@ -194,7 +194,7 @@
                 <div class="bottom-box blue-box">
                     <div class="bottom-box-title">IMPROVEMENT POINTS</div>
                     <ul class="bottom-list" *ngIf="(reportData.improvementPoints?.length || 0) > 0">
-                        <li *ngFor="let point of reportData.improvementPoints">{{ point }}</li>
+                        <li *ngFor="let point of reportData.improvementPoints">{{point.subject}}</li>
                     </ul>
                     <div class="no-data-sm" *ngIf="(reportData.improvementPoints?.length || 0) === 0">
                         <i>No specific improvement points listed</i>
