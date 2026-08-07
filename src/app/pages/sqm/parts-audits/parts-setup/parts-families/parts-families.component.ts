@@ -25,18 +25,18 @@ export class PartsFamiliesComponent implements OnInit {
   totalSize: number = 0;
   fromIndex: number = 0;
   pageSize: number = 5;
-  
+
   partsFamilies: any[] = [];
   tableLists: any[] = [];
-  
+
   // Variables for Defects tracking
-  allDefectsMaster: any[] = []; 
-  totalDefectsCount: number = 0; 
+  allDefectsMaster: any[] = [];
+  totalDefectsCount: number = 0;
 
   constructor(
     private dialog: MatDialog,
-    private alertService: AlertService, 
-    private _setupService: SetupService, 
+    private alertService: AlertService,
+    private _setupService: SetupService,
     private fb: FormBuilder
   ) { }
 
@@ -75,17 +75,24 @@ export class PartsFamiliesComponent implements OnInit {
   getPartsFamilies() {
     this._setupService.getPartFamilies(this.filterForm.value).subscribe((res: any) => {
       if (res.success) {
-        this.partsFamilies = res.data.data;
-        this.totalSize = res.data.totalRecords;
-        this.tableLists = this.partsFamilies.slice(this.fromIndex, this.pageSize);
+
+        this.partsFamilies = res.data.data || [];
+        this.totalSize = res.data.toatalRecords || 0;
+
+        // Reset to first page whenever data is loaded
+        this.currentPage = 0;
+
+        this.loadPageData();
       }
     });
   }
 
-  // --- Pagination ---
   loadPageData() {
     this.fromIndex = this.currentPage * this.pageSize;
-    this.tableLists = this.partsFamilies.slice(this.fromIndex, this.fromIndex + this.pageSize);
+    this.tableLists = this.partsFamilies.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
   }
 
   fnHandlePage(event: any) {
@@ -93,12 +100,11 @@ export class PartsFamiliesComponent implements OnInit {
     this.pageSize = event.pageSize;
     this.loadPageData();
   }
-
   // --- Defect Pop-up Logic ---
   getDefectsCount(item: any): number {
     // Check for both lowercase and uppercase 'D' just in case of C# serialization differences
     const defectsData = item.defects || item.Defects;
-    
+
     if (!defectsData) return 0;
 
     // If the data is already an array (parsed automatically by Angular HttpClient)
@@ -110,7 +116,7 @@ export class PartsFamiliesComponent implements OnInit {
       return Array.isArray(parsed) ? parsed.length : 0;
     } catch (e) {
       console.error("Failed to parse defects:", defectsData);
-      return 0; 
+      return 0;
     }
   }
 

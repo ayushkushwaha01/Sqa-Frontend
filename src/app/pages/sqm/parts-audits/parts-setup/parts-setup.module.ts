@@ -39,6 +39,7 @@ import { AddVenderComponent } from './vender-rating/add-vender/add-vender.compon
 import { AddParameterComponent } from './parts-families/add-parameter/add-parameter.component';
 import { PartsParameterComponent } from './parts-master/parts-parameter/parts-parameter.component';
 import { AddParameterforpartmasterComponent } from './parts-master/add-parameterforpartmaster/add-parameterforpartmaster.component';
+import { BandMasterComponent } from './band-master/band-master.component';
 
 // ❌ REMOVED AuditCategoriesComponent, AddPartCategoryComponent, and PartsauditcatInnergridComponent imports from here
 
@@ -70,6 +71,7 @@ const routes: Routes = [
       { path: 'state-master', component: StateMasterComponent, data: { breadcrumb: 'State Master', description: 'Configure state master data.' } },
       { path: '', redirectTo: 'parts-cat', pathMatch: 'full' },
       { path: 'parts-parameter', component: PartsParameterComponent, data: { breadcrumb: 'Parts Parameter' } },
+      { path: 'bandmaster', component: BandMasterComponent, data: { breadcrumb: 'Preferences', description: 'Configure Preferences.' } },
     ]
   }
 ];
@@ -100,7 +102,8 @@ const routes: Routes = [
     AddVenderComponent,
     AddParameterComponent,
     PartsParameterComponent,
-    AddParameterforpartmasterComponent
+    AddParameterforpartmasterComponent,
+    BandMasterComponent
 
   ],
   imports: [

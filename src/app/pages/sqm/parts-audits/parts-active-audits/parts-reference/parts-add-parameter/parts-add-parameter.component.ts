@@ -64,12 +64,12 @@ export class PartsAddParameterComponent implements OnInit {
       // Max: [data?.max || ''],
       Min: [
         data?.min || '',
-        [Validators.pattern('^[0-9]*$')]
+        [Validators.pattern(/^\d+(\.\d+)?$/)]
       ],
 
       Max: [
         data?.max || '',
-        [Validators.pattern('^[0-9]*$')]
+        [Validators.pattern(/^\d+(\.\d+)?$/)]
       ],
 
       Method: [data?.method || ''],
@@ -100,12 +100,32 @@ export class PartsAddParameterComponent implements OnInit {
   }
 
   allowNumericOnly(event: KeyboardEvent): boolean {
-    const charCode = event.which ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-      return false;
+    const input = event.target as HTMLInputElement;
+    const char = event.key;
+
+    // Allow digits
+    if (/[0-9]/.test(char)) {
+      return true;
     }
-    return true;
+
+    // Allow one decimal point
+    if (char === '.' && !input.value.includes('.')) {
+      return true;
+    }
+
+    // Allow control keys
+    if (
+      char === 'Backspace' ||
+      char === 'Delete' ||
+      char === 'ArrowLeft' ||
+      char === 'ArrowRight' ||
+      char === 'Tab'
+    ) {
+      return true;
+    }
+
+    event.preventDefault();
+    return false;
   }
 
   lookups: any[] = [];

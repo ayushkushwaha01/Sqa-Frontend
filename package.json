@@ -41,6 +41,7 @@
     "file-saver": "^2.0.5",
     "highcharts": "^10.3.3",
     "highcharts-angular": "^2.10.0",
+    "html2pdf.js": "^0.14.0",
     "leaflet-map": "0.2.1",
     "material-icons": "0.6.3",
     "ng2-dragula": "^2.1.1",

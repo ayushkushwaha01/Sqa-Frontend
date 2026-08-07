@@ -1,15 +1,122 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
+import { AlertService } from 'src/app/shared/alert.service';
+import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
+import { PartsAuditAnalayticsService } from '../../../process-audits/paudits-analytics/parts-audit-analaytics.service';
 
 @Component({
   selector: 'app-parts-inner-actions',
   templateUrl: './parts-inner-actions.component.html',
   styleUrls: ['./parts-inner-actions.component.scss']
 })
-export class PartsInnerActionsComponent  {
+export class PartsInnerActionsComponent {
 
- 
- Highcharts: typeof Highcharts = Highcharts;
+  constructor(private dialog: MatDialog, private fb: FormBuilder,
+    private alertService: AlertService, private api: CommodityService, private PartsAuditAnalayticsService: PartsAuditAnalayticsService
+  ) { }
+
+  filterForm!: FormGroup;
+
+  ngOnInit(): void {
+    console.log('AnalyticsActionsComponent ngOnInit');
+    this.forminit();
+    this.getCommodities();
+    this.getanalaytics();
+    this.getCapaAgingPercentage()
+  }
+
+  forminit() {
+    this.filterForm = this.fb.group({
+      commodityId: [null],
+      Year: [null],
+    });
+  }
+  onClearFilter() {
+    this.filterForm.reset({
+      commodityId: null,
+      Year: null,
+    });
+    this.getCapaAgingPercentage();
+    this.getanalaytics();
+  }
+  originalTableData: any[] = [];
+  getCommodities() {
+    this.api.getCommodities().subscribe({
+      next: (res: any) => {
+        console.log('Commodities response:', res);
+        if (res.success) {
+          this.originalTableData = res.data;
+        }
+      },
+      error: (err) => {
+        console.error('Commodities API error:', err);
+        this.alertService.createAlert(err.error?.message || 'Failed to load commodities', 0);
+      }
+    });
+  }
+
+  analytics: any[] = [];
+  getanalaytics() {
+
+    const filter = { ...this.filterForm.value };
+
+    Object.keys(filter).forEach(key => {
+
+      if (
+        filter[key] === null ||
+        filter[key] === undefined ||
+        filter[key] === '' ||
+        filter[key] === 'null'
+      ) {
+        delete filter[key];
+      }
+
+    });
+
+    console.log(filter);
+
+    this.PartsAuditAnalayticsService.getPartsAuditCapaaAnalytics(filter)
+      .subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.analytics = res.data;
+            this.buildChartsFromAnalytics(res.data);
+          }
+        },
+        error: (err) => {
+          console.error('Analytics API error:', err);
+          this.alertService.createAlert(err.error?.message || 'Failed to load analytics', 0);
+        }
+      });
+  }
+
+  buildChartsFromAnalytics(data: any) {
+    const criticalCategories = data.critical.map((m: any) => m.monthName);
+    const criticalTotals = data.critical.map((m: any) => m.total);
+
+    const importantCategories = data.important.map((m: any) => m.monthName);
+    const importantTotals = data.important.map((m: any) => m.total);
+
+    const combinedCategories = data.combined.map((m: any) => m.monthName);
+    const combinedResolved = data.combined.map((m: any) => m.resolved);
+    const combinedLog = data.combined.map((m: any) => m.total);
+
+    // Note: reassign the whole object (new reference) so Highcharts picks up the change
+    this.criticalOptions = this.buildMonthlyBar(criticalTotals, criticalCategories);
+    this.importantOptions = this.buildMonthlyBar(importantTotals, importantCategories);
+
+    this.logVsResolvedOptions = {
+      ...this.logVsResolvedOptions,
+      xAxis: { categories: combinedCategories, labels: { style: { fontSize: '11px' } } },
+      series: [
+        { type: 'column', name: 'Resolved', color: '#4C9CA0', data: combinedResolved },
+        { type: 'column', name: 'Log', color: '#6b6bb0', data: combinedLog }
+      ]
+    };
+  }
+  Highcharts: typeof Highcharts = Highcharts;
 
   private months = [
     'March', 'April', 'May', 'June', 'July', 'August',
@@ -18,24 +125,58 @@ export class PartsInnerActionsComponent  {
 
   // Aging Analysis table data
   agingList = [
-    { period: '0-10',   action: '20%' },
-    { period: '10-20',  action: '30%' },
-    { period: '20-30',  action: '40%' },
-    { period: '30-40',  action: '50%' },
-    { period: '40-50',  action: '60%' },
+    { period: '0-10', action: '20%' },
+    { period: '10-20', action: '30%' },
+    { period: '20-30', action: '40%' },
+    { period: '30-40', action: '50%' },
+    { period: '40-50', action: '60%' },
     { period: '50-100', action: '70%' },
-    { period: '100+',   action: '80%' },
+    { period: '100+', action: '80%' },
   ];
 
   // ── Charts ──────────────────────────────────────────────────────────────
 
-  criticalOptions: Highcharts.Options = this.buildMonthlyBar(
-    [82, 75, 65, 70, 90, 85, 75, 65, 60, 80, 75, 60]
-  );
+  // criticalOptions: Highcharts.Options = this.buildMonthlyBar(
+  //   [82, 75, 65, 70, 90, 85, 75, 65, 60, 80, 75, 60]
+  // );
+  private buildMonthlyBar(data: number[], categories?: string[]): Highcharts.Options {
+    return {
+      chart: {
+        type: 'column',
+        backgroundColor: 'transparent',
+        spacingRight: 15,
+        spacingBottom: 15,
+        events: {
+          load: function (this: any) {
+            const c = this;
+            setTimeout(() => c.reflow(), 0);
+          }
+        }
+      },
+      title: { text: '' },
+      credits: { enabled: false },
+      exporting: { enabled: false },
+      xAxis: {
+        categories: categories || this.months,
+        labels: { style: { fontSize: '11px' } }
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: { text: '' },
+        gridLineColor: '#e0e0e0'
+      },
+      legend: { enabled: false },
+      plotOptions: {
+        column: { colorByPoint: true, borderWidth: 0, pointPadding: 0.05, groupPadding: 0.05 }
+      },
+      series: [{ type: 'column', name: 'Distribution', data }]
+    };
+  }
 
-  importantOptions: Highcharts.Options = this.buildMonthlyBar(
-    [65, 75, 65, 70, 85, 80, 65, 60, 60, 55, 80, 57]
-  );
+  // importantOptions: Highcharts.Options = this.buildMonthlyBar(
+  //   [65, 75, 65, 70, 85, 80, 65, 60, 60, 55, 80, 57]
+  // );
 
   logVsResolvedOptions: Highcharts.Options = {
     chart: {
@@ -44,7 +185,7 @@ export class PartsInnerActionsComponent  {
       spacingRight: 15,
       spacingBottom: 15,
       events: {
-        load: function(this: any) {
+        load: function (this: any) {
           const c = this;
           setTimeout(() => c.reflow(), 0);
         }
@@ -83,6 +224,9 @@ export class PartsInnerActionsComponent  {
     ]
   };
 
+  //agingList: { period: string; action: number }[] = [];
+  totalCapas: number = 0;
+
   agingPieOptions: Highcharts.Options = {
     chart: { type: 'pie', backgroundColor: 'transparent' },
     title: { text: '' },
@@ -100,61 +244,84 @@ export class PartsInnerActionsComponent  {
     series: [{
       type: 'pie',
       name: 'Status',
-      data: [
-        { name: '0-10',   y: 5.7,  color: 'red'    },
-        { name: '10-20',  y: 8.6,  color: 'green'  },
-        { name: '20-30',  y: 11.4, color: 'skyblue' },
-        { name: '30-40',  y: 14.3, color: 'orange'  },
-        { name: '40-50',  y: 17.1, color: 'purple'  },
-        { name: '50-100', y: 20.0, color: 'yellow'  },
-        { name: '100+',   y: 22.9, color: 'blue'    }
-      ]
+      data: []
     }]
   };
 
-  private buildMonthlyBar(data: number[]): Highcharts.Options {
-    return {
-      chart: {
-        type: 'column',
-        backgroundColor: 'transparent',
-        spacingRight: 15,
-        spacingBottom: 15,
-        events: {
-          load: function(this: any) {
-            const c = this;
-            setTimeout(() => c.reflow(), 0);
+  // Fixed color per range so colors stay consistent even if some ranges have 0%
+  private agingColorMap: { [key: string]: string } = {
+    '0-10 Days': 'red',
+    '10-20 Days': 'green',
+    '20-30 Days': 'skyblue',
+    '30-40 Days': 'orange',
+    '40-50 Days': 'purple',
+    '50-100 Days': 'yellow',
+    '100+ Days': 'blue'
+  };
+
+  getCapaAgingPercentage() {
+
+    const filter = { ...this.filterForm.value };
+
+    Object.keys(filter).forEach(key => {
+
+      if (
+        filter[key] === null ||
+        filter[key] === undefined ||
+        filter[key] === '' ||
+        filter[key] === 'null'
+      ) {
+        delete filter[key];
+      }
+
+    });
+
+    this.PartsAuditAnalayticsService.getPartsAuditCapaPercentage(filter)
+      .subscribe({
+        next: (res: any) => {
+          if (res?.success && res?.data) {
+
+            this.totalCapas = res.data.totalCapas;
+
+            // Populate table
+            this.agingList = res.data.aging.map((item: any) => ({
+              period: item.range,
+              action: item.count
+            }));
+
+            // Populate pie chart
+            const pieData = res.data.aging.map((item: any) => ({
+              name: item.range,
+              y: item.percentage,
+              color: this.agingColorMap[item.range] || '#999999'
+            }));
+
+            this.agingPieOptions = {
+              ...this.agingPieOptions,
+              series: [{
+                type: 'pie',
+                name: 'Status',
+                data: pieData
+              }]
+            };
+
+          } else {
+            this.alertService.createAlert(
+              res?.message || 'Failed to load aging data',
+              0
+            );
           }
+        },
+        error: (err) => {
+          this.alertService.createAlert(
+            err.error?.message || 'Error fetching CAPA aging data',
+            0
+          );
         }
-      },
-      title: { text: '' },
-      credits: { enabled: false },
-      exporting: { enabled: false },
-      xAxis: {
-        categories: this.months,
-        labels: { style: { fontSize: '11px' } }
-      },
-      yAxis: {
-        min: 0,
-        max: 100,
-        title: { text: '' },
-        gridLineColor: '#e0e0e0'
-      },
-      legend: { enabled: false },
-      plotOptions: {
-        column: {
-          colorByPoint: true,
-          borderWidth: 0,
-          pointPadding: 0.05,
-          groupPadding: 0.05
-        }
-      },
-      series: [{
-        type: 'column',
-        name: 'Distribution',
-        data
-      }]
-    };
+      });
   }
+  criticalOptions: Highcharts.Options = this.buildMonthlyBar([]);
+  importantOptions: Highcharts.Options = this.buildMonthlyBar([]);
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -65,12 +65,12 @@ export class AddParameterforpartmasterComponent implements OnInit {
       // ],
       Min: [
         data?.min || '',
-        [Validators.pattern('^[0-9]*$')]
+        [Validators.pattern(/^\d+(\.\d+)?$/)]
       ],
 
       Max: [
         data?.max || '',
-        [Validators.pattern('^[0-9]*$')]
+        [Validators.pattern(/^\d+(\.\d+)?$/)]
       ],
 
       Method: [
@@ -89,14 +89,33 @@ export class AddParameterforpartmasterComponent implements OnInit {
   }
 
   allowNumericOnly(event: KeyboardEvent): boolean {
-    const charCode = event.which ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-      return false;
-    }
-    return true;
-  }
+    const input = event.target as HTMLInputElement;
+    const char = event.key;
 
+    // Allow digits
+    if (/[0-9]/.test(char)) {
+      return true;
+    }
+
+    // Allow one decimal point
+    if (char === '.' && !input.value.includes('.')) {
+      return true;
+    }
+
+    // Allow control keys
+    if (
+      char === 'Backspace' ||
+      char === 'Delete' ||
+      char === 'ArrowLeft' ||
+      char === 'ArrowRight' ||
+      char === 'Tab'
+    ) {
+      return true;
+    }
+
+    event.preventDefault();
+    return false;
+  }
 
   lookups: any[] = [];
 
@@ -131,7 +150,10 @@ export class AddParameterforpartmasterComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.alertService.createAlert('Something went wrong.', 0);
+          this.alertService.createAlert(
+            err?.error?.message || 'Something went wrong.',
+            0
+          );
         }
       });
   }

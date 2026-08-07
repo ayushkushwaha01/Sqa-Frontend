@@ -217,7 +217,7 @@
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="State Master">map</mat-icon>
             <span *ngIf="isSidenavOpen">State Master</span>
           </a>
-          </li>
+        </li>
         <li routerLinkActive="active" routerLink="./parts/setup/city-master">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="City Master">location_city</mat-icon>
@@ -230,7 +230,14 @@
             <span *ngIf="isSidenavOpen">Severity Master</span>
           </a>
         </li>
-        
+        <li routerLinkActive="active" routerLink="./parts/setup/bandmaster">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Preferences">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Preferences</span>
+          </a>
+        </li>
+
+
       </ul>
     </nav>
 

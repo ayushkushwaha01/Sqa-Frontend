@@ -24,6 +24,7 @@ import { ProcessFastenersComponent } from './analytics-commodity/process-fastene
 import { ProcessNonmetallicComponent } from './analytics-commodity/process-nonmetallic/process-nonmetallic.component';
 import { ProcessSheetmetalComponent } from './analytics-commodity/process-sheetmetal/process-sheetmetal.component';
 import { ProcessProprietaryComponent } from './analytics-commodity/process-proprietary/process-proprietary.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
   {
@@ -32,16 +33,16 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'commodity', pathMatch: 'full' },
 
-     { 
-        path: 'commodity', 
-        loadChildren: () => import('./analytics-commodity/analytics-commodity.module').then(m => m.AnalyticsCommodityModule) 
+      {
+        path: 'commodity',
+        loadChildren: () => import('./analytics-commodity/analytics-commodity.module').then(m => m.AnalyticsCommodityModule)
       },
       { path: 'performance', component: AnalyticsPerformanceComponent },
       { path: 'actions', component: AnalyticsActionsComponent },
       { path: 'scatter', component: AnalyticsScatterComponent },
       { path: 'bell-curve', component: AnalyticsBellcurveComponent },
       { path: 'pareto', component: AnalyticsParetoComponent },
-       { path: 'summary', component: AnalyticsSummaryComponent }
+      { path: 'summary', component: AnalyticsSummaryComponent }
     ]
   }
 ];
@@ -74,7 +75,8 @@ const routes: Routes = [
     MatSelectModule,
     MatButtonModule,
     MatInputModule,
-    CanvasJSAngularChartsModule
-]
+    CanvasJSAngularChartsModule,
+    ReactiveFormsModule
+  ]
 })
 export class PauditsAnalyticsModule { }
