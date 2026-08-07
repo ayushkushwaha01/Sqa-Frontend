@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import * as Highcharts from 'highcharts';
@@ -13,14 +13,16 @@ import { StatusChangeComponent } from 'src/app/status-change/status-change.compo
   templateUrl: "./paudits-active-audits.component.html",
   styleUrls: ["./paudits-active-audits.component.scss"]
 })
-export class PauditsActiveAuditsComponent implements OnInit {
+export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   Highcharts: typeof Highcharts = Highcharts;
+  private isDestroyed = false;
   
   auditData: any[] = [];
   originalAuditData: any[] = [];
   filteredAuditData: any[] = [];
   statusLookups: any[] = [];
   filterToggle = false;
+  maskDone = false;
   filterForm!: FormGroup;
 
   // Pagination properties
@@ -218,8 +220,8 @@ export class PauditsActiveAuditsComponent implements OnInit {
       if (res.success) {
         this.auditData = res.data;
         this.originalAuditData = [...res.data];
-        this.filteredAuditData = [...res.data];
-        this.pageIndex = 0; // Reset pagination on load
+        // Re-apply active filters (including maskDone) after reload
+        this.filter();
         this.updateCharts();
       }
     });
@@ -256,13 +258,28 @@ export class PauditsActiveAuditsComponent implements OnInit {
 
       return matchesKeyword && matchesCommodity && matchesState && matchesCity && matchesSupplier;
     });
+
+    // Apply maskDone filter
+    if (this.maskDone) {
+      this.filteredAuditData = this.filteredAuditData.filter(item => !item.isDone);
+    }
+
     this.pageIndex = 0; // Reset to first page on filter
+    this.updateCharts();
   }
 
   clearFilter() {
     this.filterForm.reset();
     this.filteredAuditData = [...this.originalAuditData];
+    if (this.maskDone) {
+      this.filteredAuditData = this.filteredAuditData.filter(item => !item.isDone);
+    }
     this.pageIndex = 0; // Reset to first page
+    this.updateCharts();
+  }
+
+  onMaskDoneChange() {
+    this.filter();
   }
 
   // Chart references for direct native updates (bypasses Gantt bugs in chart.update)
@@ -275,8 +292,9 @@ export class PauditsActiveAuditsComponent implements OnInit {
   statusCallback: Highcharts.ChartCallbackFunction = (chart) => { this.statusChartRef = chart; };
 
   updateCharts() {
+    if (this.isDestroyed) return;
     const getCounts = (key: string) => {
-      return this.auditData.reduce((acc: any, curr: any) => {
+      return this.filteredAuditData.reduce((acc: any, curr: any) => {
         const name = curr[key] || 'Unassigned';
         acc[name] = (acc[name] || 0) + 1;
         return acc;
@@ -286,7 +304,7 @@ export class PauditsActiveAuditsComponent implements OnInit {
     const commodityCounts = getCounts('commodityName');
     const auditorCounts = getCounts('auditorName');
 
-    const statusCounts = this.auditData.reduce((acc: any, curr: any) => {
+    const statusCounts = this.filteredAuditData.reduce((acc: any, curr: any) => {
       const statusObj = this.statusLookups.find(l => l.lookupId === curr.statusId);
       const name = statusObj ? statusObj.lookupName : 'Pending/None';
       acc[name] = (acc[name] || 0) + 1;
@@ -359,6 +377,10 @@ export class PauditsActiveAuditsComponent implements OnInit {
               this.alertService.createAlert(
                 audit.isDone ? 'Audit marked as Done' : 'Audit marked as Not Done', 1
               );
+              // Re-apply filter so maskDone hides the row immediately
+              if (this.maskDone) {
+                this.filter();
+              }
             } else {
               audit.isDone = !audit.isDone; 
               this.alertService.createAlert(res.message || 'Failed to update', 0);
@@ -423,4 +445,27 @@ isFullyResolved(audit: any): boolean {
     // Return true only if total is greater than 0 and resolved equals total
     return total > 0 && resolved === total;
 }
+
+  ngOnDestroy(): void {
+    this.isDestroyed = true;
+    // Safely destroy chart references to prevent Highcharts 'columns' error
+    try {
+      if (this.commodityChartRef) {
+        this.commodityChartRef.destroy();
+        this.commodityChartRef = null;
+      }
+    } catch (e) { }
+    try {
+      if (this.auditorChartRef) {
+        this.auditorChartRef.destroy();
+        this.auditorChartRef = null;
+      }
+    } catch (e) { }
+    try {
+      if (this.statusChartRef) {
+        this.statusChartRef.destroy();
+        this.statusChartRef = null;
+      }
+    } catch (e) { }
+  }
 }

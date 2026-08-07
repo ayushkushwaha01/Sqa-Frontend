@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ProcessAnalyticsService } from '../process-analytics.service';
+import { ProcessAuditService } from '../../process-audit.service';
 
 @Component({
   selector: 'app-analytics-bellcurve',
@@ -7,55 +10,109 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AnalyticsBellcurveComponent implements OnInit {
 
-  chartOptions = {
-    animationEnabled: true,
-    theme: "light2",
-    title: {
-      text: "Bell Curve for Process Audits",
-      fontFamily: "Arial, sans-serif",
-      fontWeight: "normal",
-      fontSize: 24,
-      margin: 30
-    },
-    axisX: {
-      labelFontFamily: "Arial, sans-serif",
-      labelFontColor: "#777",
-      tickThickness: 0,
-      lineThickness: 1,
-      lineColor: "#d3d3d3"
-    },
-    axisY: {
-      minimum: 0,
-      maximum: 100,
-      interval: 10,
-      gridColor: "#e6e6e6",
-      gridThickness: 1,
-      lineThickness: 0,
-      tickThickness: 0,
-      labelFontFamily: "Arial, sans-serif",
-      labelFontColor: "#777"
-    },
-    data: [{
-      type: "column",
-      color: "#8cd3ef", // Matches the light blue in the image
-      dataPoints: [
-        { label: "0-10", y: 16 },
-        { label: "10-20", y: 3 },
-        { label: "20-30", y: 1 },
-        { label: "30-40", y: 5 },
-        { label: "40-50", y: 1 },
-        { label: "50-60", y: 60 },
-        { label: "60-70", y: 76 },
-        { label: "70-80", y: 93 },
-        { label: "80-90", y: 79 },
-        { label: "90-100", y: 35 }
-      ]
-    }]
-  };
+  filterForm!: FormGroup;
+  commodities: any[] = [];
+  chartOptions: any = {};
 
-  constructor() { }
+  constructor(
+    private fb: FormBuilder,
+    private analyticsService: ProcessAnalyticsService,
+    private auditService: ProcessAuditService
+  ) {
+    const currentYear = new Date().getFullYear().toString();
 
-  ngOnInit(): void {
+    this.filterForm = this.fb.group({
+      commodityId: [null],
+      year: [currentYear]
+    });
   }
 
+  ngOnInit(): void {
+    this.initChart([]);
+    this.loadCommodities();
+    this.loadBellCurveData();
+  }
+
+  loadCommodities(): void {
+    this.auditService.getCommodities().subscribe((res: any) => {
+      if (res.success) {
+        this.commodities = res.data;
+      }
+    });
+  }
+
+  loadBellCurveData(): void {
+    const { commodityId, year } = this.filterForm.value;
+
+    this.analyticsService.getBellCurveAnalytics(commodityId, Number(year)).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          this.initChart(res.data);
+        }
+      },
+      error: () => console.error('Failed to load bell curve data')
+    });
+  }
+
+  formatDataPoints(dataPoints: any[]): any[] {
+    const defaultRanges = [
+      "0-10", "10-20", "20-30", "30-40", "40-50",
+      "50-60", "60-70", "70-80", "80-90", "90-100"
+    ];
+
+    const map = new Map<string, number>();
+    if (Array.isArray(dataPoints)) {
+      dataPoints.forEach(item => {
+        if (item && item.label) {
+          map.set(item.label.toString().trim(), item.y || 0);
+        }
+      });
+    }
+
+    return defaultRanges.map(label => ({
+      label,
+      y: map.has(label) ? map.get(label) : 0
+    }));
+  }
+
+  initChart(rawPoints: any[]): void {
+    const formattedPoints = this.formatDataPoints(rawPoints);
+
+    this.chartOptions = {
+      animationEnabled: true,
+      creditText: "",
+      creditHref: "",
+      theme: "light2",
+      title: {
+        text: "Bell Curve for Process Audits",
+        fontFamily: "Arial, sans-serif",
+        fontWeight: "normal",
+        fontSize: 24,
+        margin: 30
+      },
+      axisX: {
+        labelFontFamily: "Arial, sans-serif",
+        labelFontColor: "#777",
+        tickThickness: 0,
+        lineThickness: 1,
+        lineColor: "#d3d3d3",
+        margin: 10
+      },
+      axisY: {
+        minimum: 0,
+        interval: 5, // Flexible interval for audit counts
+        gridColor: "#e6e6e6",
+        gridThickness: 1,
+        lineThickness: 0,
+        tickThickness: 0,
+        labelFontFamily: "Arial, sans-serif",
+        labelFontColor: "#777"
+      },
+      data: [{
+        type: "column",
+        color: "#8cd3ef", // Light blue matching your screenshot
+        dataPoints: formattedPoints
+      }]
+    };
+  }
 }

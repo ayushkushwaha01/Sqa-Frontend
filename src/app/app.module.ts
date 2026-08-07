@@ -178,6 +178,7 @@ export function highchartsModules() {
     HighchartsChartModule,
     ChartModule,
     NgxChartsModule,
+    
 
 DragulaModule.forRoot()
 

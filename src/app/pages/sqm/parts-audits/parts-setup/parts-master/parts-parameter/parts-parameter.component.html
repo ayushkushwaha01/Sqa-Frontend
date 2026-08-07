@@ -47,7 +47,7 @@
                     <th class="text-center">Min</th>
                     <th class="text-center">Max</th>
                     <th>Method</th>
-                    <th class="text-center">Actions</th>
+                    <th class="text-center" style="width: 120px;">Actions</th>
 
                 </tr>
             </thead>
@@ -68,18 +68,12 @@
                     <td>{{ item.method || '-' }}</td>
                     <td class="text-center manage-icons">
 
-                        <mat-icon class="edit-icon" matTooltip="Edit" (click)="addparameter(item)">
-                            edit
-                        </mat-icon>
+                        <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addparameter(item)" style="margin-right: 10px; cursor: pointer;"></i>
 
-                        <!-- <mat-icon class="delete-icon" matTooltip="Delete" (click)="deleteConfirmation(item)">
-                            delete
-                        </mat-icon> -->
-                        <mat-icon class="delete-icon" [class.disabled-icon]="item.isCopied"
+                        <!-- <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)" style="cursor: pointer;"></i> -->
+                        <i class="fa fa-trash text-danger" [class.text-muted]="item.isCopied"
                             [matTooltip]="item.isCopied ? '' : 'Delete'" [ngClass]="{ 'disable-custom': item.isCopied }"
-                            (click)="!item.isCopied && deleteConfirmation(item)">
-                            delete
-                        </mat-icon>
+                            (click)="!item.isCopied && deleteConfirmation(item)" style="cursor: pointer;"></i>
 
 
                     </td>

@@ -1,5 +1,8 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
+import { ProcessAnalyticsService } from '../process-analytics.service';
+import { ProcessAuditService } from '../../process-audit.service';
 
 @Component({
   selector: 'app-analytics-pareto',
@@ -9,103 +12,103 @@ import * as Highcharts from 'highcharts';
 export class AnalyticsParetoComponent implements OnInit, AfterViewInit {
 
   Highcharts: typeof Highcharts = Highcharts;
+  filterForm!: FormGroup;
+  commodities: any[] = [];
 
-  // Real Process Categories (Critical)
-  pareto = [
-    { name: 'QMS (Quality Management System)', action: '12' },
-    { name: 'MM (Material Management)', action: '17' },
-    { name: 'PPC (Production Planning & Control)', action: '15' },
-    { name: 'CAPA (Corrective & Preventive Actions)', action: '8' },
-    { name: '5S (Workplace Organization)', action: '5' },
-  ];
+  // Table Data Arrays
+  pareto: any[] = [];         // Critical NC by Process Category
+  statusList: any[] = [];     // Important NC by Process Category
+  criticalList: any[] = [];   // Critical & Important NC by Commodity
 
-  // Real Process Categories (Important)
-  statusList = [
-    { name: 'QMS (Quality Management System)', action: '14' },
-    { name: 'MM (Material Management)', action: '10' },
-    { name: 'PPC (Production Planning & Control)', action: '19' },
-    { name: 'IME (Inspection Engineering)', action: '11' },
-    { name: '5S (Workplace Organization)', action: '7' },
-  ];
+  // Pie Chart Configurations
+  commodityPieOptions: Highcharts.Options = {};
+  statusPieOptions: Highcharts.Options = {};
+  criticalPieOptions: Highcharts.Options = {};
 
-  // Real Commodity Names
-  criticalList = [
-    { name: 'Casting', action: '22' },
-    { name: 'Forging', action: '14' },
-    { name: 'Machining', action: '18' },
-    { name: 'Fasteners', action: '9' },
-    { name: 'Sheet Metal', action: '11' },
-  ];
+  private pieColors = ['#87ceeb', '#008000', '#ff0000', '#ffff00', '#0000ff', '#8b5cf6', '#f97316'];
 
-  commodityPieOptions: Highcharts.Options = {
-    chart: { type: 'pie', backgroundColor: 'transparent' },
-    title: { text: '' },
-    credits: { enabled: false },
-    plotOptions: {
-      pie: {
-        dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y:.0f}%' },
-        showInLegend: false
+  constructor(
+    private fb: FormBuilder,
+    private analyticsService: ProcessAnalyticsService,
+    private auditService: ProcessAuditService
+  ) {
+    const currentYear = new Date().getFullYear().toString();
+
+    this.filterForm = this.fb.group({
+      commodityId: [null],
+      year: [currentYear]
+    });
+  }
+
+  ngOnInit(): void {
+    this.initEmptyCharts();
+    this.loadCommodities();
+    this.loadParetoData();
+  }
+
+  loadCommodities(): void {
+    this.auditService.getCommodities().subscribe((res: any) => {
+      if (res.success) {
+        this.commodities = res.data;
       }
-    },
-    series: [{
-      type: 'pie',
-      data: [
-        { name: 'QMS', y: 21, color: '#87ceeb' },
-        { name: 'MM', y: 30, color: '#008000' },
-        { name: 'PPC', y: 26, color: '#ff0000' },
-        { name: 'CAPA', y: 14, color: '#ffff00' },
-        { name: '5S', y: 9, color: '#0000ff' },
-      ]
-    }]
-  };
+    });
+  }
 
-  statusPieOptions: Highcharts.Options = {
-    chart: { type: 'pie', backgroundColor: 'transparent' },
-    title: { text: '' },
-    credits: { enabled: false },
-    plotOptions: {
-      pie: {
-        dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y:.0f}%' },
-        showInLegend: false
-      }
-    },
-    series: [{
-      type: 'pie',
-      data: [
-        { name: 'QMS', y: 23, color: '#87ceeb' },
-        { name: 'MM', y: 16, color: '#008000' },
-        { name: 'PPC', y: 31, color: '#ff0000' },
-        { name: 'IME', y: 18, color: '#ffff00' },
-        { name: '5S', y: 12, color: '#0000ff' },
-      ]
-    }]
-  };
+  loadParetoData(): void {
+    const { commodityId, year } = this.filterForm.value;
 
-  criticalPieOptions: Highcharts.Options = {
-    chart: { type: 'pie', backgroundColor: 'transparent' },
-    title: { text: '' },
-    credits: { enabled: false },
-    plotOptions: {
-      pie: {
-        dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y:.0f}%' },
-        showInLegend: false
-      }
-    },
-    series: [{
-      type: 'pie',
-      data: [
-        { name: 'Casting', y: 30, color: '#87ceeb' },
-        { name: 'Forging', y: 19, color: '#008000' },
-        { name: 'Machining', y: 24, color: '#ff0000' },
-        { name: 'Fasteners', y: 12, color: '#ffff00' },
-        { name: 'Sheet Metal', y: 15, color: '#0000ff' },
-      ]
-    }]
-  };
+    this.analyticsService.getParetoAnalytics(commodityId, Number(year)).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          // 1. Assign Table Data
+          this.pareto = res.data.criticalByCategory || [];
+          this.statusList = res.data.importantByCategory || [];
+          this.criticalList = res.data.criticalAndImportantByCommodity || [];
 
-  constructor() { }
+          // 2. Update all 3 Highcharts Pie Charts
+          this.commodityPieOptions = this.buildPieOptions(this.pareto);
+          this.statusPieOptions = this.buildPieOptions(this.statusList);
+          this.criticalPieOptions = this.buildPieOptions(this.criticalList);
+        }
+      },
+      error: () => console.error('Failed to load Pareto analytics data')
+    });
+  }
 
-  ngOnInit(): void { }
+  // Converts [{name: 'OPM', action: 5}] into Highcharts Pie Series
+  private buildPieOptions(dataList: any[]): Highcharts.Options {
+    const seriesData = dataList.map((item, index) => ({
+      name: item.name,
+      y: Number(item.action),
+      color: this.pieColors[index % this.pieColors.length]
+    }));
+
+    return {
+      chart: { type: 'pie', backgroundColor: 'transparent' },
+      title: { text: '' },
+      credits: { enabled: false },
+      plotOptions: {
+        pie: {
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {point.percentage:.0f}%'
+          },
+          showInLegend: false
+        }
+      },
+      series: [{
+        type: 'pie',
+        name: 'CAPAs',
+        data: seriesData
+      }]
+    };
+  }
+
+  initEmptyCharts(): void {
+    this.commodityPieOptions = this.buildPieOptions([]);
+    this.statusPieOptions = this.buildPieOptions([]);
+    this.criticalPieOptions = this.buildPieOptions([]);
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {

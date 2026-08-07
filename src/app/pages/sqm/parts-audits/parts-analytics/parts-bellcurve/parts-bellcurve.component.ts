@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PartsBellcurveComponent implements OnInit {
 
-  
+
   chartOptions = {
     animationEnabled: true,
     theme: "light2",

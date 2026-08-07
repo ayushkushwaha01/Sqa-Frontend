@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddDefectsPopComponent } from './add-defects-pop/add-defects-pop.component';
- import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { SetupService } from 'src/app/pages/setup/setup.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-defects-master',
@@ -16,7 +18,11 @@ export class DefectsMasterComponent implements OnInit {
   showFilters: boolean = false; 
   keyword: string = '';
 
-  constructor(private dialog: MatDialog, private api: SetupService) { }
+  constructor(
+    private dialog: MatDialog,
+    private api: SetupService,
+    private alertService: AlertService
+  ) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -67,12 +73,33 @@ export class DefectsMasterComponent implements OnInit {
   }
 
   deleteConfirmation(item: any) {
-    if(confirm('Are you sure you want to delete this defect?')) {
-      this.api.deleteDefect({ defectId: item.defectId }).subscribe((res: any) => {
-        if (res.success) {
-          this.loadData(); // Refresh grid after delete
-        }
-      });
-    }
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      autoFocus: false,
+      data: {
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to delete this Item?',
+        isConfirmation: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.deleteDefect({ defectId: item.defectId }).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert(res.message || 'Defect deleted successfully', 1);
+              this.loadData(); // Refresh grid after delete
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to delete defect', 0);
+            }
+          },
+          error: (err: any) => {
+            this.alertService.createAlert(err.error?.message || 'Error deleting defect', 0);
+          }
+        });
+      }
+    });
   }
 }

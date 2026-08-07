@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   mode: 1,
   apiUrl: 'https://localhost:7202/api/'
-  // apiUrl: 'https://qasqaapi.optionmatrix.co.in/api/'  
+  // apiUrl: 'https://sqa.optionmatrix.co.in/api/'  
 };
 
 /*
@@ -18,3 +18,11 @@ export const environment = {
  */
 
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+
+
+
+// export const environment = {
+//   production: false,
+//   mode: 1,
+//   apiUrl: 'https://localhost:7202/api/'
+// };

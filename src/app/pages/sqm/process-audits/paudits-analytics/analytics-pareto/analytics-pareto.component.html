@@ -1,36 +1,37 @@
-<div class="filter-bar">
-
-
-  
-    <div class="filter-group right-align-group">
-
-    
-        <label class="filter-label mb-0">Commodity   :</label>
-        <mat-select placeholder="Select Commodity" class="form-control" 
-            style="width: auto; min-width: 120px;">
-
-            <mat-option value="2023">Commodity 1</mat-option>
-            <mat-option value="2024">Commodity 2</mat-option>
-            <mat-option value="2025">Commodity 3</mat-option>
-        </mat-select>
-    </div>
+<!-- Filter Bar wired to Reactive Form -->
+<div class="filter-bar" [formGroup]="filterForm">
   <div class="filter-group right-align-group">
-    <label class="filter-label mb-0">Select Year :</label>
-    <mat-select placeholder="Select Year" class="form-control" style="width: auto; min-width: 120px;">
-      <mat-option value="2023">2023</mat-option>
-      <mat-option value="2024">2024</mat-option>
-      <mat-option value="2025">2025</mat-option>
+    <label class="filter-label mb-0">Commodity :</label>
+    <mat-select placeholder="All Commodities" class="form-control" formControlName="commodityId"
+      style="width: auto; min-width: 150px;">
+      <mat-option [value]="null">All Commodities</mat-option>
+      <mat-option *ngFor="let c of commodities" [value]="c.commodityId">
+        {{ c.name }}
+      </mat-option>
     </mat-select>
   </div>
 
-  <button class="go-btn" mat-raised-button>
+  <div class="filter-group right-align-group">
+    <label class="filter-label mb-0">Select Year :</label>
+    <mat-select placeholder="Select Year" class="form-control" formControlName="year"
+      style="width: auto; min-width: 120px;">
+      <mat-option value="2023">2023</mat-option>
+      <mat-option value="2024">2024</mat-option>
+      <mat-option value="2025">2025</mat-option>
+      <mat-option value="2026">2026</mat-option>
+    </mat-select>
+  </div>
+
+  <!-- Go button triggers live database reload -->
+  <button class="go-btn" mat-raised-button (click)="loadParetoData()">
     <mat-icon class="mat-icon mt-1">search</mat-icon> Go
   </button>
 </div>
 
+<!-- SECTION 1: Critical NC Distribution by Process Category -->
 <div class="mt-3">
   <h2 class="section-title">Critical NC Distribution by Process Category</h2>
-  <div class="row " style="margin-left: -18px;">
+  <div class="row" style="margin-left: -18px;">
     <div class="card table-container">
       <table class="data-table">
         <thead>
@@ -43,6 +44,9 @@
           <tr *ngFor="let item of pareto">
             <td>{{ item.name }}</td>
             <td>{{ item.action }}</td>
+          </tr>
+          <tr *ngIf="pareto.length === 0">
+            <td colspan="2" class="text-center text-muted py-3">No Critical CAPAs found</td>
           </tr>
         </tbody>
       </table>
@@ -58,9 +62,10 @@
   </div>
 </div>
 
+<!-- SECTION 2: Important NC Distribution by Process Category -->
 <div>
   <h2 class="section-title">Important NC Distribution by Process Category</h2>
-  <div class="row"  style="margin-left: -18px;">
+  <div class="row" style="margin-left: -18px;">
     <div class="card table-container">
       <table class="data-table">
         <thead>
@@ -73,6 +78,9 @@
           <tr *ngFor="let item of statusList">
             <td>{{ item.name }}</td>
             <td>{{ item.action }}</td>
+          </tr>
+          <tr *ngIf="statusList.length === 0">
+            <td colspan="2" class="text-center text-muted py-3">No Important CAPAs found</td>
           </tr>
         </tbody>
       </table>
@@ -88,10 +96,11 @@
   </div>
 </div>
 
+<!-- SECTION 3: Critical & Important NC Distribution by Commodity -->
 <div>
   <h2 class="section-title">Critical & Important NC Distribution by Commodity</h2>
-  <div class="row">
-    <div class="card table-container" >
+  <div class="row" style="margin-left: -18px;">
+    <div class="card table-container">
       <table class="data-table">
         <thead>
           <tr>
@@ -103,6 +112,9 @@
           <tr *ngFor="let item of criticalList">
             <td>{{ item.name }}</td>
             <td>{{ item.action }}</td>
+          </tr>
+          <tr *ngIf="criticalList.length === 0">
+            <td colspan="2" class="text-center text-muted py-3">No Critical/Important CAPAs found</td>
           </tr>
         </tbody>
       </table>
