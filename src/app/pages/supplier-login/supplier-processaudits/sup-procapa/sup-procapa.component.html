@@ -5,7 +5,8 @@
     <mat-icon class="">filter_list</mat-icon> Filter
   </button>
 
-  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns" (click)="processgrid()">
+  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
+    (click)="processgrid()">
     <mat-icon>grid_on</mat-icon> Grid Columns
   </button>
 </div>
@@ -218,7 +219,7 @@
       </button>
 
     </div>
-    
+
     <div style="width: 100%;">
       <mat-paginator [length]="totalSize" [pageSize]="5" [pageSizeOptions]="[5, 10, 25, 50, 100]" showFirstLastButtons>
       </mat-paginator>

@@ -1,13 +1,30 @@
 <div class="custom-layout-wrapper">
 
     <div class="table-responsive bg-white shadow-sm">
+
         <table class="custom-grid-table">
+
             <thead>
                 <tr>
-                    <th style="width:30%">Subject</th>
-                    <th class="text-center" style="width:220px;">Min</th>
-                    <th class="text-center" style="width:220px;">Max</th>
-                    <th class="text-center" style="width:180px;">Actions</th>
+
+                    <th style="width:25%">Subject</th>
+
+                    <th class="text-center" style="width:120px;">
+                        Min
+                    </th>
+
+                    <th class="text-center" style="width:120px;">
+                        Max
+                    </th>
+
+                    <th style="width:35%;">
+                        Description
+                    </th>
+
+                    <th class="text-center" style="width:150px;">
+                        Actions
+                    </th>
+
                 </tr>
             </thead>
 
@@ -15,10 +32,12 @@
 
                 <tr *ngFor="let item of tableData">
 
+                    <!-- Subject -->
                     <td>
-                        {{item.subject}}
+                        {{ item.subject }}
                     </td>
 
+                    <!-- Min -->
                     <td class="text-center">
 
                         <input class="form-control text-center" type="number" [(ngModel)]="item.min"
@@ -26,17 +45,30 @@
 
                     </td>
 
+                    <!-- Max -->
                     <td class="text-center">
 
                         <input class="form-control text-center" type="number" [(ngModel)]="item.max" readonly>
 
                     </td>
 
+                    <!-- Description -->
+                    <td>
+
+                        <textarea class="form-control" rows="2" [(ngModel)]="item.description"
+                            placeholder="Enter Description">
+            </textarea>
+
+                    </td>
+
+                    <!-- Actions -->
                     <td class="text-center">
 
                         <button mat-raised-button color="primary" (click)="saveBand(item)">
 
-                            <mat-icon class="mt-1">save</mat-icon>
+                            <mat-icon class="mt-1">
+                                save
+                            </mat-icon>
 
                             Save
 
@@ -49,5 +81,7 @@
             </tbody>
 
         </table>
+
     </div>
+
 </div>

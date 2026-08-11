@@ -12,6 +12,11 @@
                 <mat-icon>open_in_new</mat-icon>
                 <span>Open in Tab</span>
             </button>
+            <button mat-raised-button color="basic" (click)="goBack()">
+                <mat-icon>arrow_back</mat-icon>
+                <span>Back</span>
+            </button>
+
         </div>
     </div>
 
@@ -22,7 +27,7 @@
             <!-- BLOCK 1: TEAL HEADER BANNER -->
             <div class="teal-banner">
                 <!-- <h1>{{ reportData.header?.commodityName | uppercase }} PROCESS AUDIT SUMMARY REPORT</h1> -->
-                <h1>FORGING PROCESS AUDIT SUMMARY REPORT</h1>
+                <h1>PART AUDIT SUMMARY REPORT</h1>
             </div>
 
             <!-- BLOCK 2: CYAN METADATA BOX -->
@@ -80,7 +85,7 @@
                             <span class="ring-pct" [style.color]="getRingColor(i)">{{ ring.percentage || 0 }}%</span>
                         </div>
                         <div class="donut-name">{{ ring.categoryName }}</div>
-                        <div class="donut-sub">{{ ring.passedCount }} / {{ ring.totalCount }} Passed</div>
+                        <!-- <div class="donut-sub">{{ ring.passedCount }} / {{ ring.totalCount }}</div> -->
                     </div>
                 </div>
             </div>
@@ -151,10 +156,8 @@
 
                 <!-- Spider/Radar Chart -->
                 <div class="inner-box">
-                    <div class="inner-box-title blue-title">{{ reportData.header?.commodityName | uppercase }} PROCESS
-                    </div>
                     <highcharts-chart [Highcharts]="Highcharts" [options]="spiderChartOptions"
-                        style="width:100%;height:155px;display:block"></highcharts-chart>
+                        style="width:100%;height:220px;display:block"></highcharts-chart>
                 </div>
 
                 <!-- Final Conclusion -->
@@ -170,11 +173,11 @@
                             <span class="score-val" [class.red-val]="isScoreLow()">{{ reportData.header?.overallScore ||
                                 '0%' }}</span>
                         </div>
-                        <div class="score-row">
+                        <!-- <div class="score-row">
                             <span class="score-label">RISK SCORE</span>
                             <span class="score-val" [class.red-val]="isRiskHigh()">{{ reportData.sodRiskScore || 0
                                 }}</span>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -182,7 +185,7 @@
             <!-- BLOCK 6: BOTTOM BOXES (MAJOR NCS & IMPROVEMENT POINTS) -->
             <div class="bottom-section section-block">
                 <div class="bottom-box red-box">
-                    <div class="bottom-box-title">MAJOR NCS</div>
+                    <div class="bottom-box-title">Critical CAPA</div>
                     <ul class="bottom-list" *ngIf="(reportData.majorNCs?.length || 0) > 0">
                         <li *ngFor="let nc of reportData.majorNCs"> {{nc.subject}}</li>
                     </ul>
@@ -192,7 +195,7 @@
                 </div>
 
                 <div class="bottom-box blue-box">
-                    <div class="bottom-box-title">IMPROVEMENT POINTS</div>
+                    <div class="bottom-box-title">Safety CAPA</div>
                     <ul class="bottom-list" *ngIf="(reportData.improvementPoints?.length || 0) > 0">
                         <li *ngFor="let point of reportData.improvementPoints">{{point.subject}}</li>
                     </ul>

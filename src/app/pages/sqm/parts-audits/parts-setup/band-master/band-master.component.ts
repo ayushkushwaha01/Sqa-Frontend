@@ -57,7 +57,8 @@ export class BandMasterComponent implements OnInit {
     const payload = {
       ...item,
       min: item.min.toString(),
-      max: item.max.toString()
+      max: item.max.toString(),
+      description: item.description || ''
     };
 
     this.setupService.upsertBandMaster(payload)

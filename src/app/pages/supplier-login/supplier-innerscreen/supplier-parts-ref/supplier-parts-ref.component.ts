@@ -7,6 +7,10 @@ import { Location } from '@angular/common';
 import { AuditrefRemarksPopComponent } from 'src/app/pages/sqm/parts-inner-screen/parts-audit-reference/auditref-remarks-pop/auditref-remarks-pop.component';
 import { ViewDocPhotosComponent } from 'src/app/pages/sqm/parts-audits/parts-actions/view-doc-photos/view-doc-photos.component';
 import { PartsAddParameterComponent } from 'src/app/pages/sqm/parts-audits/parts-active-audits/parts-reference/parts-add-parameter/parts-add-parameter.component';
+import { ActivatedRoute } from '@angular/router';
+import { FormBuilder } from '@angular/forms';
+import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
+import { AlertService } from 'src/app/shared/alert.service';
 // import { AuditrefRemarksPopComponent } from './auditref-remarks-pop/auditref-remarks-pop.component';
 
 @Component({
@@ -16,10 +20,129 @@ import { PartsAddParameterComponent } from 'src/app/pages/sqm/parts-audits/parts
 })
 export class SupplierPartsRefComponent implements OnInit {
 
-  constructor(
-    private location: Location,
-    public dialog: MatDialog,
+
+  currentPage: number = 0;
+  totalSize: number = 0;
+  fromIndex: number = 0;
+  pageSize: number = 5;
+  tableLists: any[] = [];
+  pageIndex = 0;
+
+  constructor(private dialog: MatDialog, private location: Location, private route: ActivatedRoute,
+    private alertService: AlertService, private partAuditService: PartAuditService, private fb: FormBuilder,
   ) { }
+
+  partMasterId: number = 0;
+  partFamilyId: number = 0;
+  PartId: number = 0;
+  partAuditId: number = 0;
+  done: boolean = false;
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+
+      this.partMasterId = +params['partMasterId'] || 0;
+      this.partFamilyId = +params['partFamilyId'] || 0;
+      this.partAuditId = +params['partAuditId'] || 0;
+      this.PartId = +params['PartId'] || 0;
+      this.done = params['done'] === 'true';
+
+      console.log('PartMasterId:', this.partMasterId);
+      console.log('PartFamilyId:', this.partFamilyId);
+      console.log('PartId:', this.PartId);
+
+      this.getPartsMasters();
+
+    });
+
+
+
+  }
+
+  categoriesparameters: any[] = [];
+  selectedCategory: any;
+  tableData: any[] = [];
+  pagedData: any[] = [];
+
+  getPartsMasters() {
+
+    const filter: any = {};
+
+    // if (this.partMasterId > 0) {
+    //   filter.PartMasterId = this.partMasterId;
+    // } else {
+    //   filter.PartFamilyId = this.partFamilyId;
+    // }
+    filter.PartAuditId = this.partAuditId;
+    this.partAuditService.getCategoryAuditsParameters(filter)
+      .subscribe((res: any) => {
+
+        if (res.success) {
+
+          this.categoriesparameters = res.data;
+          console.log(this.categoriesparameters);
+          console.log(this.tableData);
+          console.log(this.pagedData);
+          // if (this.categoriesparameters.length > 0) {
+          //   this.selectCategory(this.categoriesparameters[0]);
+          // }
+          if (this.categoriesparameters.length > 0) {
+
+            const selected = this.categoriesparameters.find(
+              x => x.partId === this.selectedCategory?.partId
+            );
+
+            this.selectCategory(selected || this.categoriesparameters[0]);
+          }
+
+        }
+
+      });
+  }
+
+  selectCategory(category: any) {
+
+    this.selectedCategory = category;
+
+    this.tableData = category.parameters || [];
+
+    this.pagedData = this.tableData.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+
+    console.log(this.pagedData);
+  }
+
+  onPageChange1(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.fromIndex = event.pageIndex * event.pageSize;
+
+    this.pagedData = this.tableData.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+  }
+  selectCategory1(catName: string) {
+    this.selectedCategory = catName;
+    // Load the new parameters array based on the clicked tab
+    this.tableData = this.categoryData[catName] || [];
+    // Reset pagination back to page 1
+    this.pageIndex = 0;
+    this.updatePage();
+  }
+
+  // Pagination Logic
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePage();
+  }
+
+  private updatePage(): void {
+    const start = this.pageIndex * this.pageSize;
+    this.pagedData = this.tableData.slice(start, start + this.pageSize);
+  }
+
 
   goBack(): void {
     this.location.back();
@@ -34,13 +157,7 @@ export class SupplierPartsRefComponent implements OnInit {
     { name: 'Mechanical (12)', tooltip: 'Corrective and Preventive Actions' }
   ];
 
-  selectedCategory = 'Dimensional Checks (12)';
 
-  // Pagination
-  pageSize = 10;
-  pageIndex = 0;
-  pagedData: any[] = [];
-  tableData: any[] = [];
 
   // Dictionary holding unique parameters for EACH category
   categoryData: { [key: string]: any[] } = {
@@ -116,28 +233,11 @@ export class SupplierPartsRefComponent implements OnInit {
     ]
   };
 
-  ngOnInit(): void {
-    this.tableData = this.categoryData[this.selectedCategory] || [];
-    this.updatePage();
-  }
 
-  selectCategory(catName: string) {
-    this.selectedCategory = catName;
-    this.tableData = this.categoryData[catName] || [];
-    this.pageIndex = 0;
-    this.updatePage();
-  }
 
-  onPageChange(event: PageEvent): void {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.updatePage();
-  }
 
-  private updatePage(): void {
-    const start = this.pageIndex * this.pageSize;
-    this.pagedData = this.tableData.slice(start, start + this.pageSize);
-  }
+
+
 
   addchecklistaudit() {
     let dialogRef = this.dialog.open(PartsAddParameterComponent, {
@@ -172,16 +272,5 @@ export class SupplierPartsRefComponent implements OnInit {
     });
   }
 
-  deleteParameter(item: any): void {
-    const confirmDelete = window.confirm('Are you sure you want to delete??');
 
-    if (confirmDelete) {
-      const index = this.tableData.indexOf(item);
-
-      if (index > -1) {
-        this.tableData.splice(index, 1);
-        this.updatePage();
-      }
-    }
-  }
 }

@@ -126,6 +126,14 @@ export class PartsAuditDetailsComponent implements OnInit {
     });
 
   }
+  Riskratings = [
+    { label: 'Excellent', value: 5 },
+    { label: 'Good', value: 4 },
+    { label: 'Satisfactory', value: 3 },
+    { label: 'Minor NC', value: 2 },
+    { label: 'Major NC', value: 1 },
+    { label: 'N/A', value: 0 }
+  ];
 
   save() {
 
