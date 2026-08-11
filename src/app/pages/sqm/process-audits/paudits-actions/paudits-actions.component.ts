@@ -30,6 +30,9 @@ export class PauditsActionsComponent implements OnInit {
   processCategories: string[] = [];
   suppliers: string[] = [];
   actionTypes: string[] = [];
+  
+  // 🔥 Store dynamic lookups here
+  capaStatusLookups: any[] = [];
 
   pageSize = 5;
   pageIndex = 0;
@@ -60,10 +63,20 @@ export class PauditsActionsComponent implements OnInit {
       ActionType: new FormControl('')
     });
     
+    this.loadLookups(); // 🔥 Load statuses first
     this.loadData();
   }
 
-  // 🔥 FETCH ACTUAL DATA FROM DATABASE 🔥
+  // 🔥 FETCH LOOKUPS FOR DROPDOWN 🔥
+  loadLookups() {
+    this.api.getLookups().subscribe((res: any) => {
+      if (res.success) {
+        // Filter specifically for Capa-Status
+        this.capaStatusLookups = res.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
+      }
+    });
+  }
+
   loadData() {
     this.api.getAllCapas().subscribe((res: any) => {
       if (res.success) {
@@ -79,9 +92,35 @@ export class PauditsActionsComponent implements OnInit {
     });
   }
 
-  // 🔥 UPDATE STATUS ON DROPDOWN CHANGE 🔥
+  // onStatusChange(item: any) {
+  //   const payload = { CapaId: item.capaId, Status: item.status, IsResolved: item.resolved };
+  //   this.api.updateCapaStatus(payload).subscribe((res: any) => {
+  //     if (res.success) {
+  //       this.alertService.createAlert('Status updated successfully', 1);
+  //     } else {
+  //       this.alertService.createAlert('Failed to update status', 0);
+  //     }
+  //   });
+  // }
+
+  // onResolvedChange(item: any, event: any) {
+  //   item.resolved = event.checked; 
+  //   const payload = { CapaId: item.capaId, Status: item.status, IsResolved: item.resolved };
+  //   this.api.updateCapaStatus(payload).subscribe((res: any) => {
+  //     if (res.success) {
+  //       this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
+  //     }
+  //   });
+  // }
+
+ // 🔥 UPDATE STATUS ON DROPDOWN CHANGE 🔥
   onStatusChange(item: any) {
-    const payload = { CapaId: item.capaId, Status: item.status, IsResolved: item.resolved };
+    const payload = { 
+      CapaId: item.capaId, 
+      Status: item.status != null ? item.status.toString() : null, 
+      IsResolved: item.resolved 
+    };
+    
     this.api.updateCapaStatus(payload).subscribe((res: any) => {
       if (res.success) {
         this.alertService.createAlert('Status updated successfully', 1);
@@ -94,7 +133,14 @@ export class PauditsActionsComponent implements OnInit {
   // 🔥 UPDATE RESOLVED ON CHECKBOX CHANGE 🔥
   onResolvedChange(item: any, event: any) {
     item.resolved = event.checked; // Update local model
-    const payload = { CapaId: item.capaId, Status: item.status, IsResolved: item.resolved };
+    
+    // Force Status to be a string here as well
+    const payload = { 
+      CapaId: item.capaId, 
+      Status: item.status != null ? item.status.toString() : null, 
+      IsResolved: item.resolved 
+    };
+    
     this.api.updateCapaStatus(payload).subscribe((res: any) => {
       if (res.success) {
         this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
@@ -102,7 +148,6 @@ export class PauditsActionsComponent implements OnInit {
     });
   }
 
-  // --- GRID SCROLLING ---
   scrollRight() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
@@ -113,7 +158,6 @@ export class PauditsActionsComponent implements OnInit {
     if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
   }
 
-  // --- POPUPS & ACTIONS ---
   processgrid() {
     this.dialog.open(ProcessActionsGridComponent, { width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog' });
   }
@@ -122,32 +166,39 @@ export class PauditsActionsComponent implements OnInit {
     this.dialog.open(ProcessActionsEditComponent, { width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog' });
   }
 
- // Update this method
- docsPhoto(applicant: any) {
+  docsPhoto(applicant: any) {
     const dialogRef = this.dialog.open(ProcessDocPopComponent, { 
-      width: '650px', 
-      height: 'auto', 
-      maxHeight: '90vh', 
-      panelClass: 'no-scroll-dialog',
-      data: applicant 
+      width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog', data: applicant 
     });
 
-    // 🔥 ADD THIS BLOCK: Refreshes the grid data automatically when the popup closes
     dialogRef.afterClosed().subscribe(() => {
       this.loadData();
     });
   }
+
   imageSource1(description: string) {
-    // You can pass the description into your popup if needed
     this.dialog.open(ActionDescRemarksComponent, { width: '500px', height: 'auto' });
   }
 
+  // 🔥 ACTUAL DELETE LOGIC CONNECTED TO API 🔥
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
-      data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete?' }
+      data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete this CAPA?' }
     });
-    // Add logic to delete CAPA if they confirm
+    
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.api.deleteCapa({ CapaId: item.capaId }).subscribe((res: any) => {
+          if (res.success) {
+            this.alertService.createAlert(res.message || 'CAPA deleted successfully', 1);
+            this.loadData(); // Refresh grid after delete
+          } else {
+            this.alertService.createAlert(res.message || 'Failed to delete CAPA', 0);
+          }
+        });
+      }
+    });
   }
 
   go() { 
@@ -160,23 +211,16 @@ export class PauditsActionsComponent implements OnInit {
     this.tableList = this.originalTableList.filter(item => {
       let matches = true;
       if (keyword) {
-        // Search across multiple relevant fields
         const searchStr = `${item.reference} ${item.actionSubject} ${item.supplierName} ${item.actionType} ${item.auditReference} ${item.processCategory}`.toLowerCase();
         matches = matches && searchStr.includes(keyword);
       }
-      if (category) {
-        matches = matches && item.processCategory === category;
-      }
-      if (supplier) {
-        matches = matches && item.supplierName === supplier;
-      }
-      if (actionType) {
-        matches = matches && item.actionType === actionType;
-      }
+      if (category) matches = matches && item.processCategory === category;
+      if (supplier) matches = matches && item.supplierName === supplier;
+      if (actionType) matches = matches && item.actionType === actionType;
       return matches;
     });
 
-    this.pageIndex = 0; // Reset pagination to first page
+    this.pageIndex = 0;
     this.totalSize = this.tableList.length;
   }
 

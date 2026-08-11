@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // --- ADDED FORMS MODULES (Required for formControlName and ngModel) ---
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -51,7 +52,8 @@ const routes: Routes = [
     MatButtonModule,
     MatTooltipModule,
     MatRadioModule,
-    MatDialogModule
+    MatDialogModule,
+    MatProgressSpinnerModule
   ],
   exports: [RouterModule],
   declarations: [

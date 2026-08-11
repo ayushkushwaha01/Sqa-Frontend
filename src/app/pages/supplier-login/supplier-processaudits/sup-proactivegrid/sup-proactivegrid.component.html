@@ -41,8 +41,8 @@
           </td> -->
           <!-- Inside sup-proactivegrid.component.html -->
 <td class="text-link">
-  <a [routerLink]="['/app','supplier-login','inner-screen','process-ref']"
-     [queryParams]="{ id: audit.processAuditId, ref: audit.ref }">
+  <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']"
+     [queryParams]="{ id: audit.processAuditId, ref: audit.ref, role: 'supplier' }"> <!-- 🔥 Added role: 'supplier' -->
     {{ audit.ref }}
   </a>
 </td>

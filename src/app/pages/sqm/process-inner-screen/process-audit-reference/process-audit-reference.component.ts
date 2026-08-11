@@ -12,6 +12,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
   styleUrls: ['./process-audit-reference.component.scss']
 })
 export class ProcessAuditReferenceComponent implements OnInit {
+  
   isSaving: boolean = false; // Add loading state
 
   // Dynamic Master Data
@@ -57,6 +58,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
   isSlideshowOpen = false;
   currentSlideIndex = 0;
 
+  isSupplier: boolean = false;
+
   constructor(
     private location: Location,
     private api: ProcessAuditService,
@@ -82,7 +85,16 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
     this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
 
-    
+    // 🔥 ADDED THIS: Check if the user is a supplier via Angular Router OR Raw URL
+    this.route.queryParams.subscribe(params => {
+      if (params['role'] === 'supplier') {
+        this.isSupplier = true;
+      }
+    });
+    if (window.location.href.toLowerCase().includes('role=supplier')) {
+      this.isSupplier = true;
+    }
+
     this.loadMasterData(); 
   }
 
@@ -200,7 +212,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
     });
   }
 
-  setRating(val: string) {
+ setRating(val: string) {
+    if (this.isSupplier) return; // 🔥 Block suppliers from changing the rating
     this.rating = val;
   }
 
