@@ -57,15 +57,15 @@
 </div>
 
 <div class="d-flex justify-content-end align-items-center mb-3 gap-2">
-  <button mat-raised-button class="btn-dark" (click)="openGridView(null)">
+  <!-- <button mat-raised-button class="btn-dark" (click)="openGridView(null)">
       <mat-icon>grid_on</mat-icon> Grid View
-    </button>
+    </button> -->
   <button mat-raised-button style="background-color: #000000; color: #ffffff;" (click)="showFilter = !showFilter">
     <mat-icon>filter_list</mat-icon> Filter
   </button>
-  <button mat-raised-button color="primary" (click)="addrecord(null)">
+  <!-- <button mat-raised-button color="primary" (click)="addrecord(null)">
     <mat-icon>add</mat-icon> Add Record
-  </button>
+  </button> -->
 </div>
 
 <div class="row mb-3" *ngIf="showFilter">
@@ -75,77 +75,73 @@
         <div class="row">
           
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass">
-              <b>Date:</b>
+            <div class="col-sm-5 newMarginClass">
+              <b>Inspection Date:</b>
             </div>
-            <div class="col-sm-8">
+            <div class="col-sm-7">
               <div class="date-input-wrapper">
-                <input matInput [matDatepicker]="picker" placeholder="Select Date" class="form-control date-input" readonly (click)="picker.open()">
+                <input matInput [matDatepicker]="picker" placeholder="Select Date" [(ngModel)]="filterDate" name="filterDate" class="form-control date-input" readonly (click)="picker.open()">
                 <mat-datepicker #picker></mat-datepicker>
               </div>
             </div>
           </div>
 
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>Inspector:</b></div>
-            <div class="col-sm-8">
-              <mat-select placeholder="Select Inspector" class="form-control mat-select-custom">
-                <mat-option value="Rajiv Sharma">Rajiv Sharma</mat-option>
-                <mat-option value="Amit Singh">Amit Singh</mat-option>
-                <mat-option value="Priya Sharma">Priya Sharma</mat-option>
+            <div class="col-sm-5 newMarginClass"><b>Inspector:</b></div>
+            <div class="col-sm-7">
+              <mat-select placeholder="Select Inspector" [(ngModel)]="filterInspector" name="filterInspector" class="form-control mat-select-custom">
+                <mat-option value="">Select Inspector</mat-option>
+                <mat-option *ngFor="let insp of inspectors" [value]="insp">{{ insp }}</mat-option>
               </mat-select>
             </div>
           </div>
 
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>Part Family:</b></div>
-            <div class="col-sm-8">
-              <mat-select placeholder="Select Part Family" class="form-control mat-select-custom">
-                <mat-option value="Engine Components">Engine Components</mat-option>
-                <mat-option value="Transmission">Transmission</mat-option>
-                <mat-option value="Electrical">Electrical</mat-option>
+            <div class="col-sm-5 newMarginClass"><b>Part Family:</b></div>
+            <div class="col-sm-7">
+              <mat-select placeholder="Select Part Family" [(ngModel)]="filterPartFamily" name="filterPartFamily" class="form-control mat-select-custom">
+                <mat-option value="">Select Part Family</mat-option>
+                <mat-option *ngFor="let family of partFamilies" [value]="family">{{ family }}</mat-option>
               </mat-select>
             </div>
           </div>
 
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>Part Name:</b></div>
-            <div class="col-sm-8">
-              <mat-select placeholder="Select Part Name" class="form-control mat-select-custom">
-                <input type="text" class="form-control" placeholder="Search part name..." style="margin: 8px; width: calc(100% - 16px); box-sizing: border-box;" (keydown)="$event.stopPropagation()">
-                <mat-option value="Gear Shifter">Gear Shifter</mat-option>
-                <mat-option value="Alternator">Alternator</mat-option>
-                <mat-option value="Brake Pad">Brake Pad</mat-option>
+            <div class="col-sm-5 newMarginClass"><b>Part Name:</b></div>
+            <div class="col-sm-7">
+              <mat-select placeholder="Select Part Name" [(ngModel)]="filterPartName" name="filterPartName" class="form-control mat-select-custom">
+                <mat-option value="">Select Part Name</mat-option>
+                <mat-option *ngFor="let name of partNames" [value]="name">{{ name }}</mat-option>
               </mat-select>
             </div>
           </div>
 
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>Method:</b></div>
-            <div class="col-sm-8">
-              <input matInput type="text" placeholder="Enter Method" class="form-control">
+            <div class="col-sm-5 newMarginClass"><b>Part Number:</b></div>
+            <div class="col-sm-7">
+              <input type="text" placeholder="Enter Part Number" [(ngModel)]="filterPartNumber" name="filterPartNumber" class="form-control">
             </div>
           </div>
 
           <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>CAPA:</b></div>
-            <div class="col-sm-8">
-              <mat-checkbox color="primary">Requires CAPA</mat-checkbox>
+            <div class="col-sm-5 newMarginClass"><b>Batch Number:</b></div>
+            <div class="col-sm-7">
+              <mat-select placeholder="Select Batch Number" [(ngModel)]="filterBatchNumber" name="filterBatchNumber" class="form-control mat-select-custom">
+                <mat-option value="">Select Batch Number</mat-option>
+                <mat-option *ngFor="let batch of batchNumbers" [value]="batch">{{ batch }}</mat-option>
+              </mat-select>
             </div>
           </div>
 
-          <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-            <div class="col-sm-4 newMarginClass"><b>OK:</b></div>
-            <div class="col-sm-8">
-              <mat-checkbox color="primary">Requires Ok</mat-checkbox>
-            </div>
-          </div>
+          <!-- Empty spacer column to push buttons to the 4th column -->
+          <div class="col-md-3 col-sm-6 mb-3"></div>
 
+          <!-- Buttons column aligned to the right (end of Part Name) -->
           <div class="col-md-3 col-sm-6 d-flex justify-content-end align-items-center mb-3 gap-2">
-            <button mat-raised-button class="btn-clear">
+            <button mat-raised-button class="btn-clear" (click)="clearFilter()">
               <mat-icon>settings_backup_restore</mat-icon> Clear
             </button>
-            <button mat-raised-button color="primary" class="btn-search">
+            <button mat-raised-button color="primary" class="btn-search" (click)="applyFilter()">
               <mat-icon>search</mat-icon> Search
             </button>
           </div>
@@ -156,7 +152,7 @@
   </div>
 </div>
 
-<div class="table-responsive" id="grid-table-container" #tableContainer style="overflow-x: auto; white-space: nowrap;">
+<div class="table-responsive" id="grid-table-container" #tableContainer style="overflow-x: auto; white-space: nowrap; margin-bottom: 150px;">
 <table id="example2" class="table table-bordered table-hover" style="width: 100%;">
   <thead class="tbl-head">
     <tr>
@@ -208,12 +204,13 @@
 
       <td class="text-link text-center">
         <a
-        [routerLink]="['/app','supplier-login','inner-screen','ins-active-ref']"
+          [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
           [queryParams]="{
-            id: item.id,
+            inspectionId: item.id,
             reference: item.Reference,
             partFamily: item.PartFamily,
-            partName: item.PartName
+            partName: item.PartName,
+            isReadOnly: true
           }">
           {{ item.Reference }}
         </a>
@@ -244,13 +241,15 @@
         </a>
       </td>
 
-      <td class="text-center">
+      <td class="text-link text-center">
         <a
           [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
           [queryParams]="{
+            inspectionId: item.id,
             reference: item.Reference,
             partFamily: item.PartFamily,
-            partName: item.PartName
+            partName: item.PartName,
+            isReadOnly: true
           }">
           {{ item.Parameters }}
         </a>

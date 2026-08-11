@@ -167,7 +167,9 @@ export class InspectionCapaComponent implements OnInit {
               processCategory: item.processCategory,
               description: item.description,
               supplierRemarks: item.supplierRemarks,
-              
+              parameterName: item.parameterName,
+              partFamilyName: item.partFamilyName,
+              partName: item.partName,
               // --- MAPPED MISSING FIELDS HERE ---
               etaDate: item.etaDate ? this.datePipe.transform(item.etaDate, 'dd-MMM-yyyy') : '-',
               auditorRemarks: item.auditorRemarks || '-',

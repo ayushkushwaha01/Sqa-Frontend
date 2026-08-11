@@ -23,6 +23,7 @@ export class InspectionDocspopComponent implements OnInit {
    capaRecord: any = null;
    selectedFile: File | null = null;
    hasChanges: boolean = false;
+   isReadOnly: boolean = false;
 
    constructor(
      public dialogRef: MatDialogRef<InspectionDocspopComponent>,
@@ -33,6 +34,7 @@ export class InspectionDocspopComponent implements OnInit {
    ) { 
      this.capaId = this.data.capaId;
      this.inspectionRefId = this.data.inspectionRefId;
+     this.isReadOnly = this.data.isReadOnly || false;
    }
   
    ngOnInit(): void {
@@ -68,6 +70,10 @@ export class InspectionDocspopComponent implements OnInit {
 
    uploadDocument(event: Event): void {
      event.preventDefault(); // Prevent default form submit action
+
+     if (this.isReadOnly) {
+       return;
+     }
 
      if (!this.selectedFile) {
        this.alertService.createAlert('Please select a file to upload.', 0);
@@ -152,6 +158,9 @@ export class InspectionDocspopComponent implements OnInit {
 
   // --- NEW DELETE METHOD ---
   deleteDoc(doc: any): void {
+    if (this.isReadOnly) {
+      return;
+    }
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '360px',
       panelClass: 'no-padding-dialog',

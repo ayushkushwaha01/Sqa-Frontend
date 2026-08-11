@@ -1,8 +1,8 @@
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
-  <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
+  <!-- <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
     class="filter-hover margin-right-10">
     <mat-icon class="">warning</mat-icon> Alerts (12)
-  </button>
+  </button> -->
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
     class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
     <mat-icon class="">filter_list</mat-icon> Filter
@@ -101,6 +101,9 @@
             <th mat-header-cell mat-sort-header class="text-center">Docs</th>
             <th mat-header-cell mat-sort-header class="text-center">Reference</th>
             <th mat-header-cell mat-sort-header class="text-center">Subject</th>
+             <th mat-header-cell mat-sort-header class="text-center">Parameter Name</th>
+              <th mat-header-cell mat-sort-header class="text-center">Part Family</th>
+              <th mat-header-cell mat-sort-header class="text-center">Part Name</th>
             <th mat-header-cell mat-sort-header class="text-center">Supplier Name</th>
             <th mat-header-cell mat-sort-header class="text-center">Action Type</th>
             <th mat-header-cell mat-sort-header class="text-center">Audit Reference</th>
@@ -163,6 +166,9 @@
             </td>
             
             <td class="text-center">{{ applicant?.actionSubject }}</td>
+            <td class="text-center">{{ applicant?.parameterName }}</td>
+            <td class="text-center">{{ applicant?.partFamilyName }}</td>
+            <td class="text-center">{{ applicant?.partName }}</td>
             <td class="text-center">{{ applicant?.supplierName }}</td>
             <td class="text-center">{{ applicant?.actionType }}</td>
             <td class="text-center">{{ applicant?.auditReference }}</td>

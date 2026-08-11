@@ -13,6 +13,7 @@ import { InspectionService } from '../../inspection/inspection.service';
 import { AddInsParameterComponent } from './add-ins-parameter/add-ins-parameter.component';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { AddInspectiondocPopComponent } from './add-inspectiondoc-pop/add-inspectiondoc-pop.component';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   currentReference: string = '';
   currentPartFamily: string = '';
   currentPartName: string = '';
+  isReadOnly: boolean = false;
 
   pageSize = 10;
   pageIndex = 0;
@@ -58,6 +60,7 @@ export class ActiveRecordsRefComponent implements OnInit {
       this.currentReference = params['reference'];
       this.currentPartFamily = params['partFamily'];
       this.currentPartName = params['partName'];
+      this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
 
       if (this.currentInspectionId && !isNaN(this.currentInspectionId)) {
         this.loadParameters();
@@ -145,6 +148,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   addchecklistaudit() {
+    if (this.isReadOnly) return;
     if (this.selectedCategory === 'All') {
       this.alertService.createAlert("Please select a specific category tab first to add a parameter to it."); // <-- Using AlertService
       return;
@@ -160,6 +164,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   editParameter(item: any) {
+    if (this.isReadOnly) return;
     const dialogRef = this.dialog.open(AddInsParameterComponent, { height: 'auto', width: '850px', data: item });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -216,6 +221,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   deleteParameter(item: any): void {
+    if (this.isReadOnly) return;
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '360px',
       panelClass: 'no-padding-dialog',
@@ -252,7 +258,17 @@ export class ActiveRecordsRefComponent implements OnInit {
     });
   }
 
-  opendocpop() { this.dialog.open(ViewDocPhotosComponent, { width: '600px', height: '450px' }); }
+  opendocpop() {
+    if (this.isReadOnly) return;
+    this.dialog.open(AddInspectiondocPopComponent, {
+      width: '600px',
+      height: 'auto',
+      data: {
+        inspectionId: this.currentInspectionId,
+        isReadOnly: this.isReadOnly
+      }
+    });
+  }
   opennotes() { this.dialog.open(AuditrefRemarksPopComponent, { width: '500px', height: 'auto' }); }
   // uploadstages() { this.dialog.open(UploadstagepopComponent, { width: '800px', height: 'auto' }); }
   openuploadpop(item: any) {
@@ -266,6 +282,7 @@ export class ActiveRecordsRefComponent implements OnInit {
 
 
   uploadstages(item: any) {
+    if (this.isReadOnly) return;
     const dialogRef = this.dialog.open(UploadstagepopComponent, {
       width: '800px',
       height: 'auto',
