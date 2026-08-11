@@ -69,7 +69,7 @@ const routes: Routes = [
       },
       { path: 'new-audit', component: NewAuditComponent, data: { breadcrumb: 'New Audit' } },
       { path: 'completed-audits', component: PartsCompletedAuditsComponent, data: { breadcrumb: 'Completed Audits' } },
-      { path: 'actions', component: PartsActionsComponent, data: { breadcrumb: 'Actions' } },
+      { path: 'actions', component: PartsActionsComponent, data: { breadcrumb: 'CAPA' } },
       { path: 'user-manual', component: PartsUserManualComponent, data: { breadcrumb: 'User Manual' } },
       { path: 'help-desk', component: HelpDeskComponent, data: { breadcrumb: 'Help Desk' } },
       { path: '', redirectTo: 'analytics', pathMatch: 'full' }

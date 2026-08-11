@@ -19,13 +19,16 @@ export class AuditSummaryReportComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;
 
   reportData: any = null;
-  ratingChartOptions: Highcharts.Options = {};
-  sodGaugeOptions: Highcharts.Options = {};
-  spiderChartOptions: Highcharts.Options = {};
   loading = true;
   generatingPdf = false;
 
+  // 🔥 Safe initializations prevent Highcharts from crashing before data loads
+  ratingChartOptions: Highcharts.Options = { series: [] };
+  sodGaugeOptions: Highcharts.Options = { series: [] };
+  spiderChartOptions: Highcharts.Options = { series: [] };
+
   private ringColors = ['#0284c7', '#9333ea', '#0d9488', '#d97706', '#16a34a', '#dc2626', '#4f46e5', '#0891b2'];
+  
   getRingColor(i: number): string {
     return this.ringColors[i % this.ringColors.length];
   }
@@ -78,39 +81,27 @@ export class AuditSummaryReportComponent implements OnInit {
   //   });
 
   //   if (pieSeriesData.length === 0) {
-  //     pieSeriesData = [
-  //       { name: 'Rating 5 (Excellent)', y: 1, color: '#16a34a' }
-  //     ];
+  //     pieSeriesData = [{ name: 'No Data', y: 1, color: '#94a3b8' }];
   //   }
 
   //   this.ratingChartOptions = {
   //     chart: { type: 'pie', backgroundColor: 'transparent', height: 155, animation: false, margin: [0, 0, 0, 0] },
   //     title: { text: '' },
   //     credits: { enabled: false },
+  //     exporting: { enabled: false } as any,
   //     tooltip: { pointFormat: '<b>{point.percentage:.1f}%</b> ({point.y})' },
   //     legend: {
-  //       enabled: true,
-  //       layout: 'vertical',
-  //       align: 'right',
-  //       verticalAlign: 'middle',
+  //       enabled: true, layout: 'vertical', align: 'right', verticalAlign: 'middle',
   //       itemStyle: { fontSize: '9px', fontWeight: '600', color: '#334155' },
-  //       symbolHeight: 8,
-  //       symbolWidth: 8,
-  //       symbolRadius: 4,
-  //       margin: 2
+  //       symbolHeight: 8, symbolWidth: 8, symbolRadius: 4, margin: 2
   //     },
   //     plotOptions: {
   //       pie: {
-  //         innerSize: '55%',
-  //         size: '85%',
-  //         animation: false,
-  //         showInLegend: true,
+  //         innerSize: '55%', size: '85%', animation: false, showInLegend: true,
   //         dataLabels: {
-  //           enabled: true,
-  //           distance: 4,
-  //           format: '{point.percentage:.0f}%',
+  //           enabled: true, distance: 4, format: '{point.percentage:.0f}%',
   //           style: { fontSize: '9px', fontWeight: '700', color: '#1e293b', textOutline: 'none' }
-  //         }
+  //         } as any
   //       }
   //     },
   //     series: [{ type: 'pie', name: 'Ratings', data: pieSeriesData }]
@@ -122,118 +113,63 @@ export class AuditSummaryReportComponent implements OnInit {
   //     chart: { type: 'solidgauge', backgroundColor: 'transparent', height: 155, margin: [0, 0, 0, 0], animation: false },
   //     title: { text: '' },
   //     credits: { enabled: false },
+  //     exporting: { enabled: false } as any,
   //     pane: {
-  //       center: ['50%', '75%'],
-  //       size: '125%',
-  //       startAngle: -90,
-  //       endAngle: 90,
-  //       background: [{
-  //         backgroundColor: '#e2e8f0',
-  //         innerRadius: '60%',
-  //         outerRadius: '100%',
-  //         shape: 'arc'
-  //       }] as any
+  //       center: ['50%', '75%'], size: '125%', startAngle: -90, endAngle: 90,
+  //       background: [{ backgroundColor: '#e2e8f0', innerRadius: '60%', outerRadius: '100%', shape: 'arc' }] as any
   //     },
   //     tooltip: { enabled: false },
   //     yAxis: {
-  //       min: 0,
-  //       max: 1000,
-  //       stops: [
-  //         [0.3, '#16a34a'], // Green
-  //         [0.6, '#eab308'], // Yellow
-  //         [0.9, '#dc2626']  // Red
-  //       ],
-  //       lineWidth: 0,
-  //       tickWidth: 0,
-  //       minorTickInterval: null,
-  //       tickAmount: 2,
+  //       min: 0, max: 1000,
+  //       stops: [[0.3, '#16a34a'], [0.6, '#eab308'], [0.9, '#dc2626']],
+  //       lineWidth: 0, tickWidth: 0, minorTickInterval: null, tickAmount: 2,
   //       labels: { y: 14, style: { fontSize: '9px' } }
   //     },
   //     plotOptions: {
   //       solidgauge: {
   //         animation: false,
   //         dataLabels: {
-  //           y: -28,
-  //           borderWidth: 0,
-  //           useHTML: true,
+  //           y: -28, borderWidth: 0, useHTML: true,
   //           format: '<div style="text-align:center"><span style="font-size:18px;color:#0f172a;font-weight:bold">{y}</span><br/><span style="font-size:9px;color:#64748b">Risk Score</span></div>'
   //         }
   //       }
   //     },
-  //     series: [{
-  //       type: 'solidgauge',
-  //       name: 'SOD Score',
-  //       data: [sodScore],
-  //       innerRadius: '60%',
-  //       radius: '100%'
-  //     }]
+  //     series: [{ type: 'solidgauge', name: 'SOD Score', data: [sodScore], innerRadius: '60%', radius: '100%' }]
   //   };
 
-  //   // 3. RADAR / SPIDER CHART
+  //   // 3. SPIDER / RADAR CHART
   //   const cats = (this.reportData.categoryScores || []) as any[];
   //   const catNames = cats.length > 0 ? cats.map((c: any) => c.categoryName) : ['QMS', 'MM', 'PPC', 'IMC', '5S'];
-  //   const catScores = cats.length > 0 ? cats.map((c: any) => c.percentage) : [0, 0, 0, 0, 0];
+  //   const sevData  = cats.length > 0 ? cats.map((c: any) => c.avgSeverity || 0) : [0, 0, 0, 0, 0];
+  //   const occData  = cats.length > 0 ? cats.map((c: any) => c.avgOccurrence || 0) : [0, 0, 0, 0, 0];
+  //   const detData  = cats.length > 0 ? cats.map((c: any) => c.avgDetection || 0) : [0, 0, 0, 0, 0];
 
   //   this.spiderChartOptions = {
-  //     chart: {
-  //       polar: true,
-  //       type: 'line',
-  //       backgroundColor: 'transparent',
-  //       height: 155,
-  //       animation: false,
-  //       margin: [10, 10, 20, 10]
-  //     },
+  //     chart: { polar: true, type: 'line', backgroundColor: 'transparent', height: 155, animation: false, margin: [10, 10, 22, 10] },
   //     title: { text: '' },
   //     credits: { enabled: false },
+  //     exporting: { enabled: false } as any,
   //     legend: {
-  //       enabled: true,
-  //       align: 'center',
-  //       verticalAlign: 'bottom',
-  //       itemStyle: { fontSize: '8.5px', fontWeight: '600', color: '#334155' },
-  //       symbolHeight: 8,
-  //       symbolWidth: 14,
-  //       y: 8
+  //       enabled: true, align: 'center', verticalAlign: 'bottom',
+  //       itemStyle: { fontSize: '8px', fontWeight: '600', color: '#334155' },
+  //       symbolHeight: 6, symbolWidth: 10, y: 10, margin: 0
   //     },
   //     xAxis: {
-  //       categories: catNames,
-  //       tickmarkPlacement: 'on',
-  //       lineWidth: 0,
-  //       labels: { style: { fontSize: '8px', fontWeight: '600', color: '#334155' } }
+  //       categories: catNames, tickmarkPlacement: 'on', lineWidth: 0,
+  //       labels: { style: { fontSize: '7.5px', fontWeight: '700', color: '#334155' } }
   //     },
-  //     yAxis: {
-  //       gridLineInterpolation: 'polygon',
-  //       lineWidth: 0,
-  //       min: 0,
-  //       max: 100,
-  //       labels: { enabled: false }
-  //     },
-  //     tooltip: { shared: true, pointFormat: '<b>{point.y}%</b>' },
+  //     yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0, max: 10, labels: { enabled: false } },
+  //     tooltip: { shared: true, pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}</b><br/>' },
   //     series: [
-  //       {
-  //         type: 'area',
-  //         name: 'Benchmark',
-  //         data: catNames.map(() => 75),
-  //         color: 'rgba(2,132,199,0.15)',
-  //         lineColor: '#0284c7',
-  //         lineWidth: 1.5,
-  //         pointPlacement: 'on',
-  //         marker: { enabled: false }
-  //       } as any,
-  //       {
-  //         type: 'line',
-  //         name: 'Actual',
-  //         data: catScores,
-  //         color: '#d97706',
-  //         pointPlacement: 'on',
-  //         lineWidth: 2,
-  //         marker: { radius: 3, fillColor: '#d97706' }
-  //       } as any
+  //       { type: 'line', name: 'Severity (Avg)', data: sevData, color: '#dc2626', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#dc2626' } } as any,
+  //       { type: 'line', name: 'Occurrence (Avg)', data: occData, color: '#d97706', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#d97706' } } as any,
+  //       { type: 'line', name: 'Detection (Avg)', data: detData, color: '#0284c7', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#0284c7' } } as any
   //     ]
   //   };
   // }
 
   initCharts(): void {
-    // 1. FINDING DISTRIBUTION DONUT CHART
+    // === 1. FINDING DISTRIBUTION DONUT CHART ===
     const rawDist = (this.reportData.ratingDistribution || []) as any[];
     let pieSeriesData = rawDist.map((item: any) => {
       const name = item.name || 'Rating';
@@ -242,98 +178,80 @@ export class AuditSummaryReportComponent implements OnInit {
     });
 
     if (pieSeriesData.length === 0) {
-      pieSeriesData = [
-        { name: 'Rating 5 (Excellent)', y: 1, color: '#16a34a' }
-      ];
+      pieSeriesData = [{ name: 'No Data', y: 1, color: '#94a3b8' }];
     }
 
     this.ratingChartOptions = {
-      chart: { type: 'pie', backgroundColor: 'transparent', height: 155, animation: false, margin: [0, 0, 0, 0] },
+      // 🔥 Added side margins to prevent edge clipping
+      chart: { type: 'pie', backgroundColor: 'transparent', height: 165, animation: false, margin: [5, 0, 5, 0] },
       title: { text: '' },
       credits: { enabled: false },
+      exporting: { enabled: false } as any,
       tooltip: { pointFormat: '<b>{point.percentage:.1f}%</b> ({point.y})' },
       legend: {
-        enabled: true,
-        layout: 'vertical',
-        align: 'right',
+        enabled: true, 
+        layout: 'vertical', 
+        align: 'right', 
         verticalAlign: 'middle',
-        itemStyle: { fontSize: '9px', fontWeight: '600', color: '#334155' },
-        symbolHeight: 8,
-        symbolWidth: 8,
-        symbolRadius: 4,
-        margin: 2
+        itemStyle: { fontSize: '8.5px', fontWeight: '600', color: '#334155' },
+        symbolHeight: 8, 
+        symbolWidth: 8, 
+        symbolRadius: 4, 
+        margin: 0,
+        x: -5 // 🔥 Pulls legend safely inside the box
       },
       plotOptions: {
         pie: {
-          innerSize: '55%',
-          size: '85%',
-          animation: false,
+          innerSize: '55%', 
+          size: '70%', // 🔥 Shrunk pie to prevent collision with legend
+          center: ['35%', '50%'], // 🔥 Pushed pie strictly to the left side
+          animation: false, 
           showInLegend: true,
           dataLabels: {
-            enabled: true,
-            distance: 4,
+            enabled: true, 
+            distance: 5, 
             format: '{point.percentage:.0f}%',
             style: { fontSize: '9px', fontWeight: '700', color: '#1e293b', textOutline: 'none' }
-          }
+          } as any
         }
       },
       series: [{ type: 'pie', name: 'Ratings', data: pieSeriesData }]
     };
 
-    // 2. SOD RISK SCORE GAUGE
+    // === 2. SOD RISK SCORE GAUGE ===
     const sodScore = this.reportData.sodRiskScore || 0;
     this.sodGaugeOptions = {
-      chart: { type: 'solidgauge', backgroundColor: 'transparent', height: 155, margin: [0, 0, 0, 0], animation: false },
+      chart: { type: 'solidgauge', backgroundColor: 'transparent', height: 165, margin: [0, 0, 0, 0], animation: false },
       title: { text: '' },
       credits: { enabled: false },
+      exporting: { enabled: false } as any,
       pane: {
-        center: ['50%', '75%'],
-        size: '125%',
-        startAngle: -90,
+        center: ['50%', '70%'], // 🔥 Safely centers the gauge
+        size: '115%', 
+        startAngle: -90, 
         endAngle: 90,
-        background: [{
-          backgroundColor: '#e2e8f0',
-          innerRadius: '60%',
-          outerRadius: '100%',
-          shape: 'arc'
-        }] as any
+        background: [{ backgroundColor: '#e2e8f0', innerRadius: '60%', outerRadius: '100%', shape: 'arc' }] as any
       },
       tooltip: { enabled: false },
       yAxis: {
-        min: 0,
-        max: 1000,
-        stops: [
-          [0.3, '#16a34a'], // Green
-          [0.6, '#eab308'], // Yellow
-          [0.9, '#dc2626']  // Red
-        ],
-        lineWidth: 0,
-        tickWidth: 0,
-        minorTickInterval: null,
-        tickAmount: 2,
+        min: 0, max: 1000,
+        stops: [[0.3, '#16a34a'], [0.6, '#eab308'], [0.9, '#dc2626']],
+        lineWidth: 0, tickWidth: 0, minorTickInterval: null, tickAmount: 2,
         labels: { y: 14, style: { fontSize: '9px' } }
       },
       plotOptions: {
         solidgauge: {
           animation: false,
           dataLabels: {
-            y: -28,
-            borderWidth: 0,
-            useHTML: true,
+            y: -28, borderWidth: 0, useHTML: true,
             format: '<div style="text-align:center"><span style="font-size:18px;color:#0f172a;font-weight:bold">{y}</span><br/><span style="font-size:9px;color:#64748b">Risk Score</span></div>'
           }
         }
       },
-      series: [{
-        type: 'solidgauge',
-        name: 'SOD Score',
-        data: [sodScore],
-        innerRadius: '60%',
-        radius: '100%'
-      }]
+      series: [{ type: 'solidgauge', name: 'SOD Score', data: [sodScore], innerRadius: '60%', radius: '100%' }]
     };
 
-    // 🔥 3. SPIDER / RADAR CHART (Outer: Categories | Inner Nets: Severity Avg, Occurrence Avg, Detection Avg)
+    // === 3. SPIDER / RADAR CHART ===
     const cats = (this.reportData.categoryScores || []) as any[];
     const catNames = cats.length > 0 ? cats.map((c: any) => c.categoryName) : ['QMS', 'MM', 'PPC', 'IMC', '5S'];
     const sevData  = cats.length > 0 ? cats.map((c: any) => c.avgSeverity || 0) : [0, 0, 0, 0, 0];
@@ -341,73 +259,33 @@ export class AuditSummaryReportComponent implements OnInit {
     const detData  = cats.length > 0 ? cats.map((c: any) => c.avgDetection || 0) : [0, 0, 0, 0, 0];
 
     this.spiderChartOptions = {
-      chart: {
-        polar: true,
-        type: 'line',
-        backgroundColor: 'transparent',
-        height: 155,
-        animation: false,
-        margin: [10, 10, 22, 10]
-      },
+      // 🔥 Increased bottom margin to 40 to protect the 3-line legend
+      chart: { polar: true, type: 'line', backgroundColor: 'transparent', height: 165, animation: false, margin: [15, 10, 40, 10] },
       title: { text: '' },
       credits: { enabled: false },
+      exporting: { enabled: false } as any,
       legend: {
-        enabled: true,
-        align: 'center',
-        verticalAlign: 'bottom',
+        enabled: true, align: 'center', verticalAlign: 'bottom',
         itemStyle: { fontSize: '8px', fontWeight: '600', color: '#334155' },
-        symbolHeight: 6,
-        symbolWidth: 10,
-        y: 10,
+        symbolHeight: 6, symbolWidth: 10, 
+        y: 15, // 🔥 Prevents legend from drifting out of bounds
         margin: 0
       },
       xAxis: {
-        categories: catNames,
-        tickmarkPlacement: 'on',
-        lineWidth: 0,
+        categories: catNames, tickmarkPlacement: 'on', lineWidth: 0,
         labels: { style: { fontSize: '7.5px', fontWeight: '700', color: '#334155' } }
       },
-      yAxis: {
-        gridLineInterpolation: 'polygon',
-        lineWidth: 0,
-        min: 0,
-        max: 10, // Severity, Occurrence, Detection are rated on a 1-10 scale
-        labels: { enabled: false }
-      },
+      yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0, max: 10, labels: { enabled: false } },
       tooltip: { shared: true, pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}</b><br/>' },
       series: [
-        {
-          type: 'line',
-          name: 'Severity (Avg)',
-          data: sevData,
-          color: '#dc2626', // Red
-          pointPlacement: 'on',
-          lineWidth: 1.8,
-          marker: { radius: 2.5, fillColor: '#dc2626' }
-        } as any,
-        {
-          type: 'line',
-          name: 'Occurrence (Avg)',
-          data: occData,
-          color: '#d97706', // Amber/Orange
-          pointPlacement: 'on',
-          lineWidth: 1.8,
-          marker: { radius: 2.5, fillColor: '#d97706' }
-        } as any,
-        {
-          type: 'line',
-          name: 'Detection (Avg)',
-          data: detData,
-          color: '#0284c7', // Blue/Teal
-          pointPlacement: 'on',
-          lineWidth: 1.8,
-          marker: { radius: 2.5, fillColor: '#0284c7' }
-        } as any
+        { type: 'line', name: 'Severity (Avg)', data: sevData, color: '#dc2626', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#dc2626' } } as any,
+        { type: 'line', name: 'Occurrence (Avg)', data: occData, color: '#d97706', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#d97706' } } as any,
+        { type: 'line', name: 'Detection (Avg)', data: detData, color: '#0284c7', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#0284c7' } } as any
       ]
     };
   }
 
-  // --- HELPER LOGIC FOR NC STATUS & VERDICTS ---
+  // 🔥 ALL HELPER METHODS ARE HERE
   getNcPercentage(value: number | undefined): number {
     const total = this.reportData?.ncStatus?.totalNC || 0;
     if (!total || !value) return 0;
@@ -445,7 +323,6 @@ export class AuditSummaryReportComponent implements OnInit {
     return (this.reportData?.sodRiskScore || 0) >= 300;
   }
 
-  // --- PDF GENERATION LOGIC ---
   openPdfInNewTab(): void {
     const el = document.getElementById('pdf-report-content');
     if (!el) return;

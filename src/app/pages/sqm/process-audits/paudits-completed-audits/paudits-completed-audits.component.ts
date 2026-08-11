@@ -123,8 +123,17 @@ export class PauditsCompletedAuditsComponent implements OnInit {
 
   get uniqueCommodities() { return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
   get uniqueStates() { return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
-  get uniqueCities() { return [...new Set(this.originalAuditData.map(a => a.cityName).filter(Boolean))].sort(); }
+  get uniqueCities() { 
+    const selectedState = this.filterForm?.value?.State;
+    let data = this.originalAuditData;
+    if (selectedState) {
+      data = data.filter(a => a.stateName === selectedState);
+    }
+    return [...new Set(data.map(a => a.cityName).filter(Boolean))].sort(); 
+  }
   get uniqueSuppliers() { return [...new Set(this.originalAuditData.map(a => a.supplierName).filter(Boolean))].sort(); }
+  get uniqueStages() { return [...new Set(this.originalAuditData.map(a => a.stageName).filter(Boolean))].sort(); }
+  get uniqueAuditors() { return [...new Set(this.originalAuditData.map(a => a.auditorName).filter(Boolean))].sort(); }
 
   get pagedAuditData() {
     const start = this.pageIndex * this.pageSize;
@@ -140,6 +149,10 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     this.filterForm = this.fb.group({
       Keyword: [''],
       Status: [null],
+      Stage: [null],
+      Auditor: [null],
+      FromDate: [null],
+      ToDate: [null],
       Commodity: [null],
       State: [null],
       City: [null],
@@ -230,12 +243,20 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     });
   }
 
+  onStateChange() {
+    this.filterForm.get('City')?.setValue(null);
+  }
+
   filter() {
     const keyword = this.filterForm.value.Keyword?.toLowerCase() || '';
     const commodity = this.filterForm.value.Commodity;
     const state = this.filterForm.value.State;
     const city = this.filterForm.value.City;
     const supplier = this.filterForm.value.Supplier;
+    const stage = this.filterForm.value.Stage;
+    const auditor = this.filterForm.value.Auditor;
+    const fromDate = this.filterForm.value.FromDate;
+    const toDate = this.filterForm.value.ToDate;
 
     this.filteredAuditData = this.originalAuditData.filter((item: any) => {
       let matchesKeyword = true;
@@ -243,6 +264,9 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       let matchesState = true;
       let matchesCity = true;
       let matchesSupplier = true;
+      let matchesStage = true;
+      let matchesAuditor = true;
+      let matchesDate = true;
 
       if (keyword) {
         matchesKeyword = 
@@ -258,8 +282,26 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       if (state) { matchesState = item.stateName === state; }
       if (city) { matchesCity = item.cityName === city; }
       if (supplier) { matchesSupplier = item.supplierName === supplier; }
+      if (stage) { matchesStage = item.stageName === stage; }
+      if (auditor) { matchesAuditor = item.auditorName === auditor; }
 
-      return matchesKeyword && matchesCommodity && matchesState && matchesCity && matchesSupplier;
+      if (fromDate || toDate) {
+        const auditDate = new Date(item.auditDate);
+        auditDate.setHours(0, 0, 0, 0); // normalize time
+        
+        if (fromDate) {
+          const start = new Date(fromDate);
+          start.setHours(0, 0, 0, 0);
+          if (auditDate < start) matchesDate = false;
+        }
+        if (toDate) {
+          const end = new Date(toDate);
+          end.setHours(0, 0, 0, 0);
+          if (auditDate > end) matchesDate = false;
+        }
+      }
+
+      return matchesKeyword && matchesCommodity && matchesState && matchesCity && matchesSupplier && matchesStage && matchesAuditor && matchesDate;
     });
     this.pageIndex = 0; // Reset to first page on filter
   }

@@ -212,12 +212,11 @@
         <tbody>
           <tr *ngFor="let applicant of pagedCapaData">
             <td class="text-center">
-              <a matTooltip="Edit" (click)="editrow()"><i class="fa fa-edit"></i></a>
-              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)"><i class="fa fa-trash red"></i></a>
+               <a matTooltip="Delete" (click)="deleteConfirmation(applicant)"><i class="fa fa-trash red"></i></a>
             </td>
 
             <!-- 🔥 Status Dropdown (Triggers API) 🔥 -->
-            <td class="text-center">
+            <!-- <td class="text-center">
               <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
                 class="form-control">
                 <mat-option value="WIP">WIP</mat-option>
@@ -226,6 +225,18 @@
                 <mat-option value="Pending">Pending</mat-option>
                 <mat-option value="In Progress">In Progress</mat-option>
                 <mat-option value="Completed">Completed</mat-option>
+              </mat-select>
+            </td> -->
+
+            <!-- 🔥 Dynamic Status Dropdown loaded from Lookup Master 🔥 -->
+           <!-- Change [value]="status.lookupName" to [value]="status.lookupId" -->
+<!-- 🔥 Dynamic Status Dropdown loaded from Lookup Master 🔥 -->
+            <td class="text-center">
+              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)" class="form-control">
+                <!-- Changed lookupId back to lookupName here -->
+                <mat-option *ngFor="let status of capaStatusLookups" [value]="status.lookupName">
+                  {{ status.lookupName }}
+                </mat-option>
               </mat-select>
             </td>
 

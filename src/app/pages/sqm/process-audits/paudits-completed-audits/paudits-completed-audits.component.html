@@ -54,15 +54,35 @@
             </div>
 
             <!-- ROW 2 -->
-            <div class="row col-sm-12 mb-1">
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Stage:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Stage" class="form-control" formControlName="Stage">
+                    <mat-option *ngFor="let opt of uniqueStages" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Auditor:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Auditor" class="form-control" formControlName="Auditor">
+                    <mat-option *ngFor="let opt of uniqueAuditors" [value]="opt">{{opt}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>State:</b></div>
                 <div class="col-sm-8">
-                  <mat-select placeholder="Select State" class="form-control" formControlName="State">
+                  <mat-select placeholder="Select State" class="form-control" formControlName="State" (selectionChange)="onStateChange()">
                     <mat-option *ngFor="let opt of uniqueStates" [value]="opt">{{opt}}</mat-option>
                   </mat-select>
                 </div>
               </div>
+            </div>
+
+            <!-- ROW 3 -->
+            <div class="row col-sm-12 mb-1">
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>City:</b></div>
                 <div class="col-sm-8">
@@ -71,7 +91,31 @@
                   </mat-select>
                 </div>
               </div>
-              <div class="col-sm-4 d-flex align-items-center justify-content-end">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>From Date:</b></div>
+                <div class="col-sm-8">
+                    <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                        <input matInput [matDatepicker]="fromPicker" formControlName="FromDate" placeholder="mm/dd/yyyy" style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
+                        <mat-datepicker-toggle matSuffix [for]="fromPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                        <mat-datepicker #fromPicker></mat-datepicker>
+                    </div>
+                </div>
+              </div>
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>To Date:</b></div>
+                <div class="col-sm-8">
+                    <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                        <input matInput [matDatepicker]="toPicker" formControlName="ToDate" placeholder="mm/dd/yyyy" style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
+                        <mat-datepicker-toggle matSuffix [for]="toPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                        <mat-datepicker #toPicker></mat-datepicker>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 4 -->
+            <div class="row col-sm-12 mt-3">
+              <div class="col-sm-12 d-flex align-items-center justify-content-end">
                 <button mat-raised-button class="btn-default me-2" (click)="clearFilter()">
                   <mat-icon>settings_backup_restore</mat-icon> Clear
                 </button>
@@ -124,7 +168,14 @@
               {{ item.capaSummary }}
             </span>
           </td>
-          <td class="text-link text-center">{{ item.report || '-' }}</td>
+          <!-- Clickable Report % cell -->
+          <td class="text-link text-center">
+            <a [routerLink]="['/app', 'sqm', 'process', 'audit-summary-report']"
+              [queryParams]="{ id: item.processAuditId }"
+              style="font-weight: 600; color: #1d4ed8; text-decoration: underline; cursor: pointer;">
+              {{ item.report || '0%' }}
+            </a>
+          </td>
           
           <td class="text-center font-weight-bold">
             <!-- 🔥 Rendered as Read-Only Text -->

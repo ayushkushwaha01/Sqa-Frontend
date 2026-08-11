@@ -1,11 +1,5 @@
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
-   <button mat-raised-button matTooltip="Alerts" 
-     [style.background-color]="isAlertsView ? '#a31c1c' : 'rgb(252, 45, 45)'" 
-     style="color: white"
-     class="filter-hover margin-right-10" 
-     (click)="toggleAlerts()">
-    <mat-icon class="">warning</mat-icon> Alerts ({{ alertsCount }})
-  </button>
+    
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
     class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
     <mat-icon class="">filter_list</mat-icon> Filter
@@ -97,7 +91,7 @@
       <table class="table table-bordered table-hover">
   <thead class="tbl-head">
     <tr>
-      <th class="text-center">Action</th>
+      <!-- <th class="text-center">Action</th> -->
       <th class="text-center">Status</th>
       <th class="text-center">Resolved</th>
       <th class="text-center">Docs</th>
@@ -124,7 +118,7 @@
 
   <tbody>
     <tr *ngFor="let applicant of tableList">
-      <td class="text-center">
+      <!-- <td class="text-center">
         <a  [routerLink]="['/app','supplier-login','inner-screen','capa-ref']" >
           <i class="fa fa-edit"></i>
         </a>
@@ -132,7 +126,7 @@
         <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
           <i class="fa fa-trash red"></i>
         </a>
-      </td>
+      </td> -->
 
     <td class="text-center">
   <span class="status-badge">{{ applicant.status }}</span>
@@ -153,17 +147,18 @@
         </a>
       </td> -->
 
-    <td class="text-center">
-  <a [routerLink]="['/app','supplier-login','inner-screen','capa-ref']"
-     [queryParams]="{ 
-        id: applicant.processAuditId, 
-        ref: applicant.auditReference, 
-        categoryId: applicant.processCategoryId, 
-        checklistId: applicant.checklistId 
-     }"
-     [ngStyle]="{'color': applicant.isAlert ? 'red' : 'blue', 'font-weight': applicant.isAlert ? 'bold' : 'normal'}">
-    {{ applicant.reference }}
-  </a>
+   <td class="text-center">
+<a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']"
+           [queryParams]="{ 
+              id: applicant.processAuditId, 
+              ref: applicant.auditReference, 
+              categoryId: applicant.processCategoryId, 
+              checklistId: applicant.checklistId,
+              role: 'supplier'
+           }"
+           [ngStyle]="{'color': applicant.isAlert ? 'red' : 'blue', 'font-weight': applicant.isAlert ? 'bold' : 'normal'}">
+          {{ applicant.reference }}
+        </a>
 </td>
 
       <td class="text-center">{{ applicant.actionSubject }}</td>

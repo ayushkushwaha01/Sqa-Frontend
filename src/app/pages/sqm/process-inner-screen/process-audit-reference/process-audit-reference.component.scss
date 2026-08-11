@@ -269,3 +269,23 @@
   &.prev { left: 30px; }
   &.next { right: 30px; }
 }
+
+// /* --- Supplier Read-Only Lockout --- */
+// .supplier-locked {
+//   border: none;
+//   padding: 0;
+//   margin: 0;
+//   opacity: 0.65; /* Visually grays out the protected section */
+//   pointer-events: none !important; /* Completely blocks interaction */
+//   user-select: none;
+// }
+
+// /* Ensure Material components strictly obey the interaction block */
+// .supplier-locked button,
+// .supplier-locked input,
+// .supplier-locked textarea,
+// .supplier-locked mat-select,
+// .supplier-locked mat-checkbox,
+// .supplier-locked .drag-drop-zone {
+//   pointer-events: none !important; 
+// }

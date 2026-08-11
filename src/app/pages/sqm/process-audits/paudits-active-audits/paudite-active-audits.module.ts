@@ -23,8 +23,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    ActiveauditsReferenceComponent
-
+    
   ],
   imports: [
     CommonModule,

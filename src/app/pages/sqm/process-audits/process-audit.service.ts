@@ -42,6 +42,9 @@ export class ProcessAuditService {
   //CAPA Grid Main Menu-Item APIs
   getAllCapas() { return this.http.get(this.apiUrl + 'ProcessAuditInnerScreen/get-all-capas'); }
   updateCapaStatus(payload: any) { return this.http.post(this.apiUrl + 'ProcessAuditInnerScreen/update-capa-status', payload); }
+  deleteCapa(payload: any) { 
+    return this.http.post(this.apiUrl + 'ProcessAuditInnerScreen/delete-capa', payload); 
+  }
 
 
   //document dellete

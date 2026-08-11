@@ -90,7 +90,7 @@ const routes: Routes = [
       { path: 'completed-audits', component: PauditsCompletedAuditsComponent, data: { breadcrumb: 'Completed Audits' } },
       { path: 'user-manual', component: PauditsUserManualComponent, data: { breadcrumb: 'User Manual' } },
       { path: 'help-desk', component: PauditsHelpDeskComponent, data: { breadcrumb: 'Help Desk' } },
-      { path: 'actions', component: PauditsActionsComponent, data: { breadcrumb: 'Actions' } },
+      { path: 'actions', component: PauditsActionsComponent, data: { breadcrumb: 'CAPA' } },
       {
     path: 'audit-summary-report',
     component: AuditSummaryReportComponent
