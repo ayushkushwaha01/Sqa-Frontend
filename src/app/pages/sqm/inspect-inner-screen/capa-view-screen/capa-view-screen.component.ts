@@ -19,6 +19,9 @@ export class CapaViewScreenComponent implements OnInit {
   severityOptions: any[] = [];
   occurrenceOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   detectionOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  isReadOnly: boolean = false;
+  isUpdate: boolean = false;
+  isSaved: boolean = false;
 
   isSlideshowOpen = false;
   currentSlideIndex = 0;
@@ -52,9 +55,14 @@ export class CapaViewScreenComponent implements OnInit {
     this.setupScoreCalculation();
 
     this.route.queryParams.subscribe(params => {
+      this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
       if (params['inspectionRefId']) {
         this.inspectionRefId = Number(params['inspectionRefId']);
         this.loadCapaDetails();
+      } else {
+        if (this.isReadOnly) {
+          this.auditForm.disable();
+        }
       }
     });
   }
@@ -101,6 +109,7 @@ export class CapaViewScreenComponent implements OnInit {
       next: (res: any[]) => {
         if (res && res.length > 0) {
           const data = res[0];
+          this.isUpdate = true;
 
           this.auditForm.patchValue({
             capaId: data.id,
@@ -150,13 +159,23 @@ export class CapaViewScreenComponent implements OnInit {
           this.localImageFiles = [];
           this.localImagePreviews = [];
         }
+
+        if (this.isReadOnly) {
+          this.auditForm.disable();
+        }
       },
-      error: (err) => console.error('Error fetching CAPA data', err)
+      error: (err) => {
+        console.error('Error fetching CAPA data', err);
+        if (this.isReadOnly) {
+          this.auditForm.disable();
+        }
+      }
     });
   }
 
   setupScoreCalculation(): void {
     this.auditForm.valueChanges.subscribe(values => {
+      this.isSaved = false;
       if (values.severityId && values.occurrence && values.detection) {
         const selectedSeverity = this.severityOptions.find(s => s.severityId === values.severityId);
         const severityRating = selectedSeverity ? selectedSeverity.rating : 0;
@@ -170,6 +189,9 @@ export class CapaViewScreenComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.isReadOnly) {
+      return;
+    }
     if (this.auditForm.invalid) {
       this.alertService.createAlert("Please fill all required fields.");
       return;
@@ -213,7 +235,8 @@ export class CapaViewScreenComponent implements OnInit {
     this.inspectionService.saveCapa(sendData).subscribe({
       next: (res) => {
         this.alertService.createAlert("CAPA saved successfully!");
-        this.goBack();
+        this.isSaved = true;
+        this.loadCapaDetails();
       },
       error: (err) => {
         console.error("Error saving CAPA", err);

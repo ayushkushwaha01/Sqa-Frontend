@@ -34,7 +34,22 @@ export class SupplierActiverecordsComponent implements OnInit {
 
   // ── Grid Data ──
   inspectionData: any[] = [];
+  originalInspectionData: any[] = [];
   showFilter = false;
+
+  // ── Dynamic Option Lists for Dropdowns ──
+  inspectors: string[] = [];
+  partFamilies: string[] = [];
+  partNames: string[] = [];
+  batchNumbers: string[] = [];
+
+  // ── Filter values ──
+  filterDate: any = null;
+  filterInspector: string = '';
+  filterPartFamily: string = '';
+  filterPartName: string = '';
+  filterPartNumber: string = '';
+  filterBatchNumber: string = '';
 
   constructor(
     private dialog: MatDialog,
@@ -52,7 +67,11 @@ export class SupplierActiverecordsComponent implements OnInit {
     // 🔥 Pass it to the API
     this.api.getAllInspections(supplierId).subscribe((res: any) => {
       if (res.success) {
-        this.inspectionData = res.data.map((item: any) => {
+        this.originalInspectionData = res.data.map((item: any) => {
+          const rawErrorRateStr = item.errorRate || '0';
+          const parsedErrorRate = parseFloat(rawErrorRateStr.toString().replace('%', ''));
+          const errorRatePpmVal = isNaN(parsedErrorRate) ? 0 : (parsedErrorRate * 1000);
+
           return {
             id: item.inspectionId,
             Reference: item.referenceId,
@@ -69,14 +88,79 @@ export class SupplierActiverecordsComponent implements OnInit {
             BatchNumber: item.batchNumber || 'N/A',
             BatchQuantity: item.batchQuantity || 0,
             SampleQuantity: item.sampleQuantity || 0,
-            ErrorRatePct: item.errorRate,
-            ErrorRatePPM: '0', 
+            ErrorRatePct: rawErrorRateStr.toString().includes('%') ? rawErrorRateStr : `${rawErrorRateStr}%`,
+            ErrorRatePPM: errorRatePpmVal, 
             stage: item.stageName || 'N/A'
           };
         });
+        this.inspectionData = [...this.originalInspectionData];
+
+        // Populate dynamic lists (excluding duplicates and N/A values)
+        this.inspectors = Array.from(new Set(this.originalInspectionData.map(item => item.Inspector).filter(x => x && x !== 'N/A'))).sort();
+        this.partFamilies = Array.from(new Set(this.originalInspectionData.map(item => item.PartFamily).filter(x => x && x !== 'N/A'))).sort();
+        this.partNames = Array.from(new Set(this.originalInspectionData.map(item => item.PartName).filter(x => x && x !== 'N/A'))).sort();
+        this.batchNumbers = Array.from(new Set(this.originalInspectionData.map(item => item.BatchNumber).filter(x => x && x !== 'N/A'))).sort();
+
         this.updateChartData();
       }
     });
+  }
+
+  applyFilter() {
+    this.inspectionData = this.originalInspectionData.filter(item => {
+      // 1. Inspection Date filter
+      if (this.filterDate) {
+        const fd = new Date(this.filterDate);
+        const day = String(fd.getDate()).padStart(2, '0');
+        const month = String(fd.getMonth() + 1).padStart(2, '0');
+        const year = fd.getFullYear();
+        const formattedFilterDate = `${day}-${month}-${year}`;
+        if (item.InspectionDate !== formattedFilterDate) {
+          return false;
+        }
+      }
+
+      // 2. Inspector filter
+      if (this.filterInspector && item.Inspector !== this.filterInspector) {
+        return false;
+      }
+
+      // 3. Part Family filter
+      if (this.filterPartFamily && item.PartFamily !== this.filterPartFamily) {
+        return false;
+      }
+
+      // 4. Part Name filter
+      if (this.filterPartName && item.PartName !== this.filterPartName) {
+        return false;
+      }
+
+      // 5. Part Number filter (case-insensitive search)
+      if (this.filterPartNumber && !item.PartNumber.toLowerCase().includes(this.filterPartNumber.toLowerCase())) {
+        return false;
+      }
+
+      // 6. Batch Number filter
+      if (this.filterBatchNumber && item.BatchNumber !== this.filterBatchNumber) {
+        return false;
+      }
+
+      return true;
+    });
+
+    this.updateChartData();
+  }
+
+  clearFilter() {
+    this.filterDate = null;
+    this.filterInspector = '';
+    this.filterPartFamily = '';
+    this.filterPartName = '';
+    this.filterPartNumber = '';
+    this.filterBatchNumber = '';
+    this.inspectionData = [...this.originalInspectionData];
+
+    this.updateChartData();
   }
 
   // Dynamically calculate chart data based on inspectionData

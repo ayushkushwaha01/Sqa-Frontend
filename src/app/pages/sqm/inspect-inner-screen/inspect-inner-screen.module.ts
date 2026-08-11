@@ -10,6 +10,8 @@ import { CapaReferenceComponent } from './capa-reference/capa-reference.componen
 // Material & Shared Imports (Add more here as needed by your UI)
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { SharedModule } from "src/app/shared/shared.module";
 import { CapaViewScreenComponent } from './capa-view-screen/capa-view-screen.component';
 import { UploadstagepopComponent } from './active-records-ref/uploadstagepop/uploadstagepop.component';
@@ -17,6 +19,7 @@ import { UploadListComponent } from './active-records-ref/upload-list/upload-lis
 import { SamplePopComponent } from './active-records-ref/sample-pop/sample-pop.component';
 import { AddSamplesComponent } from './add-samples/add-samples.component';
 import { AddInsParameterComponent } from './active-records-ref/add-ins-parameter/add-ins-parameter.component';
+import { AddInspectiondocPopComponent } from './active-records-ref/add-inspectiondoc-pop/add-inspectiondoc-pop.component';
 
 const routes: Routes = [
   {
@@ -43,14 +46,17 @@ const routes: Routes = [
     UploadListComponent,
     SamplePopComponent,
     AddSamplesComponent,
-    AddInsParameterComponent
+    AddInsParameterComponent,
+    AddInspectiondocPopComponent
   ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
     SharedModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatDialogModule,
+    MatPaginatorModule
   ]
 })
 export class InspectInnerScreenModule { }

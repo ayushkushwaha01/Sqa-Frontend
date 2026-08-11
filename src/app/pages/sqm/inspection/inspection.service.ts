@@ -92,7 +92,7 @@ export class InspectionService {
     return this.http.post(`${this.apiUrl}InspectionDefects/UpdateDefectsStatus`, payload);
   }
 
- getPendingCapaRecords(supplierId?: number): Observable<any> {
+  getPendingCapaRecords(supplierId?: number): Observable<any> {
     let url = `${this.apiUrl}InspectionCapa/GetPendingCapaRecords`;
     if (supplierId !== undefined && supplierId !== null) {
       url += `?supplierId=${supplierId}`;
@@ -184,6 +184,22 @@ export class InspectionService {
       url += `/${day}`;
     }
     return this.http.get(url);
+  }
+
+
+
+  // --- NEW INSPECTION DOCUMENTS APIs ---
+
+  uploadInspectionDocs(data: FormData): Observable<any> {
+    return this.http.post(this.apiUrl + "DataTable/upload-docs", data);
+  }
+
+  getInspectionDocs(inspectionId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}DataTable/get-docs/${inspectionId}`);
+  }
+
+  deleteInspectionDoc(data: any): Observable<any> {
+    return this.http.post(this.apiUrl + "DataTable/delete-doc", data);
   }
 
 }

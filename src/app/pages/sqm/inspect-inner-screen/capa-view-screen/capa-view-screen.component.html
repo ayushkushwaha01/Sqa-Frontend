@@ -41,19 +41,19 @@
       <div class="row form-group mt-3 align-items-center">
         <label class="control-label col-sm-4 font-weight-bold">Upload Documents (PDF) :</label>
         <div class="col-sm-7">
-          <input type="file" multiple accept=".pdf" class="form-control" (change)="onFilesSelected($event)">
+          <input *ngIf="!isReadOnly" type="file" multiple accept=".pdf" class="form-control" (change)="onFilesSelected($event)">
           <div class="file-list" style="width: 100%;">
             <!-- Existing API Docs -->
             <div *ngFor="let doc of uploadedDocs; let i = index" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #e3f2fd; margin-top: 4px;">
               <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
               <a [href]="doc.url" target="_blank" style="text-decoration: none; color: #1485cc;">{{ doc.title }}</a>
-              <button type="button" mat-icon-button style="margin-left: auto;" (click)="removeApiDoc(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
+              <button *ngIf="!isReadOnly" type="button" mat-icon-button style="margin-left: auto;" (click)="removeApiDoc(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
             </div>
             <!-- Newly Selected Files -->
             <div *ngFor="let file of selectedFiles; let i = index" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #f5f5f5; margin-top: 4px;">
               <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
               <a href="javascript:void(0)" (click)="viewLocalFile(file)" style="text-decoration: none; color: #1485cc;">{{ file.name }}</a>
-              <button type="button" mat-icon-button style="margin-left: auto;" (click)="removeFile(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
+              <button *ngIf="!isReadOnly" type="button" mat-icon-button style="margin-left: auto;" (click)="removeLocalFile(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
             </div>
           </div>
         </div>
@@ -181,9 +181,9 @@
   </div>
 
   <div class="row mt-3 mb-5 align-items-end">
-    <div class="col-md-10">
+    <div [class]="isReadOnly ? 'col-md-12' : 'col-md-10'">
       <div class="gallery-container d-flex align-items-center p-2">
-        <div class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
+        <div *ngIf="!isReadOnly" class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
           <mat-icon>add</mat-icon>
         </div>
         
@@ -191,7 +191,7 @@
         <div *ngFor="let img of apiImages; let i = index" class="gallery-item me-2 border cursor-pointer bg-white position-relative" (click)="openSlideshow(i)">
           <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
           <!-- Small delete button floating in the top right -->
-          <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;" (click)="removeApiImage($event, i)">
+          <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;" (click)="removeApiImage($event, i)">
             <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
           </button>
         </div>
@@ -199,17 +199,17 @@
         <!-- Local Pending Images -->
         <div *ngFor="let img of localImagePreviews; let i = index" class="gallery-item me-2 border cursor-pointer bg-light position-relative" (click)="openSlideshow(apiImages.length + i)">
           <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover opacity-75">
-          <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;" (click)="removeLocalImage($event, i)">
+          <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;" (click)="removeLocalImage($event, i)">
             <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
           </button>
         </div>
       </div>
     </div>
 
-    <div class="col-md-2 text-end">
-      <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)">
+    <div *ngIf="!isReadOnly" class="col-md-2 text-end">
+      <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)" [disabled]="isSaved || auditForm.invalid">
         <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);">
-          <mat-icon>save</mat-icon> Save
+          <mat-icon>{{ isUpdate ? 'edit' : 'save' }}</mat-icon> {{ isUpdate ? 'Update' : 'Save' }}
         </span>
       </button>
     </div>

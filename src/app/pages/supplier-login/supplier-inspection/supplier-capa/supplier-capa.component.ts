@@ -10,7 +10,7 @@ import { AddIssuesssComponent } from 'src/app/pages/testing/testing-issues/add-i
 import { PartsActionsGridComponent } from 'src/app/pages/sqm/parts-audits/parts-actions/parts-actions-grid/parts-actions-grid.component';
 import { ActionDescRemarksComponent } from 'src/app/pages/sqm/process-audits/paudits-actions/action-desc-remarks/action-desc-remarks.component';
 import { InspectionService } from 'src/app/pages/sqm/inspection/inspection.service';
-
+import { InspectionDocspopComponent } from 'src/app/pages/sqm/inspection/inspection-capa/inspection-docspop/inspection-docspop.component';
 
 @Component({
   selector: 'app-supplier-capa',
@@ -20,12 +20,12 @@ import { InspectionService } from 'src/app/pages/sqm/inspection/inspection.servi
 export class SupplierCapaComponent implements OnInit {
 
   filterToggle: boolean = false;
-  isAlertsView: boolean = false; 
-  
+  isAlertsView: boolean = false;
+
   // Pagination and Data Tracking
   originalTableList: any[] = [];
   tableList: any[] = [];
-  pagedTableList: any[] = []; // 🔥 Bound to the HTML table
+  pagedTableList: any[] = []; 
   totalSize = 0;
   pageSize = 5;
   pageIndex = 0;
@@ -35,7 +35,6 @@ export class SupplierCapaComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // Dropdown Lookups (Keep your existing static ones or load dynamically)
   TractorIdSections = [
     { item_id: 1, item_text: 'ID-01' },
     { item_id: 2, item_text: 'ID-02' },
@@ -67,45 +66,51 @@ export class SupplierCapaComponent implements OnInit {
   }
 
   loadData() {
-    // 🔥 Grab the logged-in Supplier's ID
     const supplierId = Number(localStorage.getItem('UserId')) || 0;
 
     this.api.getPendingCapaRecords(supplierId).subscribe((res: any) => {
       if (res.success && res.data) {
-        // Map backend keys to frontend properties
         this.originalTableList = res.data.map((item: any) => {
           return {
             id: item.capaId,
-            status: item.status === 1 ? 'Closed' : (item.status === 2 ? 'Open' : 'WIP'), // Adjust logic based on your Status mapping
+            inspectionRefId: item.inspectionRefId,
+            status: item.status === 1 ? 'WIP' :
+                    item.status === 2 ? 'Open' :
+                    item.status === 3 ? 'Closed' :
+                    item.status === 4 ? 'Pending' :
+                    item.status === 5 ? 'In Progress' :
+                    item.status === 6 ? 'Completed' : item.status, 
             resolved: item.resolved,
             docs: item.docs,
+            reference: item.reference,
             actionSubject: item.actionSubject,
+            parameterName: item.parameterName,
+            partFamilyName: item.partFamilyName,
+            partName: item.partName,
             supplierName: item.supplierName,
             actionType: item.actionType,
             auditReference: item.auditReference,
             processCategory: item.processCategory,
-            description: item.description,
             supplierRemarks: item.supplierRemarks,
             logDate: item.logDate ? new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            dateCreated: item.logDate ? new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
             dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            dateResolved: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            dateClosed: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            reference: item.reference,
+            etaDate: item.etaDate ? new Date(item.etaDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+            auditorRemarks: item.auditorRemarks,
+            auditeeResponse: item.auditeeResponse,
             delayInDays: item.delayInDays || null,
+            completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
             severity: item.severity,
             occurrence: item.occurrence,
             detection: item.detection,
             riskRating: item.riskRating || 'Medium',
             rating: item.rating,
-            pdcaStatus: item.pdcaStatus || 'Plan',
-            isAlert: item.delayInDays > 0 // Example logic: If delayed, flag as alert
+            pdcaStatus: item.pdcaStatus || '-',
+            isAlert: item.delayInDays > 0
           };
         });
 
         this.alertsCount = this.originalTableList.filter(item => item.isAlert).length;
-        this.go(); // Apply filters and update pagination natively
+        this.go(); 
       }
     });
   }
@@ -119,7 +124,7 @@ export class SupplierCapaComponent implements OnInit {
     const filters = this.myGroup.value;
     const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
 
-    let baseList = this.isAlertsView 
+    let baseList = this.isAlertsView
       ? this.originalTableList.filter(item => item.isAlert)
       : this.originalTableList;
 
@@ -130,7 +135,6 @@ export class SupplierCapaComponent implements OnInit {
         isMatch = isMatch && (
           (item.actionSubject && item.actionSubject.toLowerCase().includes(keyword)) ||
           (item.supplierName && item.supplierName.toLowerCase().includes(keyword)) ||
-          (item.description && item.description.toLowerCase().includes(keyword)) ||
           (item.reference && item.reference.toLowerCase().includes(keyword))
         );
       }
@@ -138,8 +142,8 @@ export class SupplierCapaComponent implements OnInit {
     });
 
     this.totalSize = this.tableList.length;
-    this.pageIndex = 0; // Reset to page 1 on filter
-    
+    this.pageIndex = 0; 
+
     if (this.paginator) {
       this.paginator.firstPage();
     }
@@ -152,14 +156,13 @@ export class SupplierCapaComponent implements OnInit {
     this.tableList = [...this.originalTableList];
     this.totalSize = this.tableList.length;
     this.pageIndex = 0;
-    
+
     if (this.paginator) {
       this.paginator.firstPage();
     }
     this.updatePagination();
   }
 
-  // 🔥 Pagination Handlers
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -172,7 +175,6 @@ export class SupplierCapaComponent implements OnInit {
     this.pagedTableList = this.tableList.slice(start, end);
   }
 
-  // UI / Modal Actions
   scrollRight() {
     document.getElementById('grid-table-container')?.scrollBy({ left: 300, behavior: 'smooth' });
   }
@@ -182,10 +184,31 @@ export class SupplierCapaComponent implements OnInit {
   }
 
   imageSource1() { this.dialog.open(ActionDescRemarksComponent, { width: '500px', height: 'auto' }); }
-  docsPhoto() { console.log("Docs/Photos clicked"); }
+  
+  docsPhoto(applicant: any) {
+    const dialogRef = this.dialog.open(InspectionDocspopComponent, {
+      width: '750px',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'no-scroll-dialog',
+      data: { 
+        capaId: applicant.id,
+        inspectionRefId: applicant.inspectionRefId,
+        isReadOnly: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadData();
+      }
+    });
+  }
+
   processgrid() {
     this.dialog.open(PartsActionsGridComponent, { width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog' });
   }
+
   deleteConfirmation(item: any) {
     this.dialog.open(ConfirmationDialogComponent, { width: 'auto', data: { title: 'Delete', content: 'Are you sure?' } });
   }
