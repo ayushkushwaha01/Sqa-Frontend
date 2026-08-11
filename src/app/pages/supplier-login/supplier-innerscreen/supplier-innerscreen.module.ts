@@ -23,22 +23,22 @@ import { PartsCapaComponent } from './parts-capa/parts-capa.component';
 import { InsCapaComponent } from './ins-capa/ins-capa.component';
 import { SuppAddSampleComponent } from './supp-add-sample/supp-add-sample.component';
 
-const routes: Routes = [  
+const routes: Routes = [
   {
     path: '',
     component: SupplierInnerscreenComponent,
     children: [
       { path: 'process-ref', component: SupplierProcessRefComponent },
       { path: 'capa-ref', component: SupplierCapaRefComponent },
-      { path: 'parts-ref', component: SupplierPartsRefComponent },
+      { path: 'parts-ref', component: SupplierPartsRefComponent, data: { breadcrumb: 'Part Audit Dashboard' } },
       { path: 'parts-capa', component: SupplierPartsCapaComponent },
       { path: 'parts-details', component: SupplierPartsDetailsComponent },
-       { path: 'ins-active-ref', component: InsActiveRefComponent },
+      { path: 'ins-active-ref', component: InsActiveRefComponent },
       { path: 'ins-capa-ref', component: InsCapaRefComponent },
-         { path: 'part-inner-capa', component: PartsCapaComponent },
-                { path: 'ins-inner-capa', component: InsCapaComponent },
-                     { path: 'ins-sample', component: SuppAddSampleComponent },
-         
+      { path: 'part-inner-capa', component: PartsCapaComponent },
+      { path: 'ins-inner-capa', component: InsCapaComponent },
+      { path: 'ins-sample', component: SuppAddSampleComponent },
+
     ]
   }
 ];

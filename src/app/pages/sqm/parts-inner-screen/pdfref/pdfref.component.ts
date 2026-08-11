@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
+import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import * as Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
@@ -43,7 +43,7 @@ export class PdfrefComponent implements OnInit {
   }
 
   constructor(
-    private route: ActivatedRoute,
+    private route: ActivatedRoute, private location: Location,
     private PartAuditDashboardService: PartsAuditAnalayticsService
   ) { }
 
@@ -94,7 +94,7 @@ export class PdfrefComponent implements OnInit {
 
                 overallScore: d.auditDetails.okayPercentage + '%',
 
-                rating: d.auditDetails.subject
+                subject: d.auditDetails.subject
 
               },
 
@@ -103,7 +103,7 @@ export class PdfrefComponent implements OnInit {
               categoryScores: d.categoryPerformance,
 
               ncStatus: this.buildNcStatus(d.statusDistribution),
-
+              ratingDistribution: d.riskRatingDistribution || [],
               majorNCs: d.topCriticalNCs,
 
               improvementPoints: d.topSafetyNCs,
@@ -130,6 +130,9 @@ export class PdfrefComponent implements OnInit {
 
   }
 
+  goBack(): void {
+    this.location.back();
+  }
 
   buildNcStatus(statusData: any[]) {
 
@@ -159,120 +162,206 @@ export class PdfrefComponent implements OnInit {
 
   initCharts(): void {
     // 1. FINDING DISTRIBUTION DONUT CHART
+    // 1. FINDING DISTRIBUTION DONUT CHART
+
     const rawDist = (this.reportData.ratingDistribution || []) as any[];
-    let pieSeriesData = rawDist.map((item: any) => {
-      const name = item.name || 'Rating';
-      const y = item.y !== undefined ? item.y : (item.count !== undefined ? item.count : 1);
-      return { name, y, color: this.getRatingColorByName(name) };
+
+    const pieSeriesData = rawDist.map((item: any) => {
+
+      const name = item.riskRating || 'Rating';
+
+      const y = item.count ?? 0;
+
+      return {
+        name: name,
+        y: y,
+        color: this.getRatingColorByName(name)
+      };
+
     });
 
-    if (pieSeriesData.length === 0) {
-      pieSeriesData = [
-        { name: 'Rating 5 (Excellent)', y: 1, color: '#16a34a' }
-      ];
-    }
-
     this.ratingChartOptions = {
-      chart: { type: 'pie', backgroundColor: 'transparent', height: 155, animation: false, margin: [0, 0, 0, 0] },
-      title: { text: '' },
-      credits: { enabled: false },
-      tooltip: { pointFormat: '<b>{point.percentage:.1f}%</b> ({point.y})' },
+
+      chart: {
+        type: 'pie',
+        backgroundColor: 'transparent',
+        height: 155,
+        animation: false,
+        margin: [0, 0, 0, 0]
+      },
+
+      title: {
+        text: ''
+      },
+
+      credits: {
+        enabled: false
+      },
+
+      tooltip: {
+        pointFormat: '<b>{point.percentage:.1f}%</b> ({point.y})'
+      },
+
       legend: {
         enabled: true,
         layout: 'vertical',
         align: 'right',
         verticalAlign: 'middle',
-        itemStyle: { fontSize: '9px', fontWeight: '600', color: '#334155' },
+
+        itemStyle: {
+          fontSize: '9px',
+          fontWeight: '600',
+          color: '#334155'
+        },
+
         symbolHeight: 8,
         symbolWidth: 8,
         symbolRadius: 4,
         margin: 2
       },
+
       plotOptions: {
+
         pie: {
+
           innerSize: '55%',
           size: '85%',
           animation: false,
           showInLegend: true,
+
           dataLabels: {
             enabled: true,
             distance: 4,
             format: '{point.percentage:.0f}%',
-            style: { fontSize: '9px', fontWeight: '700', color: '#1e293b', textOutline: 'none' }
+
+            style: {
+              fontSize: '9px',
+              fontWeight: '700',
+              color: '#1e293b',
+              textOutline: 'none'
+            }
           }
+
         }
+
       },
-      series: [{ type: 'pie', name: 'Ratings', data: pieSeriesData }]
+
+      series: [
+        {
+          type: 'pie',
+          name: 'Ratings',
+          data: pieSeriesData
+        }
+      ]
+
     };
 
     // 2. SOD RISK SCORE GAUGE
+    // 2. SOD RISK SCORE GAUGE (speedometer style)
     const sodScore = this.reportData.sodRiskScore || 0;
+
     this.sodGaugeOptions = {
-      chart: { type: 'solidgauge', backgroundColor: 'transparent', height: 155, margin: [0, 0, 0, 0], animation: false },
+      chart: {
+        type: 'gauge',
+        backgroundColor: 'transparent',
+        height: 220,
+        margin: [0, 0, 0, 0],
+        animation: false
+      },
       title: { text: '' },
       credits: { enabled: false },
       pane: {
-        center: ['50%', '75%'],
-        size: '125%',
         startAngle: -90,
         endAngle: 90,
-        background: [{
-          backgroundColor: '#e2e8f0',
-          innerRadius: '60%',
-          outerRadius: '100%',
-          shape: 'arc'
-        }] as any
+        center: ['50%', '85%'],
+        size: '150%',
+        background: undefined
       },
       tooltip: { enabled: false },
       yAxis: {
         min: 0,
         max: 1000,
-        stops: [
-          [0.3, '#16a34a'], // Green
-          [0.6, '#eab308'], // Yellow
-          [0.9, '#dc2626']  // Red
-        ],
-        lineWidth: 0,
-        tickWidth: 0,
+        tickInterval: 100,
         minorTickInterval: null,
-        tickAmount: 2,
-        labels: { y: 14, style: { fontSize: '9px' } }
-      },
-      plotOptions: {
-        solidgauge: {
-          animation: false,
-          dataLabels: {
-            y: -28,
-            borderWidth: 0,
-            useHTML: true,
-            format: '<div style="text-align:center"><span style="font-size:18px;color:#0f172a;font-weight:bold">{y}</span><br/><span style="font-size:9px;color:#64748b">Risk Score</span></div>'
+        tickWidth: 1,
+        tickLength: 6,
+        tickColor: '#333',
+        labels: {
+          distance: 12,
+          style: { fontSize: '9px', color: '#334155' }
+        },
+        lineWidth: 0,
+        plotBands: [
+          {
+            from: 0, to: 250, color: '#16a34a', thickness: 20,
+            label: {
+              text: 'Excellent',
+              style: { fontSize: '9px', fontWeight: 'bold', color: '#fff' },
+              rotation: -67
+            }
+          },
+          {
+            from: 250, to: 500, color: '#84cc16', thickness: 20,
+            label: {
+              text: 'Good',
+              style: { fontSize: '9px', fontWeight: 'bold', color: '#fff' },
+              rotation: -22
+            }
+          },
+          {
+            from: 500, to: 750, color: '#f97316', thickness: 20,
+            label: {
+              text: 'Average',
+              style: { fontSize: '9px', fontWeight: 'bold', color: '#fff' },
+              rotation: 22
+            }
+          },
+          {
+            from: 750, to: 1000, color: '#dc2626', thickness: 20,
+            label: {
+              text: 'Poor',
+              style: { fontSize: '9px', fontWeight: 'bold', color: '#fff' },
+              rotation: 67
+            }
           }
-        }
+        ]
       },
       series: [{
-        type: 'solidgauge',
+        type: 'gauge',
         name: 'SOD Score',
         data: [sodScore],
-        innerRadius: '60%',
-        radius: '100%'
-      }]
+        dial: {
+          radius: '75%',
+          backgroundColor: '#000',
+          baseWidth: 10,
+          baseLength: '0%',
+          rearLength: '0%'
+        },
+        pivot: {
+          radius: 7,
+          backgroundColor: '#000'
+        },
+        dataLabels: {
+          enabled: false
+        }
+      }] as any
     };
 
     // 3. RADAR / SPIDER CHART
-    const cats = this.reportData.categoryScores;
+    const forging = this.reportData.forgingProcess || [];
 
-    const catNames = cats.map((x: any) => x.categoryName);
-
-    const catScores = cats.map((x: any) => x.percentage);
-
+    const catNames = forging.map((x: any) => x.categoryName);
+    const severityData = forging.map((x: any) => x.averageSeverity);
+    const occurrenceData = forging.map((x: any) => x.averageOccurrence);
+    const detectionData = forging.map((x: any) => x.averageDetection);
     this.spiderChartOptions = {
       chart: {
         polar: true,
         type: 'line',
         backgroundColor: 'transparent',
-        height: 155,
+        height: 220,
         animation: false,
-        margin: [10, 10, 20, 10]
+        margin: [20, 10, 40, 10]
       },
       title: { text: '' },
       credits: { enabled: false },
@@ -295,29 +384,38 @@ export class PdfrefComponent implements OnInit {
         gridLineInterpolation: 'polygon',
         lineWidth: 0,
         min: 0,
-        max: 100,
-        labels: { enabled: false }
+        max: 10,
+        tickInterval: 2,
+        labels: { style: { fontSize: '8px', color: '#94a3b8' } }
       },
-      tooltip: { shared: true, pointFormat: '<b>{point.y}%</b>' },
+      tooltip: { shared: true, pointFormat: '<b>{series.name}: {point.y}</b><br/>' },
       series: [
         {
-          type: 'area',
-          name: 'Benchmark',
-          data: catNames.map(() => 75),
-          color: 'rgba(2,132,199,0.15)',
-          lineColor: '#0284c7',
-          lineWidth: 1.5,
+          type: 'line',
+          name: 'Severity',
+          data: severityData,
+          color: '#dc2626',
           pointPlacement: 'on',
-          marker: { enabled: false }
+          lineWidth: 2,
+          marker: { radius: 3, fillColor: '#dc2626' }
         } as any,
         {
           type: 'line',
-          name: 'Actual',
-          data: catScores,
-          color: '#d97706',
+          name: 'Occurrence',
+          data: occurrenceData,
+          color: '#eab308',
           pointPlacement: 'on',
           lineWidth: 2,
-          marker: { radius: 3, fillColor: '#d97706' }
+          marker: { radius: 3, fillColor: '#eab308' }
+        } as any,
+        {
+          type: 'line',
+          name: 'Detection',
+          data: detectionData,
+          color: '#16a34a',
+          pointPlacement: 'on',
+          lineWidth: 2,
+          marker: { radius: 3, fillColor: '#16a34a' }
         } as any
       ]
     };
@@ -330,27 +428,40 @@ export class PdfrefComponent implements OnInit {
     return Math.round((value / total) * 100);
   }
 
+  private getBandKeyword(): string {
+    const subject = (this.reportData?.header?.subject || '').toLowerCase();
+    if (subject.includes('excellent')) return 'excellent';
+    if (subject.includes('good')) return 'good';
+    if (subject.includes('average')) return 'average';
+    if (subject.includes('poor')) return 'poor';
+    return 'good'; // fallback
+  }
+
   getVerdictClass(): string {
-    const sod = this.reportData?.sodRiskScore || 0;
-    if (sod >= 400) return 'poor';
-    if (sod >= 200) return 'average';
-    return 'good';
+    return this.getBandKeyword(); // 'excellent' | 'good' | 'average' | 'poor'
   }
 
   getVerdictTitle(): string {
-    const sod = this.reportData?.sodRiskScore || 0;
-    if (sod >= 400) return 'POOR SUPPLIER';
-    if (sod >= 200) return 'AVERAGE SUPPLIER';
-    return 'GOOD SUPPLIER';
+    const band = this.getBandKeyword();
+    const map: { [key: string]: string } = {
+      excellent: 'EXCELLENT SUPPLIER',
+      good: 'GOOD SUPPLIER',
+      average: 'AVERAGE SUPPLIER',
+      poor: 'POOR SUPPLIER'
+    };
+    return map[band];
   }
 
   getVerdictSubtitle(): string {
-    const sod = this.reportData?.sodRiskScore || 0;
-    if (sod >= 400) return 'ADDRESS ALL MAJOR NCs IMMEDIATELY';
-    if (sod >= 200) return 'MONITOR PROCESS DEVIATIONS';
-    return 'STANDARD AUDIT COMPLIANCE MET';
+    const band = this.getBandKeyword();
+    const map: { [key: string]: string } = {
+      excellent: 'AUDIT PERFORMANCE ABOVE STANDARD',
+      good: 'STANDARD AUDIT COMPLIANCE MET',
+      average: 'MONITOR PROCESS DEVIATIONS',
+      poor: 'ADDRESS ALL MAJOR NCs IMMEDIATELY'
+    };
+    return map[band];
   }
-
   isScoreLow(): boolean {
     const raw = this.reportData?.header?.overallScore || '0%';
     const numeric = parseInt(raw.replace('%', ''), 10) || 0;
@@ -382,7 +493,7 @@ export class PdfrefComponent implements OnInit {
   }
 
   private getPdfOpt() {
-    const ref = (this.reportData?.header?.auditReference || 'Report').replace(/[\\/]/g, '_');
+    const ref = String(this.reportData?.header?.auditReference || 'Report').replace(/[\\/]/g, '_');
     return {
       margin: 0.2,
       filename: 'Audit_Summary_Report_' + ref + '.pdf',

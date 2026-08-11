@@ -175,15 +175,22 @@
           </div>
         </div>
 
-        <!-- <div class="row form-group mt-3 align-items-center">
+        <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
             Risk Rating :
           </label>
 
           <div class="col-sm-7">
-            <input type="text" value="High" class="form-control input-risk">
+            <mat-select placeholder="Select Risk Rating" class="form-control custom-mat-select"
+              formControlName="riskRating">
+
+              <mat-option *ngFor="let r of Riskratings" [value]="r.label">
+                {{ r.label }} - {{ r.value }}
+              </mat-option>
+
+            </mat-select>
           </div>
-        </div> -->
+        </div>
 
         <!-- <div class="row form-group mt-3 align-items-center">
 

@@ -196,3 +196,159 @@ td {
   width: 100% !important;
   height: 420px !important;
 }
+
+.archive-icon {
+  //color: #ff9800;
+  cursor: pointer;
+  margin: 0 12px;
+  font-size: 16px;
+}
+
+frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+/* Frozen Header */
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important; // Keep your existing header color
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+/* Divider after last frozen column */
+.last-frozen {
+  //border-right: 3px solid #90caf9 !important;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.mine {
+  position: fixed;
+  bottom: 80px;
+  right: 40px;
+  background-color: #e6e6e6 !important;
+}
+
+.filter-wrapper {
+  background: #efefef;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 14px;
+  margin-bottom: 15px;
+}
+
+.filter-card,
+.mat-mdc-card,
+.mat-mdc-card-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
+  column-gap: 20px;
+  row-gap: 18px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.filter-label {
+  width: 90px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.custom-mat-input,
+.custom-mat-select {
+  width: 100%;
+  max-width: 220px;
+}
+
+.custom-mat-input {
+  flex: 1;
+  height: 38px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0 10px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  grid-column: 4;
+}
+
+.btn-go {
+  background: #fff !important;
+  border: 1px solid #c5c5c5 !important;
+}
+
+.btn-clear {
+  background: #3f4a54 !important;
+  color: #fff !important;
+}
+
+.custom-mat-input {
+  width: 180px !important;
+  /* Slightly wider than select, adjust if needed */
+  height: 36px !important;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  padding: 0 10px !important;
+  box-sizing: border-box;
+  outline: none;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: #333;
+  transition: border-color 0.2s ease-in-out;
+
+  /* Matches the green focus border from your image */
+  &:focus {
+    border: 1px solid #0c6b4b !important;
+  }
+
+  &::placeholder {
+    color: #999 !important;
+    font-size: 13px !important;
+    opacity: 1 !important;
+  }
+}
+
+.custom-mat-select {
+  width: 180px;
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px;
+  font-size: 13px;
+  display: block;
+
+  ::ng-deep .mat-select-trigger {
+    height: 32px !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  ::ng-deep .mat-select-value {
+    color: #555 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+}
