@@ -104,8 +104,12 @@
 
             <!-- Buttons -->
             <div class="col-12 text-end mt-2">
-              <button type="button" class="btn btn-secondary me-2" (click)="clearFilter()">Clear</button>
-              <button type="button" class="btn btn-primary" (click)="go()">Search</button>
+              <button mat-raised-button class="btn-clear me-2" type="button" (click)="clearFilter()">
+                <mat-icon>settings_backup_restore</mat-icon> Clear
+              </button>
+              <button mat-raised-button color="primary" class="btn-search" type="button" (click)="go()">
+                <mat-icon>search</mat-icon> Search
+              </button>
             </div>
           </div>
         </form>

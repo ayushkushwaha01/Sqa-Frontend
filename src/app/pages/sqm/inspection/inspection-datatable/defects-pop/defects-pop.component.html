@@ -12,15 +12,15 @@
     </div>
   </div>
 
-  <!-- Dynamic CSS Grid based on available cells -->
-  <div class="grid-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+  <!-- Grid with exactly 5 columns -->
+  <div class="grid-container" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
     
     <div class="grid-cell p-2 border text-center" 
          *ngFor="let cell of gridCells" 
-         (click)="isReadOnly ? null : toggleColor(cell)"
+         (click)="(isReadOnly || cell.isBlank) ? null : toggleColor(cell)"
          [style.backgroundColor]="cell.bgColor"
          [style.color]="cell.textColor"
-         [style.cursor]="isReadOnly ? 'default' : 'pointer'"
+         [style.cursor]="(isReadOnly || cell.isBlank) ? 'default' : 'pointer'"
          style="min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; border-radius: 4px; user-select: none;">
       {{ cell.label }}
     </div>
@@ -29,7 +29,7 @@
     <div *ngIf="gridCells.length === 0" style="grid-column: 1 / -1; text-align: center; color: #888; padding: 20px;">
       No defects found for this record.
     </div>
-    
+
   </div>
 
 </div>

@@ -65,7 +65,7 @@ export class DefectsPopMasterComponent implements OnInit {
       const color = this.getColorBasedOnAverage(defect.averageStatus);
       return {
         // Example label output: "Scratch \n Count: 3 \n Avg: 2"
-        label: `${defect.defectName}\nCount: ${defect.count}\nAvg: ${defect.averageStatus}`,
+        label: `${defect.defectName}`,
         bgColor: color.bgColor,
         textColor: color.textColor,
         rawData: defect // Keep raw data if needed for clicking/toggling
