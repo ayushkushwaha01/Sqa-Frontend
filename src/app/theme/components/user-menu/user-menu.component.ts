@@ -48,6 +48,9 @@ export class UserMenuComponent implements OnInit {
   public logout() {
     localStorage.clear();
     sessionStorage.clear();
-    this.router.navigate(['/login']);
+    
+    // Force a full browser reload to the login page. 
+    // This ensures all Angular singleton services (like Auth behaviors) are wiped from memory.
+    window.location.href = '/#/login';
   }
 }

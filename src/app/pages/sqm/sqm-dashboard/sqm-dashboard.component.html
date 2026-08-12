@@ -1,136 +1,176 @@
 <div class="dashboard-wrapper">
 
+  <!-- ==================== TOP METRICS ==================== -->
   <div class="metrics-row">
-    <div class="metric-card">Process Audits - 62</div>
-    <div class="metric-card">Parts Audits - 51</div>
-    <div class="metric-card">Suppliers Covered - 75</div>
-    <div class="metric-card">CAPA Logged- 6</div>
-    <div class="metric-card">CAPA Solved - 5</div>
+    <div class="metric-card">Process Audits - {{ dashboardData?.metrics?.processAudits || 0 }}</div>
+    <div class="metric-card">Parts Audits - {{ dashboardData?.metrics?.partsAudits || 0 }}</div>
+    <div class="metric-card">Suppliers Covered - {{ dashboardData?.metrics?.suppliersCovered || 0 }}</div>
+    <div class="metric-card">CAPA Logged - {{ dashboardData?.metrics?.capaLogged || 0 }}</div>
+    <div class="metric-card">CAPA Solved - {{ dashboardData?.metrics?.capaSolved || 0 }}</div>
   </div>
 
   <div class="dashboard-grid">
     
+    <!-- ==================== COLUMN 1 ==================== -->
     <div class="grid-column">
+      
+      <!-- GLOBAL FILTER PANEL -->
       <div class="panel filter-panel card-filter" style="height: 260px;">
-  <div class="form-group">
-    <label>Commodity:</label>
-    <select>
-      <option>Casting</option>
-      <option>Forging</option>
-      <option>Machining</option>
-      <option>Fasteners</option>
-      <option>Non-Metallic</option>
-      <option>Sheet Metal</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label>Severity:</label>
-    <select>
-      <option>Important</option>
-      <option>Critical</option>
-      <option>Others</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label>Select Year:</label>
-    <select>
-      <option>FY 2021-2022</option>
-      <option>FY 2022-2023</option>
-      <option>FY 2023-2024</option>
-      <option>FY 2024-2025</option>
-    </select>
-  </div>
-  <div class="button-group">
-    <button class="btn-go"><span class="search-icon">&#9906;</span> Go</button>
-  </div>
-</div>
+        <form [formGroup]="filterForm" (ngSubmit)="onFilterSubmit()">
+          
+          <div class="form-group">
+            <label>Commodity:</label>
+            <select formControlName="commodityId" class="form-control">
+              <option [ngValue]="null">All Commodities</option>
+              <option *ngFor="let com of commodities" [value]="com.commodityId">
+                {{ com.name || com.commodityName }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Severity:</label>
+            <select formControlName="severityId" class="form-control">
+              <option [ngValue]="null">All Severities</option>
+              <option *ngFor="let sev of severities" [value]="sev.severityId">
+                {{ sev.severityName }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Select Year:</label>
+            <select formControlName="finYear" class="form-control">
+              <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+            </select>
+          </div>
+          
+          <div class="button-group">
+            <button type="submit" class="btn-go"><span class="search-icon">&#9906;</span> Go</button>
+          </div>
+        </form>
+      </div>
 
+      <!-- PARTS AUDIT CHART -->
       <div class="panel chart-panel card-parts" style="height: 270px;">
         <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top:-10px">
           <h3 class="panel-title mb-0">Parts Audits</h3>
+          <!-- 🔥 Local Widget Dropdown (Tags Fixed Here) -->
           <mat-form-field appearance="outline" class="panel-dropdown">
             <mat-label>Commodity</mat-label>
-            <mat-select>
-              <mat-option value="casting">Casting</mat-option>
-              <mat-option value="forging">Forging</mat-option>
-              <mat-option value="machining">Machining</mat-option>
+            <mat-select [(value)]="localPartsCommodityId" (selectionChange)="onPartsCommodityChange($event.value)">
+              <mat-option [value]="null">All Commodities</mat-option>
+              <mat-option *ngFor="let com of commodities" [value]="com.commodityId">{{ com.name || com.commodityName }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
-        <div class="chart-container"  style="margin-top:-30px">
+        <div class="chart-container" style="margin-top:-15px">
+          <!-- 🔥 Native Highcharts Callback -->
           <highcharts-chart 
             [Highcharts]="Highcharts" 
             [options]="partsAuditOptions" 
+            [callbackFunction]="partsCallback"
             style="width: 100%; height: 100%; display: block;">
           </highcharts-chart>
         </div>
       </div>
     </div>
 
+
+    <!-- ==================== COLUMN 2 ==================== -->
     <div class="grid-column">
-      <div class="panel table-panel card-issue" style="height: 260px;">
+      
+      <!-- CAPA DISTRIBUTION TABLE -->
+      <div class="panel table-panel card-issue" style="height: 260px; overflow-y: auto;">
         <h3 class="panel-title">CAPA Distribution</h3>
         <table class="data-table">
           <thead>
-            <tr><th>Severity</th><th>Status</th></tr>
+            <tr>
+              <th>Severity</th>
+              <th>Volume</th>
+            </tr>
           </thead>
           <tbody>
-            <tr><td>Important</td><td>10</td></tr>
-            <tr><td>Critical</td><td>18</td></tr>
-            <tr><td>Others</td><td>25</td></tr>
+            <tr *ngFor="let item of dashboardData?.capaDistribution">
+              <td>{{ item.severity }}</td>
+              <td>{{ item.count }}</td>
+            </tr>
+            <!-- Show if no data -->
+            <tr *ngIf="!dashboardData?.capaDistribution?.length">
+              <td colspan="2" class="text-center text-muted">No data available</td>
+            </tr>
           </tbody>
         </table>
       </div>
 
+      <!-- MONTHLY TREND CHART -->
       <div class="panel chart-panel card-trend" style="height: 270px;">
-        <h3 class="panel-title">Monthly Trend</h3>
-        <div class="chart-container">
+        <h3 class="panel-title mb-0">Monthly Trend</h3>
+        <div class="chart-container" style="margin-top:-10px">
+          <!-- 🔥 Native Highcharts Callback -->
           <highcharts-chart 
             [Highcharts]="Highcharts" 
             [options]="monthlyTrendOptions" 
+            [callbackFunction]="trendCallback"
             style="width: 100%; height: 100%; display: block;">
           </highcharts-chart>
         </div>
       </div>
     </div>
 
+
+    <!-- ==================== COLUMN 3 ==================== -->
     <div class="grid-column">
+      
+      <!-- PROCESS AUDIT CHART -->
       <div class="panel chart-panel card-process" style="height: 260px;">
         <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top:-10px">
-          <h3 class="panel-title mb-0" >Process Audits</h3>
+          <h3 class="panel-title mb-0">Process Audits</h3>
+          <!-- 🔥 Local Widget Dropdown (Tags Fixed Here) -->
           <mat-form-field appearance="outline" class="panel-dropdown">
             <mat-label>Commodity</mat-label>
-            <mat-select>
-              <mat-option value="casting">Casting</mat-option>
-              <mat-option value="forging">Forging</mat-option>
-              <mat-option value="machining">Machining</mat-option>
+            <mat-select [(value)]="localProcessCommodityId" (selectionChange)="onProcessCommodityChange($event.value)">
+              <mat-option [value]="null">All Commodities</mat-option>
+              <mat-option *ngFor="let com of commodities" [value]="com.commodityId">{{ com.name || com.commodityName }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
-        <div class="chart-container" style="margin-top:-30px">
+        <div class="chart-container" style="margin-top:-15px">
+          <!-- 🔥 Native Highcharts Callback -->
           <highcharts-chart 
             [Highcharts]="Highcharts" 
             [options]="processAuditOptions" 
+            [callbackFunction]="processCallback"
             style="width: 100%; height: 100%; display: block;">
           </highcharts-chart>
         </div>
       </div>
 
-      <div class="panel table-panel card-ageing" style="height: 270px;">
+      <!-- CAPA AGEING ANALYSIS TABLE -->
+      <div class="panel table-panel card-ageing" style="height: 270px; overflow-y: auto;">
         <h3 class="panel-title">CAPA Ageing Analysis</h3>
-        <table class="data-table" style="height: 100px;">
+        <table class="data-table">
           <thead>
-            <tr><th>Days</th><th>Volume</th></tr>
+            <tr>
+              <th>Days</th>
+              <th>Volume</th>
+            </tr>
           </thead>
           <tbody>
-            <tr><td>0 - 10</td><td>10</td></tr>
-            <tr><td>10 - 40</td><td>15</td></tr>
-            <tr><td>40 - 80</td><td>10</td></tr>
+            <tr *ngFor="let item of dashboardData?.capaAgeing">
+              <td>{{ item.days }}</td>
+              <td>{{ item.volume }}</td>
+            </tr>
+            <!-- Show if no data -->
+            <tr *ngIf="!dashboardData?.capaAgeing?.length">
+              <td colspan="2" class="text-center text-muted">No pending CAPAs</td>
+            </tr>
           </tbody>
         </table>
       </div>
+
     </div>
   </div>
 </div>

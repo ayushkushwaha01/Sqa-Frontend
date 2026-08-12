@@ -133,16 +133,16 @@
                             <td><b>{{item.roleName}}</b></td>
 
                             <td class="text-center">
-                                <mat-checkbox [checked]="item.isHod" disabled></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isHod" (change)="toggleRole(item)"></mat-checkbox>
                             </td>
                             <td class="text-center">
-                                <mat-checkbox [checked]="item.isInspector" disabled></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isInspector" (change)="toggleRole(item)"></mat-checkbox>
                             </td>
                             <td class="text-center">
-                                <mat-checkbox [checked]="item.isAuditor" disabled></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isAuditor" (change)="toggleRole(item)"></mat-checkbox>
                             </td>
                             <td class="text-center">
-                                <mat-checkbox [checked]="item.isManagerialRole" disabled></mat-checkbox>
+                                <mat-checkbox [(ngModel)]="item.isManagerialRole" (change)="toggleRole(item)"></mat-checkbox>
                             </td>
                         </tr>
 

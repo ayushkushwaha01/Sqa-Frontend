@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import * as Highcharts from 'highcharts';
@@ -30,11 +31,37 @@ export class SupProactivegridComponent implements OnInit {
   auditData: any[] = [];
   statusLookups: any[] = [];
 
+  // Filter properties
+  filterToggle: boolean = false;
+  originalAuditData: any[] = [];
+  filterForm!: FormGroup;
+
+  // Filter Dropdown options
+  uniqueCommodities: string[] = [];
+  uniqueSuppliers: string[] = [];
+  uniqueAuditors: string[] = [];
+  uniqueCities: string[] = [];
+  uniqueStates: string[] = [];
+  uniqueStages: string[] = [];
+
   constructor(
     private dialog: MatDialog,
     private api: ProcessAuditService,
-    private alertService: AlertService
-  ) { }
+    private alertService: AlertService,
+    private fb: FormBuilder
+  ) { 
+    this.filterForm = this.fb.group({
+      Keyword: [''],
+      Commodity: [''],
+      Supplier: [''],
+      Stage: [''],
+      Auditor: [''],
+      State: [''],
+      City: [''],
+      FromDate: [''],
+      ToDate: ['']
+    });
+  }
 
   ngOnInit(): void { 
     this.loadLookups();
@@ -49,63 +76,47 @@ export class SupProactivegridComponent implements OnInit {
     });
   }
 
-// loadData() {
-//     // 🔥 Grab the logged-in Supplier's ID
-//     const supplierId = Number(localStorage.getItem('UserId')) || 0;
+  loadData() {
+    const supplierId = Number(localStorage.getItem('UserId')) || 0;
 
-//     // 🔥 Pass it to the API
-//     this.api.getAllAuditsSupplier(supplierId).subscribe((res: any) => {
-//       if (res.success) {
-//         this.auditData = res.data.map((item: any) => {
-//           const statusObj = this.statusLookups.find((l: any) => l.lookupId === item.statusId);
-//           return {
-//             processAuditId: item.processAuditId,
-//             ref: item.auditReference,
-//             commodity: item.commodityName,
-//             location: item.cityName,
-//             supplier: item.supplierName,
-//             auditor: item.auditorName,
-//             date: new Date(item.auditDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
-//             action: item.capaSummary,
-//             score: item.report ? item.report + ' %' : '0 %',
-//             status: statusObj ? statusObj.lookupName : 'Open',
-//             done: item.isDone,
-//             rawScore: parseInt(item.report || '0', 10)
-//           };
-//         });
-//         this.updateChart();
-//       }
-//     });
-//   }
+    this.api.getAllAuditsSupplier(supplierId).subscribe((res: any) => {
+      if (res.success) {
+        this.originalAuditData = res.data.map((item: any) => {
+          const statusObj = this.statusLookups.find((l: any) => l.lookupId === item.statusId);
+          return {
+            processAuditId: item.processAuditId,
+            auditReference: item.auditReference,
+            ref: item.auditReference,
+            commodity: item.commodityName,
+            location: item.cityName,
+            supplier: item.supplierName,
+            auditor: item.auditorName,
+            date: new Date(item.auditDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
+            action: item.capaSummary,
+            score: item.report ? item.report + ' %' : '0 %',
+            status: statusObj ? statusObj.lookupName : 'Open',
+            done: item.isDone,
+            rawScore: parseInt(item.report || '0', 10),
+            state: item.stateName,
+            stage: item.stageName,
+            auditDateObj: new Date(item.auditDate)
+          };
+        });
+        
+        // Extract unique values for filters
+        this.uniqueCommodities = [...new Set(this.originalAuditData.map(a => a.commodity).filter(Boolean))];
+        this.uniqueSuppliers = [...new Set(this.originalAuditData.map(a => a.supplier).filter(Boolean))];
+        this.uniqueAuditors = [...new Set(this.originalAuditData.map(a => a.auditor).filter(Boolean))];
+        this.uniqueCities = [...new Set(this.originalAuditData.map(a => a.location).filter(Boolean))];
+        this.uniqueStates = [...new Set(this.originalAuditData.map(a => a.state).filter(Boolean))];
+        this.uniqueStages = [...new Set(this.originalAuditData.map(a => a.stage).filter(Boolean))];
 
-
-loadData() {
-  const supplierId = Number(localStorage.getItem('UserId')) || 0;
-
-  this.api.getAllAuditsSupplier(supplierId).subscribe((res: any) => {
-    if (res.success) {
-      this.auditData = res.data.map((item: any) => {
-        const statusObj = this.statusLookups.find((l: any) => l.lookupId === item.statusId);
-        return {
-          processAuditId: item.processAuditId,  // 🔥 Required for routing
-          auditReference: item.auditReference,  // 🔥 Required for routing
-          ref: item.auditReference,
-          commodity: item.commodityName,
-          location: item.cityName,
-          supplier: item.supplierName,
-          auditor: item.auditorName,
-          date: new Date(item.auditDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
-          action: item.capaSummary,
-          score: item.report ? item.report + ' %' : '0 %',
-          status: statusObj ? statusObj.lookupName : 'Open',
-          done: item.isDone,
-          rawScore: parseInt(item.report || '0', 10)
-        };
-      });
-      this.updateChart();
-    }
-  });
-}
+        this.auditData = [...this.originalAuditData];
+        this.updatePagination();
+        this.updateChart();
+      }
+    });
+  }
 
   updateChart() {
     const latest10 = this.auditData.slice(0, 10);
@@ -118,6 +129,77 @@ loadData() {
       series: [{ type: 'column', name: 'Audit Score', data: scores, color: '#2b6ca3' }]
     };
   }
+  
+  filterData() {
+    const filters = this.filterForm.value;
+    const kw = (filters.Keyword || '').toLowerCase();
+
+    this.auditData = this.originalAuditData.filter(item => {
+      let isMatch = true;
+
+      // Keyword match
+      if (kw) {
+        const searchStr = `${item.ref} ${item.commodity} ${item.location} ${item.supplier} ${item.auditor} ${item.status}`.toLowerCase();
+        if (!searchStr.includes(kw)) isMatch = false;
+      }
+
+      // Dropdown matches
+      if (filters.Commodity && item.commodity !== filters.Commodity) isMatch = false;
+      if (filters.Supplier && item.supplier !== filters.Supplier) isMatch = false;
+      if (filters.Stage && item.stage !== filters.Stage) isMatch = false;
+      if (filters.Auditor && item.auditor !== filters.Auditor) isMatch = false;
+      if (filters.State && item.state !== filters.State) isMatch = false;
+      if (filters.City && item.location !== filters.City) isMatch = false;
+
+      // Date matches
+      if (filters.FromDate && item.auditDateObj) {
+        if (item.auditDateObj < filters.FromDate) isMatch = false;
+      }
+      if (filters.ToDate && item.auditDateObj) {
+        if (item.auditDateObj > filters.ToDate) isMatch = false;
+      }
+
+      return isMatch;
+    });
+    
+    // Reset pagination to first page on filter
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    this.updatePagination();
+    this.updateChart();
+  }
+
+  clearFilter() {
+    this.filterForm.reset();
+    this.auditData = [...this.originalAuditData];
+    
+    // Reset pagination to first page on clear
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    this.updatePagination();
+    this.updateChart();
+  }
+
+  pagedAuditData: any[] = [];
+
+  updatePagination() {
+    if (this.paginator) {
+      const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+      this.pagedAuditData = this.auditData.slice(startIndex, startIndex + this.paginator.pageSize);
+    } else {
+      this.pagedAuditData = this.auditData.slice(0, 5); // Default page size is 5
+    }
+  }
+
+  ngAfterViewInit() {
+    this.paginator.page.subscribe(() => {
+      this.updatePagination();
+    });
+    // Ensure initial pagination is set after view inits if data loaded early
+    this.updatePagination();
+  }
 
   openGridView() {
     this.dialog.open(ActiveGridDialogComponent, { width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog' });
@@ -125,7 +207,6 @@ loadData() {
 
   openscorepdf(fileName: string): void { window.open(`assets/${fileName}`, '_blank'); }
 
-  // 🔥 Strictly Read-Only
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault(); 
     this.alertService.createAlert('Suppliers cannot modify the Done status.', 0);

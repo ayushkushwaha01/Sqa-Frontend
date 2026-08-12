@@ -34,7 +34,7 @@
       <div class="filter-group">
         <label class="filter-label">Commodity:</label>
 
-        <mat-select class="form-control" placeholder="Select Commodity" formControlName="CommodityId">
+        <mat-select class="custom-mat-select" placeholder="Select Commodity" formControlName="CommodityId">
 
           <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
 
@@ -45,12 +45,27 @@
         </mat-select>
       </div>
       <div class="filter-group">
+        <label class="filter-label">Part Family:</label>
+
+        <mat-select class="custom-mat-select" placeholder="Select Part Family" formControlName="partFamilyId">
+
+          <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
+
+            {{ item.partFamilyName }}
+
+          </mat-option>
+
+        </mat-select>
+      </div>
+
+      <div class="filter-group">
         <label class="filter-label mb-0">Status :</label>
         <mat-select placeholder="Select Status" class="custom-mat-select" formControlName="Status">
           <mat-option [value]="true">Active</mat-option>
           <mat-option [value]="false">Inactive</mat-option>
         </mat-select>
       </div>
+
 
 
       <div class="button-group">
@@ -130,8 +145,10 @@
 
           <td class="text-center manage-icons">
 
-            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addpart(item)" style="margin-right: 10px; cursor: pointer;"></i>
-            <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)" style="cursor: pointer;"></i>
+            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addpart(item)"
+              style="margin-right: 10px; cursor: pointer;"></i>
+            <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)"
+              style="cursor: pointer;"></i>
 
           </td>
 

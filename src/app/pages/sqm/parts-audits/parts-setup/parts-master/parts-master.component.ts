@@ -40,6 +40,7 @@ export class PartsMasterComponent implements OnInit {
     this.formInit();
     this.getCommodities();
     this.getPartsMasters();
+    this.getPartsFamilies();
 
     this.updatePage();
   }
@@ -60,11 +61,24 @@ export class PartsMasterComponent implements OnInit {
       Keyword: [''],
       Status: [''],
       CommodityId: [null],
+      partFamilyId: [null]
     });
   }
   clearFilter() {
-    this.filterForm.reset({ Keyword: '', Status: '', CommodityId: null, });
+    this.filterForm.reset({ Keyword: '', Status: '', CommodityId: null, partFamilyId: null });
     this.getPartsMasters();
+    this.getPartsFamilies();
+  }
+  partsFamilies: any[] = [];
+  getPartsFamilies() {
+    this._setupService.getPartFamilies(null)
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.partsFamilies = res.data.data;
+
+        }
+      });
   }
 
 

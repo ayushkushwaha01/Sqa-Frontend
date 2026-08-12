@@ -1,10 +1,22 @@
 <!-- Horizontal Buttons (Tabs) -->
 <div class="horizontal-tabs">
-  <button mat-raised-button class="tab-btn" routerLink="./parts-dashboard" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: true}">
+  <button
+    mat-raised-button
+    class="tab-btn"
+    routerLink="./parts-dashboard"
+    routerLinkActive="active-tab"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
     <mat-icon>pending_actions</mat-icon>
     Active Audits
   </button>
-  <button mat-raised-button class="tab-btn" routerLink="./parts-actions" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: true}">
+  <button
+    mat-raised-button
+    class="tab-btn"
+    routerLink="./parts-actions"
+    routerLinkActive="active-tab"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
     <mat-icon>play_circle_outline</mat-icon>
     CAPA
   </button>

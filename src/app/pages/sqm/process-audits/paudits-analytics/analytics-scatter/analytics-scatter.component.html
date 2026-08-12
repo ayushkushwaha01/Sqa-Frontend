@@ -51,7 +51,7 @@
         <span>No audit data available for {{ filterForm.value.month }} {{ filterForm.value.year }}.</span>
     </div>
 
-    <div class="chart-wrapper">
+    <div class="chart-wrapper" *ngIf="!hasNoData && !isLoading">
         <highcharts-chart [Highcharts]="Highcharts" [options]="chartOptions" [(update)]="updateFlag" [oneToOne]="true"
             style="width: 100%; height: 500px; display: block;">
         </highcharts-chart>
