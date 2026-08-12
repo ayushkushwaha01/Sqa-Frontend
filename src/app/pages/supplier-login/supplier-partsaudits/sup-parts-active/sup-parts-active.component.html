@@ -382,7 +382,7 @@
                   partMasterId: audit.partMasterId,
                   partFamilyId: audit.partFamilyId,
                   partAuditId: audit.partAuditId,
-                  done: audit.done,
+                  done: audit.done
                 }"
               >
                 {{ "2026/PART/" + padId(audit.partAuditId) }}
@@ -588,7 +588,7 @@
                   'fa-box-open': audit.archive,
                   'fa-archive': !audit.archive,
                   'archive-icon': true,
-                  'disable-custom': true,
+                  'disable-custom': true
                 }"
                 [matTooltip]="
                   audit.done

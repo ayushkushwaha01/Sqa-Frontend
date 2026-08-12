@@ -213,18 +213,18 @@
                   '/app',
                   'sqm',
                   'process-inner-screen',
-                  'process-audit-reference',
+                  'process-audit-reference'
                 ]"
                 [queryParams]="{
                   id: applicant.processAuditId,
                   ref: applicant.auditReference,
                   categoryId: applicant.processCategoryId,
                   checklistId: applicant.checklistId,
-                  role: 'supplier',
+                  role: 'supplier'
                 }"
                 [ngStyle]="{
                   color: applicant.isAlert ? 'red' : 'blue',
-                  'font-weight': applicant.isAlert ? 'bold' : 'normal',
+                  'font-weight': applicant.isAlert ? 'bold' : 'normal'
                 }"
               >
                 {{ applicant.reference }}

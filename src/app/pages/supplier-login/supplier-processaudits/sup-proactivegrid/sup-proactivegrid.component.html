@@ -286,12 +286,12 @@
                 '/app',
                 'sqm',
                 'process-inner-screen',
-                'process-audit-reference',
+                'process-audit-reference'
               ]"
               [queryParams]="{
                 id: audit.processAuditId,
                 ref: audit.ref,
-                role: 'supplier',
+                role: 'supplier'
               }"
             >
               <!-- 🔥 Added role: 'supplier' -->
@@ -326,7 +326,7 @@
                 'status-progress': audit.status === 'In Progress',
                 'status-review': audit.status === 'Pending Review',
                 'status-completed': audit.status === 'Completed',
-                'status-closed': audit.status === 'Closed',
+                'status-closed': audit.status === 'Closed'
               }"
             >
               {{ audit.status }}
