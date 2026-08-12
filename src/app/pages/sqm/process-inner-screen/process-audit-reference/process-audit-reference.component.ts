@@ -60,6 +60,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   isSupplier: boolean = false;
 
+  // Add this property to store question counts per category ID
+  categoryCounts: { [key: number]: number } = {};
+
   constructor(
     private location: Location,
     private api: ProcessAuditService,
@@ -98,7 +101,28 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.loadMasterData(); 
   }
 
- loadMasterData() {
+//  loadMasterData() {
+//     this.api.getSeverities().subscribe((res: any) => {
+//       if (res.success) this.severities = res.data;
+//     });
+
+//     this.api.getProcessCategories().subscribe((res: any) => {
+//       if (res.success && res.data.length > 0) {
+//         this.categories = res.data;
+        
+//         // 🔥 If a categoryId came from the URL, select it. Otherwise, select the first one.
+//         let catToSelect = this.categories[0];
+//         if (this.targetCategoryId) {
+//           const found = this.categories.find(c => c.processCategoryId == this.targetCategoryId);
+//           if (found) catToSelect = found;
+//         }
+        
+//         this.selectCategory(catToSelect);
+//       }
+//     });
+//   }
+
+loadMasterData() {
     this.api.getSeverities().subscribe((res: any) => {
       if (res.success) this.severities = res.data;
     });
@@ -107,7 +131,16 @@ export class ProcessAuditReferenceComponent implements OnInit {
       if (res.success && res.data.length > 0) {
         this.categories = res.data;
         
-        // 🔥 If a categoryId came from the URL, select it. Otherwise, select the first one.
+        // 🔥 Fetch checklist counts for each category to display in brackets
+        this.categories.forEach((cat: any) => {
+          this.api.getChecklists(cat.processCategoryId).subscribe((chkRes: any) => {
+            if (chkRes.success) {
+              this.categoryCounts[cat.processCategoryId] = chkRes.data.length;
+            }
+          });
+        });
+
+        // If a categoryId came from the URL, select it. Otherwise, select the first one.
         let catToSelect = this.categories[0];
         if (this.targetCategoryId) {
           const found = this.categories.find(c => c.processCategoryId == this.targetCategoryId);
@@ -337,6 +370,13 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // }
 
   saveData() {
+  if (this.complianceStatus === 'Fail' && !this.isSupplier) {
+    if (!this.capaSubject || this.capaSubject.trim() === '') {
+      this.alertService.createAlert('CAPA Subject is mandatory when Compliance is Fail.', 0);
+      return;
+    }
+  }
+
   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
 
   const payload = {

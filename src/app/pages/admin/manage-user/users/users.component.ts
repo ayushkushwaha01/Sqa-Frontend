@@ -138,4 +138,21 @@ export class UsersComponent implements OnInit {
       width: '550px'
     });
   }
+
+  toggleRole(item: any) {
+    this.api.upsertUser(item).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.alertService.createAlert('Role updated successfully', 1);
+        } else {
+          this.alertService.createAlert(res.message, 0);
+          this.getAllUsers(); // Revert on failure
+        }
+      },
+      error: () => {
+        this.alertService.createAlert('Failed to update role', 0);
+        this.getAllUsers(); // Revert on error
+      }
+    });
+  }
 }

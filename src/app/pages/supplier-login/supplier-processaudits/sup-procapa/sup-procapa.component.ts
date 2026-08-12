@@ -22,6 +22,7 @@ export class SupProcapaComponent implements OnInit {
 
   originalTableList: any[] = [];
   tableList: any[] = [];
+  pagedTableList: any[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -126,6 +127,7 @@ loadData() {
       
       this.tableList = [...this.originalTableList];
       this.totalSize = this.tableList.length;
+      this.updatePagination();
 
       // Dynamic filters
       this.TractorIdSections = [...new Set(res.data.map((i: any) => i.processCategory).filter(Boolean))].map(val => ({ item_id: val, item_text: val }));
@@ -135,6 +137,22 @@ loadData() {
   });
 }
 
+  updatePagination() {
+    if (this.paginator) {
+      const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
+      this.pagedTableList = this.tableList.slice(startIndex, startIndex + this.paginator.pageSize);
+    } else {
+      this.pagedTableList = this.tableList.slice(0, 5); // Default size
+    }
+  }
+
+  ngAfterViewInit() {
+    this.paginator.page.subscribe(() => {
+      this.updatePagination();
+    });
+    this.updatePagination();
+  }
+
   get alertsCount(): number { return this.originalTableList.filter(item => item.isAlert).length; }
 
   toggleAlerts() {
@@ -142,6 +160,7 @@ loadData() {
     this.tableList = this.isAlertsView ? this.originalTableList.filter(item => item.isAlert) : [...this.originalTableList];
     this.totalSize = this.tableList.length;
     if (this.paginator) this.paginator.firstPage();
+    this.updatePagination();
   }
 
   go() {
@@ -166,6 +185,7 @@ loadData() {
 
     this.totalSize = this.tableList.length;
     if (this.paginator) this.paginator.firstPage();
+    this.updatePagination();
   }
 
   clearFilter() {
@@ -174,6 +194,7 @@ loadData() {
     this.tableList = [...this.originalTableList];
     this.totalSize = this.tableList.length;
     if (this.paginator) this.paginator.firstPage();
+    this.updatePagination();
   }
 
   scrollRight() { document.getElementById('grid-table-container')?.scrollBy({ left: 300, behavior: 'smooth' }); }
