@@ -345,7 +345,7 @@
             partAuditId: audit.partAuditId,done:audit.done
         }">
 
-                {{ '2026/PART/' + (audit.partAuditId | number:'6.0') }}
+                {{ '2026/PART/' + padId(audit.partAuditId) }}
 
               </a>
 
@@ -440,8 +440,13 @@
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              <a href="assets/processaudit.pdf" target="_blank" style="text-decoration:underline;color:#1976d2;">
+              <!-- <a href="assets/processaudit.pdf" target="_blank" style="text-decoration:underline;color:#1976d2;">
 
+                {{audit.okayPercentage}}%
+
+              </a> -->
+              <a [routerLink]="['/app/sqm/parts-inner-screen/pdfref']"
+                [queryParams]="{ partAuditId: audit.partAuditId }">
                 {{audit.okayPercentage}}%
 
               </a>

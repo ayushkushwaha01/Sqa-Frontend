@@ -46,6 +46,7 @@
     <div class="d-flex mb-3 gap-4">
 
       <button mat-raised-button *ngFor="let cat of categoriesparameters" (click)="selectCategory(cat)"
+        [matTooltip]="cat.categoryName" matTooltipPosition="below"
         [ngClass]="selectedCategory?.partId === cat.partId ? 'tab-active' : 'tab-inactive'" class="top-tab-btn">
 
         {{ cat.categoryCode }} ({{ cat.parametersCount }})

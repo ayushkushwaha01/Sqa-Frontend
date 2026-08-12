@@ -43,6 +43,12 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1"
+                            *ngIf="f['commodityId'].touched && f['commodityId'].hasError('required')">
+
+                            Commodity Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -75,6 +81,22 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['commodityId'].value && noPartFamiliesFound">
+
+                            No Part Families found for selected Commodity
+
+                        </div>
+
+                        <!-- Required -->
+                        <div class="text-danger mt-1" *ngIf="
+        !noPartFamiliesFound &&
+        f['partFamilyId'].touched &&
+        f['partFamilyId'].hasError('required')
+      ">
+
+                            Part Family Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -95,6 +117,22 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['partFamilyId'].value && noPartsFound">
+
+                            No Parts found for selected Part Family
+
+                        </div>
+
+                        <!-- Required -->
+                        <div class="text-danger mt-1" *ngIf="
+        !noPartsFound &&
+        f['partMasterId'].touched &&
+        f['partMasterId'].hasError('required')
+      ">
+
+                            Part Name Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -116,6 +154,22 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['partMasterId'].value && noSuppliersFound">
+
+                            No Suppliers found for selected Part
+
+                        </div>
+
+                        <!-- Required -->
+                        <div class="text-danger mt-1" *ngIf="
+        !noSuppliersFound &&
+        f['supplierId'].touched &&
+        f['supplierId'].hasError('required')
+      ">
+
+                            Supplier Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -145,6 +199,11 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['stateId'].touched && f['stateId'].hasError('required')">
+
+                            State Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -166,6 +225,11 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1" *ngIf="f['cityId'].touched && f['cityId'].hasError('required')">
+
+                            City Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -187,6 +251,12 @@
                             </mat-option>
 
                         </mat-select>
+                        <div class="text-danger mt-1"
+                            *ngIf="f['auditorId'].touched && f['auditorId'].hasError('required')">
+
+                            Auditor Required
+
+                        </div>
                     </div>
                 </div>
 
@@ -221,8 +291,14 @@
                         </mat-datepicker-toggle>
 
                         <mat-datepicker #picker></mat-datepicker>
+                        <!-- <div class="text-danger mt-1" *ngIf="f['auditDate'].touched && f['auditDate'].hasError('required')">
+
+                        Audit Date Required
+
+                    </div> -->
 
                     </div>
+
                 </div>
 
                 <!-- Remarks -->
