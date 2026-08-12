@@ -704,7 +704,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
     'Report',
     'Status',
     'Actions',
-    'Manage'
+    //'Manage'
   ];
 
   activeColumns: string[] = [];
@@ -727,7 +727,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
       'Report': 120,
       'Status': 150,
       'Actions': 80,
-      'Manage': 120
+      //'Manage': 120
 
     };
 
@@ -839,5 +839,8 @@ export class PartsCompletedAuditsComponent implements OnInit {
 
     });
 
+  }
+  padId(id: number): string {
+    return String(id).padStart(6, '0');
   }
 }

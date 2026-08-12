@@ -44,6 +44,10 @@ export class NewAuditComponent implements OnInit {
   }
 
 
+  noPartFamiliesFound = false;
+  noPartsFound = false;
+  noSuppliersFound = false;
+
 
   partsFamilies: any[] = [];
   // getPartsFamilies() {
@@ -100,19 +104,58 @@ export class NewAuditComponent implements OnInit {
         }
       });
   }
+  // previous one
+  // onCommodityChange(commodityId: number) {
+
+  //   this.myGroup.patchValue({
+  //     partFamilyId: null,
+  //     partMasterId: null
+  //   });
+
+  //   // Filter parts by commodity
+  //   const filteredParts = this.allParts.filter(
+  //     x => x.commodityId == commodityId
+  //   );
+
+  //   // Build unique Part Family list
+  //   this.partsFamilies = filteredParts.filter(
+  //     (item, index, self) =>
+  //       index === self.findIndex(
+  //         x => x.partFamilyId === item.partFamilyId
+  //       )
+  //   );
+
+  //   // Clear Part dropdown
+  //   this.parts = [];
+  // }
+  // onPartFamilyChange(partFamilyId: number) {
+
+  //   this.myGroup.patchValue({
+  //     partMasterId: null
+  //   });
+
+  //   this.parts = this.allParts.filter(
+  //     x => x.partFamilyId == partFamilyId
+  //   );
+
+  // }
+
   onCommodityChange(commodityId: number) {
 
     this.myGroup.patchValue({
       partFamilyId: null,
-      partMasterId: null
+      partMasterId: null,
+      supplierId: null
     });
 
-    // Filter parts by commodity
+    this.noPartFamiliesFound = false;
+    this.noPartsFound = false;
+    this.noSuppliersFound = false;
+
     const filteredParts = this.allParts.filter(
       x => x.commodityId == commodityId
     );
 
-    // Build unique Part Family list
     this.partsFamilies = filteredParts.filter(
       (item, index, self) =>
         index === self.findIndex(
@@ -120,19 +163,33 @@ export class NewAuditComponent implements OnInit {
         )
     );
 
-    // Clear Part dropdown
+    // Check whether Part Families exist
+    this.noPartFamiliesFound = this.partsFamilies.length === 0;
+
+    // Clear dependent dropdowns
     this.parts = [];
+    this.filteredSuppliers = [];
   }
+
   onPartFamilyChange(partFamilyId: number) {
 
     this.myGroup.patchValue({
-      partMasterId: null
+      partMasterId: null,
+      supplierId: null
     });
+
+    this.noPartsFound = false;
+    this.noSuppliersFound = false;
 
     this.parts = this.allParts.filter(
       x => x.partFamilyId == partFamilyId
     );
 
+    // Check whether Parts exist
+    this.noPartsFound = this.parts.length === 0;
+
+    // Clear suppliers
+    this.filteredSuppliers = [];
   }
   originalTableData: any[] = [];
   getCommodities() {
@@ -166,12 +223,38 @@ export class NewAuditComponent implements OnInit {
 
 
 
+  // onPartChange(partMasterId: number) {
+
+  //   const selectedPart = this.allParts.find(x => x.partMasterId == partMasterId);
+
+  //   if (!selectedPart || !selectedPart.supplierIds) {
+  //     this.filteredSuppliers = [];
+  //     return;
+  //   }
+
+  //   const supplierIds = selectedPart.supplierIds
+  //     .split(',')
+  //     .map((x: string) => Number(x));
+
+  //   this.filteredSuppliers = this.Suppliers.filter(s =>
+  //     supplierIds.includes(s.supplierId)
+  //   );
+  // }
   onPartChange(partMasterId: number) {
 
-    const selectedPart = this.allParts.find(x => x.partMasterId == partMasterId);
+    this.myGroup.patchValue({
+      supplierId: null
+    });
+
+    this.noSuppliersFound = false;
+
+    const selectedPart = this.allParts.find(
+      x => x.partMasterId == partMasterId
+    );
 
     if (!selectedPart || !selectedPart.supplierIds) {
       this.filteredSuppliers = [];
+      this.noSuppliersFound = true;
       return;
     }
 
@@ -182,6 +265,9 @@ export class NewAuditComponent implements OnInit {
     this.filteredSuppliers = this.Suppliers.filter(s =>
       supplierIds.includes(s.supplierId)
     );
+
+    // Check whether Suppliers exist
+    this.noSuppliersFound = this.filteredSuppliers.length === 0;
   }
   states: any[] = []
   getStates() {

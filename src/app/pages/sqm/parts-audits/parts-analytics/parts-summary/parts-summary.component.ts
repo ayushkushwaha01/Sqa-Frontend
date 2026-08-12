@@ -82,14 +82,14 @@ export class PartsSummaryComponent implements OnInit {
   forminit() {
     this.filterForm = this.fb.group({
       auditorId: [null],
-      Year: [null],
+      year: [null],
       month: [null]
     });
   }
   onClearFilter() {
     this.filterForm.reset({
       auditorId: null,
-      Year: null,
+      year: null,
       month: null
     });
     this.getSummary();
@@ -100,6 +100,7 @@ export class PartsSummaryComponent implements OnInit {
   bindDashboard(data: any) {
 
     this.tableData = {
+      totalParameters: data.totalParameters,
       checked: data.checked,
       nc: data.nc,
       safety: data.safety,
@@ -264,6 +265,7 @@ export class PartsSummaryComponent implements OnInit {
 
 
   tableData = {
+    totalParameters: 0,
     checked: 0,
     nc: 0,
     safety: 0,
