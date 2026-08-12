@@ -8,10 +8,10 @@
     <mat-icon class="">filter_list</mat-icon> Filter
   </button>
 
-  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
+  <!-- <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
     (click)="processgrid()">
     <mat-icon>grid_on</mat-icon> Grid Columns
-  </button>
+  </button> -->
 </div>
 
 <div class="col-sm-12" style="overflow: hidden; width: 100%; padding: 0px;">
@@ -100,7 +100,7 @@
             <th mat-header-cell mat-sort-header class="text-center">Resolved</th>
             <th mat-header-cell mat-sort-header class="text-center">Docs</th>
             <th mat-header-cell mat-sort-header class="text-center">Reference</th>
-            <th mat-header-cell mat-sort-header class="text-center">Subject</th>
+            <th mat-header-cell mat-sort-header class="text-center">CAPA Subject</th>
              <th mat-header-cell mat-sort-header class="text-center">Parameter Name</th>
               <th mat-header-cell mat-sort-header class="text-center">Part Family</th>
               <th mat-header-cell mat-sort-header class="text-center">Part Name</th>
@@ -160,7 +160,7 @@
             </td>
 
             <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']" [queryParams]="{ inspectionRefId: applicant?.inspectionRefId }">
+              <a [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']" [queryParams]="{ inspectionRefId: applicant?.inspectionRefId, parameterName: applicant?.parameterName }">
                 {{ applicant?.reference }} 
               </a>
             </td>

@@ -20,8 +20,10 @@ export class CapaViewScreenComponent implements OnInit {
   occurrenceOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   detectionOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   isReadOnly: boolean = false;
+  isSupplier: boolean = false;
   isUpdate: boolean = false;
   isSaved: boolean = false;
+  parameterName: string = '';
 
   isSlideshowOpen = false;
   currentSlideIndex = 0;
@@ -50,18 +52,26 @@ export class CapaViewScreenComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.isSupplier = localStorage.getItem('UserType') === 'Supplier';
     this.initForm();
     this.loadSeverities();
     this.setupScoreCalculation();
 
     this.route.queryParams.subscribe(params => {
       this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
+      if (this.isSupplier) {
+        this.isReadOnly = true;
+      }
+      this.parameterName = params['parameterName'] || '';
       if (params['inspectionRefId']) {
         this.inspectionRefId = Number(params['inspectionRefId']);
         this.loadCapaDetails();
       } else {
-        if (this.isReadOnly) {
+        if (this.isReadOnly || this.isSupplier) {
           this.auditForm.disable();
+          if (this.isSupplier) {
+            this.auditForm.get('supplierRemarks')?.enable();
+          }
         }
       }
     });
@@ -160,14 +170,20 @@ export class CapaViewScreenComponent implements OnInit {
           this.localImagePreviews = [];
         }
 
-        if (this.isReadOnly) {
+        if (this.isReadOnly || this.isSupplier) {
           this.auditForm.disable();
+          if (this.isSupplier) {
+            this.auditForm.get('supplierRemarks')?.enable();
+          }
         }
       },
       error: (err) => {
         console.error('Error fetching CAPA data', err);
-        if (this.isReadOnly) {
+        if (this.isReadOnly || this.isSupplier) {
           this.auditForm.disable();
+          if (this.isSupplier) {
+            this.auditForm.get('supplierRemarks')?.enable();
+          }
         }
       }
     });
@@ -189,7 +205,7 @@ export class CapaViewScreenComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.isReadOnly) {
+    if (this.isReadOnly && !this.isSupplier) {
       return;
     }
     if (this.auditForm.invalid) {

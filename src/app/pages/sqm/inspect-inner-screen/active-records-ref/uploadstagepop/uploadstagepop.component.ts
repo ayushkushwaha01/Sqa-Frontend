@@ -78,6 +78,14 @@ export class UploadstagepopComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  onTextInput(event: Event): void {
+    const input = event.target as HTMLTextAreaElement;
+    const rawValue = input.value;
+    const filtered = rawValue.replace(/[^0-9,.\s]/g, '');
+    this.defectsText = filtered;
+    input.value = filtered;
+  }
+
   // Placeholder methods for drag-and-drop to suppress TS errors
   onDragLeave($event: DragEvent) { }
   onDrop($event: DragEvent) { }

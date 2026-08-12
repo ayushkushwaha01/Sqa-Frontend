@@ -4,8 +4,7 @@
     <span style="color: rgb(0, 0, 0); cursor: pointer; margin-left:0px " (click)="goBack()">Inspection Dashboard</span>
     <p _ngcontent-mvb-c448="" style="margin-top: 5px; ">
       <span _ngcontent-mvb-c448="" style="font-weight: bolder; font-size: 14px;">Ref No:</span>
-      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">{{ currentReference || '2026/ENG/098121'
-        }}</span>
+      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">{{ currentReference || '2026/ENG/098121' }}</span>
     </p>
   </div>
   <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
@@ -32,11 +31,15 @@
   <div class="page-container p-3" style="margin-top: -50px;">
 
     <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
-      <!-- NEW: Category Filtering Buttons -->
+      <!-- UPDATED: Category Filtering Buttons using category object and Tooltip -->
       <div class="d-flex gap-2" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
-        <button mat-raised-button *ngFor="let cat of categories" [color]="selectedCategory === cat ? 'primary' : ''"
-          (click)="selectCategory(cat)" style="margin-right: 8px;">
-          {{ cat }}
+        <button mat-raised-button *ngFor="let cat of categories" 
+          [color]="selectedCategory === cat.name ? 'primary' : ''"
+          (click)="selectCategory(cat.name)" 
+          [matTooltip]="cat.name"
+          matTooltipPosition="above"
+          style="margin-right: 8px;">
+          {{ cat.code }} ({{ cat.count }})
         </button>
       </div>
 
@@ -95,15 +98,14 @@
             <td class="text-center">{{ item.max }}</td>
 
             <td class="text-center">
-              <mat-icon [matTooltip]="isReadOnly ? 'Upload Disabled' : 'Upload Evidence'"
+              <mat-icon [matTooltip]="isReadOnly ? 'Upload Disabled' : 'Upload Defects'"
                 [style.color]="isReadOnly ? '#b0b0b0' : '#6c757d'"
                 [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
                 (click)="!isReadOnly && uploadstages(item)">cloud_upload
               </mat-icon>
             </td>
 
-            <td class="text-center" style="color: blue; cursor: pointer;" (click)="openuploadpop(item)">{{ item.defects
-              }}</td>
+            <td class="text-center" style="color: blue; cursor: pointer;" (click)="openuploadpop(item)">{{ item.defects }}</td>
             <td class="text-center">{{ item.defectRate }}</td>
 
             <td class="text-center">
@@ -113,7 +115,7 @@
             <td class="text-center">
               <a *ngIf="!item.okay" style="color: blue; cursor: pointer; text-decoration: underline;"
                 [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']"
-                [queryParams]="{ inspectionRefId: item.id, isReadOnly: isReadOnly }">View</a>
+                [queryParams]="{ inspectionRefId: item.id, isReadOnly: isReadOnly, parameterName: item.parameter }">View</a>
               <span *ngIf="item.okay" style="color: #9e9e9e; cursor: not-allowed;">NA</span>
             </td>
 
@@ -162,7 +164,7 @@
         </tbody>
       </table>
 
-      <!-- NEW: Bind total length to totalFilteredRecords -->
+      <!-- Bind total length to totalFilteredRecords -->
       <mat-paginator [length]="totalFilteredRecords" [pageSize]="10" [pageSizeOptions]="[ 10, 25, 50]"
         showFirstLastButtons (page)="onPageChange($event)">
       </mat-paginator>
@@ -179,3 +181,4 @@
       <mat-icon>fast_forward</mat-icon>
     </button>
   </div>
+</div>

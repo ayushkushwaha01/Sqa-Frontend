@@ -15,6 +15,11 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { AddInspectiondocPopComponent } from './add-inspectiondoc-pop/add-inspectiondoc-pop.component';
 
+export interface CategoryTab {
+  name: string;
+  code: string;
+  count: number;
+}
 
 @Component({
   selector: 'app-active-records-ref',
@@ -38,16 +43,18 @@ export class ActiveRecordsRefComponent implements OnInit {
   pagedData: any[] = [];
   totalFilteredRecords = 0;
 
-  categories: string[] = [];
-  selectedCategory: string = 'All';
+  // UPDATED: Now strongly typed for the new category object structure
+  categories: CategoryTab[] = [];
+  selectedCategory: string = ''; // Still matches by 'name' internally to minimize breaking changes
   categoryMap: { [key: string]: any } = {};
+  isSupplier: boolean = false;
 
   constructor(
     private location: Location,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private inspectionService: InspectionService,
-    private alertService: AlertService // <-- Inject Alert Service
+    private alertService: AlertService
   ) { }
 
   goBack(): void {
@@ -55,12 +62,17 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isSupplier = localStorage.getItem('UserType') === 'Supplier';
     this.route.queryParams.subscribe(params => {
       this.currentInspectionId = Number(params['inspectionId']);
       this.currentReference = params['reference'];
       this.currentPartFamily = params['partFamily'];
       this.currentPartName = params['partName'];
       this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
+
+      if (this.isSupplier) {
+        this.isReadOnly = true;
+      }
 
       if (this.currentInspectionId && !isNaN(this.currentInspectionId)) {
         this.loadParameters();
@@ -71,48 +83,74 @@ export class ActiveRecordsRefComponent implements OnInit {
   loadParameters() {
     this.inspectionService.getInspectionParameters(this.currentInspectionId).subscribe({
       next: (res: any) => {
-        if (res && res.success) {
+        if (res && res.success && res.data) {
+          
+          this.categories = [];
+          this.tableData = [];
+          this.categoryMap = {};
+          let totalOverallCount = 0;
 
-          this.tableData = res.data.map((item: any) => {
-            const catName = item.categoryName || item.CategoryName;
+          // Map the new nested JSON structure
+          res.data.forEach((categoryGroup: any) => {
+            const catName = categoryGroup.categoryName || categoryGroup.CategoryName;
+            const catCode = categoryGroup.categoryCode || categoryGroup.CategoryCode || 'UNCAT';
+            const count = categoryGroup.parametersCount || categoryGroup.ParametersCount || 0;
 
+            // Prepare button data
+            this.categories.push({
+              name: catName,
+              code: catCode,
+              count: count
+            });
+            totalOverallCount += count;
+
+            // Map data for create/edit tracking mapping
             if (!this.categoryMap[catName]) {
+              const firstParam = categoryGroup.parameters && categoryGroup.parameters.length > 0 
+                                 ? categoryGroup.parameters[0] : null;
+
               this.categoryMap[catName] = {
-                partId: item.partId || item.PartId,
-                partFamilyId: item.partFamilyId || item.PartFamilyId,
-                partNameId: item.partNameId || item.PartNameId
+                partId: categoryGroup.partId || categoryGroup.PartId,
+                partFamilyId: firstParam ? (firstParam.partFamilyId || firstParam.PartFamilyId) : null,
+                partNameId: firstParam ? (firstParam.partNameId || firstParam.PartNameId) : null
               };
             }
 
-            return {
-              id: item.id || item.Id,
-              parameter: item.parameter || item.Parameter,
-              categoryName: catName,
-              spec: item.spec || item.Spec,
-              unit: item.unit || item.Unit,
-              unitId: item.unitId || item.UnitId,
-              min: item.min || item.Min,
-              max: item.max || item.Max,
-              special: item.special || item.Special, // <-- Map Special field for edit mode
-              defects: item.defects || item.Defects || '0',
-              defectRate: item.defectRate || '0',
-              okay: item.okay || item.Okay,
-              capa: item.capa || item.Capa,
-              method: item.method || item.Method,
-              s1: item.s1 || item.S1,
-              s2: item.s2 || item.S2,
-              s3: item.s3 || item.S3,
-              s4: item.s4 || item.S4,
-              s5: item.s5 || item.S5,
-              remarks: item.remarks || item.Remarks
-            };
+            // Flatten the parameters array back into a single tableData array
+            if (categoryGroup.parameters && categoryGroup.parameters.length > 0) {
+              categoryGroup.parameters.forEach((item: any) => {
+                this.tableData.push({
+                  id: item.id || item.Id,
+                  parameter: item.parameter || item.Parameter,
+                  categoryName: catName, // Included to allow table filtering to work
+                  categoryCode: catCode,
+                  spec: item.spec || item.Spec,
+                  unit: item.unit || item.Unit,
+                  unitId: item.unitId || item.UnitId,
+                  min: item.min || item.Min,
+                  max: item.max || item.Max,
+                  special: item.special || item.Special,
+                  defects: item.defects || item.Defects || '0',
+                  defectRate: item.defectRate || item.DefectRate || '0%',
+                  okay: item.okay || item.Okay,
+                  capa: item.capa || item.Capa,
+                  method: item.method || item.Method,
+                  s1: item.s1 || item.S1,
+                  s2: item.s2 || item.S2,
+                  s3: item.s3 || item.S3,
+                  s4: item.s4 || item.S4,
+                  s5: item.s5 || item.S5,
+                  remarks: item.remarks || item.Remarks
+                });
+              });
+            }
           });
 
-          const uniqueCategories = new Set(this.tableData.map(x => x.categoryName).filter(c => c));
-          this.categories = ['All', ...Array.from(uniqueCategories)];
-
-          if (!this.categories.includes(this.selectedCategory)) {
-            this.selectedCategory = 'All';
+          // Ensure the currently selected category name is still valid, default to first category
+          if (this.selectedCategory === 'All' || this.selectedCategory === '' || !this.categories.find(c => c.name === this.selectedCategory)) {
+            if (this.categories.length > 0) {
+              this.selectedCategory = this.categories[0].name;
+            }
           }
 
           this.updatePage();
@@ -124,8 +162,8 @@ export class ActiveRecordsRefComponent implements OnInit {
     });
   }
 
-  selectCategory(category: string) {
-    this.selectedCategory = category;
+  selectCategory(categoryName: string) {
+    this.selectedCategory = categoryName;
     this.pageIndex = 0;
     this.updatePage();
   }
@@ -150,7 +188,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   addchecklistaudit() {
     if (this.isReadOnly) return;
     if (this.selectedCategory === 'All') {
-      this.alertService.createAlert("Please select a specific category tab first to add a parameter to it."); // <-- Using AlertService
+      this.alertService.createAlert("Please select a specific category tab first to add a parameter to it.");
       return;
     }
 
@@ -194,7 +232,7 @@ export class ActiveRecordsRefComponent implements OnInit {
       UnitId: result.unitId || null,
       Min: result.min ? result.min.toString() : null,
       Max: result.max ? result.max.toString() : null,
-      Special: result.special, // <-- Pass special value to payload
+      Special: result.special,
       Method: result.method,
       S1: result.s1 ? result.s1.toString() : null,
       S2: result.s2 ? result.s2.toString() : null,
@@ -207,15 +245,15 @@ export class ActiveRecordsRefComponent implements OnInit {
     this.inspectionService.addOrUpdateInspectionParameter(payload).subscribe({
       next: (res) => {
         if (res.success) {
-          this.alertService.createAlert(res.message || "Parameter saved successfully!"); // <-- Success Alert
+          this.alertService.createAlert(res.message || "Parameter saved successfully!");
           this.loadParameters();
         } else {
-          this.alertService.createAlert("Failed to save parameter: " + res.message); // <-- Error Alert
+          this.alertService.createAlert("Failed to save parameter: " + res.message);
         }
       },
       error: (err) => {
         console.error("Error saving parameter", err);
-        this.alertService.createAlert("An error occurred while saving. Check console for details."); // <-- Error Alert
+        this.alertService.createAlert("An error occurred while saving. Check console for details.");
       }
     });
   }
@@ -234,15 +272,15 @@ export class ActiveRecordsRefComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        // Call the API to soft delete the parameter
         this.inspectionService.deleteInspectionParameter(item.id).subscribe({
           next: (res) => {
             if (res.success) {
-              // Remove from local tableData array
               const index = this.tableData.findIndex(x => x.id === item.id);
               if (index > -1) {
                 this.tableData.splice(index, 1);
-                this.updatePage(); // Refresh the table UI
+                // Also optionally decrement the count inside the `this.categories` loop manually, 
+                // or just trigger `loadParameters()` to fetch fresh data.
+                this.loadParameters(); 
                 this.alertService.createAlert("Parameter deleted successfully.");
               }
             } else {
@@ -269,32 +307,34 @@ export class ActiveRecordsRefComponent implements OnInit {
       }
     });
   }
+
   opennotes() { this.dialog.open(AuditrefRemarksPopComponent, { width: '500px', height: 'auto' }); }
-  // uploadstages() { this.dialog.open(UploadstagepopComponent, { width: '800px', height: 'auto' }); }
+  
   openuploadpop(item: any) {
     this.dialog.open(UploadListComponent, {
       width: '600px',
       height: 'auto',
-      data: { id: item.id } // <-- Pass the InspectionRefId here
+      data: { id: item.id }
     });
   }
+  
   opensamplepop() { this.dialog.open(SamplePopComponent, { width: '700px', height: 'auto' }); }
-
 
   uploadstages(item: any) {
     if (this.isReadOnly) return;
     const dialogRef = this.dialog.open(UploadstagepopComponent, {
       width: '800px',
       height: 'auto',
-      data: { id: item.id } // Pass the InspectionRefId to the dialog
+      data: { id: item.id }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadParameters(); // Refresh table if save was successful
+        this.loadParameters();
       }
     });
   }
+
   scrollTable(direction: 'left' | 'right') {
     if (this.tableContainer) {
       const container = this.tableContainer.nativeElement;
@@ -304,17 +344,7 @@ export class ActiveRecordsRefComponent implements OnInit {
     }
   }
 
-
-
-
-
-
-
-
-  // Add this method inside your ActiveRecordsRefComponent class
-
   toggleOkay(item: any, isChecked: boolean) {
-    // Optimistically update the UI
     item.okay = isChecked;
 
     this.inspectionService.toggleOkayStatus(item.id, isChecked).subscribe({
@@ -322,13 +352,11 @@ export class ActiveRecordsRefComponent implements OnInit {
         if (res && res.success) {
           this.alertService.createAlert("Okay status updated successfully.");
         } else {
-          // Revert UI on failure
           item.okay = !isChecked;
           this.alertService.createAlert("Failed to update status: " + res.message);
         }
       },
       error: (err) => {
-        // Revert UI on error
         item.okay = !isChecked;
         console.error("Error toggling okay status", err);
         this.alertService.createAlert("An error occurred while updating the status.");

@@ -209,17 +209,8 @@
               {{ applicant.docs }}
             </td>
             <td class="text-center">
-              <a
-                [routerLink]="[
-                  '/app',
-                  'sqm',
-                  'inspect-inner-screen',
-                  'capa-view',
-                ]"
-                [queryParams]="{
-                  inspectionRefId: applicant.inspectionRefId,
-                  isReadOnly: true,
-                }"
+              <a [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']"
+                [queryParams]="{ inspectionRefId: applicant.inspectionRefId, isReadOnly: true, parameterName: applicant.parameterName }"
                 [style.color]="applicant.isAlert ? 'red' : 'blue'"
                 style="font-weight: 500; text-decoration: underline"
               >

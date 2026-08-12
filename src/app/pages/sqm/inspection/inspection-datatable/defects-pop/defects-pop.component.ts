@@ -51,20 +51,53 @@ export class DefectsPopComponent implements OnInit {
   }
 
   buildGrid(defectsData: any[]): void {
-    this.gridCells = defectsData.map(defect => {
+    const cells = defectsData.map(defect => {
       const color = this.palette[defect.status] || this.palette[5]; // Fallback to 5 (Red)
       return {
         defectId: defect.defectId,
         label: defect.defectName,
         status: defect.status,
         bgColor: color.bgColor,
-        textColor: color.textColor
+        textColor: color.textColor,
+        isBlank: false
       };
     });
+
+    const minCells = 50;
+    if (cells.length < minCells) {
+      const extraCount = minCells - cells.length;
+      for (let i = 0; i < extraCount; i++) {
+        cells.push({
+          defectId: 0,
+          label: '',
+          status: 0,
+          bgColor: '#f5f5f5', // Light grey
+          textColor: 'transparent',
+          isBlank: true
+        });
+      }
+    } else {
+      const remainder = cells.length % 5;
+      if (remainder > 0) {
+        const extraCount = 5 - remainder;
+        for (let i = 0; i < extraCount; i++) {
+          cells.push({
+            defectId: 0,
+            label: '',
+            status: 0,
+            bgColor: '#f5f5f5', // Light grey
+            textColor: 'transparent',
+            isBlank: true
+          });
+        }
+      }
+    }
+
+    this.gridCells = cells;
   }
 
   toggleColor(cell: any): void {
-    if (this.isReadOnly) return;
+    if (this.isReadOnly || cell.isBlank) return;
     // Cycle logic: 5 -> 1 -> 2 -> 3 -> 4 -> 5
     cell.status = (cell.status % 5) + 1;
     
@@ -78,7 +111,9 @@ export class DefectsPopComponent implements OnInit {
     const statuses: { [key: string]: number } = {};
     
     this.gridCells.forEach(cell => {
-      statuses[cell.defectId.toString()] = cell.status;
+      if (!cell.isBlank) {
+        statuses[cell.defectId.toString()] = cell.status;
+      }
     });
 
     const payload = {
