@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
+import { finalize } from 'rxjs/operators';
 import { ProcessAnalyticsService } from '../process-analytics.service';
 import { ProcessAuditService } from '../../process-audit.service';
 
@@ -14,6 +15,7 @@ export class AnalyticsParetoComponent implements OnInit, AfterViewInit {
   Highcharts: typeof Highcharts = Highcharts;
   filterForm!: FormGroup;
   commodities: any[] = [];
+  isLoading: boolean = false;
 
   // Table Data Arrays
   pareto: any[] = [];         // Critical NC by Process Category
@@ -46,33 +48,54 @@ export class AnalyticsParetoComponent implements OnInit, AfterViewInit {
     this.loadParetoData();
   }
 
+  clearFilter(): void {
+    const currentYear = new Date().getFullYear().toString();
+    this.filterForm.reset({
+      commodityId: null,
+      year: currentYear
+    });
+    this.loadParetoData();
+  }
+
   loadCommodities(): void {
     this.auditService.getCommodities().subscribe((res: any) => {
-      if (res.success) {
-        this.commodities = res.data;
+      if (res && res.success) {
+        this.commodities = res.data || [];
       }
     });
   }
 
   loadParetoData(): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
     const { commodityId, year } = this.filterForm.value;
 
-    this.analyticsService.getParetoAnalytics(commodityId, Number(year)).subscribe({
-      next: (res: any) => {
-        if (res.success && res.data) {
-          // 1. Assign Table Data
-          this.pareto = res.data.criticalByCategory || [];
-          this.statusList = res.data.importantByCategory || [];
-          this.criticalList = res.data.criticalAndImportantByCommodity || [];
+    this.analyticsService.getParetoAnalytics(commodityId, Number(year))
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.success && res.data) {
+            const data = res.data;
+            this.pareto = data.criticalNCByProcessCategory || [];
+            this.statusList = data.importantNCByProcessCategory || [];
+            this.criticalList = data.ncByCommodity || [];
 
-          // 2. Update all 3 Highcharts Pie Charts
-          this.commodityPieOptions = this.buildPieOptions(this.pareto);
-          this.statusPieOptions = this.buildPieOptions(this.statusList);
-          this.criticalPieOptions = this.buildPieOptions(this.criticalList);
+            this.updateCharts();
+          } else {
+            this.initEmptyCharts();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load Pareto data', err);
+          this.initEmptyCharts();
         }
-      },
-      error: () => console.error('Failed to load Pareto analytics data')
-    });
+      });
+  }
+
+  private updateCharts(): void {
+    this.commodityPieOptions = this.buildPieOptions(this.pareto);
+    this.statusPieOptions = this.buildPieOptions(this.statusList);
+    this.criticalPieOptions = this.buildPieOptions(this.criticalList);
   }
 
   // Converts [{name: 'OPM', action: 5}] into Highcharts Pie Series

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as Highcharts from 'highcharts';
+import { finalize } from 'rxjs/operators';
 import { ProcessAuditService } from '../../process-audit.service';
 import { ProcessAnalyticsService } from '../process-analytics.service';
- 
 
 @Component({
   selector: 'app-analytics-actions',
@@ -43,53 +43,60 @@ export class AnalyticsActionsComponent implements OnInit {
     this.loadAnalytics();
   }
 
+  clearFilter(): void {
+    this.selectedCommodity = null;
+    this.selectedYear = new Date().getFullYear();
+    this.loadAnalytics();
+  }
+
   loadCommodities(): void {
     this.auditApi.getCommodities().subscribe((res: any) => {
-      if (res.success) {
-        this.commodities = res.data;
+      if (res && res.success) {
+        this.commodities = res.data || [];
       }
     });
   }
 
   loadAnalytics(): void {
+    if (this.isLoading) return;
     this.isLoading = true;
-    this.analyticsApi.getActionsAnalytics(this.selectedCommodity, this.selectedYear).subscribe({
-      next: (res: any) => {
-        this.isLoading = false;
-        if (res && res.success && res.data) {
-          const d = res.data;
+    this.analyticsApi.getActionsAnalytics(this.selectedCommodity, this.selectedYear)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.success && res.data) {
+            const d = res.data;
 
-          // 1. Update Monthly Critical Actions Chart
-          this.criticalOptions = this.buildMonthlyBar(d.criticalMonthly || []);
+            // 1. Update Monthly Critical Actions Chart
+            this.criticalOptions = this.buildMonthlyBar(d.criticalMonthly || []);
 
-          // 2. Update Monthly Important Actions Chart
-          this.importantOptions = this.buildMonthlyBar(d.importantMonthly || []);
+            // 2. Update Monthly Important Actions Chart
+            this.importantOptions = this.buildMonthlyBar(d.importantMonthly || []);
 
-          // 3. Update Logged vs Resolved Chart
-          this.logVsResolvedOptions = this.buildLogVsResolved(d.loggedMonthly || [], d.resolvedMonthly || []);
+            // 3. Update Logged vs Resolved Chart
+            this.logVsResolvedOptions = this.buildLogVsResolved(d.loggedMonthly || [], d.resolvedMonthly || []);
 
-          // 4. Update Aging Table & Pie Chart
-          if (Array.isArray(d.agingAnalysis)) {
-            this.agingList = d.agingAnalysis.map((item: any) => ({
-              period: item.period,
-              action: `${item.percentage}% (${item.count})`
-            }));
+            // 4. Update Aging Table & Pie Chart
+            if (Array.isArray(d.agingAnalysis)) {
+              this.agingList = d.agingAnalysis.map((item: any) => ({
+                period: item.period,
+                action: `${item.percentage}% (${item.count})`
+              }));
 
-            const pieColors = ['#ff4d4f', '#20c997', '#0dcaf0', '#fd7e14', '#6f42c1', '#ffc107', '#0d6efd'];
-            const pieData = d.agingAnalysis.map((item: any, idx: number) => ({
-              name: item.period,
-              y: item.percentage,
-              color: pieColors[idx % pieColors.length]
-            }));
-            this.agingPieOptions = this.buildAgingPie(pieData);
+              const pieColors = ['#ff4d4f', '#20c997', '#0dcaf0', '#fd7e14', '#6f42c1', '#ffc107', '#0d6efd'];
+              const pieData = d.agingAnalysis.map((item: any, idx: number) => ({
+                name: item.period,
+                y: item.percentage,
+                color: pieColors[idx % pieColors.length]
+              }));
+              this.agingPieOptions = this.buildAgingPie(pieData);
+            }
           }
+        },
+        error: (err) => {
+          console.error('Failed to load actions analytics', err);
         }
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.error('Failed to load actions analytics', err);
-      }
-    });
+      });
   }
 
   private buildMonthlyBar(data: number[]): Highcharts.Options {

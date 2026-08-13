@@ -22,8 +22,14 @@
         </mat-select>
     </div>
 
-    <button class="go-btn" mat-raised-button (click)="loadBellCurveData()">
-        <mat-icon class="mat-icon mt-1">search</mat-icon> Go
+    <button type="button" class="go-btn" mat-raised-button (click)="loadBellCurveData()" [disabled]="isLoading">
+        <mat-icon class="mat-icon mt-1" *ngIf="!isLoading">search</mat-icon>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span>
+        {{ isLoading ? 'Loading...' : 'Go' }}
+    </button>
+
+    <button type="button" mat-raised-button class="btn-clear" (click)="clearFilter()" [disabled]="isLoading">
+        <mat-icon>settings_backup_restore</mat-icon> Clear
     </button>
 </div>
 

@@ -63,24 +63,53 @@ export class PauditsActionsComponent implements OnInit {
       ActionType: new FormControl('')
     });
     
-    this.loadLookups(); // 🔥 Load statuses first
+   this.loadLookups();
     this.loadData();
   }
 
   // 🔥 FETCH LOOKUPS FOR DROPDOWN 🔥
-  loadLookups() {
+loadLookups() {
     this.api.getLookups().subscribe((res: any) => {
       if (res.success) {
-        // Filter specifically for Capa-Status
         this.capaStatusLookups = res.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
+        
+        // 🔥 Now load the table data AFTER lookups are ready
+        this.loadData(); 
       }
     });
   }
 
+  // loadData() {
+  //   this.api.getAllCapas().subscribe((res: any) => {
+  //     if (res.success) {
+  //       this.originalTableList = res.data;
+  //       this.tableList = [...this.originalTableList];
+  //       this.totalSize = this.tableList.length;
+
+  //       // Extract unique values for dropdowns
+  //       this.processCategories = [...new Set(res.data.map((item: any) => item.processCategory).filter(Boolean))] as string[];
+  //       this.suppliers = [...new Set(res.data.map((item: any) => item.supplierName).filter(Boolean))] as string[];
+  //       this.actionTypes = [...new Set(res.data.map((item: any) => item.actionType).filter(Boolean))] as string[];
+  //     }
+  //   });
+  // }
+
+
   loadData() {
     this.api.getAllCapas().subscribe((res: any) => {
       if (res.success) {
-        this.originalTableList = res.data;
+        // 🔥 MAP OLD STRING DATA TO NEW IDs SO DROPDOWNS DON'T BREAK
+        this.originalTableList = res.data.map((item: any) => {
+          // If the status is a word (like "Open") instead of an ID number
+          if (item.status && isNaN(Number(item.status))) {
+            const matched = this.capaStatusLookups.find(l => l.lookupName.toLowerCase() === item.status.toLowerCase());
+            item.status = matched ? matched.lookupId.toString() : '10019'; // Defaults to 10019 (Open) if not found
+          } else if (!item.status) {
+            item.status = '10019'; // Default completely null items to Open
+          }
+          return item;
+        });
+
         this.tableList = [...this.originalTableList];
         this.totalSize = this.tableList.length;
 

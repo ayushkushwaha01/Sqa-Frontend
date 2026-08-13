@@ -9,6 +9,10 @@ import * as Highcharts from 'highcharts';
 export class AnalyticsPerformanceComponent {
   Highcharts: typeof Highcharts = Highcharts;
 
+  clearFilter(): void {
+    // Reset filters if form exists
+  }
+
   // Distribution by Performance table data
   ratingList = [
     { rating: 'Excellent', percentage: '95%' },

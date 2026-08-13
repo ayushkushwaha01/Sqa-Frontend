@@ -4,6 +4,10 @@
   <div class="action-bar no-print">
     <h2>Executive Summary Report</h2>
     <div class="btn-group">
+      <button mat-raised-button color="basic" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back</span>
+      </button>
       <button mat-raised-button color="primary" [disabled]="generatingPdf" (click)="downloadPdf()">
         <mat-icon>download</mat-icon>
         <span>{{ generatingPdf ? 'Generating...' : 'Download PDF' }}</span>
@@ -89,13 +93,11 @@
       <div class="two-col-charts section-block">
         <div class="inner-box">
           <div class="inner-box-title">FINDING DISTRIBUTION</div>
-          <!-- 🔥 Updated height to 165px -->
           <highcharts-chart [Highcharts]="Highcharts" [options]="ratingChartOptions"
                             style="width:100%;height:165px;display:block"></highcharts-chart>
         </div>
         <div class="inner-box">
           <div class="inner-box-title">SOD RISK SCORE: {{ reportData.sodRiskScore || 0 }}</div>
-          <!-- 🔥 Updated height to 165px -->
           <highcharts-chart [Highcharts]="Highcharts" [options]="sodGaugeOptions"
                             style="width:100%;height:165px;display:block"></highcharts-chart>
         </div>
@@ -104,51 +106,26 @@
       <!-- BLOCK 5: NC STATUS, RADAR & CONCLUSION -->
       <div class="three-col-section section-block">
         
-        <!-- NC Closure Status -->
+        <!-- 🔥 FULLY DYNAMIC NC CLOSURE STATUS -->
         <div class="inner-box">
           <div class="inner-box-title red-title">NC CLOSURE STATUS</div>
-          <div class="nc-bar-item">
-            <span class="nc-label">Closed</span>
-            <span class="nc-num">{{ reportData.ncStatus?.closed || 0 }}</span>
+          
+          <!-- Dynamic Loop: Creates a bar for every status found in the DB -->
+          <div class="nc-bar-item" *ngFor="let stat of reportData.ncStatus?.statusCounts; let i = index">
+            <span class="nc-label" style="text-transform: capitalize;">{{ stat.statusName }}</span>
+            <span class="nc-num">{{ stat.count }}</span>
             <div class="nc-track">
               <div class="nc-fill"
-                   [style.width.%]="getNcPercentage(reportData.ncStatus?.closed)"
-                   style="background: #10b981;"></div>
-            </div>
-          </div>
-          <div class="nc-bar-item">
-            <span class="nc-label">RCA in Progress</span>
-            <span class="nc-num">{{ reportData.ncStatus?.rcaInProgress || 0 }}</span>
-            <div class="nc-track">
-              <div class="nc-fill"
-                   [style.width.%]="getNcPercentage(reportData.ncStatus?.rcaInProgress)"
-                   style="background: #ef4444;"></div>
-            </div>
-          </div>
-          <div class="nc-bar-item">
-            <span class="nc-label">C/M Identified</span>
-            <span class="nc-num">{{ reportData.ncStatus?.cmIdentified || 0 }}</span>
-            <div class="nc-track">
-              <div class="nc-fill"
-                   [style.width.%]="getNcPercentage(reportData.ncStatus?.cmIdentified)"
-                   style="background: #f59e0b;"></div>
-            </div>
-          </div>
-          <div class="nc-bar-item">
-            <span class="nc-label">C/M Implementing</span>
-            <span class="nc-num">{{ reportData.ncStatus?.cmImplementing || 0 }}</span>
-            <div class="nc-track">
-              <div class="nc-fill"
-                   [style.width.%]="getNcPercentage(reportData.ncStatus?.cmImplementing)"
-                   style="background: #3b82f6;"></div>
+                   [style.width.%]="getNcPercentage(stat.count)"
+                   [style.background]="getNcBarColor(i)"></div>
             </div>
           </div>
           
+          <!-- Dynamic Legend: Matches the bars above -->
           <div class="nc-legend">
-            <div class="legend-item"><i class="legend-dot" style="background:#f59e0b;"></i> C/M Identified</div>
-            <div class="legend-item"><i class="legend-dot" style="background:#3b82f6;"></i> Implementing</div>
-            <div class="legend-item"><i class="legend-dot" style="background:#10b981;"></i> Closed</div>
-            <div class="legend-item"><i class="legend-dot" style="background:#ef4444;"></i> RCA Progress</div>
+            <div class="legend-item" *ngFor="let stat of reportData.ncStatus?.statusCounts; let i = index">
+              <i class="legend-dot" [style.background]="getNcBarColor(i)"></i> <span style="text-transform: capitalize;">{{ stat.statusName }}</span>
+            </div>
           </div>
         </div>
 
@@ -156,7 +133,7 @@
         <div class="inner-box">
           <div class="inner-box-title blue-title">{{ reportData.header?.commodityName | uppercase }} PROCESS</div>
           <highcharts-chart [Highcharts]="Highcharts" [options]="spiderChartOptions"
-                            style="width:100%;height:165px;display:block"></highcharts-chart>
+                            style="width:100%;height:210px;display:block"></highcharts-chart>
         </div>
 
         <!-- Final Conclusion -->

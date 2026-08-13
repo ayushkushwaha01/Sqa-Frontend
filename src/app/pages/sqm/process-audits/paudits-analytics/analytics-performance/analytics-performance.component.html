@@ -53,8 +53,12 @@
         </mat-select>
     </div>
 
-    <button class="go-btn" mat-raised-button>
+    <button type="button" class="go-btn" mat-raised-button>
         <mat-icon class="mat-icon mt-1">search</mat-icon> Go
+    </button>
+
+    <button type="button" mat-raised-button class="btn-clear" (click)="clearFilter()">
+        <mat-icon>settings_backup_restore</mat-icon> Clear
     </button>
 </div>
 

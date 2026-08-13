@@ -4,6 +4,7 @@ import * as Highcharts from 'highcharts';
 import HC_exporting from 'highcharts/modules/exporting';
 import HC_exportData from 'highcharts/modules/export-data';
 import HC_accessibility from 'highcharts/modules/accessibility';
+import { finalize } from 'rxjs/operators';
 import { ProcessAnalyticsService } from '../process-analytics.service';
  
 HC_exporting(Highcharts);
@@ -46,31 +47,42 @@ export class AnalyticsScatterComponent implements OnInit {
     this.loadScatterData();
   }
 
+  clearFilter(): void {
+    const currentMonthName = new Date().toLocaleString('en-US', { month: 'long' });
+    const currentYear = new Date().getFullYear().toString();
+    this.filterForm.reset({
+      month: currentMonthName,
+      year: currentYear
+    });
+    this.loadScatterData();
+  }
+
   loadScatterData(): void {
+    if (this.isLoading) return;
     this.isLoading = true;
     const month = this.filterForm?.value?.month || new Date().toLocaleString('en-US', { month: 'long' });
     const year = this.filterForm?.value?.year || new Date().getFullYear().toString();
 
-    this.analyticsService.getScatterAnalytics(month, Number(year)).subscribe({
-      next: (res: any) => {
-        this.isLoading = false;
-        if (res && res.success && Array.isArray(res.data)) {
-          this.auditData = res.data;
-        } else if (Array.isArray(res)) {
-          this.auditData = res;
-        } else {
+    this.analyticsService.getScatterAnalytics(month, Number(year))
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.success && Array.isArray(res.data)) {
+            this.auditData = res.data;
+          } else if (Array.isArray(res)) {
+            this.auditData = res;
+          } else {
+            this.auditData = [];
+          }
+          this.hasNoData = this.auditData.length === 0;
+          this.updateChart();
+        },
+        error: (err) => {
           this.auditData = [];
+          this.hasNoData = true;
+          console.error('Failed to load scatter plot data', err);
         }
-        this.hasNoData = this.auditData.length === 0;
-        this.updateChart();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.auditData = [];
-        this.hasNoData = true;
-        console.error('Failed to load scatter plot data', err);
-      }
-    });
+      });
   }
 
   initChart(): void {

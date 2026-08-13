@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 import { ProcessAnalyticsService } from '../process-analytics.service';
 import { ProcessAuditService } from '../../process-audit.service';
 
@@ -13,6 +14,7 @@ export class AnalyticsBellcurveComponent implements OnInit {
   filterForm!: FormGroup;
   commodities: any[] = [];
   chartOptions: any = {};
+  isLoading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -33,25 +35,38 @@ export class AnalyticsBellcurveComponent implements OnInit {
     this.loadBellCurveData();
   }
 
+  clearFilter(): void {
+    const currentYear = new Date().getFullYear().toString();
+    this.filterForm.reset({
+      commodityId: null,
+      year: currentYear
+    });
+    this.loadBellCurveData();
+  }
+
   loadCommodities(): void {
     this.auditService.getCommodities().subscribe((res: any) => {
-      if (res.success) {
-        this.commodities = res.data;
+      if (res && res.success) {
+        this.commodities = res.data || [];
       }
     });
   }
 
   loadBellCurveData(): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
     const { commodityId, year } = this.filterForm.value;
 
-    this.analyticsService.getBellCurveAnalytics(commodityId, Number(year)).subscribe({
-      next: (res: any) => {
-        if (res.success && res.data) {
-          this.initChart(res.data);
-        }
-      },
-      error: () => console.error('Failed to load bell curve data')
-    });
+    this.analyticsService.getBellCurveAnalytics(commodityId, Number(year))
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.success && res.data) {
+            this.initChart(res.data);
+          }
+        },
+        error: () => console.error('Failed to load bell curve data')
+      });
   }
 
   formatDataPoints(dataPoints: any[]): any[] {

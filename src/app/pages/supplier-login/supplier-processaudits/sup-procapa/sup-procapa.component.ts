@@ -202,7 +202,14 @@ loadData() {
 
   imageSource1() { this.dialog.open(ActionDescRemarksComponent, { width: '500px', height: 'auto' }); }
   processgrid() { this.dialog.open(ProcessActionsGridComponent, { width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog' }); }
-  docsPhoto() { this.dialog.open(ProcessDocPopComponent, { width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog' }); }
+  docsPhoto(applicant: any) { 
+    const dialogRef = this.dialog.open(ProcessDocPopComponent, { 
+      width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog', data: applicant 
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.loadData();
+    });
+  }
 
   // 🔥 Strictly Read-Only
   deleteConfirmation(item: any) {

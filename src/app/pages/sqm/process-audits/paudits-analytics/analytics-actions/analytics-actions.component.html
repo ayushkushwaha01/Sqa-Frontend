@@ -4,21 +4,25 @@
   <div class="filter-bar">
     <div class="filter-group right-align-group">
       <label class="filter-label mb-0">Commodity :</label>
-      <mat-select placeholder="All Commodities" class="form-control" [(ngModel)]="selectedCommodity" (selectionChange)="loadAnalytics()" style="width: auto; min-width: 180px;">
+      <mat-select placeholder="All Commodities" class="form-control" [(ngModel)]="selectedCommodity" style="width: auto; min-width: 180px;">
         <mat-option [value]="null">All Commodities</mat-option>
         <mat-option *ngFor="let c of commodities" [value]="c.commodityId">{{ c.name }}</mat-option>
       </mat-select>
 
       <label class="filter-label mb-0">Select Year :</label>
-      <mat-select placeholder="Select Year" class="form-control" [(ngModel)]="selectedYear" (selectionChange)="loadAnalytics()" style="width: auto; min-width: 120px;">
+      <mat-select placeholder="Select Year" class="form-control" [(ngModel)]="selectedYear" style="width: auto; min-width: 120px;">
         <mat-option *ngFor="let yr of years" [value]="yr">{{ yr }}</mat-option>
       </mat-select>
     </div>
 
-    <button class="go-btn" mat-raised-button (click)="loadAnalytics()" [disabled]="isLoading">
+    <button type="button" class="go-btn" mat-raised-button (click)="loadAnalytics()" [disabled]="isLoading">
       <mat-icon class="mat-icon mt-1" *ngIf="!isLoading">search</mat-icon>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span>
       {{ isLoading ? 'Loading...' : 'Go' }}
+    </button>
+
+    <button type="button" mat-raised-button class="btn-clear" (click)="clearFilter()" [disabled]="isLoading">
+      <mat-icon>settings_backup_restore</mat-icon> Clear
     </button>
   </div>
 

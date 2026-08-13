@@ -71,7 +71,7 @@ const routes: Routes = [
       { path: 'state-master', component: StateMasterComponent, data: { breadcrumb: 'State Master', description: 'Configure state master data.' } },
       { path: '', redirectTo: 'parts-cat', pathMatch: 'full' },
       { path: 'parts-parameter', component: PartsParameterComponent, data: { breadcrumb: 'Parts Parameter' } },
-      { path: 'bandmaster', component: BandMasterComponent, data: { breadcrumb: 'Preferences', description: 'Configure Preferences.' } },
+      { path: 'bandmaster', component: BandMasterComponent, data: { breadcrumb: 'Vendor Rating', description: 'Configure vendor rating master data.' } },
     ]
   }
 ];

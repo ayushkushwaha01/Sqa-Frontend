@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
+import { finalize } from 'rxjs/operators';
 import { ProcessAnalyticsService } from '../process-analytics.service';
 import { ProcessAuditService } from '../../process-audit.service';
  
@@ -16,6 +17,7 @@ export class AnalyticsSummaryComponent implements OnInit {
 
   commodities: any[] = [];
   auditors: any[] = [];
+  isLoading: boolean = false;
 
   tableData = {
     checked: 0,
@@ -66,13 +68,24 @@ export class AnalyticsSummaryComponent implements OnInit {
     this.loadSummaryData();
   }
 
+  clearFilter(): void {
+    const currentYear = new Date().getFullYear().toString();
+    this.filterForm.reset({
+      commodityId: null,
+      auditorId: null,
+      year: currentYear,
+      month: null
+    });
+    this.onSearch();
+  }
+
   loadDropdowns(): void {
     this.auditService.getCommodities().subscribe((res: any) => {
-      if (res.success) this.commodities = res.data;
+      if (res && res.success) this.commodities = res.data || [];
     });
 
     this.auditService.getUsers().subscribe((res: any) => {
-      if (res.success) {
+      if (res && res.success && Array.isArray(res.data)) {
         this.auditors = res.data.filter((u: any) => u.isAuditor === true);
       }
     });
@@ -83,31 +96,38 @@ export class AnalyticsSummaryComponent implements OnInit {
   }
 
   loadSummaryData(): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
     const { commodityId, auditorId, year, month } = this.filterForm.value;
 
-    this.analyticsService.getSummaryAnalytics(commodityId, auditorId, Number(year), Number(month)).subscribe({
-      next: (res: any) => {
-        if (res.success && res.data) {
-          // 1. Update Table
-          const t = res.data.tableData;
-          this.tableData = {
-            checked: t.checked,
-            nc: t.nc,
-            safety: t.safety,
-            critical: t.critical,
-            important: t.important,
-            fitment: t.fitment,
-            regular: t.regular
-          };
+    this.analyticsService.getSummaryAnalytics(commodityId, auditorId, Number(year), Number(month))
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.success && res.data) {
+            const t = res.data.tableData || {};
+            this.tableData = {
+              checked: t.checked || 0,
+              nc: t.nc || 0,
+              safety: t.safety || 0,
+              critical: t.critical || 0,
+              important: t.important || 0,
+              fitment: t.fitment || 0,
+              regular: t.regular || 0
+            };
 
-          // 2. Update Charts
-          this.distributionByClassOptions = this.buildPieChart('Distribution by Class', res.data.classDistribution);
-          this.issuesCorrectedOptions = this.buildPieChart('Issues Corrected', res.data.issuesCorrected);
-          this.pdcaDistributionOptions = this.buildPieChart('PDCA Distribution', res.data.pdcaDistribution);
+            this.distributionByClassOptions = this.buildPieChart('Distribution by Class', res.data.classDistribution || []);
+            this.issuesCorrectedOptions = this.buildPieChart('Issues Corrected', res.data.issuesCorrected || []);
+            this.pdcaDistributionOptions = this.buildPieChart('PDCA Distribution', res.data.pdcaDistribution || []);
+          } else {
+            this.initEmptyCharts();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load Summary analytics', err);
+          this.initEmptyCharts();
         }
-      },
-      error: () => console.error('Failed to load Summary analytics')
-    });
+      });
   }
 
   private buildPieChart(title: string, dataPoints: any[]): Highcharts.Options {
