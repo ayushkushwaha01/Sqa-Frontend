@@ -29,7 +29,7 @@ export class PartsActiveAuditsComponent implements OnInit {
   currentPage: number = 0;
   totalSize: number = 0;
   fromIndex: number = 0;
-  pageSize: number = 5;
+  pageSize: number = 20;
   tableLists: any[] = [];
   ngOnInit(): void {
     this.fomrInit();

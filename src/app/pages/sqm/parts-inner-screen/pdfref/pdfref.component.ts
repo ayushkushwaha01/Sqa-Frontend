@@ -94,7 +94,8 @@ export class PdfrefComponent implements OnInit {
 
                 overallScore: d.auditDetails.okayPercentage + '%',
 
-                subject: d.auditDetails.subject
+                subject: d.auditDetails.subject,
+                description: d.auditDetails.description
 
               },
 
@@ -390,33 +391,55 @@ export class PdfrefComponent implements OnInit {
       },
       tooltip: { shared: true, pointFormat: '<b>{series.name}: {point.y}</b><br/>' },
       series: [
+
+        // 🔴 Severity
         {
-          type: 'line',
+          type: 'area',
           name: 'Severity',
           data: severityData,
           color: '#dc2626',
           pointPlacement: 'on',
           lineWidth: 2,
-          marker: { radius: 3, fillColor: '#dc2626' }
+
+          fillColor: 'rgba(220, 38, 38, 0.08)',
+
+          marker: {
+            enabled: false
+          }
         } as any,
+
+        // 🟡 Occurrence
         {
-          type: 'line',
+          type: 'area',
           name: 'Occurrence',
           data: occurrenceData,
           color: '#eab308',
           pointPlacement: 'on',
           lineWidth: 2,
-          marker: { radius: 3, fillColor: '#eab308' }
+
+          fillColor: 'rgba(234, 179, 8, 0.08)',
+
+          marker: {
+            enabled: false
+          }
         } as any,
+
+        // 🟢 Detection
         {
-          type: 'line',
+          type: 'area',
           name: 'Detection',
           data: detectionData,
           color: '#16a34a',
           pointPlacement: 'on',
           lineWidth: 2,
-          marker: { radius: 3, fillColor: '#16a34a' }
+
+          fillColor: 'rgba(22, 163, 74, 0.08)',
+
+          marker: {
+            enabled: false
+          }
         } as any
+
       ]
     };
   }
@@ -453,6 +476,9 @@ export class PdfrefComponent implements OnInit {
   }
 
   getVerdictSubtitle(): string {
+    if (this.reportData?.header?.description) {
+      return this.reportData.header.description;
+    }
     const band = this.getBandKeyword();
     const map: { [key: string]: string } = {
       excellent: 'AUDIT PERFORMANCE ABOVE STANDARD',

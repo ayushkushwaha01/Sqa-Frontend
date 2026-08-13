@@ -43,7 +43,7 @@ export class SupPartsCapaComponent implements OnInit {
   currentPage: number = 0;
   totalSize: number = 0;
   fromIndex: number = 0;
-  pageSize: number = 5;
+  pageSize: number = 20;
   tableLists: any[] = [];
   constructor(public dialog: MatDialog, private partAuditService: PartAuditService, private alertService: AlertService, private fb: FormBuilder,
     private lookupService: LookupService

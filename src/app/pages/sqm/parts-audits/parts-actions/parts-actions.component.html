@@ -271,13 +271,13 @@
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                <a matTooltip="Edit" [routerLink]="['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']"
+                <!-- <a matTooltip="Edit" [routerLink]="['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']"
                   [queryParams]="{
      partAuditId: applicant.partAuditId,
      auditParameterId: applicant.auditParameterId
    }">
                   <i class="fa fa-edit"></i>
-                </a>
+                </a> -->
                 <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
                   <i class="fa fa-trash red"></i>
                 </a>
@@ -336,7 +336,14 @@
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                {{ '2026/PART/' + (applicant.partAuditId | number:'6.0') }}
+                <a [routerLink]="['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']" [queryParams]="{
+            partAuditId: applicant.partAuditId,
+            auditParameterId: applicant.auditParameterId
+        }" style="cursor: pointer; text-decoration: underline;">
+
+                  {{ '2026/PART/' + padId(applicant.partAuditId) }}
+
+                </a>
 
               </td>
 
