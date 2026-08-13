@@ -38,7 +38,7 @@ export class PartsActionsComponent implements OnInit {
   currentPage: number = 0;
   totalSize: number = 0;
   fromIndex: number = 0;
-  pageSize: number = 5;
+  pageSize: number = 20;
   tableLists: any[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -458,7 +458,7 @@ export class PartsActionsComponent implements OnInit {
 
     const widths: { [key: string]: number } = {
 
-      'Action': 120,
+      'Action': 80,
       'Status': 150,
       'Resolved': 110,
       'Docs': 100,
@@ -593,7 +593,9 @@ export class PartsActionsComponent implements OnInit {
 
   }
 
-
+  padId(id: number): string {
+    return String(id).padStart(6, '0');
+  }
 
 
 

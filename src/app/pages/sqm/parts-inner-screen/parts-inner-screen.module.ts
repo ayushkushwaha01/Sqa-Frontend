@@ -32,7 +32,7 @@ const routes: Routes = [
       {
         path: "parts-audit-reference",
         component: PartsAuditReferenceComponent,
-        data: { breadcrumb: 'Active Audit Dashboard' }
+        data: { breadcrumb: 'Audit Dashboard' }
       },
       {
         path: "parts-completed-reference",

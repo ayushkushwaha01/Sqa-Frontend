@@ -88,16 +88,12 @@ export class PartsBellcurveComponent implements OnInit {
 
               yAxis: {
                 min: 0,
-                max: 100,
-                tickInterval: 10,
                 allowDecimals: false,
                 title: {
                   text: 'No. of Audits'
                 },
                 labels: {
-                  style: {
-                    fontSize: '15px'
-                  }
+                  style: { fontSize: '15px' }
                 }
               },
 
@@ -161,19 +157,15 @@ export class PartsBellcurveComponent implements OnInit {
 
     yAxis: {
       min: 0,
-      max: 100,
-      tickInterval: 10,
+      // max: 100 removed — let it auto-scale
+      // tickInterval: 10 removed — fixed interval doesn't make sense once max is dynamic
       allowDecimals: false,
       title: {
         text: 'No. of Audits',
-        style: {
-          fontSize: '16px'
-        }
+        style: { fontSize: '16px' }
       },
       labels: {
-        style: {
-          fontSize: '15px'
-        }
+        style: { fontSize: '15px' }
       }
     },
 

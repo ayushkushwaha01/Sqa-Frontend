@@ -162,9 +162,11 @@ export class PartsInnerActionsComponent {
       },
       yAxis: {
         min: 0,
-        max: 100,
+        // max removed — Highcharts auto-scales to fit the data
         title: { text: '' },
-        gridLineColor: '#e0e0e0'
+        gridLineColor: '#e0e0e0',
+        allowDecimals: false, // optional: prevents 0.5, 1.5 etc if your counts are integers
+        tickAmount: 5         // optional: keeps a consistent number of gridlines (0,25,50... style look)
       },
       legend: { enabled: false },
       plotOptions: {
@@ -173,7 +175,6 @@ export class PartsInnerActionsComponent {
       series: [{ type: 'column', name: 'Distribution', data }]
     };
   }
-
   // importantOptions: Highcharts.Options = this.buildMonthlyBar(
   //   [65, 75, 65, 70, 85, 80, 65, 60, 60, 55, 80, 57]
   // );
@@ -200,30 +201,20 @@ export class PartsInnerActionsComponent {
     },
     yAxis: {
       min: 0,
-      max: 100,
+      // max removed here too
       title: { text: '' },
-      gridLineColor: '#e0e0e0'
+      gridLineColor: '#e0e0e0',
+      allowDecimals: false
     },
     legend: { enabled: true },
     plotOptions: {
       column: { borderWidth: 0, pointPadding: 0.1, groupPadding: 0.2 }
     },
     series: [
-      {
-        type: 'column',
-        name: 'Resolved',
-        color: '#4C9CA0',
-        data: [37, 35, 48, 50, 42, 30, 44, 47, 52, 44, 55, 38]
-      },
-      {
-        type: 'column',
-        name: 'Log',
-        color: '#6b6bb0',
-        data: [75, 73, 65, 75, 60, 83, 65, 66, 55, 73, 60, 57]
-      }
+      { type: 'column', name: 'Resolved', color: '#4C9CA0', data: [] },
+      { type: 'column', name: 'Log', color: '#6b6bb0', data: [] }
     ]
   };
-
   //agingList: { period: string; action: number }[] = [];
   totalCapas: number = 0;
 
