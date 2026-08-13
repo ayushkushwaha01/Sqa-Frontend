@@ -41,72 +41,6 @@ export class InspectionCapaComponent implements OnInit {
   actionTypes: string[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  someElementRef: any;
-
-  // Filter Arrays
-  tractors = [
-    { TractorStatusId: 'ID-01' },
-    { TractorStatusId: 'ID-02' },
-    { TractorStatusId: 'ID-03' }
-  ];
-  TractorIdSections = [
-    { item_id: 1, item_text: 'ID-01' },
-    { item_id: 2, item_text: 'ID-02' },
-    { item_id: 3, item_text: 'ID-03' },
-  ];
-  responsibleSections = [
-    { item_id: 1, item_text: 'Front Axle Bracket Area' },
-    { item_id: 2, item_text: 'Gearbox' },
-    { item_id: 3, item_text: 'Cooling Package' },
-    { item_id: 4, item_text: 'Air Intake System' },
-  ];
-  ORCStatuses = [
-    { item_id: 1, item_text: 'O' },
-    { item_id: 2, item_text: 'R1' },
-    { item_id: 3, item_text: 'R2' },
-    { item_id: 4, item_text: 'C' },
-  ];
-  Probability = [
-    { item_id: 1, item_text: '1' }, { item_id: 2, item_text: '2' },
-    { item_id: 3, item_text: '3' }, { item_id: 4, item_text: '4' },
-    { item_id: 5, item_text: '5' }, { item_id: 6, item_text: '6' },
-    { item_id: 7, item_text: '7' }, { item_id: 8, item_text: '8' },
-    { item_id: 9, item_text: '9' }, { item_id: 10, item_text: '10' },
-  ];
-  sortOrder = [
-    { item_id: 1, item_text: 'ASC' },
-    { item_id: 2, item_text: 'DESC' },
-  ];
-  IsNew = [
-    { item_id: 1, item_text: 'New' },
-    { item_id: 2, item_text: 'Regular' },
-  ];
-  ScoreMatrix = [
-    { item_id: 1, item_text: 'Assembly' },
-    { item_id: 2, item_text: 'Service' },
-    { item_id: 3, item_text: 'Performance' },
-    { item_id: 4, item_text: 'Functional' },
-  ];
-  resSectionFilterLeads = [
-    { UserId: 'U001', UserName: 'Lead A' },
-    { UserId: 'U002', UserName: 'Lead B' },
-    { UserId: 'U003', UserName: 'Lead C' }
-  ];
-  FilterSubgroup = [
-    { SubGroupId: 'SG001', SubGroupName: 'Subgroup 1' },
-    { SubGroupId: 'SG002', SubGroupName: 'Subgroup 2' },
-    { SubGroupId: 'SG003', SubGroupName: 'Subgroup 3' }
-  ];
-  scorematrix = [
-    { ScoreMatrixId: 'FE001', ScoreMatrixName: 'High Impact' },
-    { ScoreMatrixId: 'FE002', ScoreMatrixName: 'Medium Impact' },
-    { ScoreMatrixId: 'FE003', ScoreMatrixName: 'Low Impact' }
-  ];
-  categories = [
-    { CategoryId: 'C001', CategoryName: 'Detection 1' },
-    { CategoryId: 'C002', CategoryName: 'Detection 2' },
-    { CategoryId: 'C003', CategoryName: 'Detection 3' }
-  ];
 
   constructor(
     public dialog: MatDialog,
@@ -117,46 +51,38 @@ export class InspectionCapaComponent implements OnInit {
 
   ngOnInit(): void {
     this.myGroup = new FormGroup({
-      firstName: new FormControl(''),
       Keyword: new FormControl(''),
       TractorIdSections: new FormControl(''),
       ResponsibleSections: new FormControl(''),
-      ResponsibleSectionLeadId: new FormControl(''),
-      SubGroupId: new FormControl(''),
-      ORCStatuses: new FormControl(''),
-      IsNew: new FormControl(''),
-      ScoreMatrix: new FormControl(''),
-      Probability: new FormControl(''),
-      PartCode: new FormControl(''),
-      CategoryId: new FormControl(''),
-      sortOrder: new FormControl('')
+      ResponsibleSectionLeadId: new FormControl('')
     });
 
     this.fetchPendingCapas();
   }
 
-  
- fetchPendingCapas() {
+  fetchPendingCapas() {
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
           this.tableList = res.data.map((item: any) => {
 
-            let delay = 0;
-            if (item.etaDate) {
-              const eta = new Date(item.etaDate);
+            let delayVal: any = 'N/A';
+            if (item.dueDate) {
+              const due = new Date(item.dueDate);
               const completion = item.completion ? new Date(item.completion) : new Date();
-              eta.setHours(0, 0, 0, 0);
+              due.setHours(0, 0, 0, 0);
               completion.setHours(0, 0, 0, 0);
-              const diffTime = completion.getTime() - eta.getTime();
+              const diffTime = completion.getTime() - due.getTime();
               if (diffTime > 0) {
-                delay = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                delayVal = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              } else {
+                delayVal = 'N/A';
               }
             }
 
             return {
               capaId: item.capaId,
-              inspectionRefId: item.inspectionRefId, 
+              inspectionRefId: item.inspectionRefId,
               status: item.status,
               resolved: item.resolved,
               docs: item.docs,
@@ -167,25 +93,23 @@ export class InspectionCapaComponent implements OnInit {
               processCategory: item.processCategory,
               description: item.description,
               supplierRemarks: item.supplierRemarks,
+              observations: item.observations,
+              correctiveActions: item.correctiveActions,
               parameterName: item.parameterName,
               partFamilyName: item.partFamilyName,
               partName: item.partName,
-              // --- MAPPED MISSING FIELDS HERE ---
               etaDate: item.etaDate ? this.datePipe.transform(item.etaDate, 'dd-MMM-yyyy') : '-',
               auditorRemarks: item.auditorRemarks || '-',
               auditeeResponse: item.auditeeResponse || '-',
-              
-              // Safely transform existing dates
               logDate: item.logDate ? this.datePipe.transform(item.logDate, 'dd-MMM-yyyy') : '-',
               dueDate: item.dueDate ? this.datePipe.transform(item.dueDate, 'dd-MMM-yyyy') : '-',
               completion: item.completion ? this.datePipe.transform(item.completion, 'dd-MMM-yyyy') : '-',
-              
               reference: item.reference,
-              delayInDays: delay > 0 ? delay : null,
+              delayInDays: delayVal,
               severity: item.severity,
               occurrence: item.occurrence,
               detection: item.detection,
-              riskRating: item.riskRating,
+              riskRating: item.riskRating || 'N/A',
               rating: item.rating,
               pdcaStatus: item.pdcaStatus
             };
@@ -213,14 +137,12 @@ export class InspectionCapaComponent implements OnInit {
     const payload = {
       capaId: applicant.capaId,
       status: applicant.status,
-      resolved: applicant.resolved,
-      riskRating: applicant.riskRating // This will now send "High", "Medium", or "Low" natively
+      resolved: applicant.resolved
     };
 
     this.inspectionService.updateCapaInlineStatus(payload).subscribe({
       next: (res: any) => {
         if (res.success) {
-          console.log('Record updated successfully');
           this.alertService.createAlert('Record updated successfully', 1);
         } else {
           this.alertService.createAlert(res.message || 'Failed to update record', 0);
@@ -230,38 +152,6 @@ export class InspectionCapaComponent implements OnInit {
         console.error("Failed to update record", err);
         this.alertService.createAlert(err.error?.message || 'An error occurred while updating the record.', 0);
       }
-    });
-  }
-
-  // DIALOGS & UI EVENTS
-
-  addTests(applicant: any) {
-    let dialogRef = this.dialog.open(EditissuesComponent, {
-      height: 'auto',
-      width: '5000px',
-    });
-  }
-
-  imageSource1() {
-    this.dialog.open(ActionDescRemarksComponent, {
-      width: '500px',
-      height: 'auto',
-    });
-  }
-
-  public addIssues(id: any) {
-    let dialogRef = this.dialog.open(AddIssuesssComponent, {
-      data: id,
-      height: 'auto',
-      width: '500px',
-    });
-  }
-
-  public openGrid(id: any) {
-    let dialogRef = this.dialog.open(IssuesGridColumnsComponent, {
-      data: id,
-      height: 'auto',
-      width: '800px',
     });
   }
 
@@ -287,7 +177,7 @@ export class InspectionCapaComponent implements OnInit {
               this.alertService.createAlert(res.message || 'Failed to delete CAPA', 0);
             }
           },
-          error: (err) => this.alertService.createAlert('An error occurred while deleting the CAPA record.', 0)
+          error: () => this.alertService.createAlert('An error occurred while deleting the CAPA record.', 0)
         });
       }
     });
@@ -295,78 +185,28 @@ export class InspectionCapaComponent implements OnInit {
 
   scrollRight() {
     const container = document.getElementById('grid-table-container');
-    if (container) {
-      container.scrollBy({ left: 300, behavior: 'smooth' });
-    }
+    if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
   }
 
   scrollLeft() {
     const container = document.getElementById('grid-table-container');
-    if (container) {
-      container.scrollBy({ left: -300, behavior: 'smooth' });
-    }
-  }
-
-  partsgrid() {
-    this.dialog.open(PartsActionsGridComponent, {
-      width: '650px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog'
-    });
-  }
-
-  editparts() {
-    this.dialog.open(PartsActionsEditComponent, {
-      width: '650px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog'
-    });
+    if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
   }
 
   docsPhoto(applicant: any) {
     const dialogRef = this.dialog.open(InspectionDocspopComponent, {
-      width: '750px', // slightly wider to accommodate the nice table
+      width: '750px',
       height: 'auto',
       maxHeight: '90vh',
       panelClass: 'no-scroll-dialog',
-      data: { 
+      data: {
         capaId: applicant.capaId,
         inspectionRefId: applicant.inspectionRefId
-      } // Send the CapaId and inspectionRefId to the popup
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.fetchPendingCapas();
-      }
-    });
-  }
-
-  editrow(applicant: any) {
-    const dialogRef = this.dialog.open(CapaEditPopComponent, {
-      width: '650px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog',
-      data: applicant // Pass the row data here
-    });
-
-    // Refresh the grid if the dialog was saved successfully
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.fetchPendingCapas();
-      }
-    });
-  }
-
-  processgrid() {
-    this.dialog.open(ProcessActionsGridComponent, {
-      width: '650px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog'
+      if (result) this.fetchPendingCapas();
     });
   }
 
