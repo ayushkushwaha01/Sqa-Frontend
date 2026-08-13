@@ -81,14 +81,14 @@
         <tbody>
           <tr *ngFor="let item of pagedData">
             <td class="text-center manage-icons">
-              <mat-icon class="edit-icon" [matTooltip]="isReadOnly ? 'Edit Disabled' : 'Edit'"
+              <i class="fa fa-edit" [matTooltip]="isReadOnly ? 'Edit Disabled' : 'Edit'"
                 [style.color]="isReadOnly ? '#b0b0b0' : 'cornflowerblue'"
                 [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
-                (click)="!isReadOnly && editParameter(item)">edit</mat-icon>
-              <mat-icon class="delete-icon" [matTooltip]="isReadOnly ? 'Delete Disabled' : 'Delete'"
+                (click)="!isReadOnly && editParameter(item)" style="font-size: 16px; margin-right: 10px;"></i>
+              <i class="fa fa-trash red" [matTooltip]="isReadOnly ? 'Delete Disabled' : 'Delete'"
                 [style.color]="isReadOnly ? '#b0b0b0' : 'red'"
                 [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
-                (click)="!isReadOnly && deleteParameter(item)">delete</mat-icon>
+                (click)="!isReadOnly && deleteParameter(item)" style="font-size: 16px;"></i>
             </td>
 
             <td>{{ item.parameter }}</td>

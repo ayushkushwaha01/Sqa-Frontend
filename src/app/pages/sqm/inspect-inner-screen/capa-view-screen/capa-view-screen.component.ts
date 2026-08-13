@@ -93,7 +93,7 @@ export class CapaViewScreenComponent implements OnInit {
       occurrence: [null],
       detection: [null],
       sodScore: [{ value: '', disabled: true }],
-      riskRating: [{ value: '', disabled: true }],
+      riskRating: [''], // Changed to empty string instead of disabled object
       class: [''],
       actionType: [''],
       capaSubject: [''],
@@ -121,6 +121,17 @@ export class CapaViewScreenComponent implements OnInit {
           const data = res[0];
           this.isUpdate = true;
 
+          let riskVal = data.riskRating;
+          if (riskVal) {
+            const tr = riskVal.trim();
+            if (tr === 'Excellent') riskVal = 'Excellent - 5';
+            else if (tr === 'Good') riskVal = 'Good - 4';
+            else if (tr === 'Satisfactory') riskVal = 'Satisfactory - 3';
+            else if (tr === 'Minor NC') riskVal = 'Minor NC - 2';
+            else if (tr === 'Major NC') riskVal = 'Major NC - 1';
+            else if (tr === 'N/A') riskVal = 'N/A - 0';
+          }
+
           this.auditForm.patchValue({
             capaId: data.id,
             inspectionRefId: this.inspectionRefId,
@@ -132,7 +143,7 @@ export class CapaViewScreenComponent implements OnInit {
             occurrence: data.occurrence,
             detection: data.detection,
             sodScore: data.sodScore,
-            riskRating: data.riskRating,
+            riskRating: riskVal,
             class: data.class || '',
             actionType: data.actionType,
             capaSubject: data.capaSubject,
@@ -195,11 +206,13 @@ export class CapaViewScreenComponent implements OnInit {
       if (values.severityId && values.occurrence && values.detection) {
         const selectedSeverity = this.severityOptions.find(s => s.severityId === values.severityId);
         const severityRating = selectedSeverity ? selectedSeverity.rating : 0;
-        const sod = severityRating * values.occurrence * values.detection;
+        const sod = `${severityRating}${values.occurrence}${values.detection}`;
         
-        this.auditForm.get('sodScore')?.setValue(sod, { emitEvent: false });
-        const risk = sod >= 100 ? 'High' : (sod >= 50 ? 'Medium' : 'Low');
-        this.auditForm.get('riskRating')?.setValue(risk, { emitEvent: false });
+        this.auditForm.get('sodScore')?.setValue(Number(sod), { emitEvent: false });
+        
+        // Automatic risk calculation has been removed to allow manual dropdown selection
+      } else {
+        this.auditForm.get('sodScore')?.setValue('', { emitEvent: false });
       }
     });
   }
@@ -225,7 +238,7 @@ export class CapaViewScreenComponent implements OnInit {
       dueDate: formDataValues.dueDate || null,
       completedDate: formDataValues.completedDate || null,
       pdcaStatus: formDataValues.pdcaStatus || null,
-      riskRating: formDataValues.riskRating || null,
+      riskRating: formDataValues.riskRating ? formDataValues.riskRating.split(' - ')[0] : null,
       class: formDataValues.class || null,
       actionType: formDataValues.actionType || null,
       capaSubject: formDataValues.capaSubject || null,

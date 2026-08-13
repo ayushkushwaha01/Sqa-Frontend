@@ -41,19 +41,23 @@ export class AddSamplesComponent implements OnInit {
   loadParameters() {
     this.inspectionService.getInspectionParameters(this.inspectionId).subscribe({
       next: (res: any) => {
-        if (res && res.success) {
-          let params = res.data || [];
+        if (res && res.success && res.data) {
+          const flattenedParams: any[] = [];
 
-          // 2. Filter by category so it matches what the user saw on the previous screen
-          if (this.category && this.category !== 'All') {
-            params = params.filter((x: any) => {
-              const cat = x.categoryName || x.CategoryName || '';
-              return cat.toString().trim().toLowerCase() === this.category.toString().trim().toLowerCase();
-            });
-          }
+          res.data.forEach((categoryGroup: any) => {
+            const catName = categoryGroup.categoryName || categoryGroup.CategoryName || '';
+            const matchCategory = !this.category || this.category === 'All' || 
+              catName.toString().trim().toLowerCase() === this.category.toString().trim().toLowerCase();
+
+            if (matchCategory && categoryGroup.parameters && categoryGroup.parameters.length > 0) {
+              categoryGroup.parameters.forEach((item: any) => {
+                flattenedParams.push(item);
+              });
+            }
+          });
 
           // 3. Map to table format, extracting the correct actual sample value dynamically
-          this.tableData = params.map((p: any) => ({
+          this.tableData = flattenedParams.map((p: any) => ({
             inspectionRefId: p.id || p.Id || p.inspectionRefId || p.InspectionRefId,
             parameter: p.parameter || p.Parameter || p.parameterName || p.ParameterName || 'N/A',
             spec: p.spec || p.Spec || '-',

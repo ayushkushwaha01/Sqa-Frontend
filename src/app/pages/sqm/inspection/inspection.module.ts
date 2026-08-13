@@ -31,6 +31,7 @@ import { DefectsPopMasterComponent } from './inspection-datatable/defects-pop-ma
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { InspectionDocspopComponent } from './inspection-capa/inspection-docspop/inspection-docspop.component';
 import { CapaEditPopComponent } from './inspection-capa/capa-edit-pop/capa-edit-pop.component'; // <-- Already here, just needed in imports array below
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const routes: Routes = [
   {
@@ -75,7 +76,8 @@ const routes: Routes = [
     MatDatepickerModule,
     MatCheckboxModule,
     MatPaginatorModule,
-    NgxChartsModule // ✅ ADDED HERE
+    NgxChartsModule, // ✅ ADDED HERE,
+    MatTooltipModule,
 ]
 })
 export class InspectionModule { }

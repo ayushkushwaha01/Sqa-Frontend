@@ -18,7 +18,7 @@ export class DefectsPopComponent implements OnInit {
   palette: { [key: number]: any } = {
     1: { bgColor: '#4c9a2a', textColor: '#ffffff' }, // Green
     2: { bgColor: '#3b82f6', textColor: '#ffffff' }, // Blue
-    3: { bgColor: '#fcd34d', textColor: '#ffffff' }, // Yellow
+    3: { bgColor: '#fcd34d', textColor: '#000000' }, // Yellow
     4: { bgColor: '#f8a000', textColor: '#ffffff' }, // Orange
     5: { bgColor: '#dc2626', textColor: '#ffffff' }  // Red
   };
