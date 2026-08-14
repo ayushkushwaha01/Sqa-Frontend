@@ -58,7 +58,7 @@ export class CapaViewScreenComponent implements OnInit {
     this.initForm();
     this.loadSeverities();
     this.setupScoreCalculation();
-    // this.getDemeritMaster();
+     this.getDemeritMaster();
 
     this.route.queryParams.subscribe(params => {
       this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
@@ -87,59 +87,59 @@ export class CapaViewScreenComponent implements OnInit {
 
 
    demeritOptions: any[] = [];
-  // getDemeritMaster() {
+  getDemeritMaster() {
  
-  //   this.setupService.getDemeritMaster({})
-  //     .subscribe((res: any) => {
+    this.setupService.getDemeritMaster({})
+      .subscribe((res: any) => {
  
-  //       if (res.success) {
+        if (res.success) {
  
-  //         this.demeritOptions = res.data.data.map((item: any) => {
+          this.demeritOptions = res.data.data.map((item: any) => {
  
-  //           let bgColor = '';
-  //           let color = '';
+            let bgColor = '';
+            let color = '';
  
-  //           switch (item.subject) {
+            switch (item.subject) {
  
-  //             case 'Minor':
-  //               bgColor = '#dcfce7';
-  //               color = '#166534';
-  //               break;
+              case 'Minor':
+                bgColor = '#dcfce7';
+                color = '#166534';
+                break;
  
-  //             case 'Small':
-  //               bgColor = '#fef9c3';
-  //               color = '#854d0e';
-  //               break;
+              case 'Small':
+                bgColor = '#fef9c3';
+                color = '#854d0e';
+                break;
  
-  //             case 'Moderate':
-  //               bgColor = '#ffedd5';
-  //               color = '#9a3412';
-  //               break;
+              case 'Moderate':
+                bgColor = '#ffedd5';
+                color = '#9a3412';
+                break;
  
-  //             case 'Major':
-  //               bgColor = '#fee2e2';
-  //               color = '#991b1b';
-  //               break;
+              case 'Major':
+                bgColor = '#fee2e2';
+                color = '#991b1b';
+                break;
  
-  //             case 'Critical':
-  //               bgColor = '#fecaca';
-  //               color = '#7f1d1d';
-  //               break;
-  //           }
+              case 'Critical':
+                bgColor = '#fecaca';
+                color = '#7f1d1d';
+                break;
+            }
  
-  //           return {
-  //             ...item,
-  //             bgColor: bgColor,
-  //             color: color
-  //           };
+            return {
+              ...item,
+              bgColor: bgColor,
+              color: color
+            };
  
-  //         });
+          });
  
-  //       }
+        }
  
-  //     });
+      });
  
-  // }
+  }
   selectDemerit(item: any) {
  
     this.auditForm.patchValue({
