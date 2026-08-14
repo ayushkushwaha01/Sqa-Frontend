@@ -6,12 +6,40 @@ import { LookupService } from "src/app/pages/admin/lookup/lookup.service";
 import { ManageUsersService } from "src/app/pages/admin/manage-user/manage-users.service";
 import { InspectionService } from "../inspection.service";
 import { AlertService } from "src/app/shared/alert.service";
- 
+import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
+
+export class CustomDateAdapter extends NativeDateAdapter {
+  format(date: Date, displayFormat: Object): string {
+    if (displayFormat === 'input') {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    return date.toDateString();
+  }
+}
+
+export const CUSTOM_DATE_FORMATS = {
+  parse: {
+    dateInput: { month: 'short', year: 'numeric', day: 'numeric' },
+  },
+  display: {
+    dateInput: 'input',
+    monthYearLabel: { year: 'numeric', month: 'numeric' },
+    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
+    monthYearA11yLabel: { year: 'numeric', month: 'long' },
+  },
+};
 
 @Component({
   selector: "app-add-record-pop",
   templateUrl: "./add-record-pop.component.html",
   styleUrls: ["./add-record-pop.component.scss"],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS }
+  ]
 })
 export class AddRecordPopComponent implements OnInit {
   recordForm!: FormGroup;
@@ -67,7 +95,7 @@ export class AddRecordPopComponent implements OnInit {
         partFamilyId: this.data.partFamilyId,
         partMasterId: this.data.partMasterId,
         batchId: this.data.batchId,
-        inspectionDate: this.data.InspectionDate,
+        inspectionDate: this.parseLocalDate(this.data.InspectionDate),
         time: this.data.Time,
         remarks: this.data.Remarks === "-" ? "" : this.data.Remarks,
         batchQuantity: this.data.BatchQuantity,
@@ -118,20 +146,20 @@ export class AddRecordPopComponent implements OnInit {
     });
 
     this.setupService.getPartMaster({ Keyword: "", Status: "" }).subscribe((res: any) => {
-        if (res.success && res.data && res.data.data) {
-          this.allPartCodes = res.data.data.filter((item: any) => item.isActive);
-          const partFamilyId = this.recordForm.get("partFamilyId")?.value;
-          this.partCodes = partFamilyId ? this.allPartCodes.filter((item: any) => item.partFamilyId == partFamilyId) : [];
-        }
-      });
+      if (res.success && res.data && res.data.data) {
+        this.allPartCodes = res.data.data.filter((item: any) => item.isActive);
+        const partFamilyId = this.recordForm.get("partFamilyId")?.value;
+        this.partCodes = partFamilyId ? this.allPartCodes.filter((item: any) => item.partFamilyId == partFamilyId) : [];
+      }
+    });
 
     this.setupService.getBatchMaster({ Keyword: "", Status: "" }).subscribe((res: any) => {
-        if (res.success && res.data && res.data.data) {
-          this.allBatches = res.data.data.filter((item: any) => item.isActive);
-          const partMasterId = this.recordForm.get("partMasterId")?.value;
-          this.batches = partMasterId ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId) : [];
-        }
-      });
+      if (res.success && res.data && res.data.data) {
+        this.allBatches = res.data.data.filter((item: any) => item.isActive);
+        const partMasterId = this.recordForm.get("partMasterId")?.value;
+        this.batches = partMasterId ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId) : [];
+      }
+    });
   }
 
  saveRecord() {
@@ -143,7 +171,7 @@ export class AddRecordPopComponent implements OnInit {
         inspectionId: this.data && this.data.id ? this.data.id : 0, 
         partCodeId: formData.partMasterId,
         batchNumberId: formData.batchId,
-        inspectionDate: formData.inspectionDate ? new Date(formData.inspectionDate).toISOString() : null,
+        inspectionDate: this.formatLocalDate(formData.inspectionDate),
         createdBy: 1, 
       };
 
@@ -184,5 +212,41 @@ export class AddRecordPopComponent implements OnInit {
   onPartMasterChange(partMasterId: any) {
     this.batches = partMasterId ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId) : [];
     this.recordForm.get("batchId")?.setValue(null);
+  }
+
+  parseLocalDate(dateInput: any): Date | null {
+    if (!dateInput) return null;
+    if (dateInput instanceof Date) return dateInput;
+
+    const dateStr = String(dateInput).trim();
+    const hasTimezone = dateStr.endsWith('Z') || /[\+\-]\d{2}:?\d{2}$/.test(dateStr);
+
+    if (hasTimezone) {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return null;
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    } else {
+      const cleanDateStr = dateStr.split('T')[0]; 
+      const parts = cleanDateStr.split('-');
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; 
+        const day = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+      }
+    }
+
+    const d = new Date(dateInput);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  formatLocalDate(dateInput: any): string | null {
+    if (!dateInput) return null;
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return null;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

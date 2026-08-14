@@ -191,7 +191,7 @@
           <mat-checkbox [(ngModel)]="item.Publish" color="primary" (change)="togglePublish(item)"></mat-checkbox>
         </td>
 
-        <td class="text-center">{{ item.InspectionDate | date:'yyyy-MM-dd' }}</td>
+        <td class="text-center">{{ item.InspectionDate | date:'dd/MM/yyyy' }}</td>
         <td class="text-center">{{ item.Time }}</td>
         <td class="text-center">{{ item.Inspector }}</td>
         <td class="text-center">{{ item.PartFamily }}</td>
