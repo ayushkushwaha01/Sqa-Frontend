@@ -167,13 +167,20 @@ export class AuditSummaryReportComponent implements OnInit {
 
     // === 3. SPIDER / RADAR CHART ===
     const cats = (this.reportData.categoryScores || []) as any[];
+    const safeNum = (val: any): number => {
+      const n = Number(val);
+      if (isNaN(n) || n < 0) return 0;
+      return Math.min(n, 10);
+    };
+
     const catNames = cats.length > 0 ? cats.map((c: any) => c.categoryName) : ['QMS', 'MM', 'PPC', 'IMC', '5S'];
-    const sevData  = cats.length > 0 ? cats.map((c: any) => c.avgSeverity || 0) : [0, 0, 0, 0, 0];
-    const occData  = cats.length > 0 ? cats.map((c: any) => c.avgOccurrence || 0) : [0, 0, 0, 0, 0];
-    const detData  = cats.length > 0 ? cats.map((c: any) => c.avgDetection || 0) : [0, 0, 0, 0, 0];
+    const sevData  = cats.length > 0 ? cats.map((c: any) => safeNum(c.avgSeverity)) : [0, 0, 0, 0, 0];
+    const occData  = cats.length > 0 ? cats.map((c: any) => safeNum(c.avgOccurrence)) : [0, 0, 0, 0, 0];
+    const detData  = cats.length > 0 ? cats.map((c: any) => safeNum(c.avgDetection)) : [0, 0, 0, 0, 0];
 
     this.spiderChartOptions = {
-      chart: { polar: true, type: 'line', backgroundColor: 'transparent', height: 210, animation: false, margin: [15, 10, 35, 10] },
+      chart: { polar: true, type: 'line', backgroundColor: 'transparent', height: 210, animation: false, margin: [20, 25, 35, 25] },
+      pane: { size: '65%' },
       title: { text: '' },
       credits: { enabled: false },
       exporting: { enabled: false } as any,
@@ -186,14 +193,14 @@ export class AuditSummaryReportComponent implements OnInit {
       },
       xAxis: {
         categories: catNames, tickmarkPlacement: 'on', lineWidth: 0,
-        labels: { style: { fontSize: '8px', fontWeight: '700', color: '#334155' } }
+        labels: { style: { fontSize: '7.5px', fontWeight: '700', color: '#334155' } }
       },
       yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0, max: 10, labels: { enabled: false } },
       tooltip: { shared: true, pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}</b><br/>' },
       series: [
-        { type: 'line', name: 'Severity (Avg)', data: sevData, color: '#dc2626', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#dc2626' } } as any,
-        { type: 'line', name: 'Occurrence (Avg)', data: occData, color: '#d97706', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#d97706' } } as any,
-        { type: 'line', name: 'Detection (Avg)', data: detData, color: '#0284c7', pointPlacement: 'on', lineWidth: 1.8, marker: { radius: 2.5, fillColor: '#0284c7' } } as any
+        { type: 'line', name: 'Severity (Avg)', data: sevData, color: '#dc2626', pointPlacement: 'on', lineWidth: 1.8, connectNulls: true, marker: { radius: 2.5, fillColor: '#dc2626' } } as any,
+        { type: 'line', name: 'Occurrence (Avg)', data: occData, color: '#d97706', pointPlacement: 'on', lineWidth: 1.8, connectNulls: true, marker: { radius: 2.5, fillColor: '#d97706' } } as any,
+        { type: 'line', name: 'Detection (Avg)', data: detData, color: '#0284c7', pointPlacement: 'on', lineWidth: 1.8, connectNulls: true, marker: { radius: 2.5, fillColor: '#0284c7' } } as any
       ]
     };
   }

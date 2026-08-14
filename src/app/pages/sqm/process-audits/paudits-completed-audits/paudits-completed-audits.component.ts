@@ -112,7 +112,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   statusLookups: any[] = [];
 
   // Pagination
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
 
   // Filter variables
@@ -309,7 +309,10 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   clearFilter() {
     this.filterForm.reset();
     this.filteredAuditData = [...this.originalAuditData];
-    this.pageIndex = 0; // Reset to first page
+    const maxPage = Math.max(0, Math.ceil(this.filteredAuditData.length / this.pageSize) - 1);
+    if (this.pageIndex > maxPage) {
+      this.pageIndex = maxPage;
+    }
   }
 
   // 🔥 Re-added standard Done Click functionality

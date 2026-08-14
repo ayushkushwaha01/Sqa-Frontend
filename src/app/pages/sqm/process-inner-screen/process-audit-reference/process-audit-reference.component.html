@@ -29,9 +29,12 @@
   <div class="row mb-4 pb-4">
     <div class="col-12 d-flex gap-4">
       <button mat-raised-button *ngFor="let cat of categories" (click)="selectCategory(cat)"
-        [ngClass]="selectedCategory === cat ? 'category-btn-active' : 'category-btn-inactive'" class="category-btn"
+        [ngClass]="getCategoryClass(cat)" class="category-btn"
         [matTooltip]="cat.name || cat.categoryName">
-        {{ cat.code }} <span *ngIf="categoryCounts[cat.processCategoryId] !== undefined">({{ categoryCounts[cat.processCategoryId] }})</span>
+        {{ cat.code }}
+        <ng-container *ngIf="categoryStats[cat.processCategoryId]">
+          ({{ categoryStats[cat.processCategoryId].attempted }}/{{ categoryStats[cat.processCategoryId].total }})
+        </ng-container>
       </button>
     </div>
   </div>
@@ -40,7 +43,7 @@
   <div class="row mb-5 mt-2">
     <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
       <div *ngFor="let step of processSteps; let i = index" (click)="selectStep(step)" class="step-box cursor-pointer"
-           [ngClass]="{'selected-step': selectedStep === step, 'bg-grey text-dark': selectedStep !== step}">
+           [ngClass]="getStepClass(step)">
         {{ i + 1 }}
       </div>
     </div>
@@ -54,11 +57,37 @@
       <fieldset [disabled]="isSupplier" [ngClass]="{'supplier-locked': isSupplier}">
 
         <!-- DYNAMIC QUESTION -->
-        <div class="row mb-5" style="margin-left: -20px">
+        <div class="row mb-3" style="margin-left: -20px">
           <div class="col-12">
             <div class="p-3">
-              <span class="fw-bold" style="color: #099ff0;">Question: </span>
-              <span class="text-dark">{{ selectedStep?.question }}</span>
+              <span class="fw-bold text-dark">Question: </span>
+              <span class="text-dark" style="font-size: 15px; font-weight: 400;">
+                {{ selectedStep?.question }}
+              </span>
+
+              <!-- MODERN ELEGANT BADGES BELOW QUESTION (UNCLIPPED) -->
+              <div class="d-flex align-items-center gap-2 mt-2 flex-wrap" *ngIf="selectedStep?.isMandatory || selectedStep?.isPriority">
+                
+                <!-- Mandatory Badge -->
+                <span *ngIf="selectedStep?.isMandatory" 
+                      class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill" 
+                      style="background-color: #fef2f2; color: #dc2626; border: 1.5px solid #fca5a5; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; line-height: 1;"
+                      matTooltip="Mandatory question">
+                  <i class="fa fa-exclamation-circle" style="font-size: 13px; color: #dc2626;"></i>
+                  <span>MANDATORY</span>
+                </span>
+
+                <!-- Priority Badge -->
+                <span *ngIf="selectedStep?.isPriority" 
+                      class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill" 
+                      style="background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #93c5fd; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; line-height: 1;"
+                      matTooltip="High priority question">
+                  <i class="fa fa-flag" style="font-size: 12px; color: #1d4ed8;"></i>
+                  <span>PRIORITY</span>
+                </span>
+
+              </div>
+
             </div>
           </div>
         </div>
@@ -115,41 +144,7 @@
           </div>
         </div>
 
-        <!-- FILE UPLOAD -->
-        <div class="form-group row align-items-center mb-3 mt-4">
-          <label class="col-sm-4 col-form-label fw-bold">Upload PDF :</label>
-          <div class="col-sm-8" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-            <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" multiple>
-            <div class="drag-drop-zone" (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-              <mat-icon style="font-size: 24px;">upload</mat-icon>
-              <span>Drag and drop files here</span>
-              <button mat-raised-button class="browse-btn" type="button" style="background-color: #1485cc; color: white;" (click)="$event.stopPropagation(); fileInput.click()">Browse Files</button>
-            </div>
-            
-            <div class="file-list" style="width: 100%;">
-              <!-- Existing API Docs -->
-              <div *ngFor="let doc of uploadedDocs; let i = index" 
-                   style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 13px; background: #e3f2fd; margin-top: 6px; border-radius: 4px;">
-                <mat-icon style="font-size: 18px; color: #1485cc;">insert_drive_file</mat-icon>
-                <a [href]="doc.url" target="_blank" style="text-decoration: none; color: #1485cc; font-weight: 500;">{{ doc.title }}</a>
-                <!-- 🔥 Hide Delete Button if Supplier -->
-                <button *ngIf="!isSupplier" mat-icon-button style="margin-left: auto;" (click)="deleteDocument(i, doc)" matTooltip="Delete Document">
-                  <mat-icon style="font-size: 18px; color: red;">close</mat-icon>
-                </button>
-              </div>
-              
-              <!-- Newly Selected Files -->
-              <div *ngFor="let file of selectedFiles; let i = index" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #f5f5f5; margin-top: 4px;">
-                <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
-                <a href="javascript:void(0)" (click)="viewLocalFile(file)" style="text-decoration: none; color: #1485cc;">{{ file.name }}</a>
-                <!-- 🔥 Hide Delete Button if Supplier -->
-                <button *ngIf="!isSupplier" mat-icon-button style="margin-left: auto;" (click)="removeFile(i)">
-                  <mat-icon style="font-size: 16px;">close</mat-icon>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
       </fieldset>
     </div>
@@ -160,7 +155,7 @@
       <!-- COMPLIANCE PASS/FAIL (LOCKED) -->
       <fieldset [disabled]="isSupplier" [ngClass]="{'supplier-locked': isSupplier}">
         <div class="form-group row align-items-center mb-3">
-          <label class="col-sm-4 col-form-label fw-bold">Compliance :</label>
+          <label class="col-sm-4 col-form-label fw-bold">Compliance : <span class="text-danger">*</span></label>
           <div class="col-sm-8 d-flex align-items-center gap-5">
             <div class="d-flex align-items-center gap-2">
               <label class="fw-bold mb-0" style="margin-top: 2px;">Pass :</label>
@@ -174,86 +169,166 @@
         </div>
       </fieldset>
 
-      <!-- CAPA SECTION -->
-      <ng-container *ngIf="complianceStatus === 'Fail'">
-        
-        <!-- 🔥 WRAP EVERYTHING EXCEPT "SUPPLIER REMARKS" IN A FIELDSET TO LOCK IT -->
-        <fieldset [disabled]="isSupplier" [ngClass]="{'supplier-locked': isSupplier}">
-          <div class="form-group row align-items-center mb-3">
-            <label class="col-sm-4 col-form-label fw-bold">Class :</label>
-            <div class="col-sm-8"><mat-select class="custom-mat-select" [(value)]="selectedClass" placeholder="Select Class"><mat-option *ngFor="let cls of classOptions" [value]="cls">{{ cls }}</mat-option></mat-select></div>
+      <!-- CAPA SECTION (AUDITOR-ONLY FIELDS: CLASS, SUBJECT, DATES, PDCA, ACTION TYPE, AUDITOR REMARKS) -->
+      <fieldset [disabled]="isSupplier || complianceStatus === 'Pass'">
+        <div class="form-group row align-items-center mb-3">
+          <label class="col-sm-4 col-form-label fw-bold">Class :</label>
+          <div class="col-sm-8">
+            <mat-select class="custom-mat-select" [(value)]="selectedClass" placeholder="Select Class" [disabled]="isSupplier || complianceStatus === 'Pass'">
+              <mat-option *ngFor="let cls of classOptions" [value]="cls">{{ cls }}</mat-option>
+            </mat-select>
           </div>
-          <div class="form-group row align-items-center mb-3">
-            <label class="col-sm-4 col-form-label fw-bold">CAPA Subject : <span class="text-danger">*</span></label>
-            <div class="col-sm-8"><input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject"></div>
-          </div>
-          <div class="form-group row align-items-center mb-3">
-            <label class="col-sm-4 col-form-label fw-bold">Due Date :</label>
-            <div class="col-sm-8"><input type="date" [(ngModel)]="dueDate" class="form-control"></div>
-          </div>
-          <div class="form-group row align-items-center mb-3">
-            <label class="col-sm-4 col-form-label fw-bold">Completed Date :</label>
-            <div class="col-sm-8"><input type="date" [(ngModel)]="completedDate" class="form-control"></div>
-          </div>
-          <div class="form-group row align-items-center mb-3">
-            <label class="col-sm-4 col-form-label fw-bold">PDCA Status :</label>
-            <div class="col-sm-8"><mat-select class="custom-mat-select" [(value)]="pdcaStatus" placeholder="Select PDCA Status"><mat-option *ngFor="let status of pdcaStatuses" [value]="status">{{ status }}</mat-option></mat-select></div>
-          </div>
-          <div class="form-group row align-items-center mb-3">
-            <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
-            <div class="col-sm-8 d-flex align-items-center"><mat-checkbox [(ngModel)]="isResolved"></mat-checkbox></div>
-          </div>
-          <div class="form-group row align-items-center mb-4">
-            <label class="col-sm-4 col-form-label fw-bold">Action Type :</label>
-            <div class="col-sm-8"><mat-select class="custom-mat-select" [(value)]="actionType" placeholder="Select Action Type"><mat-option *ngFor="let type of actionTypes" [value]="type">{{ type }}</mat-option></mat-select></div>
-          </div>
-          <div class="form-group mb-3">
-            <label class="fw-bold mb-2">Remarks :</label>
-            <textarea rows="4" [(ngModel)]="remarks" class="form-control custom-textarea"></textarea>
-          </div>
-          <div class="form-group mb-3">
-            <label class="fw-bold mb-2">Corrective Actions :</label>
-            <textarea rows="4" [(ngModel)]="correctiveActions" class="form-control custom-textarea"></textarea>
-          </div>
-        </fieldset> <!-- 🔥 Fieldset Ends Here -->
-
-        <!-- 🎯 OUTSIDE THE FIELDSET: THIS REMAINS EDITABLE -->
-        <div class="form-group mb-4 mt-3">
-          <label class="fw-bold mb-2">Supplier Remarks :</label>
-          <textarea rows="4" [(ngModel)]="supplierRemarks" class="form-control custom-textarea"></textarea>
         </div>
+        <div class="form-group row align-items-center mb-3">
+          <label class="col-sm-4 col-form-label fw-bold">CAPA Subject : <span class="text-danger" *ngIf="complianceStatus === 'Fail'">*</span></label>
+          <div class="col-sm-8">
+            <input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject" [disabled]="isSupplier || complianceStatus === 'Pass'">
+          </div>
+        </div>
+        
+        <div class="form-group row align-items-center mb-3">
+          <label class="col-sm-4 col-form-label fw-bold">Due Date :</label>
+          <div class="col-sm-8">
+            <input type="date" [(ngModel)]="dueDate" class="form-control" [disabled]="isSupplier || complianceStatus === 'Pass'">
+          </div>
+        </div>
+        <div class="form-group row align-items-center mb-3">
+          <label class="col-sm-4 col-form-label fw-bold">Completed Date :</label>
+          <div class="col-sm-8">
+            <input type="date" [(ngModel)]="completedDate" class="form-control" [disabled]="isSupplier || complianceStatus === 'Pass'">
+          </div>
+        </div>
+        <div class="form-group row align-items-center mb-3">
+          <label class="col-sm-4 col-form-label fw-bold">PDCA Status :</label>
+          <div class="col-sm-8">
+            <mat-select class="custom-mat-select" [(value)]="pdcaStatus" placeholder="Select PDCA Status" [disabled]="isSupplier || complianceStatus === 'Pass'">
+              <mat-option *ngFor="let status of pdcaStatuses" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+          </div>
+        </div>
+        <div class="form-group row align-items-center mb-4">
+          <label class="col-sm-4 col-form-label fw-bold">Action Type :</label>
+          <div class="col-sm-8">
+            <mat-select class="custom-mat-select" [(value)]="actionType" placeholder="Select Action Type" [disabled]="isSupplier || complianceStatus === 'Pass'">
+              <mat-option *ngFor="let type of actionTypes" [value]="type">{{ type }}</mat-option>
+            </mat-select>
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold mb-2">Auditor Remarks :</label>
+          <textarea rows="4" [(ngModel)]="remarks" class="form-control custom-textarea" [disabled]="isSupplier || complianceStatus === 'Pass'"></textarea>
+        </div>
+      </fieldset>
 
-      </ng-container>
+      <!-- MARK AS RESOLVED: ONLY SUPPLIER CAN MARK AS RESOLVED -->
+      <div class="form-group row align-items-center mb-3 mt-3">
+        <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
+        <div class="col-sm-8 d-flex align-items-center">
+          <mat-checkbox [(ngModel)]="isResolved" [disabled]="!isSupplier || complianceStatus === 'Pass'"></mat-checkbox>
+        </div>
+      </div>
+
+      <!-- CORRECTIVE ACTIONS: EDITABLE BY SUPPLIER & AUDITOR -->
+      <div class="form-group mb-3">
+        <label class="fw-bold mb-2">Corrective Actions :</label>
+        <textarea rows="4" [(ngModel)]="correctiveActions" class="form-control custom-textarea" [disabled]="complianceStatus === 'Pass'"></textarea>
+      </div>
+
+      <!-- PREVENTIVE ACTIONS: EDITABLE BY SUPPLIER & AUDITOR -->
+      <div class="form-group mb-4 mt-3">
+        <label class="fw-bold mb-2">Preventive Actions :</label>
+        <textarea rows="4" [(ngModel)]="supplierRemarks" class="form-control custom-textarea" [disabled]="complianceStatus === 'Pass'"></textarea>
+      </div>
     </div>
   </div>
 
-  <div class="row mt-3 mb-5 align-items-end">
-    <div class="col-md-10">
-      <div class="gallery-container d-flex align-items-center p-2">
-        <!-- 🔥 Hide Add Image button if user is a supplier -->
-        <div *ngIf="!isSupplier" class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2" (click)="addImage()">
-          <mat-icon>add</mat-icon>
+  <!-- ================= ATTACHMENTS (2 SEPARATE GREY BANDS FOR DOCS & PICTURES) ================= -->
+  <div class="row mt-4 mb-3">
+    
+    <!-- 1. ADD DOCUMENT BAND (FIRST) -->
+    <div class="col-md-6 mb-3">
+      <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Document <span class="text-danger">*</span></label>
+      
+      <input type="file" #docFileInput style="display: none;" (change)="onFileSelected($event)" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
+
+      <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto" style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
+        <!-- Black Square + Add Button for Docs -->
+        <div *ngIf="!isSupplier" class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer"
+             style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
+             (click)="docFileInput.click()" matTooltip="Add PDF / Document">
+          <mat-icon style="font-size: 28px; width: 28px; height: 28px;">add</mat-icon>
+        </div>
+
+        <!-- Existing API Docs (85px x 85px Square Tiles) -->
+        <div *ngFor="let doc of uploadedDocs; let i = index" 
+             class="gallery-item border cursor-pointer bg-white d-flex flex-column justify-content-center align-items-center p-1 text-center position-relative" 
+             style="width: 85px; height: 85px; border-radius: 4px; flex-shrink: 0;"
+             (click)="openDocUrl(doc.url)" [matTooltip]="doc.title">
+          <mat-icon style="color: #dc3545; font-size: 32px; width: 32px; height: 32px;">picture_as_pdf</mat-icon>
+          <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{ doc.title }}</span>
+          
+          <i *ngIf="!isSupplier" class="fa fa-trash" 
+             matTooltip="Delete Document"
+             style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+             (click)="$event.stopPropagation(); deleteDocument(i, doc)">
+          </i>
+        </div>
+
+        <!-- Newly Selected Local Files (85px x 85px Square Tiles) -->
+        <div *ngFor="let file of selectedFiles; let i = index" 
+             class="gallery-item border cursor-pointer bg-white d-flex flex-column justify-content-center align-items-center p-1 text-center position-relative" 
+             style="width: 85px; height: 85px; border-radius: 4px; flex-shrink: 0;"
+             (click)="viewLocalFile(file)" [matTooltip]="file.name">
+          <mat-icon style="color: #1485cc; font-size: 32px; width: 32px; height: 32px;">insert_drive_file</mat-icon>
+          <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{ file.name }}</span>
+          
+          <i *ngIf="!isSupplier" class="fa fa-trash" 
+             matTooltip="Remove Document"
+             style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+             (click)="$event.stopPropagation(); removeFile(i)">
+          </i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ADD PICTURES BAND (SECOND) -->
+    <div class="col-md-6 mb-3">
+      <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Pictures <span class="text-danger">*</span></label>
+      
+      <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto" style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
+        <!-- Black Square + Add Button for Pictures -->
+        <div *ngIf="!isSupplier" class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer" 
+             style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
+             (click)="addImage()" matTooltip="Add Picture">
+          <mat-icon style="font-size: 28px; width: 28px; height: 28px;">add</mat-icon>
         </div>
         
-        <div *ngFor="let img of galleryImages; let i = index" class="gallery-item me-2 border cursor-pointer bg-white" style="position: relative;" (click)="openSlideshow(i)">
+        <!-- Picture Tiles (85px x 85px Square Tiles with red trash icon) -->
+        <div *ngFor="let img of galleryImages; let i = index" 
+             class="gallery-item border cursor-pointer bg-white position-relative" 
+             style="width: 85px; height: 85px; border-radius: 4px; overflow: hidden; flex-shrink: 0;"
+             (click)="openSlideshow(i)" matTooltip="Click to view full image">
           <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
           
-          <!-- 🔥 Hide Delete Image Trash icon if user is a supplier -->
           <i *ngIf="!isSupplier" class="fa fa-trash" 
              matTooltip="Delete Image"
-             style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 13px; cursor: pointer;"
+             style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
              (click)="$event.stopPropagation(); deleteImage(i, img)">
           </i>
         </div>
       </div>
     </div>
-    
-    <!-- SAVE BUTTON (Remains clickable for Suppliers so they can save remarks) -->
-    <div class="col-md-2 text-end">
-      <button mat-raised-button class="custom-save-btn" style="background-color: #1485cc" (click)="saveData()" [disabled]="isSaving">
-        <span class="mat-button-wrapper" style="color: rgb(255, 255, 255); display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <mat-spinner *ngIf="isSaving" diameter="20" style="margin: 0;"></mat-spinner>
-          <mat-icon *ngIf="!isSaving">save</mat-icon> 
+
+  </div>
+
+  <!-- SAVE BUTTON ROW AT THE VERY BOTTOM -->
+  <div class="row mt-4 mb-5">
+    <div class="col-12 text-end pe-4">
+      <button mat-raised-button style="background-color: #1485cc; color: white; height: 44px; min-width: 140px; font-weight: 600; font-size: 14px; border-radius: 6px; box-shadow: 0 2px 6px rgba(20, 133, 204, 0.3);" 
+              (click)="saveData()" [disabled]="isSaving">
+        <span class="d-flex align-items-center justify-content-center gap-2">
+          <mat-spinner *ngIf="isSaving" diameter="18" style="margin: 0;"></mat-spinner>
+          <mat-icon *ngIf="!isSaving">save</mat-icon>
           <span>{{ isSaving ? 'Saving...' : 'Save' }}</span>
         </span>
       </button>

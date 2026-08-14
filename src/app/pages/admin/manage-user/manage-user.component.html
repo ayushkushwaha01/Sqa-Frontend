@@ -8,7 +8,7 @@
                             <div class="col-xs-12" style="margin-bottom: 15px;">
                                 <div class="pills">
                                     <ul class="nav nav-pills" style="margin-left: 10px;margin-bottom: -25px;">
-                                        <li routerLinkActive="active" [routerLink]="['./users']">
+                                        <!-- <li routerLinkActive="active" [routerLink]="['./users']">
                                             <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
                                                 Users
                                             </a>
@@ -20,7 +20,28 @@
                                         </li>
                                         <li routerLinkActive="active" [routerLink]="['./supplier']">
                                             <a mat-raised-button class="navtabWidth" style="margin-top: 10px;">
-                                                Supplier
+                                                Suppliers
+                                            </a>
+                                        </li> -->
+
+                                        <li routerLinkActive="active" [routerLink]="['./users']">
+                                            <a mat-raised-button class="navtabWidth">
+                                                <mat-icon>people</mat-icon>
+                                                Users
+                                            </a>
+                                        </li>
+
+                                        <li routerLinkActive="active" [routerLink]="['./roles']">
+                                            <a mat-raised-button class="navtabWidth">
+                                                <mat-icon>admin_panel_settings</mat-icon>
+                                                Roles
+                                            </a>
+                                        </li>
+
+                                        <li routerLinkActive="active" [routerLink]="['./supplier']">
+                                            <a mat-raised-button class="navtabWidth">
+                                                <mat-icon>business</mat-icon>
+                                                Suppliers
                                             </a>
                                         </li>
                                     </ul>

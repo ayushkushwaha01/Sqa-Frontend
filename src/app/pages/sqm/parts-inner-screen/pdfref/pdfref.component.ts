@@ -351,10 +351,16 @@ export class PdfrefComponent implements OnInit {
     // 3. RADAR / SPIDER CHART
     const forging = this.reportData.forgingProcess || [];
 
+    const safeNum = (val: any): number => {
+      const n = Number(val);
+      if (isNaN(n) || n < 0) return 0;
+      return Math.min(n, 10);
+    };
+
     const catNames = forging.map((x: any) => x.categoryName);
-    const severityData = forging.map((x: any) => x.averageSeverity);
-    const occurrenceData = forging.map((x: any) => x.averageOccurrence);
-    const detectionData = forging.map((x: any) => x.averageDetection);
+    const severityData = forging.map((x: any) => safeNum(x.averageSeverity));
+    const occurrenceData = forging.map((x: any) => safeNum(x.averageOccurrence));
+    const detectionData = forging.map((x: any) => safeNum(x.averageDetection));
     this.spiderChartOptions = {
       chart: {
         polar: true,
@@ -362,8 +368,9 @@ export class PdfrefComponent implements OnInit {
         backgroundColor: 'transparent',
         height: 220,
         animation: false,
-        margin: [20, 10, 40, 10]
+        margin: [20, 25, 40, 25]
       },
+      pane: { size: '65%' },
       title: { text: '' },
       credits: { enabled: false },
       legend: {

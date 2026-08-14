@@ -106,7 +106,7 @@ export const horizontalMenuItems = [
   new Menu(1, "Dashboard", "/app/sqm/sqmd", null, "dashboard", null, false, 0),
   new Menu(
     2,
-    "Process Audit",
+    "Process Audits",
     "/app/sqm/process",
     null,
     "assignment_turned_in",
@@ -116,7 +116,7 @@ export const horizontalMenuItems = [
   ),
   new Menu(
     3,
-    "Parts Audit",
+    "Parts Audits",
     "/app/sqm/parts",
     null,
     "handyman",

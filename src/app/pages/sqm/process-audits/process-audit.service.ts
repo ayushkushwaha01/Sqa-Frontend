@@ -79,4 +79,8 @@
     return this.http.get(this.apiUrl + `ProcessAudits/get-audit-summary-report?processAuditId=${processAuditId}`);
   }
 
+  getAllResponsesForAudit(auditId: number) {
+    return this.http.get(`${this.apiUrl}/ProcessAuditInnerScreen/get-all-responses-for-audit?processAuditId=${auditId}`);
+  }
+
   }

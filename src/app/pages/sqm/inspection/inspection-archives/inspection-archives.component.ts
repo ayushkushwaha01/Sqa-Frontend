@@ -21,7 +21,7 @@ export class InspectionArchivesComponent implements OnInit {
 
   mockdata: any[] = [];
   pagedMockdata: any[] = [];
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
   totalSize = 0;
   allMockData: any[] = [];

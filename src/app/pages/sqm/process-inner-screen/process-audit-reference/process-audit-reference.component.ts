@@ -33,6 +33,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // Form Bindings
   rating = '5';
   selectedSeverityId: any = null;
+  
   selectedOccurrence: any = null;
   selectedDetection: any = null;
   complianceStatus: string = '';
@@ -60,8 +61,12 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   isSupplier: boolean = false;
 
-  // Add this property to store question counts per category ID
+  // Store question counts per category ID
   categoryCounts: { [key: number]: number } = {};
+
+  // Store checklist responses & category statistics
+  checklistResponses: { [checklistId: number]: any } = {};
+  categoryStats: { [categoryId: number]: { attempted: number, total: number, hasFail: boolean } } = {};
 
   constructor(
     private location: Location,
@@ -71,24 +76,12 @@ export class ProcessAuditReferenceComponent implements OnInit {
     private dialog: MatDialog
   ) { }
 
-  // ngOnInit(): void {
-     
-
-  //   this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
-  //   this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); // 🔥 Catch Category ID
-  //   this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); // 🔥 Catch Question ID
-
-  //   this.loadMasterData();
-
-  //    this.loadMasterData();
-  // }
-
   ngOnInit(): void {
     this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
     this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
     this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
 
-    // 🔥 ADDED THIS: Check if the user is a supplier via Angular Router OR Raw URL
+    // Check if the user is a supplier via Angular Router OR Raw URL
     this.route.queryParams.subscribe(params => {
       if (params['role'] === 'supplier') {
         this.isSupplier = true;
@@ -101,28 +94,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.loadMasterData(); 
   }
 
-//  loadMasterData() {
-//     this.api.getSeverities().subscribe((res: any) => {
-//       if (res.success) this.severities = res.data;
-//     });
+  loadMasterData() {
+    const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
 
-//     this.api.getProcessCategories().subscribe((res: any) => {
-//       if (res.success && res.data.length > 0) {
-//         this.categories = res.data;
-        
-//         // 🔥 If a categoryId came from the URL, select it. Otherwise, select the first one.
-//         let catToSelect = this.categories[0];
-//         if (this.targetCategoryId) {
-//           const found = this.categories.find(c => c.processCategoryId == this.targetCategoryId);
-//           if (found) catToSelect = found;
-//         }
-        
-//         this.selectCategory(catToSelect);
-//       }
-//     });
-//   }
-
-loadMasterData() {
     this.api.getSeverities().subscribe((res: any) => {
       if (res.success) this.severities = res.data;
     });
@@ -131,11 +105,33 @@ loadMasterData() {
       if (res.success && res.data.length > 0) {
         this.categories = res.data;
         
-        // 🔥 Fetch checklist counts for each category to display in brackets
+        // Fetch checklist counts and responses for each category
         this.categories.forEach((cat: any) => {
-          this.api.getChecklists(cat.processCategoryId).subscribe((chkRes: any) => {
-            if (chkRes.success) {
-              this.categoryCounts[cat.processCategoryId] = chkRes.data.length;
+          const catId = cat.processCategoryId;
+          this.categoryStats[catId] = { attempted: 0, total: 0, hasFail: false };
+
+          this.api.getChecklists(catId).subscribe((chkRes: any) => {
+            if (chkRes.success && chkRes.data) {
+              const checklists = chkRes.data;
+              this.categoryCounts[catId] = checklists.length;
+              this.categoryStats[catId].total = checklists.length;
+
+              let loadedCount = 0;
+              checklists.forEach((chk: any) => {
+                const chkId = chk.checklistId;
+                if (parentAuditId && chkId) {
+                  this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((respRes: any) => {
+                    loadedCount++;
+                    if (respRes.success && respRes.data) {
+                      const comp = respRes.data.compliance || '';
+                      this.checklistResponses[chkId] = { compliance: comp, ...respRes.data };
+                    } else {
+                      this.checklistResponses[chkId] = { compliance: '' };
+                    }
+                    this.recalculateCategoryStats(catId, checklists);
+                  });
+                }
+              });
             }
           });
         });
@@ -152,6 +148,69 @@ loadMasterData() {
     });
   }
 
+  recalculateCategoryStats(categoryId: number, checklists: any[]) {
+    let attempted = 0;
+    let hasFail = false;
+
+    checklists.forEach((chk: any) => {
+      const chkId = chk.checklistId;
+      const resp = this.checklistResponses[chkId];
+      if (resp && resp.compliance && (resp.compliance === 'Pass' || resp.compliance === 'Fail')) {
+        attempted++;
+        if (resp.compliance === 'Fail') {
+          hasFail = true;
+        }
+      }
+    });
+
+    this.categoryStats[categoryId] = {
+      attempted: attempted,
+      total: checklists.length,
+      hasFail: hasFail
+    };
+  }
+
+  getCategoryClass(cat: any): string {
+    const catId = cat.processCategoryId;
+    const isSelected = this.selectedCategory === cat;
+    const hasFail = this.categoryStats[catId]?.hasFail || false;
+
+    if (hasFail) {
+      return isSelected ? 'category-btn-failed-active' : 'category-btn-failed-inactive';
+    } else {
+      return isSelected ? 'category-btn-active' : 'category-btn-inactive';
+    }
+  }
+
+  getStepClass(step: any): string {
+    const isSelected = this.selectedStep === step;
+    const chkId = step?.checklistId;
+    let r = '';
+
+    if (isSelected) {
+      r = this.rating;
+    } else if (chkId && this.checklistResponses[chkId]) {
+      r = this.checklistResponses[chkId].rating || '';
+    }
+
+    let colorClass = 'bg-grey text-dark';
+    if (r === '5') {
+      colorClass = 'bg-success text-white';
+    } else if (r === '4') {
+      colorClass = 'bg-primary text-white';
+    } else if (r === '3') {
+      colorClass = 'bg-warning text-dark';
+    } else if (r === '2') {
+      colorClass = 'bg-orange text-white';
+    } else if (r === '1') {
+      colorClass = 'bg-danger text-white';
+    } else if (r === 'NA') {
+      colorClass = 'bg-dark text-white';
+    }
+
+    return isSelected ? `${colorClass} selected-step` : colorClass;
+  }
+
   selectCategory(category: any) {
     this.selectedCategory = category;
     this.processSteps = [];
@@ -161,7 +220,6 @@ loadMasterData() {
       if (res.success && res.data.length > 0) {
         this.processSteps = res.data;
         
-      
         let stepToSelect = this.processSteps[0];
         if (this.targetChecklistId) {
           const found = this.processSteps.find(s => s.checklistId == this.targetChecklistId);
@@ -183,71 +241,87 @@ loadMasterData() {
 
   loadSavedResponse() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+    const chkId = this.selectedStep?.checklistId;
     
-    // Safety check: ensure we have both IDs before calling the API
-    if (!parentAuditId || !this.selectedStep || !this.selectedStep.checklistId) return;
+    if (!parentAuditId || !chkId) return;
 
-    // Use .checklistId because the step object comes from your DB Checklists table!
-    this.api.getInnerScreenDetails(parentAuditId, this.selectedStep.checklistId).subscribe((res: any) => {
-      console.log('API Response for Inner Screen Details:', res);
+    // ⚡ INSTANT POPULATION FROM MEMORY CACHE (0ms lag!)
+    if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance !== undefined) {
+      this.populateFormFromData(this.checklistResponses[chkId]);
+    }
+
+    // Refresh from API in background to ensure latest sync
+    this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((res: any) => {
       if (res.success && res.data) {
         const d = res.data;
-        
-        this.rating = d.rating || '5';
-        this.selectedSeverityId = d.severityId;
-        this.selectedOccurrence = d.occurrence;
-        this.selectedDetection = d.detection;
-        this.complianceStatus = d.compliance || '';
-        
-        // CAPA fields
-        this.selectedClass = d.class || '';
-        this.capaSubject = d.capaSubject || '';
-        this.pdcaStatus = d.pdcaStatus || '';
-        this.isResolved = d.isResolved || false;
-        this.actionType = d.actionType || '';
-        this.remarks = d.remarks || '';
-        this.correctiveActions = d.correctiveActions || '';
-        this.supplierRemarks = d.supplierRemarks || '';
-
-        // Format dates correctly for HTML <input type="date">
-        this.dueDate = d.dueDate ? new Date(d.dueDate).toISOString().split('T')[0] : null;
-        this.completedDate = d.completedDate ? new Date(d.completedDate).toISOString().split('T')[0] : null;
-
-        // Clear local arrays on reload
-        this.selectedFiles = []; 
-        this.selectedImageFiles = []; 
-        
-        this.galleryImages = [];
-        this.uploadedDocs = [];
-
-        // Parse Images
-        if (d.imageDocs) {
-          const allImages = d.imageDocs.split(',');
-          allImages.forEach((url: string) => {
-            url = url.trim();
-            if (url) this.galleryImages.push(url);
-          });
+        this.checklistResponses[chkId] = { compliance: d.compliance || '', ...d };
+        this.populateFormFromData(d);
+        if (this.selectedCategory) {
+          this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
         }
-
-        // Parse Documents (PDFs, docs, etc.)
-        if (d.pdfDocs) {
-          const allDocs = d.pdfDocs.split(',');
-          allDocs.forEach((url: string) => {
-            url = url.trim();
-            if (url) this.uploadedDocs.push({ url: url, title: url.split('/').pop()?.split('?')[0] || 'Document' });
-          });
-        }
-
-      } else {
-        // If NO record exists for this question, wipe the form clean
+      } else if (!this.checklistResponses[chkId]) {
         this.resetForm();
       }
     });
   }
 
- setRating(val: string) {
+  populateFormFromData(d: any) {
+    this.rating = d.rating || '5';
+    this.selectedSeverityId = d.severityId;
+    this.selectedOccurrence = d.occurrence;
+    this.selectedDetection = d.detection;
+    this.complianceStatus = d.compliance || '';
+    
+    // CAPA fields
+    this.selectedClass = d.class || '';
+    this.capaSubject = d.capaSubject || '';
+    this.pdcaStatus = d.pdcaStatus || '';
+    this.isResolved = d.isResolved || false;
+    this.actionType = d.actionType || '';
+    this.remarks = d.remarks || '';
+    this.correctiveActions = d.correctiveActions || '';
+    this.supplierRemarks = d.supplierRemarks || '';
+
+    // Format dates correctly for HTML <input type="date">
+    this.dueDate = d.dueDate ? new Date(d.dueDate).toISOString().split('T')[0] : null;
+    this.completedDate = d.completedDate ? new Date(d.completedDate).toISOString().split('T')[0] : null;
+
+    // Clear local arrays on reload
+    this.selectedFiles = []; 
+    this.selectedImageFiles = []; 
+    
+    this.galleryImages = [];
+    this.uploadedDocs = [];
+
+    // Parse Images
+    if (d.imageDocs) {
+      const allImages = d.imageDocs.split(',');
+      allImages.forEach((url: string) => {
+        url = url.trim();
+        if (url) this.galleryImages.push(url);
+      });
+    }
+
+    // Parse Documents (PDFs, docs, etc.)
+    if (d.pdfDocs) {
+      const allDocs = d.pdfDocs.split(',');
+      allDocs.forEach((url: string) => {
+        url = url.trim();
+        if (url) this.uploadedDocs.push({ url: url, title: url.split('/').pop()?.split('?')[0] || 'Document' });
+      });
+    }
+  }
+
+  setRating(val: string) {
     if (this.isSupplier) return; // 🔥 Block suppliers from changing the rating
     this.rating = val;
+    if (this.selectedStep?.checklistId) {
+      const chkId = this.selectedStep.checklistId;
+      this.checklistResponses[chkId] = {
+        ...this.checklistResponses[chkId],
+        rating: val
+      };
+    }
   }
 
   // --- Dynamic SOD Calculation ---
@@ -283,6 +357,10 @@ loadMasterData() {
   viewLocalFile(file: File): void {
     const fileURL = URL.createObjectURL(file);
     window.open(fileURL, '_blank');
+  }
+
+  openDocUrl(url: string): void {
+    if (url) window.open(url, '_blank');
   }
 
   // --- Image Upload Logic (Gallery) ---
@@ -370,72 +448,88 @@ loadMasterData() {
   // }
 
   saveData() {
-  if (this.complianceStatus === 'Fail' && !this.isSupplier) {
-    if (!this.capaSubject || this.capaSubject.trim() === '') {
-      this.alertService.createAlert('CAPA Subject is mandatory when Compliance is Fail.', 0);
+    if (!this.isSupplier && (!this.complianceStatus || this.complianceStatus.trim() === '')) {
+      this.alertService.createAlert('Compliance (Pass/Fail) is mandatory.', 0);
       return;
     }
-  }
 
-  const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-
-  const payload = {
-    processAuditId: parentAuditId,
-    processCategoryId: this.selectedCategory?.processCategoryId,
-    checklistId: this.selectedStep?.checklistId,
-    guideline: this.selectedStep?.guideline,
-    rating: this.rating,
-    severityId: this.selectedSeverityId,
-    occurrence: this.selectedOccurrence,
-    detection: this.selectedDetection,
-    compliance: this.complianceStatus,
-    
-    // CAPA fields
-    class: this.selectedClass,
-    capaSubject: this.capaSubject,
-    dueDate: this.dueDate,
-    completedDate: this.completedDate,
-    pdcaStatus: this.pdcaStatus,
-    isResolved: this.isResolved,
-    actionType: this.actionType,
-    remarks: this.remarks,
-    correctiveActions: this.correctiveActions,
-    supplierRemarks: this.supplierRemarks
-  };
-
-  const formData = new FormData();
-  formData.append('jsonData', JSON.stringify(payload));
-
-  // Append both file arrays separately so backend receives all uploads
-  this.selectedFiles.forEach(file => { 
-    formData.append('files', file); 
-  });
-  this.selectedImageFiles.forEach(file => { 
-    formData.append('files', file); 
-  });
-
-  this.isSaving = true;
-
-  this.api.saveInnerScreenDetails(formData).subscribe({
-    next: (res: any) => {
-      this.isSaving = false;
-      if (res.success) {
-        // Clear local selected files immediately to avoid duplicate UI display before refresh
-        this.selectedFiles = [];
-        this.selectedImageFiles = [];
-
-        this.alertService.createAlert(res.message, 1);
-        this.loadSavedResponse(); 
-      } else {
-        this.alertService.createAlert(res.message || 'Error saving response', 0);
+    if (this.complianceStatus === 'Fail' && !this.isSupplier) {
+      if (!this.capaSubject || this.capaSubject.trim() === '') {
+        this.alertService.createAlert('CAPA Subject is mandatory when Compliance is Fail.', 0);
+        return;
       }
-    },
-    error: () => {
-      this.isSaving = false;
-      this.alertService.createAlert('Error saving response', 0);
     }
-  });
-}
+
+    const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+
+    const payload = {
+      processAuditId: parentAuditId,
+      processCategoryId: this.selectedCategory?.processCategoryId,
+      checklistId: this.selectedStep?.checklistId,
+      guideline: this.selectedStep?.guideline,
+      rating: this.rating,
+      severityId: this.selectedSeverityId,
+      occurrence: this.selectedOccurrence,
+      detection: this.selectedDetection,
+      compliance: this.complianceStatus,
+      
+      // CAPA fields
+      class: this.selectedClass,
+      capaSubject: this.capaSubject,
+      dueDate: this.dueDate,
+      completedDate: this.completedDate,
+      pdcaStatus: this.pdcaStatus,
+      isResolved: this.isResolved,
+      actionType: this.actionType,
+      remarks: this.remarks,
+      correctiveActions: this.correctiveActions,
+      supplierRemarks: this.supplierRemarks
+    };
+
+    const formData = new FormData();
+    formData.append('jsonData', JSON.stringify(payload));
+
+    // Append both file arrays separately so backend receives all uploads
+    this.selectedFiles.forEach(file => { 
+      formData.append('files', file); 
+    });
+    this.selectedImageFiles.forEach(file => { 
+      formData.append('files', file); 
+    });
+
+    this.isSaving = true;
+
+    this.api.saveInnerScreenDetails(formData).subscribe({
+      next: (res: any) => {
+        this.isSaving = false;
+        if (res.success) {
+          // Clear local selected files immediately to avoid duplicate UI display before refresh
+          this.selectedFiles = [];
+          this.selectedImageFiles = [];
+
+          // Update cache & category stats
+          if (this.selectedStep?.checklistId) {
+            this.checklistResponses[this.selectedStep.checklistId] = {
+              ...this.checklistResponses[this.selectedStep.checklistId],
+              compliance: this.complianceStatus
+            };
+          }
+          if (this.selectedCategory) {
+            this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
+          }
+
+          this.alertService.createAlert(res.message, 1);
+          this.loadSavedResponse(); 
+        } else {
+          this.alertService.createAlert(res.message || 'Error saving response', 0);
+        }
+      },
+      error: () => {
+        this.isSaving = false;
+        this.alertService.createAlert('Error saving response', 0);
+      }
+    });
+  }
 
   resetForm() {
     this.rating = '5';

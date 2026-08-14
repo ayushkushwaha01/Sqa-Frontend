@@ -36,7 +36,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   currentPartName: string = '';
   isReadOnly: boolean = false;
 
-  pageSize = 10;
+  pageSize = 20;
   pageIndex = 0;
 
   tableData: any[] = [];

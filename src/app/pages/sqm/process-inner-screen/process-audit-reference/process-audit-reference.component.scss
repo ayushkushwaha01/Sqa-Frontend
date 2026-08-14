@@ -20,12 +20,26 @@
 
     &.category-btn-active {
       background-color: #099ff0 !important;
-      color: white;
+      color: white !important;
+      border: 2px solid #099ff0 !important;
     }
 
     &.category-btn-inactive {
       background-color: #d3d3d3 !important;
-      color: black;
+      color: black !important;
+      border: 2px solid #d3d3d3 !important;
+    }
+
+    &.category-btn-failed-active {
+      background-color: #dc3545 !important;
+      color: white !important;
+      border: 2px solid #dc3545 !important;
+    }
+
+    &.category-btn-failed-inactive {
+      background-color: #ffffff !important;
+      color: #dc3545 !important;
+      border: 2px solid #dc3545 !important;
     }
   }
 
@@ -114,30 +128,22 @@
     resize: vertical;
   }
 
-  // Image Gallery
-  .gallery-container {
-    background-color: #eceaea;
-    border-radius: 4px;
-    min-height: 100px;
-  }
-
-  .gallery-item {
-    width: 85px;
-    height: 85px;
-    border-radius: 4px;
-    overflow: hidden;
-    
-    &.add-btn {
-      background-color: #141313;
-    }
-  }
-
   .cursor-pointer {
     cursor: pointer;
   }
 
   .object-fit-cover {
     object-fit: cover;
+  }
+
+  fieldset[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    
+    .form-control, .custom-textarea, .custom-mat-select {
+      background-color: #e9ecef !important;
+      cursor: not-allowed !important;
+    }
   }
 
   // Save Button
@@ -194,7 +200,8 @@
   /* Status Colors */
   .bg-green { background-color: #00b050 !important; }
   .bg-red { background-color: #ff0000 !important; }
-  .bg-grey { background-color: #d9d9d9 !important; } /* Replaced yellow with grey */
+  .bg-grey { background-color: #d9d9d9 !important; }
+  .bg-orange { background-color: #fd7e14 !important; color: #ffffff !important; }
 
 
 
@@ -205,7 +212,8 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -213,30 +221,42 @@
 }
 
 .slideshow-image {
-  max-width: 90%;
-  max-height: 90vh;
+  max-width: 85vw;
+  max-height: 80vh;
   object-fit: contain;
-  border-radius: 4px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .slideshow-close {
   position: absolute;
   top: 25px;
   right: 30px;
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
   z-index: 10000;
+  transition: all 0.2s ease;
   
   mat-icon {
-    font-size: 32px;
-    height: 32px;
-    width: 32px;
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
   }
   
-  &:hover { color: #ff5252; }
+  &:hover {
+    background: rgba(239, 68, 68, 0.9);
+    border-color: #ef4444;
+    transform: scale(1.1);
+  }
 }
 
 .slideshow-nav {
@@ -244,48 +264,103 @@
   top: 50%;
   transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.15);
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: white;
   cursor: pointer;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10000;
-  transition: background 0.3s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 
   mat-icon {
-    font-size: 36px;
-    height: 36px;
-    width: 36px;
+    font-size: 32px;
+    height: 32px;
+    width: 32px;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(37, 99, 235, 0.9);
+    border-color: #2563eb;
+    transform: translateY(-50%) scale(1.1);
   }
 
   &.prev { left: 30px; }
   &.next { right: 30px; }
 }
 
-// /* --- Supplier Read-Only Lockout --- */
-// .supplier-locked {
-//   border: none;
-//   padding: 0;
-//   margin: 0;
-//   opacity: 0.65; /* Visually grays out the protected section */
-//   pointer-events: none !important; /* Completely blocks interaction */
-//   user-select: none;
-// }
+// 2 Separate Light Grey Attachment Bands
+.gallery-container {
+  background-color: #eceaea !important;
+  border-radius: 6px !important;
+  min-height: 100px !important;
+}
 
-// /* Ensure Material components strictly obey the interaction block */
-// .supplier-locked button,
-// .supplier-locked input,
-// .supplier-locked textarea,
-// .supplier-locked mat-select,
-// .supplier-locked mat-checkbox,
-// .supplier-locked .drag-drop-zone {
-//   pointer-events: none !important; 
-// }
+.gallery-item {
+  width: 85px !important;
+  height: 85px !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+
+  &.add-btn {
+    background-color: #141313 !important;
+    color: #ffffff !important;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #2b2b2b !important;
+    }
+  }
+
+  img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 5px !important;
+  }
+}
+
+// Industry Standard Status Indicator Pills
+.status-indicator-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &.red-indicator {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #dc3545;
+    }
+  }
+
+  &.blue-indicator {
+    background-color: #dbeafe;
+    border: 1px solid #93c5fd;
+    
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #2563eb;
+    }
+  }
+}

@@ -29,7 +29,7 @@ export class InspectionCapaComponent implements OnInit {
 
   filterToggle: boolean = false;
   totalSize = 0;
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
   pagedTableList: any[] = [];
   myGroup!: FormGroup;

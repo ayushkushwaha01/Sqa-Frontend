@@ -197,7 +197,7 @@
       <mat-icon style="color: #37474f">fast_rewind</mat-icon>
     </button>
 
-    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)" showFirstLastButtons>
+    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 20, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
     </mat-paginator>
   </div>
 

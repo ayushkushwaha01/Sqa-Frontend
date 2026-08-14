@@ -40,7 +40,7 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   allMockData: any[] = [];
   mockdata: any[] = [];
   pagedMockdata: any[] = [];
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
   totalSize = 0;
   showFilter = false;

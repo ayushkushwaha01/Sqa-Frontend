@@ -34,7 +34,7 @@ export class PauditsActionsComponent implements OnInit {
   // 🔥 Store dynamic lookups here
   capaStatusLookups: any[] = [];
 
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
 
   get pagedCapaData() {
@@ -256,7 +256,10 @@ loadLookups() {
   clearFilter() { 
     this.myGroup.reset();
     this.tableList = [...this.originalTableList];
-    this.pageIndex = 0;
+    const maxPage = Math.max(0, Math.ceil(this.tableList.length / this.pageSize) - 1);
+    if (this.pageIndex > maxPage) {
+      this.pageIndex = maxPage;
+    }
     this.totalSize = this.tableList.length;
   }
 }

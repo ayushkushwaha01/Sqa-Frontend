@@ -26,7 +26,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
 
   // Pagination properties
-  pageSize = 5;
+  pageSize = 20;
   pageIndex = 0;
 
   // Helper arrays for filter dropdowns
@@ -316,7 +316,10 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     if (this.maskDone) {
       this.filteredAuditData = this.filteredAuditData.filter(item => !item.isDone);
     }
-    this.pageIndex = 0; // Reset to first page
+    const maxPage = Math.max(0, Math.ceil(this.filteredAuditData.length / this.pageSize) - 1);
+    if (this.pageIndex > maxPage) {
+      this.pageIndex = maxPage;
+    }
     this.updateCharts();
   }
 
