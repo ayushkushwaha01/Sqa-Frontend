@@ -40,6 +40,7 @@ import { AddParameterComponent } from './parts-families/add-parameter/add-parame
 import { PartsParameterComponent } from './parts-master/parts-parameter/parts-parameter.component';
 import { AddParameterforpartmasterComponent } from './parts-master/add-parameterforpartmaster/add-parameterforpartmaster.component';
 import { BandMasterComponent } from './band-master/band-master.component';
+import { DemeritMasterComponent } from './demerit-master/demerit-master.component';
 
 // ❌ REMOVED AuditCategoriesComponent, AddPartCategoryComponent, and PartsauditcatInnergridComponent imports from here
 
@@ -72,6 +73,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'parts-cat', pathMatch: 'full' },
       { path: 'parts-parameter', component: PartsParameterComponent, data: { breadcrumb: 'Parts Parameter' } },
       { path: 'bandmaster', component: BandMasterComponent, data: { breadcrumb: 'Vendor Rating', description: 'Configure vendor rating master data.' } },
+      { path: 'demerit-master', component: DemeritMasterComponent, data: { breadcrumb: 'Demerit', description: 'Configure demerit master data.' } },
     ]
   }
 ];
@@ -103,7 +105,8 @@ const routes: Routes = [
     AddParameterComponent,
     PartsParameterComponent,
     AddParameterforpartmasterComponent,
-    BandMasterComponent
+    BandMasterComponent,
+    DemeritMasterComponent
 
   ],
   imports: [

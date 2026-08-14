@@ -175,4 +175,13 @@ export class SetupService {
       params: filter
     });
   }
+  upsertDemeritMaster(data: any) {
+    return this.http.post(this.apiUrl + 'BatchMaster/upsert-demerit-master', data);
+  }
+
+  getDemeritMaster(filter: any) {
+    return this.http.get(this.apiUrl + 'BatchMaster/get-demerit-master', {
+      params: filter
+    });
+  }
 }

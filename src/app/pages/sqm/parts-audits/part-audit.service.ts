@@ -119,4 +119,10 @@ export class PartAuditService {
       data
     );
   }
+  deleteImage(data: any) {
+    return this.http.post(
+      this.apiUrl + 'PartsAuditInnerScreen/delete-image',
+      data
+    );
+  }
 }
