@@ -6,7 +6,7 @@
 <div mat-dialog-content class="pt-4 overflow-hidden">
     <form class="form-horizontal">
 
-        <div class="row align-items-center mb-3">
+        <!-- <div class="row align-items-center mb-3">
             <div class="col-sm-3">
                 <label class="control-label font-weight-bold mb-0">
                     Doc Title:<span class="text-danger">*</span>
@@ -16,7 +16,7 @@
                 <input type="text" class="form-control" [(ngModel)]="docTitle" name="docTitle"
                     placeholder="Enter Document Title">
             </div>
-        </div>
+        </div> -->
 
         <div class="row align-items-center mb-3">
             <div class="col-sm-3">
@@ -47,7 +47,7 @@
                 <tr>
                     <th>Document Title</th>
                     <th class="text-center">Uploaded Date</th>
-                    <th class="text-center">Download</th>
+                    <th class="text-center">View</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -66,7 +66,7 @@
                         <a [href]="doc.docurl" target="_blank">
 
                             <mat-icon color="primary">
-                                cloud_download
+                                visibility
                             </mat-icon>
 
                         </a>

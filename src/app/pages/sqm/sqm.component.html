@@ -236,6 +236,17 @@
             <span *ngIf="isSidenavOpen">Vendor Rating</span>
           </a>
         </li>
+        <li routerLinkActive="active" routerLink="./parts/setup/demerit-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Demerit Master">
+              settings
+            </mat-icon>
+
+            <span *ngIf="isSidenavOpen">
+              Demerit Master
+            </span>
+          </a>
+        </li>
 
 
       </ul>

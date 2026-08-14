@@ -46,7 +46,7 @@
             <input type="file" class="form-control" accept=".pdf" (change)="onPdfSelected($event)">
           </div>
         </div> -->
-        <div class="row form-group mt-3 align-items-center">
+        <!-- <div class="row form-group mt-3 align-items-center">
 
           <label class="control-label col-sm-4 font-weight-bold">
             Upload PDF :
@@ -56,7 +56,7 @@
 
             <input type="file" class="form-control" accept=".pdf" (change)="onPdfSelected($event)">
 
-            <!-- Existing Uploaded PDFs -->
+           
             <div class="mt-2" *ngIf="documents.length > 0">
 
               <div *ngFor="let doc of documents">
@@ -71,7 +71,7 @@
 
           </div>
 
-        </div>
+        </div> -->
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
@@ -93,6 +93,15 @@
           </div>
         </div>
 
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Logged Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="date" class="form-control" formControlName="loggedDate">
+          </div>
+        </div>
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
             PDCA Status :
@@ -271,6 +280,29 @@
           <textarea rows="5" class="form-control" placeholder="Enter CAPA Subject..." formControlName="capaSubject">
 </textarea>
         </div> -->
+
+        <div class="demerit-container d-flex">
+
+          <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
+            auditForm.get('demeritId')?.value === item.demeritId
+        " (click)="selectDemerit(item)" [matTooltip]="item.description" matTooltipPosition="above">
+
+            <div class="demerit-val">
+              {{ item.demerit }}
+            </div>
+
+            <div class="demerit-label" [ngStyle]="{
+                'background-color': item.bgColor,
+                'color': item.color
+            }">
+
+              {{ item.subject }}
+
+            </div>
+
+          </div>
+
+        </div>
         <div class="form-group mt-3">
           <label class="control-label font-weight-bold mb-2">
             Observations :
@@ -306,9 +338,17 @@
 
     <div class="row mt-5">
 
-      <div class="col-sm-10">
+      <!-- ================= IMAGES ================= -->
+
+      <div class="col-sm-6">
+
+        <label class="control-label font-weight-bold mb-2">
+          Images :
+        </label>
 
         <mat-card class="gallery-container" style="background-color:#eceaea">
+
+          <!-- Add Image -->
 
           <mat-card class="inner-card add-btn-card" (click)="fileInput.click()" style="background-color: black;">
 
@@ -318,9 +358,19 @@
 
           <input type="file" #fileInput style="display:none" multiple accept="image/*"
             (change)="onFileSelected($event)">
-          <mat-card class="inner-card img-card" *ngFor="let img of images; let i = index" (click)="openSlideshow(i)">
 
-            <img [src]="img" alt="logo" class="gallery-img">
+
+          <!-- Images -->
+
+          <mat-card class="inner-card img-card" *ngFor="let img of images; let i = index" (click)="openSlideshow(i)">
+            <button type="button" class="delete-media-btn"
+              (click)="deleteImageConfirmation(i);$event.stopPropagation()">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+            <img [src]="img" alt="Image" class="gallery-img">
 
           </mat-card>
 
@@ -328,8 +378,65 @@
 
       </div>
 
-      <div class="col-md-2 text-end">
-        <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255); margin-top: 60px;">
+
+      <!-- ================= DOCUMENTS ================= -->
+
+      <div class="col-sm-6">
+
+        <label class="control-label font-weight-bold mb-2">
+          Documents :
+        </label>
+
+        <mat-card class="gallery-container" style="background-color:#eceaea">
+
+          <!-- Add PDF -->
+
+          <mat-card class="inner-card add-btn-card" (click)="pdfInput.click()" style="background-color: black;">
+
+            <mat-icon class="add-icon">add</mat-icon>
+
+          </mat-card>
+
+          <input type="file" #pdfInput style="display:none" multiple accept=".pdf" (change)="onPdfSelected($event)">
+
+
+          <!-- Documents -->
+
+          <mat-card class="inner-card document-card" *ngFor="let doc of documents" (click)="openDocument(doc)">
+            <button type="button" class="delete-media-btn"
+              (click)="deleteDocConfirmation(doc); $event.stopPropagation()">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+            <!-- PDF Icon -->
+
+            <mat-icon class="pdf-icon">
+              picture_as_pdf
+            </mat-icon>
+
+
+            <!-- Title shown on hover -->
+
+            <div class="document-title">
+
+              {{ doc.docTitlte }}
+
+            </div>
+
+          </mat-card>
+
+        </mat-card>
+
+      </div>
+
+
+      <!-- ================= SAVE ================= -->
+
+      <div class="col-sm-12 text-end mt-4">
+
+        <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);">
 
           <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);" (click)="save()">
 
@@ -337,11 +444,12 @@
             Save
 
           </span>
+
         </button>
+
       </div>
 
     </div>
-
     <div class="slideshow-overlay" *ngIf="isSlideshowOpen" tabindex="0" (click)="closeSlideshow()">
 
       <button class="slideshow-close" (click)="closeSlideshow(); $event.stopPropagation()">
