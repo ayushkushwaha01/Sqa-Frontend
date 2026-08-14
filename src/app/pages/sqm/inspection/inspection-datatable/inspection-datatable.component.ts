@@ -7,12 +7,40 @@ import { InspectionService } from '../inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { PageEvent } from '@angular/material/paginator';
+import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 
+export class CustomDateAdapter extends NativeDateAdapter {
+  format(date: Date, displayFormat: Object): string {
+    if (displayFormat === 'input') {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    return date.toDateString();
+  }
+}
+
+export const CUSTOM_DATE_FORMATS = {
+  parse: {
+    dateInput: { month: 'short', year: 'numeric', day: 'numeric' },
+  },
+  display: {
+    dateInput: 'input',
+    monthYearLabel: { year: 'numeric', month: 'numeric' },
+    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
+    monthYearA11yLabel: { year: 'numeric', month: 'long' },
+  },
+};
 
 @Component({
   selector: 'app-inspection-datatable',
   templateUrl: './inspection-datatable.component.html',
-  styleUrls: ['./inspection-datatable.component.scss']
+  styleUrls: ['./inspection-datatable.component.scss'],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS }
+  ]
 })
 export class InspectionDatatableComponent implements OnInit, AfterViewInit {
 

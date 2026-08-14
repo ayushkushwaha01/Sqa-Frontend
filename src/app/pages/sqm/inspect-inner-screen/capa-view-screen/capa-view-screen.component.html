@@ -19,7 +19,6 @@
   <form [formGroup]="auditForm" (ngSubmit)="onSubmit()">
     <div class="row">
       <div class="col-sm-6">
-
         <div class="row form-group mt-3 align-items-start">
           <label class="control-label col-sm-4 font-weight-bold"> CAPA Subject :</label>
           <div class="col-sm-7">
@@ -33,32 +32,6 @@
           </div>
         </div>
 
-        <div class="row form-group mt-3 align-items-center">
-          <label class="control-label col-sm-4 font-weight-bold">Upload Documents (PDF) :</label>
-          <div class="col-sm-7">
-            <input *ngIf="!isReadOnly" type="file" multiple accept=".pdf" class="form-control"
-              (change)="onFilesSelected($event)">
-            <div class="file-list" style="width: 100%;">
-              <!-- Existing API Docs -->
-              <div *ngFor="let doc of uploadedDocs; let i = index"
-                style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #e3f2fd; margin-top: 4px;">
-                <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
-                <a [href]="doc.url" target="_blank" style="text-decoration: none; color: #1485cc;">{{ doc.title }}</a>
-                <button *ngIf="!isReadOnly" type="button" mat-icon-button style="margin-left: auto;"
-                  (click)="removeApiDoc(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
-              </div>
-              <!-- Newly Selected Files -->
-              <div *ngFor="let file of selectedFiles; let i = index"
-                style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 13px; background: #f5f5f5; margin-top: 4px;">
-                <mat-icon style="font-size: 16px;">insert_drive_file</mat-icon>
-                <a href="javascript:void(0)" (click)="viewLocalFile(file)"
-                  style="text-decoration: none; color: #1485cc;">{{ file.name }}</a>
-                <button *ngIf="!isReadOnly" type="button" mat-icon-button style="margin-left: auto;"
-                  (click)="removeLocalFile(i)"><mat-icon style="font-size: 16px;">close</mat-icon></button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold"> Due Date :</label>
@@ -130,20 +103,6 @@
         </div>
 
         <div class="row form-group mt-3 align-items-center">
-          <label class="control-label col-sm-4 font-weight-bold">Risk Rating :</label>
-          <div class="col-sm-7">
-            <mat-select formControlName="riskRating" placeholder="Select Risk Rating" class="form-control custom-mat-select">
-              <mat-option value="Excellent - 5">Excellent - 5</mat-option>
-              <mat-option value="Good - 4">Good - 4</mat-option>
-              <mat-option value="Satisfactory - 3">Satisfactory - 3</mat-option>
-              <mat-option value="Minor NC - 2">Minor NC - 2</mat-option>
-              <mat-option value="Major NC - 1">Major NC - 1</mat-option>
-              <mat-option value="N/A - 0">N/A - 0</mat-option>
-            </mat-select>
-          </div>
-        </div>
-
-        <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">Class :</label>
           <div class="col-sm-7">
             <mat-select formControlName="class" placeholder="Select Class" class="form-control custom-mat-select">
@@ -171,6 +130,33 @@
       </div>
 
       <div class="col-sm-6">
+        <!-- DEMERIT UI IMPLEMENTATION -->
+        <!-- <div class="form-group mt-3 mb-4">
+          <label class="control-label font-weight-bold mb-2">Demerit :</label>
+            <div class="demerit-container d-flex">
+ 
+          <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
+            auditForm.get('demeritId')?.value === item.demeritId
+        " (click)="selectDemerit(item)" [matTooltip]="item.description" matTooltipPosition="above">
+ 
+            <div class="demerit-val">
+              {{ item.demerit }}
+            </div>
+ 
+            <div class="demerit-label" [ngStyle]="{
+                'background-color': item.bgColor,
+                'color': item.color
+            }">
+ 
+              {{ item.subject }}
+ 
+            </div>
+ 
+          </div>
+ 
+        </div>
+        </div> -->
+
         <div class="form-group mt-3">
           <label class="control-label font-weight-bold mb-2">Observations :</label>
           <textarea rows="5" formControlName="observations" placeholder="Enter Observations..."
@@ -191,8 +177,11 @@
       </div>
     </div>
 
-    <div class="row mt-3 mb-5 align-items-end">
-      <div [class]="(isReadOnly && !isSupplier) ? 'col-md-12' : 'col-md-10'">
+    <!-- IMAGES AND DOCUMENTS SECTION -->
+    <div class="row mt-3">
+      <!-- Image Gallery (50% width) -->
+      <div class="col-md-6 mb-4">
+        <label class="control-label font-weight-bold mb-2">Images :</label>
         <div class="gallery-container d-flex align-items-center p-2">
           <div *ngIf="!isReadOnly"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
@@ -204,7 +193,6 @@
           <div *ngFor="let img of apiImages; let i = index"
             class="gallery-item me-2 border cursor-pointer bg-white position-relative" (click)="openSlideshow(i)">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
-            <!-- Small delete button floating in the top right -->
             <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="removeApiImage($event, i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
@@ -224,7 +212,52 @@
         </div>
       </div>
 
-      <div *ngIf="!isReadOnly || isSupplier" class="col-md-2 text-end">
+      <!-- Document Gallery (50% width) -->
+      <div class="col-md-6 mb-4">
+        <label class="control-label font-weight-bold mb-2">Documents (PDF) :</label>
+        <div class="gallery-container d-flex align-items-center p-2">
+          <div *ngIf="!isReadOnly"
+            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
+            (click)="addDocument()">
+            <mat-icon>add</mat-icon>
+          </div>
+
+          <!-- API Uploaded PDFs -->
+          <div *ngFor="let doc of uploadedDocs; let i = index"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative" 
+            [matTooltip]="doc.title"
+            (click)="viewApiDoc(doc.url)">
+            <div class="pdf-logo">
+              <div class="pdf-tag">PDF</div>
+              <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
+            </div>
+            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+              style="padding: 0 4px;" (click)="$event.stopPropagation(); removeApiDoc(i)">
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button>
+          </div>
+
+          <!-- Local Pending PDFs -->
+          <div *ngFor="let file of selectedFiles; let i = index"
+            class="gallery-item me-2 border cursor-pointer bg-light position-relative" 
+            [matTooltip]="file.name"
+            (click)="viewLocalFile(file)">
+            <div class="pdf-logo opacity-75">
+              <div class="pdf-tag">PDF</div>
+              <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
+            </div>
+            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+              style="padding: 0 4px;" (click)="$event.stopPropagation(); removeLocalFile(i)">
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTON ROW -->
+    <div class="row mb-5">
+      <div *ngIf="!isReadOnly || isSupplier" class="col-12 text-end">
         <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)"
           [disabled]="isSaved || auditForm.invalid">
           <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);">

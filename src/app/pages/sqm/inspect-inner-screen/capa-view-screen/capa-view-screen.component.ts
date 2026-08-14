@@ -37,6 +37,8 @@ export class CapaViewScreenComponent implements OnInit {
   localImageFiles: File[] = [];
   localImagePreviews: string[] = [];
 
+
+
   // Combined for Slideshow
   get slideshowImages(): string[] {
     return [...this.apiImages, ...this.localImagePreviews];
@@ -56,6 +58,7 @@ export class CapaViewScreenComponent implements OnInit {
     this.initForm();
     this.loadSeverities();
     this.setupScoreCalculation();
+    // this.getDemeritMaster();
 
     this.route.queryParams.subscribe(params => {
       this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
@@ -81,6 +84,71 @@ export class CapaViewScreenComponent implements OnInit {
     this.location.back();
   }
 
+
+
+   demeritOptions: any[] = [];
+  // getDemeritMaster() {
+ 
+  //   this.setupService.getDemeritMaster({})
+  //     .subscribe((res: any) => {
+ 
+  //       if (res.success) {
+ 
+  //         this.demeritOptions = res.data.data.map((item: any) => {
+ 
+  //           let bgColor = '';
+  //           let color = '';
+ 
+  //           switch (item.subject) {
+ 
+  //             case 'Minor':
+  //               bgColor = '#dcfce7';
+  //               color = '#166534';
+  //               break;
+ 
+  //             case 'Small':
+  //               bgColor = '#fef9c3';
+  //               color = '#854d0e';
+  //               break;
+ 
+  //             case 'Moderate':
+  //               bgColor = '#ffedd5';
+  //               color = '#9a3412';
+  //               break;
+ 
+  //             case 'Major':
+  //               bgColor = '#fee2e2';
+  //               color = '#991b1b';
+  //               break;
+ 
+  //             case 'Critical':
+  //               bgColor = '#fecaca';
+  //               color = '#7f1d1d';
+  //               break;
+  //           }
+ 
+  //           return {
+  //             ...item,
+  //             bgColor: bgColor,
+  //             color: color
+  //           };
+ 
+  //         });
+ 
+  //       }
+ 
+  //     });
+ 
+  // }
+  selectDemerit(item: any) {
+ 
+    this.auditForm.patchValue({
+      demeritId: item.demeritId
+    });
+ 
+  }
+ 
+ 
   initForm(): void {
     this.auditForm = this.fb.group({
       capaId: [0],
@@ -93,13 +161,14 @@ export class CapaViewScreenComponent implements OnInit {
       occurrence: [null],
       detection: [null],
       sodScore: [{ value: '', disabled: true }],
-      riskRating: [''], // Changed to empty string instead of disabled object
+      demerit: [null], // Changed from riskRating
       class: [''],
       actionType: [''],
       capaSubject: [''],
       observations: [''],
       correctiveActions: [''],
-      supplierRemarks: ['']
+      supplierRemarks: [''],
+      demeritId: [null],
     });
   }
 
@@ -121,15 +190,19 @@ export class CapaViewScreenComponent implements OnInit {
           const data = res[0];
           this.isUpdate = true;
 
-          let riskVal = data.riskRating;
-          if (riskVal) {
-            const tr = riskVal.trim();
-            if (tr === 'Excellent') riskVal = 'Excellent - 5';
-            else if (tr === 'Good') riskVal = 'Good - 4';
-            else if (tr === 'Satisfactory') riskVal = 'Satisfactory - 3';
-            else if (tr === 'Minor NC') riskVal = 'Minor NC - 2';
-            else if (tr === 'Major NC') riskVal = 'Major NC - 1';
-            else if (tr === 'N/A') riskVal = 'N/A - 0';
+          // Parse legacy risk rating into numeric demerit
+          let mappedDemerit = null;
+          let legacyRisk = data.demerit || data.riskRating; 
+          
+          if (legacyRisk) {
+            if (typeof legacyRisk === 'string' && legacyRisk.includes('-')) {
+              // e.g., "Excellent - 5" -> 5
+              mappedDemerit = parseInt(legacyRisk.split('-')[1].trim(), 10);
+            } else if (typeof legacyRisk === 'number') {
+              mappedDemerit = legacyRisk;
+            } else if (!isNaN(Number(legacyRisk))) {
+              mappedDemerit = Number(legacyRisk);
+            }
           }
 
           this.auditForm.patchValue({
@@ -143,13 +216,14 @@ export class CapaViewScreenComponent implements OnInit {
             occurrence: data.occurrence,
             detection: data.detection,
             sodScore: data.sodScore,
-            riskRating: riskVal,
+            demerit: mappedDemerit,
             class: data.class || '',
             actionType: data.actionType,
             capaSubject: data.capaSubject,
             observations: data.observations,
             correctiveActions: data.correctiveActions,
-            supplierRemarks: data.supplierRemarks
+            supplierRemarks: data.supplierRemarks,
+            demeritId: data.demeritId
           });
 
           // Parse existing images (API)
@@ -209,12 +283,19 @@ export class CapaViewScreenComponent implements OnInit {
         const sod = `${severityRating}${values.occurrence}${values.detection}`;
         
         this.auditForm.get('sodScore')?.setValue(Number(sod), { emitEvent: false });
-        
-        // Automatic risk calculation has been removed to allow manual dropdown selection
       } else {
         this.auditForm.get('sodScore')?.setValue('', { emitEvent: false });
       }
     });
+  }
+  
+  // Custom setter for Demerit selection 
+  setDemerit(val: number): void {
+    if (this.isReadOnly && !this.isSupplier) {
+      return;
+    }
+    this.auditForm.get('demerit')?.setValue(val);
+    this.auditForm.markAsDirty();
   }
 
   onSubmit(): void {
@@ -238,7 +319,11 @@ export class CapaViewScreenComponent implements OnInit {
       dueDate: formDataValues.dueDate || null,
       completedDate: formDataValues.completedDate || null,
       pdcaStatus: formDataValues.pdcaStatus || null,
-      riskRating: formDataValues.riskRating ? formDataValues.riskRating.split(' - ')[0] : null,
+      
+      // Pass mapped demerit value to the API (also keeping riskRating mapped just in case the backend wasn't updated)
+      demerit: formDataValues.demerit || null,
+      riskRating: formDataValues.demerit ? formDataValues.demerit.toString() : null,
+
       class: formDataValues.class || null,
       actionType: formDataValues.actionType || null,
       capaSubject: formDataValues.capaSubject || null,
@@ -304,6 +389,21 @@ export class CapaViewScreenComponent implements OnInit {
   viewLocalFile(file: File): void {
     const fileURL = URL.createObjectURL(file);
     window.open(fileURL, '_blank');
+  }
+
+  addDocument(): void {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf';
+    fileInput.multiple = true;
+    fileInput.onchange = (event: any) => {
+      this.onFilesSelected(event);
+    };
+    fileInput.click();
+  }
+
+  viewApiDoc(url: string): void {
+    window.open(url, '_blank');
   }
 
   // --- Image Upload Logic (Gallery) ---
