@@ -177,82 +177,95 @@
       </div>
     </div>
 
-    <!-- IMAGES AND DOCUMENTS SECTION -->
-    <div class="row mt-3">
-      <!-- Image Gallery (50% width) -->
-      <div class="col-md-6 mb-4">
-        <label class="control-label font-weight-bold mb-2">Images :</label>
-        <div class="gallery-container d-flex align-items-center p-2">
-          <div *ngIf="!isReadOnly"
-            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
-            (click)="addImage()">
-            <mat-icon>add</mat-icon>
+    <!-- ================= ATTACHMENTS (2 SEPARATE GREY BANDS FOR DOCS & PICTURES - MATCHING PROCESS AUDIT) ================= -->
+    <div class="row mt-4 mb-3">
+      
+      <!-- 1. ADD DOCUMENT BAND (FIRST) -->
+      <div class="col-md-6 mb-3">
+        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Document <span class="text-danger">*</span></label>
+        
+        <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto" style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
+          <!-- Black Square + Add Button for Docs -->
+          <div *ngIf="!isReadOnly" class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer"
+               style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
+               (click)="addDocument()" matTooltip="Add PDF / Document">
+            <mat-icon style="font-size: 28px; width: 28px; height: 28px;">add</mat-icon>
           </div>
 
-          <!-- API Uploaded Images -->
-          <div *ngFor="let img of apiImages; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-white position-relative" (click)="openSlideshow(i)">
+          <!-- Existing API Uploaded PDFs (85px x 85px Square Tiles) -->
+          <div *ngFor="let doc of uploadedDocs; let i = index" 
+               class="gallery-item border cursor-pointer bg-white d-flex flex-column justify-content-center align-items-center p-1 text-center position-relative" 
+               style="width: 85px; height: 85px; border-radius: 4px; flex-shrink: 0;"
+               (click)="viewApiDoc(doc.url)" [matTooltip]="doc.title">
+            <i class="fa fa-file-pdf-o text-danger" style="font-size: 32px; color: #dc3545;"></i>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{ doc.title }}</span>
+            
+            <i *ngIf="!isReadOnly" class="fa fa-trash" 
+               matTooltip="Delete Document"
+               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+               (click)="$event.stopPropagation(); removeApiDoc(i)">
+            </i>
+          </div>
+
+          <!-- Newly Selected Local Files (85px x 85px Square Tiles) -->
+          <div *ngFor="let file of selectedFiles; let i = index" 
+               class="gallery-item border cursor-pointer bg-white d-flex flex-column justify-content-center align-items-center p-1 text-center position-relative" 
+               style="width: 85px; height: 85px; border-radius: 4px; flex-shrink: 0;"
+               (click)="viewLocalFile(file)" [matTooltip]="file.name">
+            <i class="fa fa-file-pdf-o text-danger opacity-75" style="font-size: 32px; color: #dc3545;"></i>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{ file.name }}</span>
+            
+            <i *ngIf="!isReadOnly" class="fa fa-trash" 
+               matTooltip="Remove Document"
+               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+               (click)="$event.stopPropagation(); removeLocalFile(i)">
+            </i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. ADD PICTURES BAND (SECOND) -->
+      <div class="col-md-6 mb-3">
+        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Pictures <span class="text-danger">*</span></label>
+        
+        <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto" style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
+          <!-- Black Square + Add Button for Pictures -->
+          <div *ngIf="!isReadOnly" class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer" 
+               style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
+               (click)="addImage()" matTooltip="Add Picture">
+            <mat-icon style="font-size: 28px; width: 28px; height: 28px;">add</mat-icon>
+          </div>
+          
+          <!-- Picture Tiles (85px x 85px Square Tiles with red trash icon) -->
+          <div *ngFor="let img of apiImages; let i = index" 
+               class="gallery-item border cursor-pointer bg-white position-relative" 
+               style="width: 85px; height: 85px; border-radius: 4px; overflow: hidden; flex-shrink: 0;"
+               (click)="openSlideshow(i)" matTooltip="Click to view full image">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="removeApiImage($event, i)">
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
-            </button>
+            
+            <i *ngIf="!isReadOnly" class="fa fa-trash" 
+               matTooltip="Delete Image"
+               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+               (click)="$event.stopPropagation(); removeApiImage($event, i)">
+            </i>
           </div>
 
-          <!-- Local Pending Images -->
-          <div *ngFor="let img of localImagePreviews; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-light position-relative"
-            (click)="openSlideshow(apiImages.length + i)">
+          <!-- Local Pending Image Tiles (85px x 85px Square Tiles with red trash icon) -->
+          <div *ngFor="let img of localImagePreviews; let i = index" 
+               class="gallery-item border cursor-pointer bg-white position-relative" 
+               style="width: 85px; height: 85px; border-radius: 4px; overflow: hidden; flex-shrink: 0;"
+               (click)="openSlideshow(apiImages.length + i)" matTooltip="Click to view full image">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover opacity-75">
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="removeLocalImage($event, i)">
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
-            </button>
+            
+            <i *ngIf="!isReadOnly" class="fa fa-trash" 
+               matTooltip="Remove Image"
+               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
+               (click)="$event.stopPropagation(); removeLocalImage($event, i)">
+            </i>
           </div>
         </div>
       </div>
 
-      <!-- Document Gallery (50% width) -->
-      <div class="col-md-6 mb-4">
-        <label class="control-label font-weight-bold mb-2">Documents (PDF) :</label>
-        <div class="gallery-container d-flex align-items-center p-2">
-          <div *ngIf="!isReadOnly"
-            class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
-            (click)="addDocument()">
-            <mat-icon>add</mat-icon>
-          </div>
-
-          <!-- API Uploaded PDFs -->
-          <div *ngFor="let doc of uploadedDocs; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-white position-relative" 
-            [matTooltip]="doc.title"
-            (click)="viewApiDoc(doc.url)">
-            <div class="pdf-logo">
-              <div class="pdf-tag">PDF</div>
-              <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
-            </div>
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="$event.stopPropagation(); removeApiDoc(i)">
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
-            </button>
-          </div>
-
-          <!-- Local Pending PDFs -->
-          <div *ngFor="let file of selectedFiles; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-light position-relative" 
-            [matTooltip]="file.name"
-            (click)="viewLocalFile(file)">
-            <div class="pdf-logo opacity-75">
-              <div class="pdf-tag">PDF</div>
-              <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
-            </div>
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="$event.stopPropagation(); removeLocalFile(i)">
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ACTION BUTTON ROW -->

@@ -58,7 +58,7 @@ export class CapaViewScreenComponent implements OnInit {
     this.initForm();
     this.loadSeverities();
     this.setupScoreCalculation();
-     this.getDemeritMaster();
+    this.getDemeritMaster();
 
     this.route.queryParams.subscribe(params => {
       this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
@@ -86,69 +86,69 @@ export class CapaViewScreenComponent implements OnInit {
 
 
 
-   demeritOptions: any[] = [];
+  demeritOptions: any[] = [];
   getDemeritMaster() {
- 
+
     this.setupService.getDemeritMaster({})
       .subscribe((res: any) => {
- 
+
         if (res.success) {
- 
+
           this.demeritOptions = res.data.data.map((item: any) => {
- 
+
             let bgColor = '';
             let color = '';
- 
+
             switch (item.subject) {
- 
+
               case 'Minor':
                 bgColor = '#dcfce7';
                 color = '#166534';
                 break;
- 
+
               case 'Small':
                 bgColor = '#fef9c3';
                 color = '#854d0e';
                 break;
- 
+
               case 'Moderate':
                 bgColor = '#ffedd5';
                 color = '#9a3412';
                 break;
- 
+
               case 'Major':
                 bgColor = '#fee2e2';
                 color = '#991b1b';
                 break;
- 
+
               case 'Critical':
                 bgColor = '#fecaca';
                 color = '#7f1d1d';
                 break;
             }
- 
+
             return {
               ...item,
               bgColor: bgColor,
               color: color
             };
- 
+
           });
- 
+
         }
- 
+
       });
- 
+
   }
   selectDemerit(item: any) {
- 
+
     this.auditForm.patchValue({
       demeritId: item.demeritId
     });
- 
+
   }
- 
- 
+
+
   initForm(): void {
     this.auditForm = this.fb.group({
       capaId: [0],
@@ -192,8 +192,8 @@ export class CapaViewScreenComponent implements OnInit {
 
           // Parse legacy risk rating into numeric demerit
           let mappedDemerit = null;
-          let legacyRisk = data.demerit || data.riskRating; 
-          
+          let legacyRisk = data.demerit || data.riskRating;
+
           if (legacyRisk) {
             if (typeof legacyRisk === 'string' && legacyRisk.includes('-')) {
               // e.g., "Excellent - 5" -> 5
@@ -281,14 +281,14 @@ export class CapaViewScreenComponent implements OnInit {
         const selectedSeverity = this.severityOptions.find(s => s.severityId === values.severityId);
         const severityRating = selectedSeverity ? selectedSeverity.rating : 0;
         const sod = `${severityRating}${values.occurrence}${values.detection}`;
-        
+
         this.auditForm.get('sodScore')?.setValue(Number(sod), { emitEvent: false });
       } else {
         this.auditForm.get('sodScore')?.setValue('', { emitEvent: false });
       }
     });
   }
-  
+
   // Custom setter for Demerit selection 
   setDemerit(val: number): void {
     if (this.isReadOnly && !this.isSupplier) {
@@ -319,10 +319,12 @@ export class CapaViewScreenComponent implements OnInit {
       dueDate: formDataValues.dueDate || null,
       completedDate: formDataValues.completedDate || null,
       pdcaStatus: formDataValues.pdcaStatus || null,
-      
+
       // Pass mapped demerit value to the API (also keeping riskRating mapped just in case the backend wasn't updated)
       demerit: formDataValues.demerit || null,
       riskRating: formDataValues.demerit ? formDataValues.demerit.toString() : null,
+
+      demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
 
       class: formDataValues.class || null,
       actionType: formDataValues.actionType || null,
@@ -375,7 +377,7 @@ export class CapaViewScreenComponent implements OnInit {
   removeApiDoc(index: number): void {
     const doc = this.uploadedDocs[index];
     const capaId = this.auditForm.get('capaId')?.value;
-    
+
     if (capaId > 0) {
       this.inspectionService.deleteCapaDocument({ capaId: capaId, fileUrl: doc.url }).subscribe({
         next: () => this.uploadedDocs.splice(index, 1),
@@ -417,7 +419,7 @@ export class CapaViewScreenComponent implements OnInit {
         this.localImageFiles.push(file);
         const reader = new FileReader();
         reader.onload = () => {
-          this.localImagePreviews.push(reader.result as string); 
+          this.localImagePreviews.push(reader.result as string);
         };
         reader.readAsDataURL(file);
       }

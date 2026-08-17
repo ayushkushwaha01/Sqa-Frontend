@@ -913,3 +913,10 @@ a {
   filter: grayscale(1) !important;
   cursor: disabled;
 }
+
+.custom-textarea:disabled,
+.custom-textarea[disabled] {
+  background-color: #e9ecef !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
