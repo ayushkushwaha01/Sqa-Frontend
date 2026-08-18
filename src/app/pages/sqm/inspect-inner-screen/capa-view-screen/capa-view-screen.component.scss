@@ -25,65 +25,75 @@
 }
 
 .gallery-container {
-  background-color: #eceaea;
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  padding: 15px;
-  border-radius: 6px;
-  box-shadow: none;
-  gap: 10px;
+  background-color: #eceaea !important;
+  display: flex !important;
+  flex-flow: row wrap !important;
+  align-items: center !important;
+  padding: 10px 12px !important;
+  border-radius: 6px !important;
+  min-height: 100px !important;
+  box-shadow: none !important;
+  gap: 10px !important;
 }
 
 .gallery-item {
-  width: 85px;
-  height: 85px;
-  border-radius: 4px;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 85px !important;
+  height: 85px !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: relative !important;
 
   &.add-btn {
-    background-color: #141313;
+    background-color: #141313 !important;
+    color: #ffffff !important;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #2b2b2b !important;
+    }
+  }
+
+  img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 6px !important;
   }
 }
 
-// PDF Logo Card Styling
-.pdf-logo {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  background: #fdf2f2;
-  border-radius: 4px;
-  transition: background-color 0.2s ease-in-out;
+// Red Circular Trash Badge Button
+.trash-badge-btn {
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background-color: #dc3545 !important;
+  color: #ffffff !important;
+  border: 1.5px solid #ffffff !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  padding: 0 !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
+  transition: transform 0.15s ease, background-color 0.15s ease !important;
 
   &:hover {
-    background-color: #fde8e8;
+    transform: scale(1.15) !important;
+    background-color: #b02a37 !important;
   }
 
-  .pdf-icon {
-    font-size: 36px;
-    width: 36px;
-    height: 36px;
-    color: #e02424;
-  }
-
-  .pdf-tag {
-    position: absolute;
-    bottom: 8px;
-    background: #e02424;
-    color: white;
-    font-size: 9px;
-    font-weight: bold;
-    padding: 1px 5px;
-    border-radius: 3px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  i, mat-icon {
+    font-size: 10px !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
   }
 }
 
