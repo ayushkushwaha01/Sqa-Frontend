@@ -92,9 +92,9 @@
             <th mat-header-cell class="text-center">Docs</th>
             <th mat-header-cell class="text-center">Reference</th>
             <th mat-header-cell class="text-center">CAPA Subject</th>
-            <th mat-header-cell class="text-center">Observations</th>
+            <th mat-header-cell class="text-center">Auditor Remarks</th>
             <th mat-header-cell class="text-center">Corrective Actions</th>
-            <th mat-header-cell class="text-center">Supplier Remarks</th>
+            <th mat-header-cell class="text-center">Preventive Actions</th>
             <th mat-header-cell class="text-center">Parameter Name</th>
             <th mat-header-cell class="text-center">Part Family</th>
             <th mat-header-cell class="text-center">Part Name</th>
@@ -102,7 +102,7 @@
             <th mat-header-cell class="text-center">Action Type</th>
             <th mat-header-cell class="text-center">Audit Reference</th>
             <th mat-header-cell class="text-center">Process Category</th>
-            
+
             <th mat-header-cell class="text-center">Log Date</th>
             <th mat-header-cell class="text-center">Due Date</th>
             <!-- <th mat-header-cell class="text-center">ETA Date</th>
@@ -140,7 +140,7 @@
             </td>
 
             <td class="text-center">
-              <mat-checkbox [(ngModel)]="applicant.resolved" (change)="onInlineChange(applicant)"
+              <mat-checkbox [(ngModel)]="applicant.resolved" [disabled]="true"
                 color="primary"></mat-checkbox>
             </td>
 
@@ -160,7 +160,7 @@
 
             <!-- OBSERVATIONS WITH TOOLTIP ICON -->
             <td class="text-center">
-              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" 
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
                 [matTooltip]="applicant?.observations || 'No observations available'">
                 info
               </mat-icon>
@@ -168,14 +168,14 @@
 
             <!-- CORRECTIVE ACTIONS WITH TOOLTIP ICON -->
             <td class="text-center">
-              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" 
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
                 [matTooltip]="applicant?.correctiveActions || 'No corrective actions available'">
                 info
               </mat-icon>
             </td>
             <!-- SUPPLIER REMARKS WITH TOOLTIP ICON -->
             <td class="text-center">
-              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" 
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
                 [matTooltip]="applicant?.supplierRemarks || 'No remarks available'">
                 info
               </mat-icon>
@@ -189,7 +189,7 @@
             <td class="text-center">{{ applicant?.auditReference }}</td>
             <td class="text-center">{{ applicant?.processCategory }}</td>
 
-            
+
 
             <td class="text-center">{{ applicant?.logDate }}</td>
             <td class="text-center">{{ applicant?.dueDate }}</td>
