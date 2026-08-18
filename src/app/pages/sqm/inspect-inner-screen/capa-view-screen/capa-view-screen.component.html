@@ -158,8 +158,8 @@
         </div>
 
         <div class="form-group mt-3">
-          <label class="control-label font-weight-bold mb-2">Observations :</label>
-          <textarea rows="5" formControlName="observations" placeholder="Enter Observations..."
+          <label class="control-label font-weight-bold mb-2">Auditor Remarks :</label>
+          <textarea rows="5" formControlName="observations" placeholder="Enter Remarks..."
             class="form-control"></textarea>
         </div>
 
@@ -170,8 +170,8 @@
         </div>
 
         <div class="form-group mt-4">
-          <label class="control-label font-weight-bold mb-2">Supplier Remarks :</label>
-          <textarea rows="5" formControlName="supplierRemarks" placeholder="Enter Remarks..."
+          <label class="control-label font-weight-bold mb-2">Preventive Actions :</label>
+          <textarea rows="5" formControlName="supplierRemarks" placeholder="Enter Preventive Actions..."
             class="form-control"></textarea>
         </div>
       </div>
@@ -183,7 +183,7 @@
       <div class="col-md-6 mb-4">
         <label class="control-label font-weight-bold mb-2">Images :</label>
         <div class="gallery-container d-flex align-items-center p-2">
-          <div *ngIf="!isReadOnly"
+          <div *ngIf="!isReadOnly || isSupplier"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
             (click)="addImage()">
             <mat-icon>add</mat-icon>
@@ -193,7 +193,7 @@
           <div *ngFor="let img of apiImages; let i = index"
             class="gallery-item me-2 border cursor-pointer bg-white position-relative" (click)="openSlideshow(i)">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="removeApiImage($event, i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
             </button>
@@ -204,7 +204,7 @@
             class="gallery-item me-2 border cursor-pointer bg-light position-relative"
             (click)="openSlideshow(apiImages.length + i)">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover opacity-75">
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="removeLocalImage($event, i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
             </button>
@@ -216,7 +216,7 @@
       <div class="col-md-6 mb-4">
         <label class="control-label font-weight-bold mb-2">Documents (PDF) :</label>
         <div class="gallery-container d-flex align-items-center p-2">
-          <div *ngIf="!isReadOnly"
+          <div *ngIf="!isReadOnly || isSupplier"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
             (click)="addDocument()">
             <mat-icon>add</mat-icon>
@@ -231,7 +231,7 @@
               <div class="pdf-tag">PDF</div>
               <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
             </div>
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="$event.stopPropagation(); removeApiDoc(i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
             </button>
@@ -246,7 +246,7 @@
               <div class="pdf-tag">PDF</div>
               <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
             </div>
-            <button *ngIf="!isReadOnly" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="$event.stopPropagation(); removeLocalFile(i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
             </button>
