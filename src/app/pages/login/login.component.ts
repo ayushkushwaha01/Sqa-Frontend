@@ -114,7 +114,7 @@ export class LoginComponent implements OnInit {
           //   localStorage.setItem('UserName', res.userData.userName);
           //   localStorage.setItem('UserId', res.userData.userId);
           //   localStorage.setItem('RoleId', res.userData.roleId);
-            
+
           //   // We still save UserType in case you want to hide/show buttons later based on who is logged in!
           //   localStorage.setItem('UserType', res.userData.userType);
 
@@ -123,32 +123,34 @@ export class LoginComponent implements OnInit {
 
           //   // 3. Exact same landing page for ALL users (Admin & Supplier)
           //   this.router.navigate(['/app/sqm/sqmd']);
-            
+
           // } else {
           //   this.alertService.createAlert(res.message || 'Invalid Email or Password', 0);
           // }
 
 
           // Inside login.component.ts -> onSubmit -> next: (res: any)
-if (res.success) {
-    // 1. Save Token and User Data
-    localStorage.setItem('jwt_token', res.token);
-    sessionStorage.setItem('jwt_token', res.token);
-    localStorage.setItem('UserName', res.userData.userName);
-    localStorage.setItem('UserId', res.userData.userId);
-    localStorage.setItem('RoleId', res.userData.roleId);
-    localStorage.setItem('UserType', res.userData.userType); // "Internal" or "Supplier"
 
-    // 2. Show Success Toast
-    this.alertService.createAlert('Login Successful', 1);
+          if (res.success) {
+            // 1. Save Token and User Data
+            localStorage.setItem('jwt_token', res.token);
+            sessionStorage.setItem('jwt_token', res.token);
+            localStorage.setItem('UserName', res.userData.userName);
+            localStorage.setItem('UserId', res.userData.userId);
+            localStorage.setItem('RoleId', res.userData.roleId);
+            localStorage.setItem('UserType', res.userData.userType); // "Internal" or "Supplier"
+            this.setGridLength();
 
-    // 3. 🔥 Route users based on their UserType 🔥
-    if (res.userData.userType === 'Supplier') {
-        this.router.navigate(['/app/supplier-login/dashboard']);
-    } else {
-        this.router.navigate(['/app/sqm/sqmd']);
-    }
-}
+            // 2. Show Success Toast
+            this.alertService.createAlert('Login Successful', 1);
+
+            // 3. 🔥 Route users based on their UserType 🔥
+            if (res.userData.userType === 'Supplier') {
+              this.router.navigate(['/app/supplier-login/dashboard']);
+            } else {
+              this.router.navigate(['/app/sqm/sqmd']);
+            }
+          }
         },
         error: (err) => {
           console.error(err);
@@ -156,5 +158,47 @@ if (res.success) {
         }
       });
     }
+  }
+
+
+  // preference get
+  private setGridLength(): void {
+
+    this.api.getPreferences().subscribe({
+      next: (res: any) => {
+
+        if (res.success) {
+
+          const preferences = res.data || [];
+
+          const gridPreference = preferences.find(
+            (item: any) =>
+              item.subject?.trim().toLowerCase() === 'grid length'
+          );
+
+          if (gridPreference) {
+
+            const gridLength =
+              gridPreference.newValue?.toString().trim() ||
+              gridPreference.previousValue?.toString().trim();
+
+            if (gridLength) {
+
+              localStorage.setItem('GridLength', gridLength);
+
+              console.log('Grid Length set to:', gridLength);
+            }
+          }
+
+        } else {
+          console.error('Failed to get preferences');
+        }
+      },
+
+      error: (err: any) => {
+        console.error('Failed to load Grid Length:', err);
+      }
+    });
+
   }
 }

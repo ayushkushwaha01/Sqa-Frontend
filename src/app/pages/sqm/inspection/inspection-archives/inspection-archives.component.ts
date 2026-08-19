@@ -46,6 +46,12 @@ export class InspectionArchivesComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     // Initialize the form group to prevent HTML errors
     this.myGroup = new FormGroup({
       inspectionDate: new FormControl(''),
@@ -81,7 +87,7 @@ export class InspectionArchivesComponent implements OnInit {
             SampleQuantity: item.sampleQuantity || 0,
             ErrorRatePct: item.errorRate != null ? item.errorRate + '%' : '0%',
             ErrorRatePPM: item.errorRate != null ? (item.errorRate * 10000) : 0,
-            
+
             // Hidden Ids useful for Edit/Delete
             stageId: item.stageId,
             supplierId: item.supplierId,
@@ -144,8 +150,8 @@ export class InspectionArchivesComponent implements OnInit {
 
   openEditDialog(item: any) {
     const dialogRef = this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data: item });
-    dialogRef.afterClosed().subscribe(res => { 
-      if (res) this.loadData(); 
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) this.loadData();
     });
   }
 
@@ -205,15 +211,15 @@ export class InspectionArchivesComponent implements OnInit {
   }
 
   // --- UI Scrolling & Filtering ---
-  scrollLeft() { 
+  scrollLeft() {
     if (this.tableContainer) {
-      this.tableContainer.nativeElement.scrollBy({ left: -300, behavior: 'smooth' }); 
+      this.tableContainer.nativeElement.scrollBy({ left: -300, behavior: 'smooth' });
     }
   }
 
-  scrollRight() { 
+  scrollRight() {
     if (this.tableContainer) {
-      this.tableContainer.nativeElement.scrollBy({ left: 300, behavior: 'smooth' }); 
+      this.tableContainer.nativeElement.scrollBy({ left: 300, behavior: 'smooth' });
     }
   }
 

@@ -247,6 +247,32 @@
             </span>
           </a>
         </li>
+        <!-- Occurrence Master -->
+        <li routerLinkActive="active" routerLink="./parts/setup/occurrence-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Occurrence Master">
+              settings
+            </mat-icon>
+
+            <span *ngIf="isSidenavOpen">
+              Occurrence Master
+            </span>
+          </a>
+        </li>
+
+
+        <!-- Detection Master -->
+        <li routerLinkActive="active" routerLink="./parts/setup/detection-master">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Detection Master">
+              settings
+            </mat-icon>
+
+            <span *ngIf="isSidenavOpen">
+              Detection Master
+            </span>
+          </a>
+        </li>
 
 
       </ul>

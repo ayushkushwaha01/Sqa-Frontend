@@ -4,7 +4,8 @@
     <span style="color: rgb(0, 0, 0); cursor: pointer; margin-left:0px " (click)="goBack()">Inspection Dashboard</span>
     <p _ngcontent-mvb-c448="" style="margin-top: 5px; ">
       <span _ngcontent-mvb-c448="" style="font-weight: bolder; font-size: 14px;">Ref No:</span>
-      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">{{ currentReference || '2026/ENG/098121' }}</span>
+      <span _ngcontent-mvb-c448="" style="margin: 8px; font-size: 14px">{{ currentReference || '2026/ENG/098121'
+        }}</span>
     </p>
   </div>
   <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
@@ -33,12 +34,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
       <!-- UPDATED: Category Filtering Buttons using category object and Tooltip -->
       <div class="d-flex gap-2" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
-        <button mat-raised-button *ngFor="let cat of categories" 
-          [color]="selectedCategory === cat.name ? 'primary' : ''"
-          (click)="selectCategory(cat.name)" 
-          [matTooltip]="cat.name"
-          matTooltipPosition="above"
-          style="margin-right: 8px;">
+        <button mat-raised-button *ngFor="let cat of categories"
+          [color]="selectedCategory === cat.name ? 'primary' : ''" (click)="selectCategory(cat.name)"
+          [matTooltip]="cat.name" matTooltipPosition="above" style="margin-right: 8px;">
           {{ cat.code }} ({{ cat.count }})
         </button>
       </div>
@@ -47,7 +45,8 @@
         <button mat-raised-button class="btn-black" [disabled]="isReadOnly" (click)="opendocpop()">
           <mat-icon class="icon-sm" style="margin-top: 7px;">upload</mat-icon> Upload File
         </button>
-        <button mat-raised-button color="primary" class="btn-blue" [disabled]="isReadOnly" (click)="addchecklistaudit()">
+        <button mat-raised-button color="primary" class="btn-blue" [disabled]="isReadOnly"
+          (click)="addchecklistaudit()">
           <mat-icon class="icon-sm" style="margin-top: 7px;">person_add</mat-icon> Add Parameter
         </button>
       </div>
@@ -83,11 +82,10 @@
             <td class="text-center manage-icons">
               <i class="fa fa-edit" [matTooltip]="isReadOnly ? 'Edit Disabled' : 'Edit'"
                 [style.color]="isReadOnly ? '#b0b0b0' : 'cornflowerblue'"
-                [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
-                (click)="!isReadOnly && editParameter(item)" style="font-size: 16px; margin-right: 10px;"></i>
+                [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'" (click)="!isReadOnly && editParameter(item)"
+                style="font-size: 16px; margin-right: 10px;"></i>
               <i class="fa fa-trash red" [matTooltip]="isReadOnly ? 'Delete Disabled' : 'Delete'"
-                [style.color]="isReadOnly ? '#b0b0b0' : 'red'"
-                [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
+                [style.color]="isReadOnly ? '#b0b0b0' : 'red'" [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
                 (click)="!isReadOnly && deleteParameter(item)" style="font-size: 16px;"></i>
             </td>
 
@@ -105,11 +103,13 @@
               </mat-icon>
             </td>
 
-            <td class="text-center" style="color: blue; cursor: pointer;" (click)="openuploadpop(item)">{{ item.defects }}</td>
+            <td class="text-center" style="color: blue; cursor: pointer;" (click)="openuploadpop(item)">{{ item.defects
+              }}</td>
             <td class="text-center">{{ item.defectRate }}</td>
 
             <td class="text-center">
-              <mat-checkbox [disabled]="isReadOnly" [checked]="item.okay" (change)="toggleOkay(item, $event.checked)"></mat-checkbox>
+              <mat-checkbox [disabled]="isReadOnly" [checked]="item.okay"
+                (change)="toggleOkay(item, $event.checked)"></mat-checkbox>
             </td>
 
             <td class="text-center">
@@ -120,35 +120,50 @@
             </td>
 
             <td>{{ item.method }}</td>
-            <td *ngIf="!isReadOnly" class="text-center clickable-cell" [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
               [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's1', reference: currentReference, category: selectedCategory }">
-              {{ (item.s1 !== null && item.s1 !== undefined && item.s1 !== '') ? (item.s1 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s1 !== null && item.s1 !== undefined && item.s1 !== '') ? (item.s1 | number:'1.1-1') : '-' }}
+            </td>
             <td *ngIf="isReadOnly" class="text-center">
-              {{ (item.s1 !== null && item.s1 !== undefined && item.s1 !== '') ? (item.s1 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s1 !== null && item.s1 !== undefined && item.s1 !== '') ? (item.s1 | number:'1.1-1') : '-' }}
+            </td>
 
-            <td *ngIf="!isReadOnly" class="text-center clickable-cell" [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
               [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's2', reference: currentReference, category: selectedCategory }">
-              {{ (item.s2 !== null && item.s2 !== undefined && item.s2 !== '') ? (item.s2 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s2 !== null && item.s2 !== undefined && item.s2 !== '') ? (item.s2 | number:'1.1-1') : '-' }}
+            </td>
             <td *ngIf="isReadOnly" class="text-center">
-              {{ (item.s2 !== null && item.s2 !== undefined && item.s2 !== '') ? (item.s2 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s2 !== null && item.s2 !== undefined && item.s2 !== '') ? (item.s2 | number:'1.1-1') : '-' }}
+            </td>
 
-            <td *ngIf="!isReadOnly" class="text-center clickable-cell" [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
               [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's3', reference: currentReference, category: selectedCategory }">
-              {{ (item.s3 !== null && item.s3 !== undefined && item.s3 !== '') ? (item.s3 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s3 !== null && item.s3 !== undefined && item.s3 !== '') ? (item.s3 | number:'1.1-1') : '-' }}
+            </td>
             <td *ngIf="isReadOnly" class="text-center">
-              {{ (item.s3 !== null && item.s3 !== undefined && item.s3 !== '') ? (item.s3 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s3 !== null && item.s3 !== undefined && item.s3 !== '') ? (item.s3 | number:'1.1-1') : '-' }}
+            </td>
 
-            <td *ngIf="!isReadOnly" class="text-center clickable-cell" [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
               [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's4', reference: currentReference, category: selectedCategory }">
-              {{ (item.s4 !== null && item.s4 !== undefined && item.s4 !== '') ? (item.s4 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s4 !== null && item.s4 !== undefined && item.s4 !== '') ? (item.s4 | number:'1.1-1') : '-' }}
+            </td>
             <td *ngIf="isReadOnly" class="text-center">
-              {{ (item.s4 !== null && item.s4 !== undefined && item.s4 !== '') ? (item.s4 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s4 !== null && item.s4 !== undefined && item.s4 !== '') ? (item.s4 | number:'1.1-1') : '-' }}
+            </td>
 
-            <td *ngIf="!isReadOnly" class="text-center clickable-cell" [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
+            <td *ngIf="!isReadOnly" class="text-center clickable-cell"
+              [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'addsample']"
               [queryParams]="{ inspectionId: currentInspectionId, sampleColumn: 's5', reference: currentReference, category: selectedCategory }">
-              {{ (item.s5 !== null && item.s5 !== undefined && item.s5 !== '') ? (item.s5 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s5 !== null && item.s5 !== undefined && item.s5 !== '') ? (item.s5 | number:'1.1-1') : '-' }}
+            </td>
             <td *ngIf="isReadOnly" class="text-center">
-              {{ (item.s5 !== null && item.s5 !== undefined && item.s5 !== '') ? (item.s5 | number:'1.1-1') : '-' }}</td>
+              {{ (item.s5 !== null && item.s5 !== undefined && item.s5 !== '') ? (item.s5 | number:'1.1-1') : '-' }}
+            </td>
 
             <td class="text-center">
               <mat-icon style="color: blue; font-size: 20px;" [matTooltip]="item.remarks || 'No remarks available'">
@@ -165,7 +180,7 @@
       </table>
 
       <!-- Bind total length to totalFilteredRecords -->
-      <mat-paginator [length]="totalFilteredRecords" [pageSize]="10" [pageSizeOptions]="[ 10, 25, 50]"
+      <mat-paginator [length]="totalFilteredRecords" [pageSize]="pageSize" [pageSizeOptions]="[ 10, 25, 50]"
         showFirstLastButtons (page)="onPageChange($event)">
       </mat-paginator>
 

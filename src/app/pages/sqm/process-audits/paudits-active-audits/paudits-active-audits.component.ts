@@ -16,7 +16,7 @@ import { StatusChangeComponent } from 'src/app/status-change/status-change.compo
 export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   Highcharts: typeof Highcharts = Highcharts;
   private isDestroyed = false;
-  
+
   auditData: any[] = [];
   originalAuditData: any[] = [];
   filteredAuditData: any[] = [];
@@ -32,13 +32,13 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   // Helper arrays for filter dropdowns
   get uniqueCommodities() { return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
   get uniqueStates() { return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
-  get uniqueCities() { 
+  get uniqueCities() {
     const selectedState = this.filterForm?.value?.State;
     let data = this.originalAuditData;
     if (selectedState) {
       data = data.filter(a => a.stateName === selectedState);
     }
-    return [...new Set(data.map(a => a.cityName).filter(Boolean))].sort(); 
+    return [...new Set(data.map(a => a.cityName).filter(Boolean))].sort();
   }
   get uniqueSuppliers() { return [...new Set(this.originalAuditData.map(a => a.supplierName).filter(Boolean))].sort(); }
   get uniqueStages() { return [...new Set(this.originalAuditData.map(a => a.stageName).filter(Boolean))].sort(); }
@@ -210,6 +210,12 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.loadLookups();
   }
 
@@ -266,7 +272,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
       let matchesDate = true;
 
       if (keyword) {
-        matchesKeyword = 
+        matchesKeyword =
           (item.auditReference && item.auditReference.toLowerCase().includes(keyword)) ||
           (item.supplierName && item.supplierName.toLowerCase().includes(keyword)) ||
           (item.auditorName && item.auditorName.toLowerCase().includes(keyword)) ||
@@ -285,7 +291,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
       if (fromDate || toDate) {
         const auditDate = new Date(item.auditDate);
         auditDate.setHours(0, 0, 0, 0); // normalize time
-        
+
         if (fromDate) {
           const start = new Date(fromDate);
           start.setHours(0, 0, 0, 0);
@@ -376,7 +382,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
       data: item
     });
     dialogRef.afterClosed().subscribe(res => {
-      if(res) this.loadData();
+      if (res) this.loadData();
     });
   }
 
@@ -388,7 +394,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
           this.loadData();
         } else {
           this.alertService.createAlert(res.message || 'Failed to update status', 0);
-          this.loadData(); 
+          this.loadData();
         }
       },
       error: () => {
@@ -399,7 +405,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   }
 
   onDoneClick(event: MouseEvent, audit: any): void {
-    event.preventDefault(); 
+    event.preventDefault();
 
     let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',
@@ -427,12 +433,12 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
                 this.filter();
               }
             } else {
-              audit.isDone = !audit.isDone; 
+              audit.isDone = !audit.isDone;
               this.alertService.createAlert(res.message || 'Failed to update', 0);
             }
           },
           error: () => {
-            audit.isDone = !audit.isDone; 
+            audit.isDone = !audit.isDone;
             this.alertService.createAlert('Error updating audit', 0);
           }
         });
@@ -469,7 +475,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
   }
-  
+
   scrollLeft() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
@@ -477,19 +483,19 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
 
 
   // Add this method to your PauditsActiveAuditsComponent class
-isFullyResolved(audit: any): boolean {
+  isFullyResolved(audit: any): boolean {
     if (!audit.capaSummary || audit.capaSummary === '-') return true;
-    
+
     // Split the "2/10" string into [2, 10]
     const parts = audit.capaSummary.split('/');
     if (parts.length !== 2) return false;
-    
+
     const resolved = parseInt(parts[0]);
     const total = parseInt(parts[1]);
-    
+
     // Return true only if total is greater than 0 and resolved equals total
     return total > 0 && resolved === total;
-}
+  }
 
   ngOnDestroy(): void {
     this.isDestroyed = true;

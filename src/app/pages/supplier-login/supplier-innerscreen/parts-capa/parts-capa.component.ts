@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-parts-capa',
@@ -54,6 +55,7 @@ export class PartsCapaComponent implements OnInit {
       this.setupScoreCalculation();
       this.getSeverities();
       this.getCapa();
+      this.getDemeritMaster();
 
 
 
@@ -80,6 +82,69 @@ export class PartsCapaComponent implements OnInit {
       });
   }
 
+  demeritOptions: any[] = [];
+  getDemeritMaster() {
+
+    this.setupService.getDemeritMaster({})
+      .subscribe((res: any) => {
+
+        if (res.success) {
+
+          this.demeritOptions = res.data.data.map((item: any) => {
+
+            let bgColor = '';
+            let color = '';
+
+            switch (item.subject) {
+
+              case 'Minor':
+                bgColor = '#dcfce7';
+                color = '#166534';
+                break;
+
+              case 'Small':
+                bgColor = '#fef9c3';
+                color = '#854d0e';
+                break;
+
+              case 'Moderate':
+                bgColor = '#ffedd5';
+                color = '#9a3412';
+                break;
+
+              case 'Major':
+                bgColor = '#fee2e2';
+                color = '#991b1b';
+                break;
+
+              case 'Critical':
+                bgColor = '#fecaca';
+                color = '#7f1d1d';
+                break;
+            }
+
+            return {
+              ...item,
+              bgColor: bgColor,
+              color: color
+            };
+
+          });
+
+        }
+
+      });
+
+  }
+  selectDemerit(item: any) {
+
+    this.auditForm.patchValue({
+      demeritId: item.demeritId
+    });
+
+  }
+
+
   initForm(): void {
 
     this.auditForm = this.fb.group({
@@ -97,6 +162,7 @@ export class PartsCapaComponent implements OnInit {
       subject: [{ value: '', disabled: true }],
 
       dueDate: [{ value: '', disabled: true }],
+      loggedDate: [{ value: '', disabled: true }],
 
       completedDate: [{ value: '', disabled: true }],
 
@@ -121,11 +187,14 @@ export class PartsCapaComponent implements OnInit {
       capaSubject: [{ value: '', disabled: true }],
 
       observations: [{ value: '', disabled: true }],
+      demeritId: [{ value: '', disabled: true }],
 
-      correctiveActions: [{ value: '', disabled: true }],
+
+      // correctiveActions: [{ value: '', disabled: true }],
 
       // ONLY THIS FIELD IS EDITABLE
-      supplierRemarks: ['']
+      supplierRemarks: [''],
+      correctiveActions: ['']
 
     });
 
@@ -182,11 +251,25 @@ export class PartsCapaComponent implements OnInit {
 
     if (event.target.files && event.target.files.length > 0) {
 
-      this.selectedPdfFiles = Array.from(event.target.files);
+      const files = Array.from(event.target.files) as File[];
+
+      files.forEach(file => {
+
+        this.selectedPdfFiles.push(file);
+
+        // show immediately in the grid, no docId yet since it's unsaved
+        this.documents.push({
+          docId: null,
+          docTitlte: file.name,
+          _file: file
+        });
+
+      });
 
     }
 
   }
+
 
   uploadDocuments() {
 
@@ -237,7 +320,17 @@ export class PartsCapaComponent implements OnInit {
         const reader = new FileReader();
 
         reader.onload = () => {
-          this.images.push(reader.result as string);
+
+          const base64 = reader.result as string;
+
+          this.images.push(base64);
+
+          // keep imageDetails in sync with images by index
+          this.imageDetails.push({
+            imageId: null,
+            imageurl: base64
+          });
+
         };
 
         reader.readAsDataURL(file);
@@ -346,6 +439,9 @@ export class PartsCapaComponent implements OnInit {
           completedDate: capa.completedDate
             ? capa.completedDate.substring(0, 10)
             : '',
+          loggedDate: capa.createdDate
+            ? capa.createdDate.substring(0, 10)
+            : '',
           pdcaStatus: capa.pdcaStatus,
           severityId: capa.severityId,
           occurrence: capa.occurrence,
@@ -358,7 +454,9 @@ export class PartsCapaComponent implements OnInit {
           capaSubject: capa.capaSubject,
           observations: capa.observations,
           correctiveActions: capa.correctiveActions,
-          supplierRemarks: capa.supplierRemarks
+          supplierRemarks: capa.supplierRemarks,
+          demeritId: capa.demeritId
+
 
         });
 
@@ -432,5 +530,175 @@ export class PartsCapaComponent implements OnInit {
       'Form Submitted',
       this.auditForm.getRawValue()
     );
+  }
+
+  openDocument(doc: any) {
+    if (doc?.docurl) {
+      window.open(doc.docurl, '_blank');
+    }
+  }
+
+  deleteDocConfirmation(doc: any) {
+
+    // Not yet saved (no docId) - just remove locally, no API call
+    if (!doc?.docId) {
+
+      this.documents = this.documents.filter((x: any) => x !== doc);
+
+      const fileIndex = this.selectedPdfFiles.indexOf(doc._file);
+
+      if (fileIndex > -1) {
+        this.selectedPdfFiles.splice(fileIndex, 1);
+      }
+
+      return;
+
+    }
+
+    // Already saved - confirm and call delete API
+    const dialogRef = this.dialog.open(
+      ConfirmationDialogComponent,
+      {
+        width: 'auto',
+        data: {
+          component: null,
+          title: 'Delete Confirmation',
+          content: 'Are you sure you want to delete this document?',
+          isConfirmation: true
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe((confirmed: any) => {
+
+      if (!confirmed) {
+        return;
+      }
+
+      const payload = {
+        docId: doc.docId
+      };
+
+      this.partAuditService.deleteDoc(payload).subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(
+              res.message || 'Document deleted successfully',
+              1
+            );
+
+            this.documents = this.documents.filter(
+              (x: any) => x.docId !== doc.docId
+            );
+
+          } else {
+
+            this.alertService.createAlert(
+              res.message || 'Failed to delete document',
+              0
+            );
+
+          }
+
+        },
+
+        error: () => {
+
+          this.alertService.createAlert(
+            'Failed to delete document',
+            0
+          );
+
+        }
+
+      });
+
+    });
+
+  }
+  deleteImageConfirmation(index: number) {
+
+    const image = this.imageDetails[index];
+
+    // Not yet saved (no imageId) - just remove locally, no API call
+    if (!image?.imageId) {
+
+      this.imageDetails.splice(index, 1);
+      this.images.splice(index, 1);
+
+      return;
+
+    }
+
+    // Already saved - confirm and call delete API
+    const dialogRef = this.dialog.open(
+      ConfirmationDialogComponent,
+      {
+        width: 'auto',
+        data: {
+          component: null,
+          title: 'Delete Confirmation',
+          content: 'Are you sure you want to delete this image?',
+          isConfirmation: true
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe((confirmed: any) => {
+
+      if (!confirmed) {
+        return;
+      }
+
+      const payload = {
+        imageId: image.imageId
+      };
+
+      this.partAuditService.deleteImage(payload).subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(
+              res.message || 'Image deleted successfully',
+              1
+            );
+
+            this.imageDetails = this.imageDetails.filter(
+              (x: any) => x.imageId !== image.imageId
+            );
+
+            this.images = this.imageDetails.map(
+              (x: any) => x.imageurl
+            );
+
+          } else {
+
+            this.alertService.createAlert(
+              res.message || 'Failed to delete image',
+              0
+            );
+
+          }
+
+        },
+
+        error: () => {
+
+          this.alertService.createAlert(
+            'Failed to delete image',
+            0
+          );
+
+        }
+
+      });
+
+    });
+
   }
 }

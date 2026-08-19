@@ -17,20 +17,20 @@ import { ProcessDocPopComponent } from './process-doc-pop/process-doc-pop.compon
   styleUrls: ['./paudits-actions.component.scss']
 })
 export class PauditsActionsComponent implements OnInit {
-  
+
   filterToggle: boolean = false;
   totalSize = 0;
   myGroup!: FormGroup;
   originalTableList: any[] = [];
   tableList: any[] = [];
   parentAuditRef: string = 'Pending...';
-  targetCategoryId: any = null;   
-  targetChecklistId: any = null; 
-  
+  targetCategoryId: any = null;
+  targetChecklistId: any = null;
+
   processCategories: string[] = [];
   suppliers: string[] = [];
   actionTypes: string[] = [];
-  
+
   // 🔥 Store dynamic lookups here
   capaStatusLookups: any[] = [];
 
@@ -46,7 +46,7 @@ export class PauditsActionsComponent implements OnInit {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
   }
-  
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
@@ -54,27 +54,32 @@ export class PauditsActionsComponent implements OnInit {
     private api: ProcessAuditService,
     private alertService: AlertService
   ) { }
-  
+
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.myGroup = new FormGroup({
       Keyword: new FormControl(''),
       ProcessCategory: new FormControl(''),
       SupplierName: new FormControl(''),
       ActionType: new FormControl('')
     });
-    
-   this.loadLookups();
+
+    this.loadLookups();
     this.loadData();
   }
 
   // 🔥 FETCH LOOKUPS FOR DROPDOWN 🔥
-loadLookups() {
+  loadLookups() {
     this.api.getLookups().subscribe((res: any) => {
       if (res.success) {
         this.capaStatusLookups = res.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
-        
+
         // 🔥 Now load the table data AFTER lookups are ready
-        this.loadData(); 
+        this.loadData();
       }
     });
   }
@@ -142,14 +147,14 @@ loadLookups() {
   //   });
   // }
 
- // 🔥 UPDATE STATUS ON DROPDOWN CHANGE 🔥
+  // 🔥 UPDATE STATUS ON DROPDOWN CHANGE 🔥
   onStatusChange(item: any) {
-    const payload = { 
-      CapaId: item.capaId, 
-      Status: item.status != null ? item.status.toString() : null, 
-      IsResolved: item.resolved 
+    const payload = {
+      CapaId: item.capaId,
+      Status: item.status != null ? item.status.toString() : null,
+      IsResolved: item.resolved
     };
-    
+
     this.api.updateCapaStatus(payload).subscribe((res: any) => {
       if (res.success) {
         this.alertService.createAlert('Status updated successfully', 1);
@@ -162,14 +167,14 @@ loadLookups() {
   // 🔥 UPDATE RESOLVED ON CHECKBOX CHANGE 🔥
   onResolvedChange(item: any, event: any) {
     item.resolved = event.checked; // Update local model
-    
+
     // Force Status to be a string here as well
-    const payload = { 
-      CapaId: item.capaId, 
-      Status: item.status != null ? item.status.toString() : null, 
-      IsResolved: item.resolved 
+    const payload = {
+      CapaId: item.capaId,
+      Status: item.status != null ? item.status.toString() : null,
+      IsResolved: item.resolved
     };
-    
+
     this.api.updateCapaStatus(payload).subscribe((res: any) => {
       if (res.success) {
         this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
@@ -181,7 +186,7 @@ loadLookups() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
   }
-  
+
   scrollLeft() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
@@ -196,8 +201,8 @@ loadLookups() {
   }
 
   docsPhoto(applicant: any) {
-    const dialogRef = this.dialog.open(ProcessDocPopComponent, { 
-      width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog', data: applicant 
+    const dialogRef = this.dialog.open(ProcessDocPopComponent, {
+      width: '650px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog', data: applicant
     });
 
     dialogRef.afterClosed().subscribe(() => {
@@ -215,7 +220,7 @@ loadLookups() {
       width: 'auto',
       data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete this CAPA?' }
     });
-    
+
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.api.deleteCapa({ CapaId: item.capaId }).subscribe((res: any) => {
@@ -230,7 +235,7 @@ loadLookups() {
     });
   }
 
-  go() { 
+  go() {
     const filters = this.myGroup.value;
     const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
     const category = filters.ProcessCategory;
@@ -253,7 +258,7 @@ loadLookups() {
     this.totalSize = this.tableList.length;
   }
 
-  clearFilter() { 
+  clearFilter() {
     this.myGroup.reset();
     this.tableList = [...this.originalTableList];
     const maxPage = Math.max(0, Math.ceil(this.tableList.length / this.pageSize) - 1);

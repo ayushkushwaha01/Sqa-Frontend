@@ -28,6 +28,12 @@ export class AuditCategoriesComponent implements OnInit {
   filterForm!: FormGroup;
   filterToggle = false;
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.formInit();
     this.getPartAuditCategories();
   }

@@ -8,7 +8,7 @@ import { AddParameterComponent } from '../../parts-families/add-parameter/add-pa
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { Location } from '@angular/common';
 import { AddParameterforpartmasterComponent } from '../add-parameterforpartmaster/add-parameterforpartmaster.component';
- 
+
 @Component({
   selector: 'app-parts-parameter',
   templateUrl: './parts-parameter.component.html',
@@ -46,6 +46,12 @@ export class PartsParameterComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.route.queryParams.subscribe(params => {
       this.partMasterId = Number(params['partMasterId']);
       console.log(this.partMasterId, 'masterId');

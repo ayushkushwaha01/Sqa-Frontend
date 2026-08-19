@@ -50,6 +50,12 @@ export class InspectionCapaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.myGroup = new FormGroup({
       Keyword: new FormControl(''),
       TractorIdSections: new FormControl(''),

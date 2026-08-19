@@ -33,7 +33,15 @@ export class SupplierComponent implements OnInit {
     this.filterForm = this.fb.group({ Keyword: [''], Status: [''] });
   }
 
-  ngOnInit(): void { this.loadSuppliers(); }
+  ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
+    this.loadSuppliers();
+  }
 
   loadSuppliers() {
     this.api.getSuppliers().subscribe((res: any) => {
@@ -112,9 +120,9 @@ export class SupplierComponent implements OnInit {
     const status = this.filterForm.value.Status;
 
     let filtered = this.allData.filter(item =>
-      (item.supplierName.toLowerCase().includes(keyword) ||
-       item.email.toLowerCase().includes(keyword) ||
-       item.userName.toLowerCase().includes(keyword))
+    (item.supplierName.toLowerCase().includes(keyword) ||
+      item.email.toLowerCase().includes(keyword) ||
+      item.userName.toLowerCase().includes(keyword))
     );
 
     if (status !== '' && status !== null) {

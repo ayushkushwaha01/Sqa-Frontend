@@ -31,7 +31,7 @@ export class UsersComponent implements OnInit {
   ];
 
   constructor(
-    public dialog: MatDialog, 
+    public dialog: MatDialog,
     private fb: FormBuilder,
     private api: ManageUsersService,
     private alertService: AlertService
@@ -43,6 +43,11 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit() {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.getAllUsers();
   }
 
@@ -64,7 +69,7 @@ export class UsersComponent implements OnInit {
       height: 'auto',
       width: '850px'
     });
-    
+
     dialogRef.afterClosed().subscribe(data => {
       if (data) {
         this.getAllUsers();
@@ -101,7 +106,7 @@ export class UsersComponent implements OnInit {
       panelClass: 'no-padding-dialog',
       data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
-    
+
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.api.deleteUser(item).subscribe({
@@ -125,7 +130,7 @@ export class UsersComponent implements OnInit {
 
   openManagersDialog(managerStr: string) {
     if (!managerStr) return; // Do nothing if 0 managers
-    
+
     this.dialog.open(ManagerDialogComponent, {
       data: managerStr, // Pass the "1,4" string to the popup
       width: '350px'

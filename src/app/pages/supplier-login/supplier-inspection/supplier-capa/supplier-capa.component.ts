@@ -25,7 +25,7 @@ export class SupplierCapaComponent implements OnInit {
   // Pagination and Data Tracking
   originalTableList: any[] = [];
   tableList: any[] = [];
-  pagedTableList: any[] = []; 
+  pagedTableList: any[] = [];
   totalSize = 0;
   pageSize = 5;
   pageIndex = 0;
@@ -55,6 +55,11 @@ export class SupplierCapaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.myGroup = new FormGroup({
       Keyword: new FormControl(''),
       TractorIdSections: new FormControl(''),
@@ -75,11 +80,11 @@ export class SupplierCapaComponent implements OnInit {
             id: item.capaId,
             inspectionRefId: item.inspectionRefId,
             status: item.status === 1 ? 'WIP' :
-                    item.status === 2 ? 'Open' :
-                    item.status === 3 ? 'Closed' :
-                    item.status === 4 ? 'Pending' :
+              item.status === 2 ? 'Open' :
+                item.status === 3 ? 'Closed' :
+                  item.status === 4 ? 'Pending' :
                     item.status === 5 ? 'In Progress' :
-                    item.status === 6 ? 'Completed' : item.status, 
+                      item.status === 6 ? 'Completed' : item.status,
             resolved: item.resolved,
             docs: item.docs,
             reference: item.reference,
@@ -110,7 +115,7 @@ export class SupplierCapaComponent implements OnInit {
         });
 
         this.alertsCount = this.originalTableList.filter(item => item.isAlert).length;
-        this.go(); 
+        this.go();
       }
     });
   }
@@ -142,7 +147,7 @@ export class SupplierCapaComponent implements OnInit {
     });
 
     this.totalSize = this.tableList.length;
-    this.pageIndex = 0; 
+    this.pageIndex = 0;
 
     if (this.paginator) {
       this.paginator.firstPage();
@@ -184,14 +189,14 @@ export class SupplierCapaComponent implements OnInit {
   }
 
   imageSource1() { this.dialog.open(ActionDescRemarksComponent, { width: '500px', height: 'auto' }); }
-  
+
   docsPhoto(applicant: any) {
     const dialogRef = this.dialog.open(InspectionDocspopComponent, {
       width: '750px',
       height: 'auto',
       maxHeight: '90vh',
       panelClass: 'no-scroll-dialog',
-      data: { 
+      data: {
         capaId: applicant.id,
         inspectionRefId: applicant.inspectionRefId,
         isReadOnly: true
