@@ -5,6 +5,8 @@ import { PartAuditService } from '../../part-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+
 @Component({
   selector: 'app-parts-actions-docs',
   templateUrl: './parts-actions-docs.component.html',
@@ -12,15 +14,12 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 })
 export class PartsActionsDocsComponent implements OnInit {
 
-
-  // Mock data to match the screenshot
-  // documents = [
-  //   { title: 'Document check', date: '12-07-2024' }
-  // ];
-
   pagedDocs: any[] = [];
-  //pageSize = 5;
   pageIndex = 0;
+
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<PartsActionsDocsComponent>,
@@ -28,7 +27,12 @@ export class PartsActionsDocsComponent implements OnInit {
     private partAuditService: PartAuditService,
     private alertService: AlertService
   ) { }
+
   ngOnInit(): void {
+    this.canCreate = this.data?.canCreate !== undefined ? this.data.canCreate : UserPermissionService.fnGetCreatePermissions(15);
+    this.canUpdate = this.data?.canUpdate !== undefined ? this.data.canUpdate : UserPermissionService.fnGetUpdatePermissions(15);
+    this.canDelete = this.data?.canDelete !== undefined ? this.data.canDelete : UserPermissionService.fnGetDeletePermissions(15);
+
     this.getDocs();
     this.updatePage();
   }

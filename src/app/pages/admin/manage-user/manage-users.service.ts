@@ -124,4 +124,20 @@ export class ManageUsersService {
   upsertEscalation(data: any) { return this.http.post(this.apiUrl + 'Escalation/upsert-escalation', data); }
 
 
+  // ==========================================
+  // ----------Screen PERMISSIONS Api's ---------
+  // ==========================================
+  
+  getRolePermissions(roleId: number) {
+    return this.http.get(this.apiUrl + `RolePermissions/get-role-permissions?roleId=${roleId}`);
+  }
+
+  saveRolePermissions(payload: any) {
+    return this.http.post(this.apiUrl + 'RolePermissions/save-role-permissions', payload);
+  }
+
+  getUserLoginPermissions(roleId: number) {
+    return this.http.get(this.apiUrl + `RolePermissions/get-user-login-permissions?roleId=${roleId}`);
+  }
+
 }

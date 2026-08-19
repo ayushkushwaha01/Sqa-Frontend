@@ -61,6 +61,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Role Name</th>
+                        <th class="text-center">Screen Permissions</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Action</th>
                     </tr>
@@ -68,6 +69,14 @@
                 <tbody>
                     <tr *ngFor="let item of dataSource.connect() | async">
                         <td>{{ item.roleName }}</td>
+
+                        <td class="text-center">
+                            <a [routerLink]="['/app/admin/manage-users/roles/permission']"
+                                [queryParams]="{ roleId: item.roleId || item.id, roleName: item.roleName }"
+                                style="color: #4a90e2; text-decoration: none; cursor: pointer; font-weight: 500;">
+                                {{ item.screenPermissions || item.permissions || '35/35' }}
+                            </a>
+                        </td>
 
                         <td class="text-center">
                             <span (click)="toggleStatus(item)" [style.color]="item.isActive ? 'green' : 'red'"
@@ -92,7 +101,7 @@
                     </tr>
 
                     <tr *ngIf="dataSource.data.length === 0">
-                        <td colspan="3" class="text-center">No Records Found</td>
+                        <td colspan="4" class="text-center">No Records Found</td>
                     </tr>
                 </tbody>
             </table>

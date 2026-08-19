@@ -196,8 +196,8 @@
             <td class="text-center">{{ applicant.status }}</td>
             <td class="text-center">
               <mat-checkbox
-                [checked]="applicant.resolved === true"
-                [disabled]="true"
+                [(ngModel)]="applicant.resolved"
+                (change)="onInlineChange(applicant)"
                 color="primary"
               ></mat-checkbox>
             </td>

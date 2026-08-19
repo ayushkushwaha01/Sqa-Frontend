@@ -25,7 +25,11 @@
     <button mat-raised-button class="btn-dark" (click)="filterToggle = !filterToggle">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
-    <button mat-raised-button color="primary" class="btn-blue" (click)="openaudit()">
+    <!-- <button mat-raised-button color="primary" class="btn-blue" (click)="openaudit()">
+      <mat-icon>person_add</mat-icon> Add Audit
+    </button> -->
+
+    <button *ngIf="canCreate" mat-raised-button color="primary" class="btn-blue" (click)="openaudit()">
       <mat-icon>person_add</mat-icon> Add Audit
     </button>
   </div>
@@ -153,7 +157,8 @@
           <th>Report</th>
           <th>Status</th>
           <th>Done</th>
-          <th>Manage</th>
+          <!-- <th>Manage</th> -->
+           <th *ngIf="canUpdate || canDelete">Manage</th>
         </tr>
       </thead>
       <tbody>
@@ -192,7 +197,7 @@
           </td>
 
           <!-- Status Dropdown loaded from DB Lookup -->
-          <td class="text-center">
+          <!-- <td class="text-center">
             <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
               placeholder="Select Status"
               style="max-width: 120px; min-width: 120px; border: 0.5px solid black; border-radius: 4px; padding: 4px;">
@@ -200,17 +205,43 @@
                 {{ status.lookupName }}
               </mat-option>
             </mat-select>
-          </td>
+          </td> -->
 
-          <!-- IsDone Checkbox -->
+
           <td class="text-center">
+            <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
+              placeholder="Select Status"
+              [disabled]="!canUpdate"
+              style="max-width: 120px; min-width: 120px; border: 0.5px solid black; border-radius: 4px; padding: 4px;">
+              <mat-option *ngFor="let status of statusLookups" [value]="status.lookupId">
+                {{ status.lookupName }}
+              </mat-option>
+            </mat-select>
+          </td>
+          <!-- IsDone Checkbox -->
+          <!-- <td class="text-center">
             <mat-checkbox [checked]="audit.isDone" (click)="onDoneClick($event, audit)" color="primary"></mat-checkbox>
+          </td> -->
+
+         <td class="text-center">
+            <mat-checkbox 
+              [checked]="audit.isDone" 
+              [disabled]="!canUpdate" 
+              (click)="!canUpdate ? $event.preventDefault() : onDoneClick($event, audit)" 
+              color="primary">
+            </mat-checkbox>
           </td>
 
           <!-- Actions -->
-          <td class="text-center manage-icons">
+          <!-- <td class="text-center manage-icons">
             <i class="fas fa-edit edit-icon" title="Edit" (click)="openaudit(audit)"></i>
             <i class="fas fa-trash delete-icon" title="Delete" (click)="deleteAudit(audit)"
+              style="color:red; margin-left: 10px;"></i>
+          </td> -->
+
+          <td *ngIf="canUpdate || canDelete" class="text-center manage-icons">
+            <i *ngIf="canUpdate" class="fas fa-edit edit-icon" title="Edit" (click)="openaudit(audit)"></i>
+            <i *ngIf="canDelete" class="fas fa-trash delete-icon" title="Delete" (click)="deleteAudit(audit)"
               style="color:red; margin-left: 10px;"></i>
           </td>
         </tr>

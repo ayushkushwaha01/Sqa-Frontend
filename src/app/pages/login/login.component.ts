@@ -98,7 +98,45 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() { }
 
-  public onSubmit(values: any) {
+//   public onSubmit(values: any) {
+//     if (this.form.valid) {
+//       const credentials = {
+//         email: values.email,
+//         password: values.password
+//       };
+
+//       this.api.login(credentials).subscribe({
+//         next: (res: any) => {
+        
+// if (res.success) {
+//     // 1. Save Token and User Data
+//     localStorage.setItem('jwt_token', res.token);
+//     sessionStorage.setItem('jwt_token', res.token);
+//     localStorage.setItem('UserName', res.userData.userName);
+//     localStorage.setItem('UserId', res.userData.userId);
+//     localStorage.setItem('RoleId', res.userData.roleId);
+//     localStorage.setItem('UserType', res.userData.userType); // "Internal" or "Supplier"
+
+//     // 2. Show Success Toast
+//     this.alertService.createAlert('Login Successful', 1);
+
+//     // 3. 🔥 Route users based on their UserType 🔥
+//     if (res.userData.userType === 'Supplier') {
+//         this.router.navigate(['/app/supplier-login/dashboard']);
+//     } else {
+//         this.router.navigate(['/app/sqm/sqmd']);
+//     }
+// }
+//         },
+//         error: (err) => {
+//           console.error(err);
+//           this.alertService.createAlert(err.error?.message || 'Invalid Email or Password', 0);
+//         }
+//       });
+//     }
+//   }
+
+public onSubmit(values: any) {
     if (this.form.valid) {
       const credentials = {
         email: values.email,
@@ -150,6 +188,32 @@ export class LoginComponent implements OnInit {
             } else {
               this.router.navigate(['/app/sqm/sqmd']);
             }
+            localStorage.setItem('UserType', res.userData.userType);
+
+            // 2. 🔥 FETCH PERMISSIONS BEFORE NAVIGATING 🔥
+            this.api.getUserLoginPermissions(res.userData.roleId).subscribe({
+              next: (permRes: any) => {
+                if (permRes.success || permRes.Success) {
+                  // Save the permissions array directly into localStorage
+                  localStorage.setItem('rolePermissions', JSON.stringify(permRes.data || permRes.Data));
+                }
+
+                // 3. Show Success Toast
+                this.alertService.createAlert('Login Successful', 1);
+
+                // 4. Route users based on their UserType
+                if (res.userData.userType === 'Supplier') {
+                  this.router.navigate(['/app/supplier-login/dashboard']);
+                } else {
+                  this.router.navigate(['/app/sqm/sqmd']);
+                }
+              },
+              error: () => {
+                // Fallback if permission fetch fails, still let them log in
+                this.alertService.createAlert('Login Successful, but failed to load permissions', 1);
+                this.router.navigate(['/app/sqm/sqmd']);
+              }
+            });
           }
         },
         error: (err) => {

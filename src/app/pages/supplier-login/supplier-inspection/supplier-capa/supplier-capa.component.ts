@@ -11,6 +11,7 @@ import { PartsActionsGridComponent } from 'src/app/pages/sqm/parts-audits/parts-
 import { ActionDescRemarksComponent } from 'src/app/pages/sqm/process-audits/paudits-actions/action-desc-remarks/action-desc-remarks.component';
 import { InspectionService } from 'src/app/pages/sqm/inspection/inspection.service';
 import { InspectionDocspopComponent } from 'src/app/pages/sqm/inspection/inspection-capa/inspection-docspop/inspection-docspop.component';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-supplier-capa',
@@ -51,7 +52,8 @@ export class SupplierCapaComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-    private api: InspectionService
+    private api: InspectionService,
+    private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
@@ -216,5 +218,42 @@ export class SupplierCapaComponent implements OnInit {
 
   deleteConfirmation(item: any) {
     this.dialog.open(ConfirmationDialogComponent, { width: 'auto', data: { title: 'Delete', content: 'Are you sure?' } });
+  }
+
+  onInlineChange(applicant: any) {
+    let statusNum: number | null = null;
+    if (typeof applicant.status === 'string') {
+      const statusMap: { [key: string]: number } = {
+        'WIP': 1,
+        'Open': 2,
+        'Closed': 3,
+        'Pending': 4,
+        'In Progress': 5,
+        'Completed': 6
+      };
+      statusNum = statusMap[applicant.status] || null;
+    } else if (typeof applicant.status === 'number') {
+      statusNum = applicant.status;
+    }
+
+    const payload = {
+      capaId: applicant.id,
+      status: statusNum,
+      resolved: applicant.resolved
+    };
+
+    this.api.updateCapaInlineStatus(payload).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.alertService.createAlert('Record updated successfully', 1);
+        } else {
+          this.alertService.createAlert(res.message || 'Failed to update record', 0);
+        }
+      },
+      error: (err: any) => {
+        console.error("Failed to update record", err);
+        this.alertService.createAlert(err.error?.message || 'An error occurred while updating the record.', 0);
+      }
+    });
   }
 }

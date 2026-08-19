@@ -5,6 +5,8 @@ import { ProcessAuditService } from '../../process-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+
 @Component({
   selector: 'app-process-doc-pop',
   templateUrl: './process-doc-pop.component.html',
@@ -21,6 +23,10 @@ export class ProcessDocPopComponent implements OnInit {
   fullCapaData: any = null;
   selectedFiles: File[] = [];
 
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+
   constructor(
     public dialogRef: MatDialogRef<ProcessDocPopComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -30,6 +36,10 @@ export class ProcessDocPopComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.canCreate = this.data?.canCreate !== undefined ? this.data.canCreate : (UserPermissionService.fnGetCreatePermissions(15) || UserPermissionService.fnGetCreatePermissions('CAPA'));
+    this.canUpdate = this.data?.canUpdate !== undefined ? this.data.canUpdate : (UserPermissionService.fnGetUpdatePermissions(15) || UserPermissionService.fnGetUpdatePermissions('CAPA'));
+    this.canDelete = this.data?.canDelete !== undefined ? this.data.canDelete : (UserPermissionService.fnGetDeletePermissions(15) || UserPermissionService.fnGetDeletePermissions('CAPA'));
+    
     this.loadDocuments();
   }
 

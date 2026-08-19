@@ -1,17 +1,11 @@
-<div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
-  <!-- <button mat-raised-button matTooltip="Alerts" style="background-color: black; color: white"
-    class="filter-hover margin-right-10">
-    <mat-icon class="">warning</mat-icon> Alerts (12) Attention please due to an incident it may be necessary to attack more information attention, please
-  </button> -->
+<!-- <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
+ 
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
     class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
     <mat-icon class="">filter_list</mat-icon> Filter
   </button>
 
-  <!-- <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
-    (click)="processgrid()">
-    <mat-icon>grid_on</mat-icon> Grid Columns
-  </button> -->
+ 
 </div>
 
 <div class="col-sm-12" style="overflow: hidden; width: 100%;">
@@ -67,90 +61,7 @@
                 </div>
               </div>
 
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Sub Group:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="SubGroupId" placeholder="Select Sub Group">
-                    <mat-option *ngFor="let item of FilterSubgroup" [value]="item.SubGroupId">
-                      {{ item.SubGroupName }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>ORC Status:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ORCStatuses" placeholder="Select ORC Status">
-                    <mat-option *ngFor="let status of ORCStatuses" [value]="status.item_id">
-                      {{ status.item_text }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>New / Regular:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="IsNew" placeholder="Select New or Regular">
-                    <mat-option [value]="true">New</mat-option>
-                    <mat-option [value]="false">Regular</mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass">
-                  <b>Failure Effect:</b>
-                </div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ScoreMatrix" placeholder="Select Failure Effect">
-                    <mat-option *ngFor="let item of scorematrix" [value]="item.ScoreMatrixId">
-                      {{ item.ScoreMatrixName }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Probability:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="Probability" placeholder="Select Probability">
-                    <mat-option *ngFor="let num of [1,2,3,4,5,6,7,8,9,10]" [value]="num">
-                      {{ num }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-4">
-                <div class="col-sm-4 newMarginClass"><b>Part Code:</b></div>
-                <div class="col-sm-8">
-                  <input type="text" formControlName="PartCode" class="form-control" placeholder="Search by Part Code" />
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-4">
-                <div class="col-sm-4 newMarginClass"><b>Detection:</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="CategoryId" placeholder="Select Detection">
-                    <mat-option *ngFor="let item of categories" [value]="item.CategoryId">
-                      {{ item.CategoryName }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
-              <!-- <div class="col-sm-4 row me-2 mt-4">
-                <div class="col-sm-4 newMarginClass"><b>Project Lead</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="sortOrder" placeholder="Select Project Lead">
-                    <mat-option value="ASC">ASC</mat-option>
-                    <mat-option value="DESC">DESC</mat-option>
-                  </mat-select>
-                </div>
-              </div> -->
-
+            
 
 
               <div class="col-sm-12 pull-right mt-3" style="margin-left: -15px;">
@@ -184,13 +95,11 @@
             <th mat-header-cell mat-sort-header class="text-center">Status</th>
             <th mat-header-cell mat-sort-header class="text-center">Resolved </th>
             <th mat-header-cell mat-sort-header class="text-center">Docs</th>
-            <!-- <th mat-header-cell mat-sort-header class="text-center">Photos </th> -->
-            <th mat-header-cell mat-sort-header class="text-center">Reference </th>
+             <th mat-header-cell mat-sort-header class="text-center">Reference </th>
             <th mat-header-cell mat-sort-header class="text-center">CAPA Subject</th>
             <th mat-header-cell mat-sort-header class="text-center">Supplier Name</th>
             <th mat-header-cell mat-sort-header class="text-center">Action Type</th>
-            <!-- <th mat-header-cell mat-sort-header class="text-center">Audit Reference</th> -->
-            <!-- <th mat-header-cell mat-sort-header class="text-center">Process Area</th> -->
+         
             <th mat-header-cell mat-sort-header class="text-center">Process Category</th>
             <th mat-header-cell mat-sort-header class="text-center">Description</th>
             <th mat-header-cell mat-sort-header class="text-center">Supplier Remarks</th>
@@ -204,8 +113,7 @@
             <th mat-header-cell mat-sort-header class="text-center">Risk Rating</th>
             <th mat-header-cell mat-sort-header class="text-center">Rating</th>
             <th mat-header-cell mat-sort-header class="text-center">PDCA Status</th>
-            <!-- <th mat-header-cell mat-sort-header class="text-center">Action  Type</th> -->
-          </tr>
+           </tr>
         </thead>
 
         <tbody>
@@ -214,62 +122,30 @@
               <a matTooltip="Delete" (click)="deleteConfirmation(applicant)"><i class="fa fa-trash red"></i></a>
             </td>
 
-            <!-- 🔥 Status Dropdown (Triggers API) 🔥 -->
-            <!-- <td class="text-center">
-              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
-                class="form-control">
-                <mat-option value="WIP">WIP</mat-option>
-                <mat-option value="Open">Open</mat-option>
-                <mat-option value="Closed">Closed</mat-option>
-                <mat-option value="Pending">Pending</mat-option>
-                <mat-option value="In Progress">In Progress</mat-option>
-                <mat-option value="Completed">Completed</mat-option>
-              </mat-select>
-            </td> -->
+          
 
-            <!-- 🔥 Dynamic Status Dropdown loaded from Lookup Master 🔥 -->
-            <!-- Change [value]="status.lookupName" to [value]="status.lookupId" -->
-            <!-- 🔥 Dynamic Status Dropdown loaded from Lookup Master 🔥 -->
-            <!-- <td class="text-center">
+             <td class="text-center">
               <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
                 class="form-control">
-                 <mat-option *ngFor="let status of capaStatusLookups" [value]="status.lookupName">
-                  {{ status.lookupName }}
-                </mat-option>
-              </mat-select>
-            </td> -->
-
-            <!-- 🔥 Dynamic Status Dropdown loaded from Lookup Master 🔥 -->
-            <td class="text-center">
-              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
-                class="form-control">
-                <!-- 🔥 CHANGE: Value is now lookupId converted to string to match ngModel -->
-                <mat-option *ngFor="let status of capaStatusLookups" [value]="status.lookupId.toString()">
+                 <mat-option *ngFor="let status of capaStatusLookups" [value]="status.lookupId.toString()">
                   {{ status.lookupName }}
                 </mat-option>
               </mat-select>
             </td>
 
-            <!-- 🔥 Resolved Checkbox (Triggers API) 🔥 -->
-            <td class="text-center">
+             <td class="text-center">
               <mat-checkbox [checked]="applicant.resolved" (change)="onResolvedChange(applicant, $event)"
                 color="primary"></mat-checkbox>
             </td>
 
-            <!-- ... Rest of your columns bound securely ... -->
-            <!-- <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto()">{{ applicant.docs }}
-            </td> -->
+          
 
-            <!-- Change this line inside your <tbody> -->
-            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
+             <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
               {{ applicant.docs }}
             </td>
-            <!-- <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']">{{ applicant.reference }}</a>
-            </td> -->
+          
 
-            <!-- 🔥 Replace your current Reference column with this 🔥 -->
-            <td class="text-link text-center">
+             <td class="text-link text-center">
               <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']" [queryParams]="{ 
         id: applicant.processAuditId, 
         ref: applicant.auditReference, 
@@ -282,7 +158,199 @@
             <td class="text-center">{{ applicant.actionSubject }}</td>
             <td class="text-center">{{ applicant.supplierName }}</td>
             <td class="text-center">{{ applicant.actionType }}</td>
-            <!-- <td class="text-center">{{ applicant.auditReference }}</td> -->
+             <td class="text-center">{{ applicant.processCategory }}</td>
+            <td class="text-center">
+              <mat-icon (click)="imageSource1(applicant.description)" matTooltip="{{ applicant.description }}"
+                style="color: blue; cursor: pointer;">info</mat-icon>
+            </td>
+            <td class="text-center">
+              <mat-icon (click)="imageSource1(applicant.supplierRemarks)" matTooltip="{{ applicant.supplierRemarks }}"
+                style="color: blue; cursor: pointer;">info</mat-icon>
+            </td>
+            <td class="text-center">{{ applicant.logDate | date:'dd-MM-yyyy' }}</td>
+            <td class="text-center">{{ applicant.dueDate | date:'dd-MM-yyyy' }}</td>
+            <td class="text-center">{{ applicant.delayInDays === 0 ? '-' : applicant.delayInDays }}</td>
+            <td class="text-center">{{ applicant.completion | date:'dd-MM-yyyy' }}</td>
+            <td class="text-center">{{ applicant.severity }}</td>
+            <td class="text-center">{{ applicant.occurrence }}</td>
+            <td class="text-center">{{ applicant.detection }}</td>
+            <td class="text-center">{{ applicant.riskRating }}</td>
+            <td class="text-center">{{ applicant.rating }}</td>
+            <td class="text-center">{{ applicant.pdcaStatus }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button class="mine mine-right" mat-fab (click)="scrollRight()">
+        <mat-icon style="color: #37474f">fast_forward</mat-icon>
+      </button>
+      <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+        <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+      </button>
+
+    </div>
+
+    <div style="width: 100%;">
+      <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 20, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
+      </mat-paginator>
+    </div>
+  </div>
+</div> -->
+
+<div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
+  <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
+    class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
+    <mat-icon class="">filter_list</mat-icon> Filter
+  </button>
+</div>
+
+<div class="col-sm-12" style="overflow: hidden; width: 100%;">
+
+  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px;">
+    <div style="margin-top: 10px; width: 100%;">
+      <form [formGroup]="myGroup">
+        <mat-card class="filter">
+          <mat-card-content>
+            <div class="row col-lg-12 col-sm-12">
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass"><b>Keyword:</b></div>
+                <div class="col-sm-8">
+                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search by keyword" />
+                </div>
+              </div>
+
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass"><b>Process Category :</b></div>
+                <div class="col-sm-8">
+                  <mat-select class="form-control" formControlName="ProcessCategory"
+                    placeholder="Select Process Category">
+                    <mat-option *ngFor="let category of processCategories" [value]="category">
+                      {{ category }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Select Supplier Name:</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select class="form-control" formControlName="SupplierName" placeholder="Select Supplier Name">
+                    <mat-option *ngFor="let supplier of suppliers" [value]="supplier">
+                      {{ supplier }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row me-2 mt-3">
+                <div class="col-sm-4 newMarginClass">
+                  <b>Action Type :</b>
+                </div>
+                <div class="col-sm-8">
+                  <mat-select class="form-control" formControlName="ActionType" placeholder="Select Action Type">
+                    <mat-option *ngFor="let action of actionTypes" [value]="action">
+                      {{ action }}
+                    </mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-12 pull-right mt-3" style="margin-left: -15px;">
+                <a (click)="filterToggle = !filterToggle" class="pull-right"
+                  style="font-size: 25px; cursor: pointer; margin-left: 5px">
+                  <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                </a>
+
+                <button mat-raised-button class="pull-right btn-default margin-right-10" (click)="clearFilter()">
+                  <mat-icon>settings_backup_restore</mat-icon>Clear
+                </button>
+                <button mat-raised-button style="margin-right: 10px;" color="primary" class="pull-right" (click)="go()">
+                  <mat-icon>search</mat-icon>Search
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-sm-12" style="margin-top: 10px; width: 100%; padding: 0;">
+    <div class="table-responsive" id="grid-table-container">
+
+      <table mat-table class="table table-bordered table-hover">
+        <thead class="tbl-head">
+          <tr>
+            <!-- 🔥 Conditionally hide Action header if user cannot delete 🔥 -->
+            <th mat-header-cell mat-sort-header class="text-center" *ngIf="canDelete"
+              style="width: 50px; min-width: 50px; max-width: 50px;">Action</th>
+            <th mat-header-cell mat-sort-header class="text-center">Status</th>
+            <th mat-header-cell mat-sort-header class="text-center">Resolved </th>
+            <th mat-header-cell mat-sort-header class="text-center">Docs</th>
+            <th mat-header-cell mat-sort-header class="text-center">Reference </th>
+            <th mat-header-cell mat-sort-header class="text-center">CAPA Subject</th>
+            <th mat-header-cell mat-sort-header class="text-center">Supplier Name</th>
+            <th mat-header-cell mat-sort-header class="text-center">Action Type</th>
+            <th mat-header-cell mat-sort-header class="text-center">Process Category</th>
+            <th mat-header-cell mat-sort-header class="text-center">Description</th>
+            <th mat-header-cell mat-sort-header class="text-center">Supplier Remarks</th>
+            <th mat-header-cell mat-sort-header class="text-center">Log Date</th>
+            <th mat-header-cell mat-sort-header class="text-center"> Due Date</th>
+            <th mat-header-cell mat-sort-header class="text-center">Delay In Days</th>
+            <th mat-header-cell mat-sort-header class="text-center">Completion Date</th>
+            <th mat-header-cell mat-sort-header class="text-center">Severity</th>
+            <th mat-header-cell mat-sort-header class="text-center">Occurrence</th>
+            <th mat-header-cell mat-sort-header class="text-center">Detection</th>
+            <th mat-header-cell mat-sort-header class="text-center">Risk Rating</th>
+            <th mat-header-cell mat-sort-header class="text-center">Rating</th>
+            <th mat-header-cell mat-sort-header class="text-center">PDCA Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let applicant of pagedCapaData">
+            <!-- 🔥 Conditionally hide delete button if user cannot delete 🔥 -->
+            <td class="text-center" style="width: 50px; min-width: 50px; max-width: 50px;" *ngIf="canDelete">
+              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)"><i class="fa fa-trash red"></i></a>
+            </td>
+
+            <!-- 🔥 Status Dropdown secured with [disabled]="!canUpdate" 🔥 -->
+            <td class="text-center">
+              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
+                [disabled]="!canUpdate" class="form-control">
+                <mat-option *ngFor="let status of capaStatusLookups" [value]="status.lookupId.toString()">
+                  {{ status.lookupName }}
+                </mat-option>
+              </mat-select>
+            </td>
+
+            <!-- 🔥 Resolved Checkbox secured with [disabled]="!canUpdate" 🔥 -->
+            <td class="text-center">
+              <mat-checkbox [checked]="applicant.resolved" [disabled]="!canUpdate"
+                (click)="!canUpdate ? $event.preventDefault() : null" (change)="onResolvedChange(applicant, $event)"
+                color="primary"></mat-checkbox>
+            </td>
+
+            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
+              {{ applicant.docs }}
+            </td>
+
+            <td class="text-link text-center">
+              <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']" [queryParams]="{ 
+                id: applicant.processAuditId, 
+                ref: applicant.auditReference, 
+                categoryId: applicant.processCategoryId, 
+                checklistId: applicant.checklistId 
+             }">
+                {{ applicant.reference }}
+              </a>
+            </td>
+            <td class="text-center">{{ applicant.actionSubject }}</td>
+            <td class="text-center">{{ applicant.supplierName }}</td>
+            <td class="text-center">{{ applicant.actionType }}</td>
             <td class="text-center">{{ applicant.processCategory }}</td>
             <td class="text-center">
               <mat-icon (click)="imageSource1(applicant.description)" matTooltip="{{ applicant.description }}"

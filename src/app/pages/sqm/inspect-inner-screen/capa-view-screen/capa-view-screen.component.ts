@@ -74,6 +74,7 @@ export class CapaViewScreenComponent implements OnInit {
           this.auditForm.disable();
           if (this.isSupplier) {
             this.auditForm.get('supplierRemarks')?.enable();
+            this.auditForm.get('correctiveActions')?.enable();
           }
         }
       }
@@ -259,6 +260,7 @@ export class CapaViewScreenComponent implements OnInit {
           this.auditForm.disable();
           if (this.isSupplier) {
             this.auditForm.get('supplierRemarks')?.enable();
+            this.auditForm.get('correctiveActions')?.enable();
           }
         }
       },
@@ -268,6 +270,7 @@ export class CapaViewScreenComponent implements OnInit {
           this.auditForm.disable();
           if (this.isSupplier) {
             this.auditForm.get('supplierRemarks')?.enable();
+            this.auditForm.get('correctiveActions')?.enable();
           }
         }
       }
@@ -323,8 +326,9 @@ export class CapaViewScreenComponent implements OnInit {
       // Pass mapped demerit value to the API (also keeping riskRating mapped just in case the backend wasn't updated)
       demerit: formDataValues.demerit || null,
       riskRating: formDataValues.demerit ? formDataValues.demerit.toString() : null,
-
       demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
+
+      // demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
 
       class: formDataValues.class || null,
       actionType: formDataValues.actionType || null,
