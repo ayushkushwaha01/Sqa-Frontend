@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
- 
+
 @Injectable({
   providedIn: 'root'
 })
 export class ManageUsersService {
 
   // Base API URL
-  apiUrl = environment.apiUrl; 
+  apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
   // ==========================================
   // ---------- ROLES API ENDPOINTS -----------
   // ==========================================
-  
+
   getAllRoles() {
     return this.http.get(this.apiUrl + 'RoleMasters/get-all');
   }
@@ -35,7 +35,7 @@ export class ManageUsersService {
   // ==========================================
   // ---------- USERS API ENDPOINTS -----------
   // ==========================================
-  
+
   getAllUsers() {
     return this.http.get(this.apiUrl + 'Users/get-all');
   }
@@ -63,7 +63,7 @@ export class ManageUsersService {
   // ==========================================
   // ---------- AUTHENTICATION ----------------
   // ==========================================
-   
+
   login(credentials: any) {
     return this.http.post(this.apiUrl + 'Auth/login', credentials);
   }
@@ -80,38 +80,48 @@ export class ManageUsersService {
   // ---------- SUPPLIERS API ENDPOINTS -------
   // ==========================================
 
-  getSuppliers() { 
-    return this.http.get(this.apiUrl + 'Suppliers/get-all'); 
+  getSuppliers() {
+    return this.http.get(this.apiUrl + 'Suppliers/get-all');
   }
-  
-  upsertSupplier(data: any) { 
-    return this.http.post(this.apiUrl + 'Suppliers/upsert', data); 
+
+  upsertSupplier(data: any) {
+    return this.http.post(this.apiUrl + 'Suppliers/upsert', data);
   }
-  
-  toggleSupplierStatus(id: number) { 
-    return this.http.post(this.apiUrl + `Suppliers/toggle-status/${id}`, {}); 
+
+  toggleSupplierStatus(id: number) {
+    return this.http.post(this.apiUrl + `Suppliers/toggle-status/${id}`, {});
   }
-  
-  deleteSupplier(id: number) { 
-    return this.http.post(this.apiUrl + `Suppliers/delete/${id}`, {}); 
+
+  deleteSupplier(id: number) {
+    return this.http.post(this.apiUrl + `Suppliers/delete/${id}`, {});
   }
-  
-  resetSupplierPassword(data: any) { 
-    return this.http.post(this.apiUrl + 'Suppliers/reset-password', data); 
+
+  resetSupplierPassword(data: any) {
+    return this.http.post(this.apiUrl + 'Suppliers/reset-password', data);
   }
 
   // ==========================================
   // ---------- LOCATION API ENDPOINTS --------
   // ==========================================
 
-  getStates() { 
-    return this.http.get(this.apiUrl + 'StateMasters/get-all-states'); 
-  }
-  
-  getCities() { 
-    return this.http.get(this.apiUrl + 'CityMasters/get-all-cities'); 
+  getStates() {
+    return this.http.get(this.apiUrl + 'StateMasters/get-all-states');
   }
 
+  getCities() {
+    return this.http.get(this.apiUrl + 'CityMasters/get-all-cities');
+  }
+
+
+  // Preference screen API endpoints
+  getPreferences() {
+    return this.http.get(this.apiUrl + 'Preference/get-preferences');
+  }
+  upsertPreference(data: any) { return this.http.post(this.apiUrl + 'Preference/upsert-preference', data); }
+  getEscalation() {
+    return this.http.get(this.apiUrl + 'Escalation/get-escalations');
+  }
+  upsertEscalation(data: any) { return this.http.post(this.apiUrl + 'Escalation/upsert-escalation', data); }
 
 
   // ==========================================

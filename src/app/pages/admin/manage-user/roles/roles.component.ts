@@ -34,9 +34,15 @@ export class RolesComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private api: ManageUsersService, // <-- Updated Service Injection
     private alertService: AlertService
-  ) {}
+  ) { }
 
   ngOnInit() {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.formInit();
     this.getAllData();
     this.setupFilterPredicate();
@@ -74,13 +80,13 @@ export class RolesComponent implements OnInit, AfterViewInit {
   setupFilterPredicate() {
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       const search = JSON.parse(filter);
-      
+
       const keyword = search.keyword.toLowerCase();
       const nameMatch = data.roleName?.toLowerCase().includes(keyword) || false;
       const keywordMatch = !keyword || nameMatch;
 
-      const statusMatch = (search.status === '' || search.status === null) || 
-                          (data.isActive === search.status);
+      const statusMatch = (search.status === '' || search.status === null) ||
+        (data.isActive === search.status);
 
       return keywordMatch && statusMatch;
     };
@@ -105,7 +111,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
       width: '600px',
       maxWidth: '100vw',
       height: 'auto',
-      data: item 
+      data: item
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -120,7 +126,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
       panelClass: 'no-padding-dialog',
       data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
-    
+
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
         this.api.deleteRole(item).subscribe({
@@ -139,7 +145,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
 
   // 5. STATUS TOGGLE
   toggleStatus(item: any) {
-    if(this.isActionDisabled(item.roleName)) return; 
+    if (this.isActionDisabled(item.roleName)) return;
 
     let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',

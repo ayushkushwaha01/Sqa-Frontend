@@ -146,11 +146,21 @@
           </label>
 
           <div class="col-sm-7">
-            <mat-select placeholder="Select Occurrence" class="form-control custom-mat-select"
+            <!-- <mat-select placeholder="Select Occurrence" class="form-control custom-mat-select"
               formControlName="occurrence">
 
               <mat-option *ngFor="let o of occurrenceOptions" [value]="o">
                 {{ o }}
+              </mat-option>
+
+            </mat-select> -->
+            <mat-select class="form-control custom-mat-select" placeholder="Select Occurrence"
+              formControlName="occurrenceId">
+
+              <mat-option *ngFor="let o of Occurrences" [value]="o.occurrenceId">
+
+                {{o.rating}} - {{o.subject}}
+
               </mat-option>
 
             </mat-select>
@@ -163,11 +173,21 @@
           </label>
 
           <div class="col-sm-7">
-            <mat-select placeholder="Select Detection" class="form-control custom-mat-select"
+            <!-- <mat-select placeholder="Select Detection" class="form-control custom-mat-select"
               formControlName="detection">
 
               <mat-option *ngFor="let d of detectionOptions" [value]="d">
                 {{ d }}
+              </mat-option>
+
+            </mat-select> -->
+            <mat-select class="form-control custom-mat-select" placeholder="Select Detection"
+              formControlName="detectionId">
+
+              <mat-option *ngFor="let d of detections" [value]="d.detectionId">
+
+                {{d.rating}} - {{d.subject}}
+
               </mat-option>
 
             </mat-select>
@@ -184,7 +204,7 @@
           </div>
         </div>
 
-        <div class="row form-group mt-3 align-items-center">
+        <!-- <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
             Risk Rating :
           </label>
@@ -199,7 +219,7 @@
 
             </mat-select>
           </div>
-        </div>
+        </div> -->
 
         <!-- <div class="row form-group mt-3 align-items-center">
 
@@ -281,6 +301,9 @@
 </textarea>
         </div> -->
 
+        <label class="control-label font-weight-bold mb-2">
+          Demerit :
+        </label>
         <div class="demerit-container d-flex">
 
           <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
@@ -305,10 +328,10 @@
         </div>
         <div class="form-group mt-3">
           <label class="control-label font-weight-bold mb-2">
-            Observations :
+            Auditor Remarks:
           </label>
 
-          <textarea rows="5" class="form-control" placeholder="Enter Observations..." formControlName="observations">
+          <textarea rows="5" class="form-control" placeholder="Enter Auditor Remarks..." formControlName="observations">
 </textarea>
         </div>
 
@@ -324,10 +347,10 @@
 
         <div class="form-group mt-4">
           <label class="control-label font-weight-bold mb-2">
-            Supplier Remarks :
+            Preventive Actions:
           </label>
 
-          <textarea rows="5" class="form-control" placeholder="Enter Supplier Remarks..."
+          <textarea rows="5" class="form-control" placeholder="Enter Preventive Actions..."
             formControlName="supplierRemarks">
 </textarea>
         </div>

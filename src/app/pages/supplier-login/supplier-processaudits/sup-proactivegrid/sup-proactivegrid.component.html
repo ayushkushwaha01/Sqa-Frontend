@@ -1,28 +1,18 @@
 <div class="active-audits-container">
   <div class="charts-row">
     <div class="chart-container">
-      <highcharts-chart
-        [Highcharts]="Highcharts"
-        [options]="auditScoreChartOptions"
-      ></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="auditScoreChartOptions"></highcharts-chart>
     </div>
   </div>
 
-  <div
-    style="
+  <div style="
       width: 100%;
       display: flex;
       justify-content: flex-end;
       margin-bottom: 10px;
-    "
-  >
-    <button
-      mat-raised-button
-      matTooltip="Filter"
-      style="background-color: black; color: white"
-      class="filter-hover me-2"
-      (click)="filterToggle = !filterToggle"
-    >
+    ">
+    <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
+      class="filter-hover me-2" (click)="filterToggle = !filterToggle">
       <mat-icon class="">filter_list</mat-icon> Filter
     </button>
     <!-- <button mat-raised-button style="background-color: black; color: white;" matTooltip="Grid View"
@@ -42,12 +32,7 @@
                   <b>Keyword:</b>
                 </div>
                 <div class="col-sm-8">
-                  <input
-                    type="text"
-                    formControlName="Keyword"
-                    class="form-control"
-                    placeholder="Search..."
-                  />
+                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search..." />
                 </div>
               </div>
               <div class="col-sm-4 row">
@@ -55,16 +40,8 @@
                   <b>Commodity:</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select
-                    placeholder="Select Commodity"
-                    class="form-control"
-                    formControlName="Commodity"
-                  >
-                    <mat-option
-                      *ngFor="let opt of uniqueCommodities"
-                      [value]="opt"
-                      >{{ opt }}</mat-option
-                    >
+                  <mat-select placeholder="Select Commodity" class="form-control" formControlName="Commodity">
+                    <mat-option *ngFor="let opt of uniqueCommodities" [value]="opt">{{ opt }}</mat-option>
                   </mat-select>
                 </div>
               </div>
@@ -73,16 +50,8 @@
                   <b>Stage:</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select
-                    placeholder="Select Stage"
-                    class="form-control"
-                    formControlName="Stage"
-                  >
-                    <mat-option
-                      *ngFor="let opt of uniqueStages"
-                      [value]="opt"
-                      >{{ opt }}</mat-option
-                    >
+                  <mat-select placeholder="Select Stage" class="form-control" formControlName="Stage">
+                    <mat-option *ngFor="let opt of uniqueStages" [value]="opt">{{ opt }}</mat-option>
                   </mat-select>
                 </div>
               </div>
@@ -94,16 +63,8 @@
                   <b>Auditor:</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select
-                    placeholder="Select Auditor"
-                    class="form-control"
-                    formControlName="Auditor"
-                  >
-                    <mat-option
-                      *ngFor="let opt of uniqueAuditors"
-                      [value]="opt"
-                      >{{ opt }}</mat-option
-                    >
+                  <mat-select placeholder="Select Auditor" class="form-control" formControlName="Auditor">
+                    <mat-option *ngFor="let opt of uniqueAuditors" [value]="opt">{{ opt }}</mat-option>
                   </mat-select>
                 </div>
               </div>
@@ -112,16 +73,8 @@
                   <b>State:</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select
-                    placeholder="Select State"
-                    class="form-control"
-                    formControlName="State"
-                  >
-                    <mat-option
-                      *ngFor="let opt of uniqueStates"
-                      [value]="opt"
-                      >{{ opt }}</mat-option
-                    >
+                  <mat-select placeholder="Select State" class="form-control" formControlName="State">
+                    <mat-option *ngFor="let opt of uniqueStates" [value]="opt">{{ opt }}</mat-option>
                   </mat-select>
                 </div>
               </div>
@@ -130,16 +83,8 @@
                   <b>City:</b>
                 </div>
                 <div class="col-sm-8">
-                  <mat-select
-                    placeholder="Select City"
-                    class="form-control"
-                    formControlName="City"
-                  >
-                    <mat-option
-                      *ngFor="let opt of uniqueCities"
-                      [value]="opt"
-                      >{{ opt }}</mat-option
-                    >
+                  <mat-select placeholder="Select City" class="form-control" formControlName="City">
+                    <mat-option *ngFor="let opt of uniqueCities" [value]="opt">{{ opt }}</mat-option>
                   </mat-select>
                 </div>
               </div>
@@ -151,8 +96,7 @@
                   <b>From Date:</b>
                 </div>
                 <div class="col-sm-8">
-                  <div
-                    style="
+                  <div style="
                       display: flex;
                       align-items: center;
                       border: 1px solid #ced4da;
@@ -160,13 +104,8 @@
                       height: 38px;
                       background-color: white;
                       overflow: hidden;
-                    "
-                  >
-                    <input
-                      matInput
-                      [matDatepicker]="fromPicker"
-                      formControlName="FromDate"
-                      placeholder="mm/dd/yyyy"
+                    ">
+                    <input matInput [matDatepicker]="fromPicker" formControlName="FromDate" placeholder="mm/dd/yyyy"
                       style="
                         border: none;
                         outline: none;
@@ -175,13 +114,8 @@
                         height: 100%;
                         font-size: 14px;
                         background: transparent;
-                      "
-                    />
-                    <mat-datepicker-toggle
-                      matSuffix
-                      [for]="fromPicker"
-                      style="flex-shrink: 0"
-                    ></mat-datepicker-toggle>
+                      " />
+                    <mat-datepicker-toggle matSuffix [for]="fromPicker" style="flex-shrink: 0"></mat-datepicker-toggle>
                     <mat-datepicker #fromPicker></mat-datepicker>
                   </div>
                 </div>
@@ -191,8 +125,7 @@
                   <b>To Date:</b>
                 </div>
                 <div class="col-sm-8">
-                  <div
-                    style="
+                  <div style="
                       display: flex;
                       align-items: center;
                       border: 1px solid #ced4da;
@@ -200,14 +133,8 @@
                       height: 38px;
                       background-color: white;
                       overflow: hidden;
-                    "
-                  >
-                    <input
-                      matInput
-                      [matDatepicker]="toPicker"
-                      formControlName="ToDate"
-                      placeholder="mm/dd/yyyy"
-                      style="
+                    ">
+                    <input matInput [matDatepicker]="toPicker" formControlName="ToDate" placeholder="mm/dd/yyyy" style="
                         border: none;
                         outline: none;
                         flex: 1;
@@ -215,35 +142,18 @@
                         height: 100%;
                         font-size: 14px;
                         background: transparent;
-                      "
-                    />
-                    <mat-datepicker-toggle
-                      matSuffix
-                      [for]="toPicker"
-                      style="flex-shrink: 0"
-                    ></mat-datepicker-toggle>
+                      " />
+                    <mat-datepicker-toggle matSuffix [for]="toPicker" style="flex-shrink: 0"></mat-datepicker-toggle>
                     <mat-datepicker #toPicker></mat-datepicker>
                   </div>
                 </div>
               </div>
               <div class="col-sm-4 row">
-                <div
-                  class="col-sm-12 d-flex align-items-center justify-content-end"
-                  style="height: 100%"
-                >
-                  <button
-                    mat-raised-button
-                    class="btn-default me-2"
-                    (click)="clearFilter()"
-                    style="margin-right: 10px"
-                  >
+                <div class="col-sm-12 d-flex align-items-center justify-content-end" style="height: 100%">
+                  <button mat-raised-button class="btn-default me-2" (click)="clearFilter()" style="margin-right: 10px">
                     <mat-icon>settings_backup_restore</mat-icon> Clear
                   </button>
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="filterData()"
-                  >
+                  <button mat-raised-button color="primary" (click)="filterData()">
                     <mat-icon>search</mat-icon> Search
                   </button>
                 </div>
@@ -281,19 +191,16 @@
           </td> -->
           <!-- Inside sup-proactivegrid.component.html -->
           <td class="text-link">
-            <a
-              [routerLink]="[
+            <a [routerLink]="[
                 '/app',
                 'sqm',
                 'process-inner-screen',
                 'process-audit-reference'
-              ]"
-              [queryParams]="{
+              ]" [queryParams]="{
                 id: audit.processAuditId,
                 ref: audit.ref,
                 role: 'supplier'
-              }"
-            >
+              }">
               <!-- 🔥 Added role: 'supplier' -->
               {{ audit.ref }}
             </a>
@@ -305,39 +212,29 @@
           <td>{{ audit.date }}</td>
           <td class="text-link text-center">{{ audit.action }}</td>
           <td class="text-link text-center">
-            <a
-              [routerLink]="['/app', 'sqm', 'process', 'audit-summary-report']"
-              [queryParams]="{ id: audit.processAuditId }"
-              style="
+            <a [routerLink]="['/app', 'sqm', 'process', 'audit-summary-report']"
+              [queryParams]="{ id: audit.processAuditId }" style="
                 font-weight: 600;
                 color: #1d4ed8;
                 text-decoration: underline;
                 cursor: pointer;
-              "
-            >
+              ">
               {{ audit.score }}
             </a>
           </td>
           <td class="text-center">
-            <span
-              class="status-badge"
-              [ngClass]="{
+            <span class="status-badge" [ngClass]="{
                 'status-open': audit.status === 'Open',
                 'status-progress': audit.status === 'In Progress',
                 'status-review': audit.status === 'Pending Review',
                 'status-completed': audit.status === 'Completed',
                 'status-closed': audit.status === 'Closed'
-              }"
-            >
+              }">
               {{ audit.status }}
             </span>
           </td>
           <td class="text-center">
-            <mat-checkbox
-              [checked]="audit.done"
-              (click)="onDoneClick($event, audit)"
-              color="primary"
-            >
+            <mat-checkbox [checked]="audit.done" (click)="onDoneClick($event, audit)" color="primary">
             </mat-checkbox>
           </td>
           <td class="text-center manage-icons">
@@ -348,12 +245,8 @@
       </tbody>
     </table>
 
-    <mat-paginator
-      [length]="auditData.length"
-      [pageSize]="5"
-      [pageSizeOptions]="[5, 10, 20]"
-      aria-label="Select page"
-    >
+    <mat-paginator [length]="auditData.length" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+      aria-label="Select page">
     </mat-paginator>
   </div>
 </div>

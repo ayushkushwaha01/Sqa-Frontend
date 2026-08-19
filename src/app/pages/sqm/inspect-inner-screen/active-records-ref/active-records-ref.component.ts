@@ -62,6 +62,12 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.isSupplier = localStorage.getItem('UserType') === 'Supplier';
     this.route.queryParams.subscribe(params => {
       this.currentInspectionId = Number(params['inspectionId']);
@@ -84,7 +90,7 @@ export class ActiveRecordsRefComponent implements OnInit {
     this.inspectionService.getInspectionParameters(this.currentInspectionId).subscribe({
       next: (res: any) => {
         if (res && res.success && res.data) {
-          
+
           this.categories = [];
           this.tableData = [];
           this.categoryMap = {};
@@ -106,8 +112,8 @@ export class ActiveRecordsRefComponent implements OnInit {
 
             // Map data for create/edit tracking mapping
             if (!this.categoryMap[catName]) {
-              const firstParam = categoryGroup.parameters && categoryGroup.parameters.length > 0 
-                                 ? categoryGroup.parameters[0] : null;
+              const firstParam = categoryGroup.parameters && categoryGroup.parameters.length > 0
+                ? categoryGroup.parameters[0] : null;
 
               this.categoryMap[catName] = {
                 partId: categoryGroup.partId || categoryGroup.PartId,
@@ -280,7 +286,7 @@ export class ActiveRecordsRefComponent implements OnInit {
                 this.tableData.splice(index, 1);
                 // Also optionally decrement the count inside the `this.categories` loop manually, 
                 // or just trigger `loadParameters()` to fetch fresh data.
-                this.loadParameters(); 
+                this.loadParameters();
                 this.alertService.createAlert("Parameter deleted successfully.");
               }
             } else {
@@ -309,7 +315,7 @@ export class ActiveRecordsRefComponent implements OnInit {
   }
 
   opennotes() { this.dialog.open(AuditrefRemarksPopComponent, { width: '500px', height: 'auto' }); }
-  
+
   openuploadpop(item: any) {
     this.dialog.open(UploadListComponent, {
       width: '600px',
@@ -317,7 +323,7 @@ export class ActiveRecordsRefComponent implements OnInit {
       data: { id: item.id }
     });
   }
-  
+
   opensamplepop() { this.dialog.open(SamplePopComponent, { width: '700px', height: 'auto' }); }
 
   uploadstages(item: any) {

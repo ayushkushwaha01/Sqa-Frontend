@@ -24,25 +24,31 @@ export class LookupComponent implements OnInit {
   pageSizeOptions: number[] = [5, 10, 25, 50, 100];
 
   constructor(
-    public dialog: MatDialog, 
-    private api: LookupService, 
+    public dialog: MatDialog,
+    private api: LookupService,
     private alertService: AlertService
   ) { }
 
   ngOnInit() {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.getCodeMasters();
     this.getLookups();
   }
 
   getCodeMasters() {
     this.api.getCodeMasters().subscribe((res: any) => {
-      if(res.success) this.codeMasters = res.data;
+      if (res.success) this.codeMasters = res.data;
     });
   }
 
   getLookups() {
     this.api.getLookups().subscribe((res: any) => {
-      if(res.success) {
+      if (res.success) {
         this.tableData = (res.data || []).sort((a: any, b: any) => (b.lookupId || 0) - (a.lookupId || 0));
         this.filterTable(); // Apply initial filter if any
       }
@@ -87,7 +93,7 @@ export class LookupComponent implements OnInit {
       width: '600px',
       disableClose: true
     });
-    dialogRef.afterClosed().subscribe(res => { if(res) this.getLookups(); });
+    dialogRef.afterClosed().subscribe(res => { if (res) this.getLookups(); });
   }
 
   toggleStatus(item: any) {

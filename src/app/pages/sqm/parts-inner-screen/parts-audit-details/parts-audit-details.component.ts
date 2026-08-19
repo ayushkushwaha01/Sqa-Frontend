@@ -1,3 +1,4 @@
+import { OccurrenceMasterComponent } from './../../parts-audits/parts-setup/occurrence-master/occurrence-master.component';
 import { Location } from '@angular/common';
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -58,6 +59,8 @@ export class PartsAuditDetailsComponent implements OnInit {
       this.getSeverities();
       this.getCapa();
       this.getDemeritMaster();
+      this.getOccurrences();
+      this.getDetections();
 
 
 
@@ -147,6 +150,30 @@ export class PartsAuditDetailsComponent implements OnInit {
       });
   }
 
+  Occurrences: any[] = [];
+  getOccurrences() {
+    this.setupService.getOccurrence()
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.Occurrences = res.data;
+
+        }
+      });
+  }
+  detections: any[] = [];
+  getDetections() {
+    this.setupService.getDetection()
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.detections = res.data;
+
+        }
+      });
+  }
+
+
   initForm(): void {
 
     this.auditForm = this.fb.group({
@@ -189,6 +216,9 @@ export class PartsAuditDetailsComponent implements OnInit {
 
       supplierRemarks: [''],
       demeritId: [null],
+      occurrenceId: [null],
+      detectionId: [null]
+
 
     });
 
@@ -241,28 +271,28 @@ export class PartsAuditDetailsComponent implements OnInit {
   }
 
   selectedPdfFiles: File[] = [];
- onPdfSelected(event: any) {
+  onPdfSelected(event: any) {
 
-  if (event.target.files && event.target.files.length > 0) {
+    if (event.target.files && event.target.files.length > 0) {
 
-    const files = Array.from(event.target.files) as File[];
+      const files = Array.from(event.target.files) as File[];
 
-    files.forEach(file => {
+      files.forEach(file => {
 
-      this.selectedPdfFiles.push(file);
+        this.selectedPdfFiles.push(file);
 
-      // show immediately in the grid, no docId yet since it's unsaved
-      this.documents.push({
-        docId: null,
-        docTitlte: file.name,
-        _file: file
+        // show immediately in the grid, no docId yet since it's unsaved
+        this.documents.push({
+          docId: null,
+          docTitlte: file.name,
+          _file: file
+        });
+
       });
 
-    });
+    }
 
   }
-
-}
 
   uploadDocuments() {
 
@@ -300,39 +330,39 @@ export class PartsAuditDetailsComponent implements OnInit {
   selectedImageFiles: File[] = [];
   //images: string[] = [];
 
- onFileSelected(event: any) {
+  onFileSelected(event: any) {
 
-  if (event.target.files && event.target.files.length > 0) {
+    if (event.target.files && event.target.files.length > 0) {
 
-    const files = Array.from(event.target.files) as File[];
+      const files = Array.from(event.target.files) as File[];
 
-    files.forEach(file => {
+      files.forEach(file => {
 
-      this.selectedImageFiles.push(file);
+        this.selectedImageFiles.push(file);
 
-      const reader = new FileReader();
+        const reader = new FileReader();
 
-      reader.onload = () => {
+        reader.onload = () => {
 
-        const base64 = reader.result as string;
+          const base64 = reader.result as string;
 
-        this.images.push(base64);
+          this.images.push(base64);
 
-        // keep imageDetails in sync with images by index
-        this.imageDetails.push({
-          imageId: null,
-          imageurl: base64
-        });
+          // keep imageDetails in sync with images by index
+          this.imageDetails.push({
+            imageId: null,
+            imageurl: base64
+          });
 
-      };
+        };
 
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
 
-    });
+      });
+
+    }
 
   }
-
-}
 
   uploadImages() {
 
@@ -371,33 +401,57 @@ export class PartsAuditDetailsComponent implements OnInit {
       this.calculateSodScore();
     });
 
-    this.auditForm.get('occurrence')?.valueChanges.subscribe(() => {
+    this.auditForm.get('occurrenceId')?.valueChanges.subscribe(() => {
       this.calculateSodScore();
     });
 
-    this.auditForm.get('detection')?.valueChanges.subscribe(() => {
+    this.auditForm.get('detectionId')?.valueChanges.subscribe(() => {
       this.calculateSodScore();
     });
 
   }
-  calculateSodScore() {
+  calculateSodScore(): void {
 
     const severityId = this.auditForm.get('severityId')?.value;
-    const occurrence = this.auditForm.get('occurrence')?.value ?? '';
-    const detection = this.auditForm.get('detection')?.value ?? '';
+    const occurrenceId = this.auditForm.get('occurrenceId')?.value;
+    const detectionId = this.auditForm.get('detectionId')?.value;
 
-    const severity = this.severities.find(x => x.severityId == severityId);
-
-    const severityRating = severity?.rating ?? '';
-
-    const sodScore = `${severityRating}${occurrence}${detection}`;
-
-    this.auditForm.patchValue(
-      {
-        sodScore: sodScore
-      },
-      { emitEvent: false }
+    const severity = this.severities.find(
+      (x: any) => x.severityId === severityId
     );
+
+    const occurrence = this.Occurrences.find(
+      (x: any) => x.occurrenceId === occurrenceId
+    );
+
+    const detection = this.detections.find(
+      (x: any) => x.detectionId === detectionId
+    );
+
+    const severityRating = severity?.rating;
+    const occurrenceRating = occurrence?.rating;
+    const detectionRating = detection?.rating;
+
+    if (
+      severityRating != null &&
+      occurrenceRating != null &&
+      detectionRating != null
+    ) {
+
+      const sodScore =
+        `${severityRating}${occurrenceRating}${detectionRating}`;
+
+      this.auditForm.patchValue({
+        sodScore: sodScore
+      });
+
+    } else {
+
+      this.auditForm.patchValue({
+        sodScore: null
+      });
+
+    }
   }
 
 
@@ -448,7 +502,9 @@ export class PartsAuditDetailsComponent implements OnInit {
           observations: capa.observations,
           correctiveActions: capa.correctiveActions,
           supplierRemarks: capa.supplierRemarks,
-          demeritId: capa.demeritId
+          demeritId: capa.demeritId,
+          occurrenceId: capa.occurrenceId,
+          detectionId: capa.detectionId
 
         });
 
@@ -581,167 +637,167 @@ export class PartsAuditDetailsComponent implements OnInit {
     }
   }
 
- deleteDocConfirmation(doc: any) {
+  deleteDocConfirmation(doc: any) {
 
-  // Not yet saved (no docId) - just remove locally, no API call
-  if (!doc?.docId) {
+    // Not yet saved (no docId) - just remove locally, no API call
+    if (!doc?.docId) {
 
-    this.documents = this.documents.filter((x: any) => x !== doc);
+      this.documents = this.documents.filter((x: any) => x !== doc);
 
-    const fileIndex = this.selectedPdfFiles.indexOf(doc._file);
+      const fileIndex = this.selectedPdfFiles.indexOf(doc._file);
 
-    if (fileIndex > -1) {
-      this.selectedPdfFiles.splice(fileIndex, 1);
-    }
-
-    return;
-
-  }
-
-  // Already saved - confirm and call delete API
-  const dialogRef = this.dialog.open(
-    ConfirmationDialogComponent,
-    {
-      width: 'auto',
-      data: {
-        component: null,
-        title: 'Delete Confirmation',
-        content: 'Are you sure you want to delete this document?',
-        isConfirmation: true
+      if (fileIndex > -1) {
+        this.selectedPdfFiles.splice(fileIndex, 1);
       }
-    }
-  );
 
-  dialogRef.afterClosed().subscribe((confirmed: any) => {
-
-    if (!confirmed) {
       return;
+
     }
 
-    const payload = {
-      docId: doc.docId
-    };
+    // Already saved - confirm and call delete API
+    const dialogRef = this.dialog.open(
+      ConfirmationDialogComponent,
+      {
+        width: 'auto',
+        data: {
+          component: null,
+          title: 'Delete Confirmation',
+          content: 'Are you sure you want to delete this document?',
+          isConfirmation: true
+        }
+      }
+    );
 
-    this.partAuditService.deleteDoc(payload).subscribe({
+    dialogRef.afterClosed().subscribe((confirmed: any) => {
 
-      next: (res: any) => {
+      if (!confirmed) {
+        return;
+      }
 
-        if (res.success) {
+      const payload = {
+        docId: doc.docId
+      };
+
+      this.partAuditService.deleteDoc(payload).subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(
+              res.message || 'Document deleted successfully',
+              1
+            );
+
+            this.documents = this.documents.filter(
+              (x: any) => x.docId !== doc.docId
+            );
+
+          } else {
+
+            this.alertService.createAlert(
+              res.message || 'Failed to delete document',
+              0
+            );
+
+          }
+
+        },
+
+        error: () => {
 
           this.alertService.createAlert(
-            res.message || 'Document deleted successfully',
-            1
-          );
-
-          this.documents = this.documents.filter(
-            (x: any) => x.docId !== doc.docId
-          );
-
-        } else {
-
-          this.alertService.createAlert(
-            res.message || 'Failed to delete document',
+            'Failed to delete document',
             0
           );
 
         }
 
-      },
-
-      error: () => {
-
-        this.alertService.createAlert(
-          'Failed to delete document',
-          0
-        );
-
-      }
+      });
 
     });
 
-  });
-
-}
-deleteImageConfirmation(index: number) {
-
-  const image = this.imageDetails[index];
-
-  // Not yet saved (no imageId) - just remove locally, no API call
-  if (!image?.imageId) {
-
-    this.imageDetails.splice(index, 1);
-    this.images.splice(index, 1);
-
-    return;
-
   }
+  deleteImageConfirmation(index: number) {
 
-  // Already saved - confirm and call delete API
-  const dialogRef = this.dialog.open(
-    ConfirmationDialogComponent,
-    {
-      width: 'auto',
-      data: {
-        component: null,
-        title: 'Delete Confirmation',
-        content: 'Are you sure you want to delete this image?',
-        isConfirmation: true
-      }
-    }
-  );
+    const image = this.imageDetails[index];
 
-  dialogRef.afterClosed().subscribe((confirmed: any) => {
+    // Not yet saved (no imageId) - just remove locally, no API call
+    if (!image?.imageId) {
 
-    if (!confirmed) {
+      this.imageDetails.splice(index, 1);
+      this.images.splice(index, 1);
+
       return;
+
     }
 
-    const payload = {
-      imageId: image.imageId
-    };
+    // Already saved - confirm and call delete API
+    const dialogRef = this.dialog.open(
+      ConfirmationDialogComponent,
+      {
+        width: 'auto',
+        data: {
+          component: null,
+          title: 'Delete Confirmation',
+          content: 'Are you sure you want to delete this image?',
+          isConfirmation: true
+        }
+      }
+    );
 
-    this.partAuditService.deleteImage(payload).subscribe({
+    dialogRef.afterClosed().subscribe((confirmed: any) => {
 
-      next: (res: any) => {
+      if (!confirmed) {
+        return;
+      }
 
-        if (res.success) {
+      const payload = {
+        imageId: image.imageId
+      };
+
+      this.partAuditService.deleteImage(payload).subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+
+            this.alertService.createAlert(
+              res.message || 'Image deleted successfully',
+              1
+            );
+
+            this.imageDetails = this.imageDetails.filter(
+              (x: any) => x.imageId !== image.imageId
+            );
+
+            this.images = this.imageDetails.map(
+              (x: any) => x.imageurl
+            );
+
+          } else {
+
+            this.alertService.createAlert(
+              res.message || 'Failed to delete image',
+              0
+            );
+
+          }
+
+        },
+
+        error: () => {
 
           this.alertService.createAlert(
-            res.message || 'Image deleted successfully',
-            1
-          );
-
-          this.imageDetails = this.imageDetails.filter(
-            (x: any) => x.imageId !== image.imageId
-          );
-
-          this.images = this.imageDetails.map(
-            (x: any) => x.imageurl
-          );
-
-        } else {
-
-          this.alertService.createAlert(
-            res.message || 'Failed to delete image',
+            'Failed to delete image',
             0
           );
 
         }
 
-      },
-
-      error: () => {
-
-        this.alertService.createAlert(
-          'Failed to delete image',
-          0
-        );
-
-      }
+      });
 
     });
 
-  });
-
-}
+  }
 }

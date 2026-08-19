@@ -41,6 +41,8 @@ import { PartsParameterComponent } from './parts-master/parts-parameter/parts-pa
 import { AddParameterforpartmasterComponent } from './parts-master/add-parameterforpartmaster/add-parameterforpartmaster.component';
 import { BandMasterComponent } from './band-master/band-master.component';
 import { DemeritMasterComponent } from './demerit-master/demerit-master.component';
+import { OccurrenceMasterComponent } from './occurrence-master/occurrence-master.component';
+import { DetectionMasterComponent } from './detection-master/detection-master.component';
 
 // ❌ REMOVED AuditCategoriesComponent, AddPartCategoryComponent, and PartsauditcatInnergridComponent imports from here
 
@@ -74,6 +76,9 @@ const routes: Routes = [
       { path: 'parts-parameter', component: PartsParameterComponent, data: { breadcrumb: 'Parts Parameter' } },
       { path: 'bandmaster', component: BandMasterComponent, data: { breadcrumb: 'Vendor Rating', description: 'Configure vendor rating master data.' } },
       { path: 'demerit-master', component: DemeritMasterComponent, data: { breadcrumb: 'Demerit', description: 'Configure demerit master data.' } },
+      { path: 'occurrence-master', component: OccurrenceMasterComponent, data: { breadcrumb: 'Occurrence', description: 'Configure occurrence master data.' } },
+      { path: 'detection-master', component: DetectionMasterComponent, data: { breadcrumb: 'Detection', description: 'Configure detection master data.' } },
+
     ]
   }
 ];
@@ -106,7 +111,9 @@ const routes: Routes = [
     PartsParameterComponent,
     AddParameterforpartmasterComponent,
     BandMasterComponent,
-    DemeritMasterComponent
+    DemeritMasterComponent,
+    OccurrenceMasterComponent,
+    DetectionMasterComponent
 
   ],
   imports: [

@@ -2,7 +2,7 @@ import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
- import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AlertService } from 'src/app/shared/alert.service';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -47,6 +47,11 @@ export class FamiliesInnerGridComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.route.queryParams.subscribe(params => {
       this.partFamilyId = Number(params['partFamilyId']);
       console.log(this.partFamilyId, 'familyId');

@@ -34,6 +34,11 @@ export class PartsCompletedAuditsComponent implements OnInit {
   pageSize: number = 20;
   tableLists: any[] = [];
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.fomrInit();
 
     this.getPartsAuidt();

@@ -37,6 +37,12 @@ export class PartsMasterComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.formInit();
     this.getCommodities();
     this.getPartsMasters();

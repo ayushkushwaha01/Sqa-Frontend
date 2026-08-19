@@ -18,7 +18,7 @@ export class MdataDeptsComponent implements OnInit {
   uniqueDeptCodes: string[] = []; // For the Department Code dropdown
 
   filterToggle: boolean = false;
-  
+
   // Filter Models
   filterKeyword: string = '';
   filterStatus: boolean | null = null;
@@ -40,6 +40,12 @@ export class MdataDeptsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.getDepartments();
   }
 
@@ -47,10 +53,10 @@ export class MdataDeptsComponent implements OnInit {
     this.departmentService.getAllDepartments().subscribe((response: any) => {
       if (response && response.success) {
         this.allDepartments = response.data;
-        
+
         // Extract unique department codes for the filter dropdown
         this.uniqueDeptCodes = [...new Set(this.allDepartments.map(item => item.departmentCode))].filter(Boolean);
-        
+
         // Apply filters initially to load the grid and pagination
         this.applyFilters();
       }
@@ -88,7 +94,7 @@ export class MdataDeptsComponent implements OnInit {
 
     // Reset pagination to first page after search
     this.totalSize = this.filteredDepartments.length;
-    this.currentPage = 0; 
+    this.currentPage = 0;
     this.updatePagination();
   }
 
@@ -115,11 +121,11 @@ export class MdataDeptsComponent implements OnInit {
   // --- CRUD OPERATIONS ---
   addmodule(item: any) {
     let dialogRef = this.dialog.open(AddAgencyAuditComponent, {
-      data: item, 
+      data: item,
       height: 'auto',
       width: '600px',
     });
-    
+
     dialogRef.afterClosed().subscribe((res: any) => {
       if (res === 'success') {
         this.getDepartments();
@@ -138,7 +144,7 @@ export class MdataDeptsComponent implements OnInit {
         const payload = { departmentId: item.departmentId };
         this.departmentService.toggleDepartmentStatus(payload).subscribe((apiRes: any) => {
           if (apiRes.success) {
-            this.getDepartments(); 
+            this.getDepartments();
           }
         });
       }
@@ -148,19 +154,19 @@ export class MdataDeptsComponent implements OnInit {
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
-      data: { 
-        title: 'Delete Confirmation', 
-        content: `Are you sure you want to delete the department: ${item.departmentName}?` 
+      data: {
+        title: 'Delete Confirmation',
+        content: `Are you sure you want to delete the department: ${item.departmentName}?`
       }
     });
 
     dialogRef.afterClosed().subscribe(res => {
-      if (res) { 
+      if (res) {
         const payload = { departmentId: item.departmentId, deletedBy: 1 };
-        
+
         this.departmentService.deleteDepartment(payload).subscribe((apiRes: any) => {
           if (apiRes.success) {
-            this.getDepartments(); 
+            this.getDepartments();
           } else {
             alert(apiRes.message || "Failed to delete department.");
           }

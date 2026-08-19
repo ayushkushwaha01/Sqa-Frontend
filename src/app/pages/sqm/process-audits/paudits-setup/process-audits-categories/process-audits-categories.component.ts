@@ -5,37 +5,54 @@ import { ProcessAuditService } from '../process-audit.service';
 import { AlertService } from '../../../../../shared/alert.service';
 import { ConfirmationDialogComponent } from '../../../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from '../../../../../status-change/status-change.component';
- 
+
 @Component({
   selector: 'app-process-audits-categories',
   templateUrl: './process-audits-categories.component.html',
   styleUrls: ['./process-audits-categories.component.scss']
 })
 export class ProcessAuditsCategoriesComponent implements OnInit {
-  showFilters: boolean = false; 
+  showFilters: boolean = false;
   tableData: any[] = [];
   originalTableData: any[] = [];
   selectedCategory: string = '';
   selectedStatus: string = '';
 
+  currentPage: number = 0;
+  pageSize: number = 20;
+  fromIndex: number = 0;
+
+  totalSize: number = 0;
+  filteredTableData: any[] = [];
+
+
   constructor(
-    private dialog: MatDialog, 
+    private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.getCategories();
   }
 
   getCategories(): void {
     this.api.getCategories().subscribe((res: any) => {
+
       if (res.success) {
-        this.originalTableData = res.data;
+
+        this.originalTableData = res.data || [];
+
         this.applyFilter();
       }
     });
   }
+
 
   onSearch(): void {
     this.applyFilter();
@@ -48,22 +65,56 @@ export class ProcessAuditsCategoriesComponent implements OnInit {
   }
 
   applyFilter(): void {
+
     let filtered = [...this.originalTableData];
 
     if (this.selectedCategory) {
+
       const keyword = this.selectedCategory.trim().toLowerCase();
-      filtered = filtered.filter(item => 
+
+      filtered = filtered.filter(item =>
         (item.name && item.name.toLowerCase().includes(keyword)) ||
         (item.code && item.code.toLowerCase().includes(keyword))
       );
     }
 
     if (this.selectedStatus) {
+
       const isActiveFilter = this.selectedStatus === 'Active';
-      filtered = filtered.filter(item => item.isActive === isActiveFilter);
+
+      filtered = filtered.filter(item =>
+        item.isActive === isActiveFilter
+      );
     }
 
-    this.tableData = filtered;
+    // Store filtered records separately
+    this.filteredTableData = filtered;
+
+    // Total filtered records
+    this.totalSize = this.filteredTableData.length;
+
+    // Go back to first page after filtering
+    this.currentPage = 0;
+
+    // Load first page
+    this.loadPageData();
+  }
+  loadPageData(): void {
+
+    this.fromIndex = this.currentPage * this.pageSize;
+
+    this.tableData = this.filteredTableData.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+  }
+  fnHandlePage(event: any): void {
+
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+
+
+    this.loadPageData();
   }
 
   addCategory(item: any): void {

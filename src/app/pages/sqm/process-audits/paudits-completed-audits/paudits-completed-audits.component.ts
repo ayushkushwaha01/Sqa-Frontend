@@ -130,13 +130,13 @@ export class PauditsCompletedAuditsComponent implements OnInit {
 
   get uniqueCommodities() { return [...new Set(this.originalAuditData.map(a => a.commodityName).filter(Boolean))].sort(); }
   get uniqueStates() { return [...new Set(this.originalAuditData.map(a => a.stateName).filter(Boolean))].sort(); }
-  get uniqueCities() { 
+  get uniqueCities() {
     const selectedState = this.filterForm?.value?.State;
     let data = this.originalAuditData;
     if (selectedState) {
       data = data.filter(a => a.stateName === selectedState);
     }
-    return [...new Set(data.map(a => a.cityName).filter(Boolean))].sort(); 
+    return [...new Set(data.map(a => a.cityName).filter(Boolean))].sort();
   }
   get uniqueSuppliers() { return [...new Set(this.originalAuditData.map(a => a.supplierName).filter(Boolean))].sort(); }
   get uniqueStages() { return [...new Set(this.originalAuditData.map(a => a.stageName).filter(Boolean))].sort(); }
@@ -148,11 +148,11 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   }
 
   constructor(
-    private dialog: MatDialog, 
+    private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService, // 🔥 Injected AlertService
     private fb: FormBuilder
-  ) { 
+  ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
       Status: [null],
@@ -168,6 +168,11 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
 
     //   1. Load Permissions
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
@@ -195,11 +200,11 @@ export class PauditsCompletedAuditsComponent implements OnInit {
         this.completedAuditData = res.data.filter((a: any) => a.isDone === true);
         this.originalAuditData = [...this.completedAuditData];
         this.filteredAuditData = [...this.completedAuditData];
-        
+
         // If the current page becomes empty after unticking an item, go back one page
         const maxPage = Math.ceil(this.filteredAuditData.length / this.pageSize) - 1;
         if (this.pageIndex > maxPage && this.pageIndex > 0) {
-           this.pageIndex = maxPage;
+          this.pageIndex = maxPage;
         }
 
         this.updateCharts();
@@ -254,7 +259,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       width: '650px',
       height: 'auto',
       maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog' 
+      panelClass: 'no-scroll-dialog'
     });
   }
 
@@ -284,7 +289,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       let matchesDate = true;
 
       if (keyword) {
-        matchesKeyword = 
+        matchesKeyword =
           (item.auditReference && item.auditReference.toLowerCase().includes(keyword)) ||
           (item.supplierName && item.supplierName.toLowerCase().includes(keyword)) ||
           (item.auditorName && item.auditorName.toLowerCase().includes(keyword)) ||
@@ -303,7 +308,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
       if (fromDate || toDate) {
         const auditDate = new Date(item.auditDate);
         auditDate.setHours(0, 0, 0, 0); // normalize time
-        
+
         if (fromDate) {
           const start = new Date(fromDate);
           start.setHours(0, 0, 0, 0);
@@ -362,12 +367,12 @@ export class PauditsCompletedAuditsComponent implements OnInit {
               );
               this.loadData(); // 🔥 Refresh data to instantly remove it from this grid
             } else {
-              audit.isDone = !audit.isDone; 
+              audit.isDone = !audit.isDone;
               this.alertService.createAlert(res.message || 'Failed to update', 0);
             }
           },
           error: () => {
-            audit.isDone = !audit.isDone; 
+            audit.isDone = !audit.isDone;
             this.alertService.createAlert('Error updating audit', 0);
           }
         });
@@ -380,7 +385,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
   }
-  
+
   scrollLeft() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: -300, behavior: 'smooth' });

@@ -49,7 +49,7 @@ export class SupProactivegridComponent implements OnInit {
     private api: ProcessAuditService,
     private alertService: AlertService,
     private fb: FormBuilder
-  ) { 
+  ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
       Commodity: [''],
@@ -62,8 +62,14 @@ export class SupProactivegridComponent implements OnInit {
       ToDate: ['']
     });
   }
+  pageSize: number = 20;
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.loadLookups();
   }
 
@@ -102,7 +108,7 @@ export class SupProactivegridComponent implements OnInit {
             auditDateObj: new Date(item.auditDate)
           };
         });
-        
+
         // Extract unique values for filters
         this.uniqueCommodities = [...new Set(this.originalAuditData.map(a => a.commodity).filter(Boolean))];
         this.uniqueSuppliers = [...new Set(this.originalAuditData.map(a => a.supplier).filter(Boolean))];
@@ -129,7 +135,7 @@ export class SupProactivegridComponent implements OnInit {
       series: [{ type: 'column', name: 'Audit Score', data: scores, color: '#2b6ca3' }]
     };
   }
-  
+
   filterData() {
     const filters = this.filterForm.value;
     const kw = (filters.Keyword || '').toLowerCase();
@@ -161,7 +167,7 @@ export class SupProactivegridComponent implements OnInit {
 
       return isMatch;
     });
-    
+
     // Reset pagination to first page on filter
     if (this.paginator) {
       this.paginator.firstPage();
@@ -173,7 +179,7 @@ export class SupProactivegridComponent implements OnInit {
   clearFilter() {
     this.filterForm.reset();
     this.auditData = [...this.originalAuditData];
-    
+
     // Reset pagination to first page on clear
     if (this.paginator) {
       this.paginator.firstPage();
@@ -208,7 +214,7 @@ export class SupProactivegridComponent implements OnInit {
   openscorepdf(fileName: string): void { window.open(`assets/${fileName}`, '_blank'); }
 
   onDoneClick(event: MouseEvent, audit: any): void {
-    event.preventDefault(); 
+    event.preventDefault();
     this.alertService.createAlert('Suppliers cannot modify the Done status.', 0);
   }
 }

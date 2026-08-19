@@ -97,15 +97,20 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.loadData();
   }
 
-loadData() {
+  loadData() {
     this.inspectionService.getAllInspections().subscribe({
       next: (res: any) => {
         if (res && res.success) {
           this.allMockData = res.data.map((item: any) => {
-            
+
             // Safely parse the "50%" string into a number (50) for the PPM calculation
             const rawErrorRateStr = (item.errorRate ?? item.ErrorRate) || '0';
             const parsedErrorRate = parseFloat(rawErrorRateStr.toString().replace('%', ''));
@@ -135,13 +140,13 @@ loadData() {
               BatchNumber: item.batchNumber || item.BatchNumber || '-',
               BatchQuantity: item.batchQuantity || item.BatchQuantity || 0,
               SampleQuantity: item.sampleQuantity || item.SampleQuantity || 0,
-              
+
               // Ensure percentage formatting is kept for the Pct column
               ErrorRatePct: rawErrorRateStr.toString().includes('%') ? rawErrorRateStr : `${rawErrorRateStr}%`,
-              
+
               // Calculate PPM by multiplying the parsed number by 1000
               ErrorRatePPM: isNaN(parsedErrorRate) ? 0 : (parsedErrorRate * 1000),
-              
+
               stage: item.stageName || item.StageName || 'Unassigned'
             };
           });

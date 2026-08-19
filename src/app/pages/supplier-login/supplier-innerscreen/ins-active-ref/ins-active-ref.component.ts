@@ -19,7 +19,7 @@ export class InsActiveRefComponent implements OnInit {
 
 
   @ViewChild('tableContainer') tableContainer!: ElementRef;
-  
+
   // Variables to hold the dynamic data from the route
   currentReference: string = '';
   currentPartFamily: string = '';
@@ -39,7 +39,7 @@ export class InsActiveRefComponent implements OnInit {
   pageSize = 10;
   pageIndex = 0;
   pagedData: any[] = [];
-  
+
   // Single array of Supplier Quality Inspection Parameters
   // Note: The initial partName and partFamily values here will be overwritten dynamically
   tableData: any[] = [
@@ -56,12 +56,18 @@ export class InsActiveRefComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     // Read the query parameters passed from the main grid
     this.route.queryParams.subscribe(params => {
       if (params['reference']) {
         this.currentReference = params['reference'];
       }
-      
+
       if (params['partFamily'] && params['partName']) {
         this.currentPartFamily = params['partFamily'];
         this.currentPartName = params['partName'];
@@ -74,7 +80,7 @@ export class InsActiveRefComponent implements OnInit {
           partName: this.currentPartName
         }));
       }
-      
+
       // Load the paginated data after applying the updates
       this.updatePage();
     });
@@ -97,7 +103,7 @@ export class InsActiveRefComponent implements OnInit {
       height: 'auto',
       width: '850px'
     });
-    dialogRef.afterClosed().subscribe(data => {});
+    dialogRef.afterClosed().subscribe(data => { });
   }
 
   editParameter(item: any) {
@@ -127,10 +133,10 @@ export class InsActiveRefComponent implements OnInit {
 
   deleteParameter(item: any): void {
     const confirmDelete = window.confirm('Are you sure you want to delete?');
-    
+
     if (confirmDelete) {
       const index = this.tableData.indexOf(item);
-      
+
       if (index > -1) {
         this.tableData.splice(index, 1);
         this.updatePage();
@@ -142,7 +148,7 @@ export class InsActiveRefComponent implements OnInit {
     if (this.tableContainer) {
       const container = this.tableContainer.nativeElement;
       const scrollAmount = 400; // Number of pixels to scroll per click. Adjust if needed.
-      
+
       if (direction === 'left') {
         container.scrollLeft -= scrollAmount;
       } else {
@@ -165,9 +171,8 @@ export class InsActiveRefComponent implements OnInit {
     });
   }
 
-  opensamplepop()
-  {
-      this.dialog.open(SamplePopComponent, {
+  opensamplepop() {
+    this.dialog.open(SamplePopComponent, {
       width: '700px',
       height: 'auto'
     });

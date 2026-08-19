@@ -253,7 +253,7 @@ import { UserPermissionService } from 'src/app/pages/helpers/user-permission.ser
   styleUrls: ['./paudits-actions.component.scss']
 })
 export class PauditsActionsComponent implements OnInit {
-  
+
   filterToggle: boolean = false;
   totalSize = 0;
   myGroup!: FormGroup;
@@ -288,7 +288,7 @@ export class PauditsActionsComponent implements OnInit {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
   }
-  
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
@@ -296,7 +296,7 @@ export class PauditsActionsComponent implements OnInit {
     private api: ProcessAuditService,
     private alertService: AlertService
   ) { }
-  
+
   ngOnInit(): void {
     // 🔥 Load Permissions (check both numeric ID 15 and string name 'CAPA')
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID) || UserPermissionService.fnGetReadPermissions('CAPA');
@@ -354,7 +354,7 @@ export class PauditsActionsComponent implements OnInit {
       Status: item.status != null ? item.status.toString() : null, 
       IsResolved: item.resolved 
     };
-    
+
     this.api.updateCapaStatus(payload).subscribe((res: any) => {
       if (res.success) {
         this.alertService.createAlert('Status updated successfully', 1);
@@ -374,7 +374,7 @@ export class PauditsActionsComponent implements OnInit {
       Status: item.status != null ? item.status.toString() : null, 
       IsResolved: item.resolved 
     };
-    
+
     this.api.updateCapaStatus(payload).subscribe((res: any) => {
       if (res.success) {
         this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
@@ -386,7 +386,7 @@ export class PauditsActionsComponent implements OnInit {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
   }
-  
+
   scrollLeft() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
@@ -427,7 +427,7 @@ export class PauditsActionsComponent implements OnInit {
       width: 'auto',
       data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete this CAPA?' }
     });
-    
+
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.api.deleteCapa({ CapaId: item.capaId }).subscribe((res: any) => {
@@ -442,7 +442,7 @@ export class PauditsActionsComponent implements OnInit {
     });
   }
 
-  go() { 
+  go() {
     const filters = this.myGroup.value;
     const keyword = filters.Keyword ? filters.Keyword.toLowerCase() : '';
     const category = filters.ProcessCategory;
@@ -465,7 +465,7 @@ export class PauditsActionsComponent implements OnInit {
     this.totalSize = this.tableList.length;
   }
 
-  clearFilter() { 
+  clearFilter() {
     this.myGroup.reset();
     this.tableList = [...this.originalTableList];
     const maxPage = Math.max(0, Math.ceil(this.tableList.length / this.pageSize) - 1);

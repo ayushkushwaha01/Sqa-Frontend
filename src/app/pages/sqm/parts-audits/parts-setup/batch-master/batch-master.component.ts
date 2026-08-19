@@ -31,6 +31,12 @@ export class BatchMasterComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
+
     this.formInit();
     this.getBatchMaster();
     this.generateMockData();

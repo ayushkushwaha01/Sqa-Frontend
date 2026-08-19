@@ -28,7 +28,7 @@ export class SetupService {
   toggleSupplierStatus(data: any) { return this.http.post(this.apiUrl + 'SupplierMaster/toggle-status', data); }
   deleteSupplier(data: any) { return this.http.post(this.apiUrl + 'SupplierMaster/delete', data); }
 
-  // --- kJ ravi services ---
+
   upsertPartAuditCategory(data: any) { return this.http.post(this.apiUrl + 'PartsAuditCategories/upsert', data); }
   getPartAuditCategories(filter: any) { return this.http.get(this.apiUrl + 'PartsAuditCategories/get-all', { params: filter }); }
   deletePartAuditCategory(data: any) { return this.http.post(this.apiUrl + 'PartsAuditCategories/delete', data); }
@@ -184,4 +184,15 @@ export class SetupService {
       params: filter
     });
   }
+
+  getOccurrence() {
+    return this.http.get(this.apiUrl + 'Occurrence/get-occurrences');
+  }
+  upsertOccurrence(data: any) { return this.http.post(this.apiUrl + 'Occurrence/upsert-occurrence', data); }
+  getDetection() {
+    return this.http.get(this.apiUrl + 'Occurrence/get-detections');
+  }
+  upsertDetection(data: any) { return this.http.post(this.apiUrl + 'Occurrence/upsert-detection', data); }
+
+
 }

@@ -41,6 +41,11 @@ export class PartsAuditReferenceComponent implements OnInit {
   partAuditId: number = 0;
   done: boolean = false;
   ngOnInit(): void {
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
+    }
     this.route.queryParams.subscribe(params => {
 
       this.partMasterId = +params['partMasterId'] || 0;
