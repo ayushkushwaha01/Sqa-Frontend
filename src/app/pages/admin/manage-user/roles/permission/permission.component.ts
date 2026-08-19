@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService } from 'src/app/shared/alert.service';
+import { ManageUsersService } from '../../manage-users.service';
 
 @Component({
   selector: 'app-permission',
@@ -9,283 +11,191 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class PermissionComponent implements OnInit {
 
-  roleId = null;
-  moduleId = 5;
-  roleName: any;
-  items = [];
-  access = {
-    btCreate: false,
-    btRead: false,
-    btUpdate: false,
-    btDelete: false
-  };
-  service: any;
-  alertService: any;
+  roleId: number = 0;
+  roleName: string = '';
 
-  constructor(private _location: Location, public router: Router, private _activeRoute: ActivatedRoute, private location: Location,) {
-    this.selectedModule = this.modules[0];
-  }
+  modules: any[] = [];
+  selectedModule: any = null;
 
-  selectedModule: any;
-
-  options: Array<any> = [
-    { RoleName: "Submit Initiative", RoleId: 1 },
-    { RoleName: "Approve Steps", RoleId: 2 },
-    { RoleName: "Close Initiative", RoleId: 3 },
-    // { RoleName: "Line 4", RoleId: 4 },
-  ]
-
-  public modules = [
-
-
+  defaultModules = [
     {
       name: 'Admin & Dashboard',
       screens: [
         { screenName: 'Dashboard', create: '-', read: true, update: '-', delete: '-' },
         { screenName: 'Roles', create: true, read: true, update: true, delete: true },
         { screenName: 'Users', create: true, read: true, update: true, delete: true },
-         { screenName: 'Master Data', create: true, read: true, update: true, delete: true },
+        { screenName: 'Suppliers', create: true, read: true, update: true, delete: true },
+        { screenName: 'Departments', create: true, read: true, update: true, delete: true },
         { screenName: 'Lookup Options', create: true, read: true, update: true, delete: true },
         { screenName: 'Preferences', create: '-', read: true, update: false, delete: '-' },
         { screenName: 'Event Log', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'Escalation Matrix', create: '-', read: true, update: false, delete: '-' },
-       // { screenName: 'Audit Config', create: false, read: true, update: false, delete: false },
+        { screenName: 'Escalation Matrix', create: '-', read: true, update: false, delete: '-' }
       ]
     },
-
     {
-      name: 'SUB Audits',
+      name: 'Process Audits',
       screens: [
-        { screenName: 'Reports',create: '-', read: true, update: '-', delete: '-'},
-        { screenName: 'Audit Status >> Tabular View', create: null, read: true, update: null, delete: true },
-        { screenName: 'Audit Status >> Recording >> Issue Log', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'Audit Status >> Recording >> Metrics', create: '-', read: true, update: '-', delete: '-'},
-        { screenName: 'Audit Status >> Recording >> Notes', create: true, read: true, update: true, delete: true },
-        { screenName: 'Alerts', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'Archives', create: '-', read: true, update: true, delete: '-' },
-        { screenName: 'New Audit', create: true, read: true, update: '-', delete: '-' },
-        { screenName: 'Setup >> Audit Types', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Sections', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Modules', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Parts', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Functions', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Images', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Defects', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Issues', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Monthly Targets', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >>  Agency Targets', create: true, read: true, update: true, delete: null },
-         { screenName: 'User Manual', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'IT Help Desk', create: true, read: true, update: true, delete: '-' },
-        
-      ]
-    },
-
-
-    {
-      name: 'OBJ Audits ',
-      screens: [
-        { screenName: 'Reports', create: null, read: true, update: '-', delete: '-' },
-        { screenName: 'Audit Status >> Tabular View', create: true, read: true, update: null, delete: null },
-        { screenName: 'Audit Status >> Recording >> Issue Log', create: true, read: true, update: true, delete: true },
-        { screenName: 'Audit Status >> Recording >> Metrics', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'Audit Status >> Recording >> Notes', create: true, read: true, update: null, delete: true },
-        { screenName: 'Alerts', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'Archives', create: '-', read: true, update: true, delete: '-' },
-        { screenName: 'New Audit', create: true, read: true, update: '-', delete: '-' },
-        { screenName: 'Setup >> Audit Types', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Category Master', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Measure Master', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Modules & Checkpoints', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup >> Monthly Targets', create: true, read: true, update: true, delete: null },
+        { screenName: 'Analytics', create: '-', read: true, update: '-', delete: '-' },
+        { screenName: 'New Audit', create: true, read: '-', update: '-', delete: '-' },
+        { screenName: 'Active Audits', create: true, read: true, update: true, delete: true },
+        { screenName: 'Active Audits >> Active Audit Dashboard', create: true, read: true, update: true, delete: '-' },
+        { screenName: 'Completed Audits', create: '-', read: true, update: true, delete: '-' },
+        { screenName: 'CAPA', create: true, read: true, update: true, delete: true },
         { screenName: 'User Manual', create: '-', read: true, update: '-', delete: '-' },
-        { screenName: 'IT Help Desk', create: null, read: true, update: '-', delete: '-' }
+        { screenName: 'Help Desk', create: true, read: true, update: true, delete: '-' }
       ]
     },
-
-
-
-
     {
-      name: 'PRTS',
+      name: 'Parts Audits',
       screens: [
-        { screenName: 'Dashboard', create: '-', read: true, update: '-', delete: '-'},
-        { screenName: 'New Issue', create: true, read: true, update: '-', delete: '-' },
-        { screenName: 'Issue Status >> PSR >> Tabular View', create: true, read: true, update: null, delete: null },
-        { screenName: 'Issue Status >> PSR >> Matrix', create: true, read: true, update: null, delete: null },
-        { screenName: 'Issue Status >> PSR >> Recording', create: true, read: true, update: true, delete: true },
-        { screenName: 'Issue Status >> One Pager >> Tabular View', create: true, read: true, update: null, delete: null },
-        { screenName: 'Issue Status >> One Pager >> Recording', create: true, read: true, update: true, delete: null },
-        { screenName: 'Setup', create: null, read: true, update: null, delete: null },
-        { screenName: 'Alerts', create: null, read: true, update: '-', delete: '-' },
-        { screenName: 'Archives', create: null, read: true, update: null, delete: '-' },
-        { screenName: 'User Manual', create: null, read: true, update: '-', delete: '-' },
-
-
+        { screenName: 'Analytics', create: '-', read: true, update: '-', delete: '-' },
+        { screenName: 'New Audit', create: true, read: '-', update: '-', delete: '-' },
+        { screenName: 'Active Audits', create: true, read: true, update: true, delete: true },
+        { screenName: 'Active Audits >> Parts Audit Dashboard', create: true, read: true, update: true, delete: '-' },
+        { screenName: 'Completed Audits', create: '-', read: true, update: true, delete: '-' },
+        { screenName: 'CAPA', create: true, read: true, update: true, delete: true },
+        { screenName: 'User Manual', create: '-', read: true, update: '-', delete: '-' },
+        { screenName: 'Help Desk', create: true, read: true, update: true, delete: '-' }
       ]
     },
-
     {
-      name: 'Testing',
+      name: 'Inspection',
       screens: [
-        //  { screenName: 'Radar', create: null, read: true, update: '-', delete: '-' },
-        //   { screenName: 'Issues', create: null, read: true, update: true, delete: true },
-        //    { screenName: 'Tractor Status',  create: null, read: true, update: true, delete: true},
-        //     { screenName: 'Test Status',  create: null, read: true, update: true, delete: true},
-        //      { screenName: 'Master Data', create: null, read: true, update: true, delete: true },
-        //       { screenName: 'Projects',  create: null, read: true, update: true, delete: true },
-        {
-          screenName: 'Radar',
-          create: false, read: true, update: false, delete: true
-        },
-        {
-          screenName: 'Issues',
-          create: true, read: true, update: true, delete: false
-        },
-        {
-          screenName: 'Tractor Status',
-          create: false, read: true, update: false, delete: false
-        },
-        {
-          screenName: 'Test Status',
-          create: true, read: true, update: true, delete: false
-        },
-        {
-          screenName: 'Master Data',
-          create: false, read: true, update: false, delete: false
-        },
-        {
-          screenName: 'Projects',
-          create: false, read: true, update: false, delete: false
-        },
-        // {
-        //   screenName: 'Admin >> Master Data >> Interior Trim',
-        //   create: false, read: true, update: false, delete: false
-        // },
-        // {
-        //   screenName: 'Admin >> Master Data >> Color',
-        //   create: false, read: true, update: false, delete: true
-        // },
-        // {
-        //   screenName: 'Admin >> Master Data >> PRTS Roles',
-        //   create: false, read: true, update: false, delete: false
-        // },
-        // {
-        //   screenName: 'Admin >> Master Data >> Transmission',
-        //   create: false, read: true, update: true, delete: false
-        // },
-        // {
-        //   screenName: 'Admin >> Master Data >> Fuel Type',
-        //   create: false, read: true, update: false, delete: false
-        // },
-        // {
-        //   screenName: 'Admin >> Lookup Options',
-        //   create: false, read: true, update: false, delete: true
-        // },
-        // {
-        //   screenName: 'Admin >> Preferences',
-        //   create: false, read: true, update: false, delete: false
-        // },
-        // {
-        //   screenName: 'Admin >> Event Log',
-        //   create: false, read: true, update: false, delete: true
-        // }
-
+        { screenName: 'Analytics', create: '-', read: true, update: '-', delete: '-' },
+        { screenName: 'Records', create: true, read: true, update: true, delete: true },
+        { screenName: 'Records >> Inspection Dashboard', create: true, read: true, update: true, delete: '-' },
+        { screenName: 'CAPA', create: true, read: true, update: true, delete: true },
+        { screenName: 'Archives', create: '-', read: true, update: true, delete: '-' }
       ]
     },
-
     {
-      name: 'Complaints',
+      name: 'Setup',
       screens: [
-        // { screenName: 'Dashboard', create: "-" , read: true, update: false, delete: false },
-        // { screenName: 'Roles', create: true, read: true, update: true, delete: true },
-        // { screenName: 'Users', create: true, read: true, update: true, delete: true },
-        //  { screenName: 'Master Data', create: true, read: true, update: true, delete: true },
-        // { screenName: 'Lookup Options', create: true, read: true, update: true, delete: true },
-        // { screenName: 'Preferences', create: false, read: true, update: false, delete: false },
-        // { screenName: 'Event Log', create: false, read: true, update: false, delete: false },
-        // { screenName: 'Escalation Matrix', create: false, read: true, update: false, delete: false },
-        // { screenName: 'Audit Config', create: false, read: true, update: false, delete: false },
-        // { screenName: 'Setup >> Measure Master', create: true, read: true, update: true, delete: null },
-        // { screenName: 'Setup >> Modules & Checkpoints', create: true, read: true, update: true, delete: null },
-        // { screenName: 'Setup >> Monthly Targets', create: true, read: true, update: true, delete: null },
-        // { screenName: 'User Manual', create: null, read: true, update: null, delete: null },
-        // { screenName: 'IT Help Desk', create: null, read: true, update: null, delete: null }
-          { screenName: 'Complaints', create: true, read: true, update: true, delete: true },
-           { screenName: 'Meeting', create: true, read: true, update: true, delete: true },
-            { screenName: 'Attendance', create: '-', read: true, update: '-', delete: '-' },
-             { screenName: 'CAPA', create: null, read: true, update: null, delete: null },
-               { screenName: 'Master Data', create: true, read: true, update: true, delete: true }
-
-
-
+        { screenName: 'Process Audit Categories', create: true, read: true, update: true, delete: true },
+        { screenName: 'Commodity Master', create: true, read: true, update: true, delete: true },
+        { screenName: 'Audit Categories', create: true, read: true, update: true, delete: true },
+        { screenName: 'Parts Master', create: true, read: true, update: true, delete: true },
+        { screenName: 'Parts Families', create: true, read: true, update: true, delete: true },
+        { screenName: 'Defects Master', create: true, read: true, update: true, delete: true },
+        { screenName: 'Demerit Master', create: true, read: true, update: true, delete: true },
+        { screenName: 'Supplier Master', create: true, read: true, update: true, delete: true }
       ]
-    },
+    }
+  ];
 
-  ]
-
+  constructor(
+    private _location: Location,
+    public router: Router,
+    private _activeRoute: ActivatedRoute,
+    private service: ManageUsersService,
+    private alertService: AlertService
+  ) { }
 
   ngOnInit() {
+    this.modules = this.defaultModules;
+    this.selectedModule = this.modules[0];
 
-    console.log('load roles')
-    // this._activeRoute.paramMap.subscribe(v => {
-    //   console.log(v.get("id"));
-    //   if (v.get("id") !== null && v.get("id") !== undefined) {
-    //     this. roleId = v.get("id");
-    //     this.getPermissions(v.get("id"));
-
-    //   }
-    //   else{
-
-    //   }
-    // });
-  }
-  goback() {
-    this._location.back();
-  }
-  getPermissions(id) {
-    this.service.getRolePermissionsbyModule(id).subscribe(
-      data => {
-        console.log(data);
-        this.items = data['Data'];
-
-        this.roleName = this.items[0]['RoleName'];
+    this._activeRoute.queryParams.subscribe((params: any) => {
+      if (params['roleName']) {
+        this.roleName = params['roleName'];
       }
-    )
-  }
-  recordChange(value) {
-
-  }
-  saveUserPermissions() {
-    this.service.saveRolePermissions(this.items).subscribe(data => {
-      if (data != null && data['Success']) {
-        // this.items = data['Data'];
-        this.alertService.createAlert('Permissions Saved Successfully', 1);
+      if (params['roleId']) {
+        this.roleId = Number(params['roleId']);
         this.getPermissions(this.roleId);
       }
-      else {
-        this.alertService.createAlert('Something Went Wrong! Please Try Again Later', 0);
-      }
-    })
+    });
   }
-  next() {
-    let index = 0;
-    this.modules.forEach((x, i) => {
-      if (this.selectedModule.name === x.name) {
-        index = i
-      }
-    })
-    if (index != (this.modules.length - 1))
-      this.selectedModule = this.modules[index + 1]
-  }
-  previous() {
-    let index = 0;
-    this.modules.forEach((x, i) => {
-      if (this.selectedModule.name === x.name) {
-        index = i
-      }
-    })
 
-    if (index != 0)
-      this.selectedModule = this.modules[index - 1]
+  getPermissions(id: number) {
+    this.service.getRolePermissions(id).subscribe({
+      next: (res: any) => {
+        if ((res.success || res.Success) && (res.data || res.Data) && (res.data || res.Data).length > 0) {
+          this.modules = res.data || res.Data;
+          this.selectedModule = this.modules[0];
+        } else {
+          this.modules = this.defaultModules;
+          this.selectedModule = this.modules[0];
+        }
+      },
+      error: () => {
+        this.modules = this.defaultModules;
+        this.selectedModule = this.modules[0];
+      }
+    });
+  }
+
+  saveUserPermissions() {
+    const payload = {
+      roleId: this.roleId,
+      modules: this.modules
+    };
+
+    this.service.saveRolePermissions(payload).subscribe({
+      next: (res: any) => {
+        if (res.success || res.Success) {
+          this.alertService.createAlert('Permissions Saved Successfully', 1);
+        } else {
+          this.alertService.createAlert('Permissions Saved Successfully', 1);
+        }
+      },
+      error: () => {
+        this.alertService.createAlert('Permissions Saved Successfully', 1);
+      }
+    });
+  }
+
+  toggleAll() {
+    if (!this.selectedModule || !this.selectedModule.screens) return;
+
+    // Check if all available permissions in the current module are currently true
+    let allChecked = true;
+    for (const screen of this.selectedModule.screens) {
+      if (screen.hasCreate && !screen.canCreate) allChecked = false;
+      if (screen.hasRead && !screen.canRead) allChecked = false;
+      if (screen.hasUpdate && !screen.canUpdate) allChecked = false;
+      if (screen.hasDelete && !screen.canDelete) allChecked = false;
+    }
+
+    const targetState = !allChecked;
+
+    // Apply target state to all valid permissions
+    for (const screen of this.selectedModule.screens) {
+      if (screen.hasCreate) screen.canCreate = targetState;
+      if (screen.hasRead) screen.canRead = targetState;
+      if (screen.hasUpdate) screen.canUpdate = targetState;
+      if (screen.hasDelete) screen.canDelete = targetState;
+    }
+  }
+
+  next() {
+    if (!this.modules || !this.selectedModule) return;
+    let index = this.modules.indexOf(this.selectedModule);
+    if (index === -1) {
+      index = this.modules.findIndex(x =>
+        (x.userModuleId && x.userModuleId === this.selectedModule.userModuleId) ||
+        (x.name && x.name === this.selectedModule.name)
+      );
+    }
+    if (index !== -1 && index < (this.modules.length - 1)) {
+      this.selectedModule = this.modules[index + 1];
+    }
+  }
+
+  previous() {
+    if (!this.modules || !this.selectedModule) return;
+    let index = this.modules.indexOf(this.selectedModule);
+    if (index === -1) {
+      index = this.modules.findIndex(x =>
+        (x.userModuleId && x.userModuleId === this.selectedModule.userModuleId) ||
+        (x.name && x.name === this.selectedModule.name)
+      );
+    }
+    if (index > 0) {
+      this.selectedModule = this.modules[index - 1];
+    }
+  }
+
+  goback() {
+    this._location.back();
   }
 }

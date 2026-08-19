@@ -3,6 +3,8 @@ import { Router, NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { filter } from 'rxjs/operators';
 import { PageHeaderService } from '../../shared/page-header.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { AlertService } from 'src/app/shared/alert.service'; // 🔥 1. Add this import
 
 // Import your dialog components here (adjust relative paths as needed)
 import { PauditsNewAuditComponent } from './process-audits/paudits-new-audit/paudits-new-audit.component';
@@ -26,8 +28,18 @@ export class SqmComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private pageHeaderService: PageHeaderService
+    private pageHeaderService: PageHeaderService,
+    private alertService: AlertService
   ) {}
+
+
+  canRead(screenId: number): boolean {
+    return UserPermissionService.fnGetReadPermissions(screenId);
+  }
+
+  canCreate(screenId: number): boolean {
+    return UserPermissionService.fnGetCreatePermissions(screenId);
+  }
 
   ngOnInit(): void {
     // Check initial route
@@ -47,7 +59,26 @@ export class SqmComponent implements OnInit, OnDestroy {
   }
 
   // Pass the module string from the template to open the correct dialog
-  openaudit(module: string) {
+  // openaudit(module: string) {
+  //   if (module === 'process') {
+  //     this.dialog.open(PauditsNewAuditComponent, { width: '600px', height: 'auto' });
+  //   } else if (module === 'parts') {
+  //     this.dialog.open(PartsNewAuditComponent, { width: '600px', height: 'auto' });
+  //   }
+  // }
+
+
+  showAccessDenied(action: string) {
+    this.alertService.createAlert(`Access Denied: You do not have permission to ${action}.`, 0);
+  }
+
+  // 🔥 4. Update your openaudit function to check permission first
+  openaudit(module: string, screenId: number) {
+    if (!this.canCreate(screenId)) {
+      this.alertService.createAlert('Access Denied: You do not have permission to create a New Audit.', 0);
+      return; // Stop them from opening the dialog!
+    }
+
     if (module === 'process') {
       this.dialog.open(PauditsNewAuditComponent, { width: '600px', height: 'auto' });
     } else if (module === 'parts') {
@@ -116,6 +147,11 @@ export class SqmComponent implements OnInit, OnDestroy {
   }
 
   addrecordpop(item: any) {
+    if (!this.canCreate(27)) {
+      this.alertService.createAlert('Access Denied: You do not have permission to add a new record.', 0);
+      return; 
+    }
+    
     this.dialog.open(AddRecordPopComponent, {
       width: '1000px',
       height: 'auto',

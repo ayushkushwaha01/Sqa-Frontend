@@ -7,7 +7,8 @@ import { ProcessAuditService } from '../process-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
-
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+ 
 @Component({
   selector: "app-paudits-active-audits",
   templateUrl: "./paudits-active-audits.component.html",
@@ -24,6 +25,13 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   filterToggle = false;
   maskDone = false;
   filterForm!: FormGroup;
+
+  //Screen Permissions
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 12; // 12 is 'Active Audits' under Process Audits
 
   // Pagination properties
   pageSize = 20;
@@ -210,6 +218,16 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    // Added the 's' to the end of each method!
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    // If they can't even read the screen, you could redirect them out here!
+    if (!this.canRead) {
+       // Optional: this.router.navigate(['/dashboard']);
+    }
     this.loadLookups();
   }
 
@@ -400,6 +418,10 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
 
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault(); 
+
+    if (!this.canUpdate) {
+      return;
+    }
 
     let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',

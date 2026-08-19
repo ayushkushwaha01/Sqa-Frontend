@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-paudits-analytics',
@@ -7,9 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PauditsAnalyticsComponent implements OnInit {
 
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 10; // Screen ID for Process Analytics
+
+
   constructor() { }
 
-  ngOnInit(): void {
+ ngOnInit(): void {
+    // 🔥 Check permission first
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+
+    // 🔥 If they can't read, stop loading charts/API calls
+    if (!this.canRead) return;
+
+    // ... (your existing code to load charts)
   }
 
 }

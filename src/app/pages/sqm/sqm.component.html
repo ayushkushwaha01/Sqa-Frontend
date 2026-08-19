@@ -8,7 +8,7 @@
 
     <nav class="nav-links" *ngIf="activeTab === 'process'">
       <ul>
-        <li routerLinkActive="active" routerLink="./process/analytics">
+        <!-- <li routerLinkActive="active" routerLink="./process/analytics">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
             <span *ngIf="isSidenavOpen">Analytics</span>
@@ -19,26 +19,87 @@
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="New Audit">add_circle_outline</mat-icon>
             <span *ngIf="isSidenavOpen">New Audit</span>
           </a>
+        </li> -->
+
+        <!-- 🔥 Analytics (Screen ID 10) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canRead(10)}">
+          <!-- If they HAVE permission: Act normal -->
+          <a *ngIf="canRead(10)" routerLinkActive="active" routerLink="./process/analytics">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+          <!-- If they DO NOT have permission: Remove routerLink and show an alert -->
+          <a *ngIf="!canRead(10)" (click)="showAccessDenied('view Analytics')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="Analytics (Access Denied)">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
         </li>
-        <li routerLinkActive="active" routerLink="./process/active-audits">
+
+        <!-- 🔥 New Audit (Screen ID 11) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canCreate(11)}" (click)="openaudit('process', 11)">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="New Audit">add_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">New Audit</span>
+          </a>
+        </li>
+
+        <!-- <li routerLinkActive="active" routerLink="./process/active-audits">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Active Audits">pending_actions</mat-icon>
             <span *ngIf="isSidenavOpen">Active Audits</span>
           </a>
+        </li> -->
+        <li [ngClass]="{'disabled-nav': !canRead(12)}">
+          <a *ngIf="canRead(12)" routerLinkActive="active" routerLink="./process/active-audits">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Active Audits">pending_actions</mat-icon>
+            <span *ngIf="isSidenavOpen">Active Audits</span>
+          </a>
+          <a *ngIf="!canRead(12)" (click)="showAccessDenied('view Active Audits')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="Active Audits (Access Denied)">pending_actions</mat-icon>
+            <span *ngIf="isSidenavOpen">Active Audits</span>
+          </a>
         </li>
-        <li routerLinkActive="active" routerLink="./process/actions">
+
+        <!-- <li routerLinkActive="active" routerLink="./process/actions">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Actions">play_circle_outline</mat-icon>
             <span *ngIf="isSidenavOpen">CAPA</span>
           </a>
+        </li> -->
+
+        <li [ngClass]="{'disabled-nav': !canRead(15)}">
+          <a *ngIf="canRead(15)" routerLinkActive="active" routerLink="./process/actions">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Actions">play_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">CAPA</span>
+          </a>
+          <a *ngIf="!canRead(15)" (click)="showAccessDenied('view CAPA')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="CAPA (Access Denied)">play_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">CAPA</span>
+          </a>
         </li>
-        <li routerLinkActive="active" routerLink="./process/completed-audits">
+        <!-- <li routerLinkActive="active" routerLink="./process/completed-audits">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Completed Audits">task_alt</mat-icon>
             <span *ngIf="isSidenavOpen">Completed Audits</span>
           </a>
+        </li> -->
+
+        <!-- 🔥 Completed Audits (Screen ID 14) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canRead(14)}">
+          <a *ngIf="canRead(14)" routerLinkActive="active" routerLink="./process/completed-audits">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Completed Audits">task_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Completed Audits</span>
+          </a>
+          <a *ngIf="!canRead(14)" (click)="showAccessDenied('view Completed Audits')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="Completed Audits (Access Denied)">task_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Completed Audits</span>
+          </a>
         </li>
-        <li (click)="openUserManual('sample-1.pdf')">
+        <!-- <li (click)="openUserManual('sample-1.pdf')">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
@@ -49,19 +110,71 @@
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
             <span *ngIf="isSidenavOpen">IT Help Desk</span>
           </a>
+        </li> -->
+
+
+        <!-- 🔥 User Manual (Screen ID 16 - Requires READ) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canRead(16)}">
+          <!-- Has Permission -->
+          <a *ngIf="canRead(16)" (click)="openUserManual('sample-1.pdf')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+          <!-- No Permission -->
+          <a *ngIf="!canRead(16)" (click)="showAccessDenied('view the User Manual')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="User Manual (Access Denied)">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
         </li>
+
+        <!-- 🔥 IT Help Desk (Screen ID 17 - Requires CREATE) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canCreate(17)}">
+          <!-- Has Permission -->
+          <a *ngIf="canCreate(17)" (click)="openHelpDesk()">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+          <!-- No Permission -->
+          <a *ngIf="!canCreate(17)" (click)="showAccessDenied('submit a Help Desk ticket')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="IT Help Desk (Access Denied)">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+        </li>
+
       </ul>
     </nav>
 
     <nav class="nav-links" *ngIf="activeTab === 'parts'">
       <ul>
-        <li routerLinkActive="active" routerLink="./parts/analytics">
+        <!-- <li routerLinkActive="active" routerLink="./parts/analytics">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
             <span *ngIf="isSidenavOpen">Analytics</span>
           </a>
+        </li> -->
+
+        <li [ngClass]="{'disabled-nav': !canRead(18)}">
+          <a *ngIf="canRead(18)" routerLinkActive="active" routerLink="./parts/analytics">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+          <a *ngIf="!canRead(18)" (click)="showAccessDenied('view Parts Analytics')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="Analytics (Access Denied)">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
         </li>
-        <li (click)="openaudit('parts')">
+        <!-- <li (click)="openaudit('parts')">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="New Audit">add_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">New Audit</span>
+          </a>
+        </li> -->
+
+        <!-- 🔥 Parts New Audit (Screen ID 19 - Requires CREATE) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canCreate(19)}" (click)="openaudit('parts', 19)">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="New Audit">add_circle_outline</mat-icon>
             <span *ngIf="isSidenavOpen">New Audit</span>
@@ -85,22 +198,48 @@
             <span *ngIf="isSidenavOpen">Completed Audits</span>
           </a>
         </li>
-        <li (click)="openUserManual('sample-1.pdf')">
+        <!-- <li (click)="openUserManual('sample-1.pdf')">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
           </a>
+        </li> -->
+
+        <li [ngClass]="{'disabled-nav': !canRead(24)}">
+          <a *ngIf="canRead(24)" (click)="openUserManual('sample-1.pdf')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+          <a *ngIf="!canRead(24)" (click)="showAccessDenied('view the User Manual')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="User Manual (Access Denied)">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
         </li>
-        <li (click)="openHelpDesk()">
+        <!-- <li (click)="openHelpDesk()">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+        </li> -->
+
+        <li [ngClass]="{'disabled-nav': !canCreate(25)}">
+          <a *ngIf="canCreate(25)" (click)="openHelpDesk()">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+          <a *ngIf="!canCreate(25)" (click)="showAccessDenied('submit a Help Desk ticket')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
+              matTooltip="IT Help Desk (Access Denied)">support_agent</mat-icon>
             <span *ngIf="isSidenavOpen">IT Help Desk</span>
           </a>
         </li>
       </ul>
     </nav>
 
-    <nav class="nav-links" *ngIf="activeTab === 'inspection'">
+    <!-- <nav class="nav-links" *ngIf="activeTab === 'inspection'">
+
+
       <ul>
         <li routerLinkActive="active" routerLink="./inspection/analytics">
           <a>
@@ -108,12 +247,7 @@
             <span *ngIf="isSidenavOpen">Analytics</span>
           </a>
         </li>
-        <!-- <li (click)="openheatmapname()">
-          <a>
-            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Heat Map">map</mat-icon>
-            <span *ngIf="isSidenavOpen">Heat Map</span>
-          </a>
-        </li> -->
+        
         <li (click)="addrecordpop(null)">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Add Record">add_circle_outline</mat-icon>
@@ -151,8 +285,82 @@
           </a>
         </li>
       </ul>
-    </nav>
+    </nav> -->
 
+    
+    <nav class="nav-links" *ngIf="activeTab === 'inspection'">
+      <ul>
+        
+        <!-- 🔥 1. Inspection Analytics (Screen ID 26) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canRead(26)}">
+          <a *ngIf="canRead(26)" routerLinkActive="active" routerLink="./inspection/analytics">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+          <a *ngIf="!canRead(26)" (click)="showAccessDenied('view Inspection Analytics')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Analytics (Access Denied)">bar_chart</mat-icon>
+            <span *ngIf="isSidenavOpen">Analytics</span>
+          </a>
+        </li>
+
+        <!-- 🔥 2. Add Record (Screen ID 27 - Uses CREATE permission) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canCreate(27)}" (click)="addrecordpop(null)">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Add Record">add_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">Add Record</span>
+          </a>
+        </li>
+
+        <!-- ========================================== -->
+        <!-- MIDDLE ITEMS (Left completely unprotected) -->
+        <!-- ========================================== -->
+        <li routerLinkActive="active" routerLink="./inspection/datatable">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Active Records">pending_actions</mat-icon>
+            <span *ngIf="isSidenavOpen">Active Records</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./inspection/inspectioncapa">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="CAPA">play_circle_outline</mat-icon>
+            <span *ngIf="isSidenavOpen">CAPA</span>
+          </a>
+        </li>
+        <li routerLinkActive="active" routerLink="./inspection/inspectionarchive">
+          <a>
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Archives">archive</mat-icon>
+            <span *ngIf="isSidenavOpen">Archives</span>
+          </a>
+        </li>
+        <!-- ========================================== -->
+
+        <!-- 🔥 3. User Manual (Screen ID 39 - Uses READ permission) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canRead(39)}">
+          <a *ngIf="canRead(39)" (click)="openUserManual('sample-1.pdf')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+          <a *ngIf="!canRead(39)" (click)="showAccessDenied('view the User Manual')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual (Access Denied)">menu_book</mat-icon>
+            <span *ngIf="isSidenavOpen">User Manual</span>
+          </a>
+        </li>
+
+        <!-- 🔥 4. IT Help Desk (Screen ID 40 - Uses CREATE permission) 🔥 -->
+        <li [ngClass]="{'disabled-nav': !canCreate(40)}">
+          <a *ngIf="canCreate(40)" (click)="openHelpDesk()">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+          <a *ngIf="!canCreate(40)" (click)="showAccessDenied('submit a Help Desk ticket')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk (Access Denied)">support_agent</mat-icon>
+            <span *ngIf="isSidenavOpen">IT Help Desk</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+    
     <!-- Setup sidenav -->
     <nav class="nav-links" *ngIf="activeTab === 'setup'">
       <ul>

@@ -7,6 +7,7 @@ import { AlertService } from 'src/app/shared/alert.service'; // 🔥 Added this
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component'; // 🔥 Added this
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 import * as Highcharts from 'highcharts';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service'; // 🔥 Add this
 
 @Component({
   selector: 'app-paudits-completed-audits',
@@ -14,6 +15,12 @@ import * as Highcharts from 'highcharts';
   styleUrls: ['./paudits-completed-audits.component.scss']
 })
 export class PauditsCompletedAuditsComponent implements OnInit {
+
+
+  //Screen Permissions
+  canRead: boolean = false;
+  canUpdate: boolean = false;
+  readonly SCREEN_ID: number = 14;
 
   Highcharts: typeof Highcharts = Highcharts;
 
@@ -161,6 +168,14 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    //   1. Load Permissions
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+
+    //  2. Block API calls if no read access
+    if (!this.canRead) return;
+
     this.loadLookups();
   }
 
@@ -318,6 +333,11 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   // 🔥 Re-added standard Done Click functionality
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault(); 
+    //  Block if user lacks Update permission
+    if (!this.canUpdate) {
+      this.alertService.createAlert('Access Denied: You do not have permission to change the Audit status.', 0);
+      return; 
+    }
 
     let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',

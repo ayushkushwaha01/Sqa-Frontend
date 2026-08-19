@@ -328,7 +328,7 @@ export class CapaViewScreenComponent implements OnInit {
       riskRating: formDataValues.demerit ? formDataValues.demerit.toString() : null,
       demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
 
-      demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
+      // demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
 
       class: formDataValues.class || null,
       actionType: formDataValues.actionType || null,

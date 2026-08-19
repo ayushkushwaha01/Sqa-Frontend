@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProcessAuditService } from '../../process-audits/process-audit.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service'; // 🔥 Import this
 
 @Component({
   selector: 'app-process-audit-reference',
@@ -12,6 +13,18 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
   styleUrls: ['./process-audit-reference.component.scss']
 })
 export class ProcessAuditReferenceComponent implements OnInit {
+
+  // 🔥 Permission variables for Screen ID 13 (Active Audit Dashboard)
+  canRead: boolean = false;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  readonly SCREEN_ID: number = 13;
+  isExistingRecord: boolean = false;
+
+  get hasEditAccess(): boolean {
+    return this.isExistingRecord ? this.canUpdate : this.canCreate;
+  }
   
   isSaving: boolean = false; // Add loading state
 
@@ -77,6 +90,18 @@ export class ProcessAuditReferenceComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
+    //Screen Permissions
+    //  1. Load Permissions First
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
+    // 2. Block page load if they cannot read
+    if (!this.canRead) return;
+
+
     this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
     this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
     this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
@@ -239,28 +264,61 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.loadSavedResponse();
   }
 
-  loadSavedResponse() {
+  // loadSavedResponse() {
+  //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+  //   const chkId = this.selectedStep?.checklistId;
+    
+  //   if (!parentAuditId || !chkId) return;
+
+  //   // ⚡ INSTANT POPULATION FROM MEMORY CACHE (0ms lag!)
+  //   if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance !== undefined) {
+  //     this.populateFormFromData(this.checklistResponses[chkId]);
+  //   }
+
+  //   // Refresh from API in background to ensure latest sync
+  //   this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((res: any) => {
+  //     if (res.success && res.data) {
+  //       const d = res.data;
+  //       this.checklistResponses[chkId] = { compliance: d.compliance || '', ...d };
+  //       this.populateFormFromData(d);
+  //       if (this.selectedCategory) {
+  //         this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
+  //       }
+  //     } else if (!this.checklistResponses[chkId]) {
+  //       this.resetForm();
+  //     }
+  //   });
+  // }
+
+ loadSavedResponse() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
     const chkId = this.selectedStep?.checklistId;
     
     if (!parentAuditId || !chkId) return;
 
-    // ⚡ INSTANT POPULATION FROM MEMORY CACHE (0ms lag!)
-    if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance !== undefined) {
+    // 1. INSTANT POPULATION FROM MEMORY CACHE
+    if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance) {
+      this.isExistingRecord = true; // Memory says it exists
       this.populateFormFromData(this.checklistResponses[chkId]);
+    } else {
+      this.isExistingRecord = false; // Memory says it's new
     }
 
-    // Refresh from API in background to ensure latest sync
+    // 2. REFRESH FROM API
     this.api.getInnerScreenDetails(parentAuditId, chkId).subscribe((res: any) => {
       if (res.success && res.data) {
+        this.isExistingRecord = true; // 🔥 API confirms it is an EXISTING record
         const d = res.data;
         this.checklistResponses[chkId] = { compliance: d.compliance || '', ...d };
         this.populateFormFromData(d);
         if (this.selectedCategory) {
           this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
         }
-      } else if (!this.checklistResponses[chkId]) {
-        this.resetForm();
+      } else {
+        this.isExistingRecord = false; // 🔥 API confirms it is a NEW record
+        if (!this.checklistResponses[chkId]) {
+          this.resetForm();
+        }
       }
     });
   }
@@ -312,8 +370,21 @@ export class ProcessAuditReferenceComponent implements OnInit {
     }
   }
 
+  // setRating(val: string) {
+  //   // if (this.isSupplier) return;  
+  //   if (this.isSupplier || !this.canUpdate) return;
+  //   this.rating = val;
+  //   if (this.selectedStep?.checklistId) {
+  //     const chkId = this.selectedStep.checklistId;
+  //     this.checklistResponses[chkId] = {
+  //       ...this.checklistResponses[chkId],
+  //       rating: val
+  //     };
+  //   }
+  // }
   setRating(val: string) {
-    if (this.isSupplier) return; // 🔥 Block suppliers from changing the rating
+    // 🔥 Block if supplier OR if user lacks the correct access (Create vs Update)
+    if (this.isSupplier || !this.hasEditAccess) return; 
     this.rating = val;
     if (this.selectedStep?.checklistId) {
       const chkId = this.selectedStep.checklistId;
@@ -531,7 +602,32 @@ export class ProcessAuditReferenceComponent implements OnInit {
     });
   }
 
+  // resetForm() {
+  //   this.rating = '5';
+  //   this.selectedSeverityId = null;
+  //   this.selectedOccurrence = null;
+  //   this.selectedDetection = null;
+  //   this.complianceStatus = '';
+    
+  //   this.selectedClass = '';
+  //   this.capaSubject = '';
+  //   this.dueDate = null;
+  //   this.completedDate = null;
+  //   this.pdcaStatus = '';
+  //   this.isResolved = false;
+  //   this.actionType = '';
+  //   this.remarks = '';
+  //   this.correctiveActions = '';
+  //   this.supplierRemarks = '';
+    
+  //   this.selectedFiles = [];
+  //   this.selectedImageFiles = []; 
+  //   this.galleryImages = [];
+  //   this.uploadedDocs = [];
+  // }
+
   resetForm() {
+    this.isExistingRecord = false; // 🔥 Reset to new record state
     this.rating = '5';
     this.selectedSeverityId = null;
     this.selectedOccurrence = null;
@@ -598,6 +694,11 @@ export class ProcessAuditReferenceComponent implements OnInit {
 // }
 
 deleteImage(index: number, imgUrl: string): void {
+  if (!this.canDelete && !imgUrl.startsWith('data:')) {
+      this.alertService.createAlert('Access Denied: You cannot delete images.', 0);
+      return; 
+  }
+
   // 1. Open the confirmation popup FIRST for ANY image
   const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
     width: '360px',
@@ -656,6 +757,11 @@ deleteImage(index: number, imgUrl: string): void {
 // Replace removeApiDoc(index: number) with this:
 
 deleteDocument(index: number, doc: any): void {
+  if (!this.canDelete) {
+      this.alertService.createAlert('Access Denied: You cannot delete documents.', 0);
+      return; 
+  }
+
   // 1. Check if we have the required IDs before making an API call
   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
   const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
