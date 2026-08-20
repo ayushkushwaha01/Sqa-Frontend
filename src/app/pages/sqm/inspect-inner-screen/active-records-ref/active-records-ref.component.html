@@ -45,9 +45,23 @@
         <button mat-raised-button class="btn-black" [disabled]="isReadOnly" (click)="opendocpop()">
           <mat-icon class="icon-sm" style="margin-top: 7px;">upload</mat-icon> Upload File
         </button>
-        <button mat-raised-button color="primary" class="btn-blue" [disabled]="isReadOnly"
+        <!-- <button mat-raised-button color="primary" class="btn-blue" [disabled]="isReadOnly"
           (click)="addchecklistaudit()">
           <mat-icon class="icon-sm" style="margin-top: 7px;">person_add</mat-icon> Add Parameter
+        </button> -->
+        <button mat-raised-button color="primary" class="btn-blue"
+          [ngClass]="{ 'disable-custom': !canCreate || isReadOnly }" [matTooltip]="
+    !canCreate
+      ? 'You don’t have permission to create'
+      : (isReadOnly ? 'Add Disabled' : 'Add Parameter')
+  " (click)="canCreate && !isReadOnly && addchecklistaudit()">
+
+          <mat-icon class="icon-sm" style="margin-top: 7px;">
+            person_add
+          </mat-icon>
+
+          Add Parameter
+
         </button>
       </div>
     </div>
@@ -79,7 +93,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of pagedData">
-            <td class="text-center manage-icons">
+            <!-- <td class="text-center manage-icons">
               <i class="fa fa-edit" [matTooltip]="isReadOnly ? 'Edit Disabled' : 'Edit'"
                 [style.color]="isReadOnly ? '#b0b0b0' : 'cornflowerblue'"
                 [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'" (click)="!isReadOnly && editParameter(item)"
@@ -87,6 +101,28 @@
               <i class="fa fa-trash red" [matTooltip]="isReadOnly ? 'Delete Disabled' : 'Delete'"
                 [style.color]="isReadOnly ? '#b0b0b0' : 'red'" [style.cursor]="isReadOnly ? 'not-allowed' : 'pointer'"
                 (click)="!isReadOnly && deleteParameter(item)" style="font-size: 16px;"></i>
+            </td> -->
+            <td class="text-center manage-icons">
+
+              <!-- Edit -->
+              <i class="fa fa-edit" [class.disable-custom]="!canUpdate || isReadOnly" [matTooltip]="
+      !canUpdate
+        ? 'You don’t have permission to update'
+        : (isReadOnly ? 'Edit Disabled' : 'Edit')
+    " [style.color]="isReadOnly ? '#b0b0b0' : 'cornflowerblue'"
+                [style.cursor]="!canUpdate || isReadOnly ? 'not-allowed' : 'pointer'"
+                (click)="canUpdate && !isReadOnly && editParameter(item)" style="font-size: 16px; margin-right: 10px;">
+              </i>
+
+              <!-- Delete -->
+              <i class="fa fa-trash red" [class.disable-custom]="!canDelete || isReadOnly" [matTooltip]="
+      !canDelete
+        ? 'You don’t have permission to delete'
+        : (isReadOnly ? 'Delete Disabled' : 'Delete')
+    " [style.cursor]="!canDelete || isReadOnly ? 'not-allowed' : 'pointer'"
+                (click)="canDelete && !isReadOnly && deleteParameter(item)" style="font-size: 16px;">
+              </i>
+
             </td>
 
             <td>{{ item.parameter }}</td>
@@ -112,11 +148,33 @@
                 (change)="toggleOkay(item, $event.checked)"></mat-checkbox>
             </td>
 
-            <td class="text-center">
+            <!-- <td class="text-center">
               <a *ngIf="!item.okay" style="color: blue; cursor: pointer; text-decoration: underline;"
                 [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']"
                 [queryParams]="{ inspectionRefId: item.id, isReadOnly: isReadOnly, parameterName: item.parameter }">View</a>
               <span *ngIf="item.okay" style="color: #9e9e9e; cursor: not-allowed;">NA</span>
+            </td> -->
+            <td class="text-center">
+
+              <a *ngIf="!item.okay" [class.disable-custom]="!canreadCAPAScreen"
+                [matTooltip]="!canreadCAPAScreen ? 'You don’t have permission to view' : 'View'" [routerLink]="canreadCAPAScreen
+      ? ['/app', 'sqm', 'inspect-inner-screen', 'capa-view']
+      : null" [queryParams]="canreadCAPAScreen
+      ? {
+          inspectionRefId: item.id,
+          isReadOnly: isReadOnly,
+          parameterName: item.parameter
+        }
+      : null" style="color: blue; cursor: pointer; text-decoration: underline;">
+
+                View
+
+              </a>
+
+              <span *ngIf="item.okay" style="color: #9e9e9e; cursor: not-allowed;">
+                NA
+              </span>
+
             </td>
 
             <td>{{ item.method }}</td>

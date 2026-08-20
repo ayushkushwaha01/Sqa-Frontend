@@ -1,4 +1,14 @@
-<div class="analytics-container">
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <mat-icon style="font-size: 60px; height: 60px; width: 60px; color: #e53e3e;" class="mb-3">lock</mat-icon>
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view Analytics.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+
+<div class="analytics-container" *ngIf="canRead">
 
   <div class="top-controls-wrapper">
     <div class="top-bar">
@@ -174,15 +184,15 @@
   <div class="row mt-1" *ngIf="chartsReady">
     <div class="col-lg-6 col-md-12 mt-3">
       <div class="chart-wrapper">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeAnnualPpmOptions"
-          [oneToOne]="true" style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeAnnualPpmOptions" [oneToOne]="true"
+          style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>
     <div class="col-lg-6 col-md-12 mt-3">
       <div class="chart-wrapper">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeMonthlyPpmOptions"
-          [oneToOne]="true" style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeMonthlyPpmOptions" [oneToOne]="true"
+          style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>
@@ -193,16 +203,16 @@
     <div class="col-lg-6 col-md-12 mt-3 text-center">
       <h4 class="section-title">Distribution By Defects</h4>
       <div class="chart-wrapper">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeDefectsPieOptions"
-          [oneToOne]="true" style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeDefectsPieOptions" [oneToOne]="true"
+          style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>
     <div class="col-lg-6 col-md-12 mt-3 text-center">
       <h4 class="section-title">Distribution By Part Families</h4>
       <div class="chart-wrapper">
-        <highcharts-chart [Highcharts]="Highcharts" [options]="activeProductsPieOptions"
-          [oneToOne]="true" style="width: 100%; height: 350px; display: block;">
+        <highcharts-chart [Highcharts]="Highcharts" [options]="activeProductsPieOptions" [oneToOne]="true"
+          style="width: 100%; height: 350px; display: block;">
         </highcharts-chart>
       </div>
     </div>

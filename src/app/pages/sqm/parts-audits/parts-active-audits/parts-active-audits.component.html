@@ -23,18 +23,27 @@
       </mat-checkbox>
 
     </form>
-    <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
+    <button mat-raised-button class="btn-dark" [class.disable-custom]="!canUpdate"
+      [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid View'"
+      (click)="canUpdate && openColumnSelector()">
 
       <mat-icon>grid_on</mat-icon>
-
       Grid View
 
     </button>
     <button mat-raised-button class="btn-dark" (click)="toggleFilters()">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
-    <button mat-raised-button color="primary" class="btn-blue" (click)="openaudit(null)">
+    <!-- <button *ngIf="canCreate" mat-raised-button color="primary" class="btn-blue" (click)="openaudit(null)">
       <mat-icon>person_add</mat-icon> Add Audit
+    </button> -->
+    <button mat-raised-button color="primary" class="btn-blue" [disabled]="!canCreate"
+      [ngClass]="{ 'disable-custom': !canCreate }"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create an audit' : ''" matTooltipPosition="above"
+      (click)="canCreate && openaudit(null)">
+
+      <mat-icon>person_add</mat-icon>
+      Add Audit
     </button>
   </div>
 
@@ -344,15 +353,18 @@
 
           <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
             <!-- Audit Reference -->
-            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
+            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.disable-custom]="!canreadDashboard"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+              [matTooltip]="!canreadDashboard ? 'You don’t have permission to view' : 'View Audit Reference'">
 
-              <a [routerLink]="['/app/sqm/parts-inner-screen/parts-audit-reference']" [queryParams]="{
-            partMasterId: audit.partMasterId,
-            partFamilyId: audit.partFamilyId,
-            partAuditId: audit.partAuditId,done:audit.done
-        }">
+              <a [routerLink]="canreadDashboard ? ['/app/sqm/parts-inner-screen/parts-audit-reference'] : null"
+                [queryParams]="canreadDashboard ? {
+      partMasterId: audit.partMasterId,
+      partFamilyId: audit.partFamilyId,
+      partAuditId: audit.partAuditId,
+      done: audit.done
+    } : null">
 
                 {{ '2026/PART/' + padId(audit.partAuditId) }}
 
@@ -497,14 +509,26 @@
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              <i class="fas fa-edit edit-icon" title="Edit" (click)="openaudit(audit)">
+              <!-- Edit -->
+              <i class="fas fa-edit edit-icon" [class.disable-custom]="!canUpdate"
+                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+                (click)="canUpdate && openaudit(audit)">
               </i>
 
-              <i class="fas fa-trash delete-icon" title="Delete" (click)="deleteConfirmation(audit)">
+              <!-- Delete -->
+              <i class="fas fa-trash delete-icon" [class.disable-custom]="!canDelete"
+                [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                (click)="canDelete && deleteConfirmation(audit)">
               </i>
-              <i class="fas" [ngClass]="audit.archive ? 'fa-box-open archive-icon' : 'fa-archive archive-icon'"
-                [matTooltip]="audit.done ? (audit.archive ? 'Unarchive' : 'Archive') : 'Mark as Done first'"
-                [class.disabled-icon]="!audit.done" (click)="audit.done && changeArchiveStatus(audit)">
+
+              <!-- Archive / Unarchive -->
+              <i class="fas" [ngClass]="audit.archive
+      ? 'fa-box-open archive-icon'
+      : 'fa-archive archive-icon'" [class.disable-custom]="!canUpdate || !audit.done" [matTooltip]="!canUpdate
+      ? 'You don’t have permission to update'
+      : (audit.done
+          ? (audit.archive ? 'Unarchive' : 'Archive')
+          : 'Mark as Done first')" (click)="canUpdate && audit.done && changeArchiveStatus(audit)">
               </i>
 
             </td>

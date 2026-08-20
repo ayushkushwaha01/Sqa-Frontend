@@ -10,8 +10,13 @@
 
 
 
-    <button mat-raised-button color="primary" class="btn-blue" (click)="addbatchpop(null)">
-      <mat-icon>add</mat-icon> Add Batch
+    <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Batch'"
+      (click)="canCreate && addbatchpop(null)">
+
+      <mat-icon>add</mat-icon>
+      Add Batch
+
     </button>
   </div>
 
@@ -77,15 +82,24 @@
 
           </td>
 
-          <td class="text-center  ">
+          <td class="text-center">
 
+            <!-- Edit -->
+            <a [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
+              style="margin-right: 12px; cursor: pointer;" (click)="canUpdate && addbatchpop(item)">
 
-
-            <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;" (click)="addbatchpop(item)">
               <i class="fa fa-edit text-primary"></i>
+
             </a>
-            <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteConfirmation(item)">
+
+            <!-- Delete -->
+            <a [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
+              style="cursor: pointer;" (click)="canDelete && deleteConfirmation(item)">
+
               <i class="fa fa-trash text-danger"></i>
+
             </a>
 
           </td>

@@ -13,6 +13,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-completed-audits',
@@ -33,12 +34,21 @@ export class PartsCompletedAuditsComponent implements OnInit {
   fromIndex: number = 0;
   pageSize: number = 20;
   tableLists: any[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 22;
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.fomrInit();
 
     this.getPartsAuidt();

@@ -5,6 +5,7 @@ import { DefectsPopMasterComponent } from '../inspection-datatable/defects-pop-m
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 import { InspectionService } from '../inspection.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-inspection-analytics',
@@ -58,7 +59,14 @@ export class InspectionAnalyticsComponent implements OnInit {
     private inspectionService: InspectionService
   ) { }
 
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 26; // Screen ID for Process Analytics
+
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+
+    // 🔥 If they can't read, stop loading charts/API calls
+    if (!this.canRead) return;
     this.updateDaysInMonth();
     this.fetchAnalyticsData();
   }

@@ -21,16 +21,17 @@ import { PartsAddParameterComponent } from './parts-reference/parts-add-paramete
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const routes: Routes = [
   {
     // The base path loads the main active audits table
-    path: '', 
+    path: '',
     component: PartsActiveAuditsComponent
   },
   {
     // This handles the routing when you click a reference link
-    path: 'reference', 
+    path: 'reference',
     component: PartsReferenceComponent
   }
 ];
@@ -52,18 +53,19 @@ const routes: Routes = [
     MatCheckboxModule,
     MatPaginatorModule,
     MatSelectModule,
-        CommonModule,
-        RouterModule.forChild(routes),
-        SharedModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatIconModule,
-        MatDialogModule,
-        MatPaginatorModule,
-        MatCardModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatCardModule
+    CommonModule,
+    RouterModule.forChild(routes),
+    SharedModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatPaginatorModule,
+    MatCardModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatCardModule,
+    MatTooltipModule
   ]
 })
 export class PartsActiveAuditsModule { }

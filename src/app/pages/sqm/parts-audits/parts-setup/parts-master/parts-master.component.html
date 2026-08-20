@@ -11,15 +11,20 @@
       Filter
     </button>
 
-    <button (click)="addpart(null)" mat-raised-button color="primary" style="background-color: #1b85ca; color: #fff;">
+    <!-- Add Part -->
+    <button (click)="canCreate && addpart(null)" mat-raised-button color="primary" [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Part'"
+      style="background-color: #1b85ca; color: #fff;">
 
-      <mat-icon class="icon-sm" style="margin-right: 4px;  margin-top:4px">
+      <mat-icon class="icon-sm" style="margin-right: 4px; margin-top:4px">
         add
       </mat-icon>
 
-      Add Part
-    </button>
+      <span class="button-text">
+        Add Part
+      </span>
 
+    </button>
   </div>
 
   <div class="filter-wrapper" *ngIf="showFilters">
@@ -119,39 +124,56 @@
           <td>{{ item.partMasterCode || '-' }}</td>
           <td>{{ item.partFamilyName || '-' }}</td>
           <td>{{ item.commodityName || '-' }}</td>
-          <td class="text-center text-link" style="color: blue; cursor: pointer;" (click)="opensuppliers(item)">
+          <!-- Supplier Count -->
+          <td class="text-center text-link" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Suppliers'"
+            style="color: blue; cursor: pointer;" (click)="canUpdate && opensuppliers(item)">
 
             {{ item.supplierCount || 0 }}
 
           </td>
+          <!-- Parameters Count -->
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Parameters'">
 
-          <td class="text-center">
-            <a class="text-blue" style="cursor:pointer;text-decoration:underline;" [routerLink]="['../parts-parameter']"
-              [queryParams]="{ partMasterId: item.partMasterId }">
+            <a class="text-blue" style="cursor:pointer;text-decoration:underline;"
+              [routerLink]="canUpdate ? ['../parts-parameter'] : null"
+              [queryParams]="canUpdate ? { partMasterId: item.partMasterId } : null">
 
               {{ item.parametersCount || 0 }}
 
             </a>
+
           </td>
-          <td class="text-center">
+          <!-- Status -->
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'">
+
             <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
-              matTooltip="Click to Change Status" (click)="changeStatus(item)">
+              (click)="canUpdate && changeStatus(item)">
 
               {{ item.isActive ? 'Active' : 'Inactive' }}
 
             </a>
+
           </td>
 
-
+          <!-- Edit / Delete -->
           <td class="text-center manage-icons">
 
-            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addpart(item)"
-              style="margin-right: 10px; cursor: pointer;"></i>
-            <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)"
-              style="cursor: pointer;"></i>
+            <!-- Edit -->
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addpart(item)" style="margin-right: 10px; cursor: pointer;">
+            </i>
+
+            <!-- Delete -->
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && deleteConfirmation(item)" style="cursor: pointer;">
+            </i>
 
           </td>
-
         </tr>
 
         <tr *ngIf="tableLists.length === 0">

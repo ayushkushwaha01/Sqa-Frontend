@@ -5,6 +5,7 @@ import { ProcessAuditService } from '../process-audit.service';
 import { AlertService } from '../../../../../shared/alert.service';
 import { ConfirmationDialogComponent } from '../../../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from '../../../../../status-change/status-change.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-process-audits-categories',
@@ -24,6 +25,12 @@ export class ProcessAuditsCategoriesComponent implements OnInit {
 
   totalSize: number = 0;
   filteredTableData: any[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 31;
 
 
   constructor(
@@ -38,6 +45,10 @@ export class ProcessAuditsCategoriesComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.getCategories();
   }
 

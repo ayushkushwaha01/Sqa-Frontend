@@ -41,13 +41,17 @@
                     <!-- Action -->
                     <td class="text-center">
 
-                        <button mat-raised-button color="primary" (click)="saveOccurrence(item)">
+                        <button mat-raised-button color="primary" [ngClass]="{ 'disable-custom': !canUpdate }"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Save'"
+                            (click)="canUpdate && saveOccurrence(item)">
 
                             <mat-icon class="mt-1">
                                 save
                             </mat-icon>
 
-                            Save
+                            <span class="button-text">
+                                Save
+                            </span>
 
                         </button>
 

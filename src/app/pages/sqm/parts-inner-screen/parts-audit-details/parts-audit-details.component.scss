@@ -726,13 +726,24 @@
 // ========================================
 
 .custom-save-btn {
-  color: white;
+  background-color: rgb(0, 153, 255);
+  color: white !important;
 }
 
 .custom-save-btn mat-icon {
   vertical-align: middle;
-
   margin-right: 4px;
+}
+
+.custom-save-btn.disable-custom {
+  background-color: #d3d3d3 !important;
+  color: #808080 !important;
+  filter: grayscale(1) !important;
+  cursor: not-allowed !important;
+}
+
+.custom-save-btn.disable-custom mat-icon {
+  color: #808080 !important;
 }
 
 .delete-media-btn {

@@ -122,9 +122,15 @@
         <tbody>
           <tr *ngFor="let applicant of pagedTableList">
             <td class="text-center">
-              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
+
+              <a [class.disable-custom]="!canDelete"
+                [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                (click)="canDelete && deleteConfirmation(applicant)">
+
                 <i class="fa fa-trash red"></i>
+
               </a>
+
             </td>
 
             <td class="text-center">
@@ -140,21 +146,33 @@
             </td>
 
             <td class="text-center">
-              <mat-checkbox [(ngModel)]="applicant.resolved" [disabled]="true"
-                color="primary"></mat-checkbox>
+              <mat-checkbox [(ngModel)]="applicant.resolved" [disabled]="true" color="primary"></mat-checkbox>
             </td>
 
-            <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
+            <td class="text-center" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Documents'"
+              style="color: blue; cursor: pointer;" (click)="canUpdate && docsPhoto(applicant)">
+
               {{ applicant?.docs }}
-            </td>
 
-            <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','inspect-inner-screen','capa-view']"
-                [queryParams]="{ inspectionRefId: applicant?.inspectionRefId, parameterName: applicant?.parameterName }">
+            </td>
+            <td class="text-link text-center" [class.disable-custom]="!canreadCAPAScreen"
+              [matTooltip]="!canreadCAPAScreen ? 'You don’t have permission to view' : 'View CAPA'">
+
+              <a [routerLink]="canreadCAPAScreen
+      ? ['/app', 'sqm', 'inspect-inner-screen', 'capa-view']
+      : null" [queryParams]="canreadCAPAScreen
+      ? {
+          inspectionRefId: applicant?.inspectionRefId,
+          parameterName: applicant?.parameterName
+        }
+      : null">
+
                 {{ applicant?.reference }}
-              </a>
-            </td>
 
+              </a>
+
+            </td>
             <!-- CAPA SUBJECT (CLEAN TEXT, NO ICON) -->
             <td class="text-center">{{ applicant?.actionSubject }}</td>
 

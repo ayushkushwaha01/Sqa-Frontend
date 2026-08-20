@@ -27,6 +27,13 @@
     color: #fff !important;
   }
 
+  .btn-dark.disable-custom {
+    background-color: #d3d3d3 !important;
+    color: #808080 !important;
+    filter: grayscale(1) !important;
+    cursor: not-allowed !important;
+  }
+
   .btn-blue {
     background-color: #0d8add !important;
     /* Light blue from image */

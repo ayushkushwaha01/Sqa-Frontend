@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { AlertService } from 'src/app/shared/alert.service';
 
@@ -12,6 +13,11 @@ export class DemeritMasterComponent implements OnInit {
 
   //originalData: VendorRating[] = [];
 
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 37;
 
   constructor(
     private dialog: MatDialog,
@@ -22,6 +28,10 @@ export class DemeritMasterComponent implements OnInit {
   tableData: any[] = [];
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
 
     this.getDemeritMaster();
 

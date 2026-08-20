@@ -10,9 +10,18 @@
 
     <button mat-raised-button
       style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
-      (click)="addCategory(null)">
-      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">add</mat-icon>
-      Add Process Category
+      [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Process Category'"
+      (click)="canCreate && addCategory(null)">
+
+      <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">
+        add
+      </mat-icon>
+
+      <span class="button-text">
+        Add Process Category
+      </span>
+
     </button>
   </div>
 
@@ -65,24 +74,45 @@
         <tr *ngFor="let item of tableData">
           <td>{{ item.name }}</td>
           <td class="text-center">{{ item.code }}</td>
-          <td class="text-center">
-            <!-- 🔥 Data bound to item.processCategoryId and item.checklistCount -->
-            <a [routerLink]="['inner']" class="text-blue" [queryParams]="{ id: item.processCategoryId }"
-              style=" cursor: pointer;" matTooltip="View Details">
+          <td class="text-center" [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'View Details'">
+
+            <a [routerLink]="canCreate ? ['inner'] : null"
+              [queryParams]="canCreate ? { id: item.processCategoryId } : null" class="text-blue"
+              style="cursor: pointer;">
+
               {{ item.checklistCount }}
+
             </a>
+
           </td>
           <td class="text-center">
+
             <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
-              matTooltip="Click to Change Status" style="cursor: pointer;" (click)="toggleStatus(item)">
+              [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'"
+              style="cursor: pointer;" (click)="canUpdate && toggleStatus(item)">
+
               {{ item.isActive ? 'Active' : 'Inactive' }}
+
             </a>
+
           </td>
+
           <td class="text-center manage-icons">
-            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addCategory(item)"
-              style="cursor: pointer; margin-right: 10px;"></i>
-            <i class="fa fa-trash text-danger" matTooltip="Delete" style="cursor: pointer;"
-              (click)="deleteCategory(item)"></i>
+
+            <!-- Edit -->
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addCategory(item)" style="cursor: pointer; margin-right: 10px;">
+            </i>
+
+            <!-- Delete -->
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'" style="cursor: pointer;"
+              (click)="canDelete && deleteCategory(item)">
+            </i>
+
           </td>
         </tr>
         <tr *ngIf="tableData.length === 0">

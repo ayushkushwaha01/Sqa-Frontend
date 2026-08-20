@@ -6,6 +6,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-city-master',
@@ -18,21 +19,27 @@ export class CityMasterComponent implements OnInit {
     { name: 'Active', value: true },
     { name: 'Inactive', value: false }
   ];
-  
+
   // Variables for the cities
   citiesList: any[] = [];
   filteredCities: any[] = [];
   uniqueStates: string[] = []; // Holds unique state names for the dropdown
-  
+
   showFilters: boolean = false;
   filterForm: FormGroup;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 45;
+
 
   constructor(
     private fb: FormBuilder, // Injected FormBuilder
-    private dialog: MatDialog, 
+    private dialog: MatDialog,
     private setupservice: SetupService,
-    private alertService: AlertService 
-  ) { 
+    private alertService: AlertService
+  ) {
     // Initialize the form
     this.filterForm = this.fb.group({
       cityName: [''],
@@ -42,6 +49,10 @@ export class CityMasterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.getAllCities();
   }
 
@@ -55,10 +66,10 @@ export class CityMasterComponent implements OnInit {
         if (res && res.success) {
           this.citiesList = res.data;
           this.filteredCities = [...this.citiesList];
-          
+
           // Extract unique state names for the dropdown
           const states = this.citiesList.map(city => city.stateName).filter(state => !!state);
-          this.uniqueStates = [...new Set(states)]; 
+          this.uniqueStates = [...new Set(states)];
         } else {
           this.alertService.createAlert(res.message || 'Failed to load cities', 0);
         }
@@ -82,11 +93,11 @@ export class CityMasterComponent implements OnInit {
       if (filters.cityName) {
         matchesCity = city.cityName.toLowerCase().includes(filters.cityName.toLowerCase());
       }
-      
+
       if (filters.stateName) {
         matchesState = city.stateName === filters.stateName;
       }
-      
+
       // Strict check for status because false is a valid value
       if (filters.status !== null && filters.status !== undefined && filters.status !== '') {
         matchesStatus = city.isActive === filters.status;
@@ -154,9 +165,9 @@ export class CityMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        const payload = { 
-          ...item, 
-          deletedBy: 1 
+        const payload = {
+          ...item,
+          deletedBy: 1
         };
 
         this.setupservice.deleteCity(payload).subscribe({

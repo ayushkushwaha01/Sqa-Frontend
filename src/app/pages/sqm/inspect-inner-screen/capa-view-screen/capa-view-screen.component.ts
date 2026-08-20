@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { InspectionService } from '../../inspection/inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { SetupService } from 'src/app/pages/setup/setup.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-capa-view-screen',
@@ -37,6 +38,12 @@ export class CapaViewScreenComponent implements OnInit {
   localImageFiles: File[] = [];
   localImagePreviews: string[] = [];
 
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+
+  readonly SCREEN_ID: number = 42;
 
 
   // Combined for Slideshow
@@ -54,6 +61,11 @@ export class CapaViewScreenComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
     this.isSupplier = localStorage.getItem('UserType') === 'Supplier';
     this.initForm();
     this.loadSeverities();

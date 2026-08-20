@@ -43,8 +43,13 @@
   <button mat-raised-button style="background-color: #000000; color: #ffffff;" (click)="showFilter = !showFilter">
     <mat-icon>filter_list</mat-icon> Filter
   </button>
-  <button mat-raised-button color="primary" (click)="addrecord(null)">
-    <mat-icon>add</mat-icon> Add Record
+  <button mat-raised-button color="primary" [class.disable-custom]="!canCreate"
+    [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Record'"
+    (click)="canCreate && addrecord(null)">
+
+    <mat-icon>add</mat-icon>
+    Add Record
+
   </button>
 </div>
 
@@ -169,22 +174,48 @@
     <tbody>
       <tr *ngFor="let item of pagedMockdata">
         <td class="text-center">
-          <a matTooltip="Edit Record" style="margin-right: 8px; cursor: pointer;" (click)="openEditDialog(item)">
+
+          <!-- Edit -->
+          <a matTooltip="Edit Record" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
+            style="margin-right: 8px; cursor: pointer;" (click)="canUpdate && openEditDialog(item)">
+
             <i class="fa fa-edit" style="color: cornflowerblue;"></i>
           </a>
-          <a matTooltip="Delete Record" style="margin-right: 8px; cursor: pointer;" (click)="deleteConfirmation(item)">
+
+          <!-- Delete -->
+          <a [class.disable-custom]="!canDelete"
+            [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
+            style="margin-right: 8px; cursor: pointer;" (click)="canDelete && deleteConfirmation(item)">
+
             <i class="fa fa-trash" style="color: red;"></i>
           </a>
-          <a matTooltip="Archive Record" style="cursor: pointer;" (click)="archiveRecord(item)">
+
+          <!-- Archive -->
+          <a [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Archive Record'"
+            style="cursor: pointer;" (click)="canUpdate && archiveRecord(item)">
+
             <i class="fa fa-archive" style="color: gray;"></i>
           </a>
+
         </td>
 
-        <td class="text-link text-center">
-          <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
-            [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }">
+        <td class="text-link text-center" [class.disable-custom]="!canreadDashboard"
+          [matTooltip]="!canreadDashboard ? 'You don’t have permission to view' : 'View Record'">
+
+          <a [routerLink]="canreadDashboard ? ['/app', 'sqm', 'inspect-inner-screen', 'active-records'] : null"
+            [queryParams]="canreadDashboard ? {
+      inspectionId: item.id,
+      reference: item.Reference,
+      partFamily: item.PartFamily,
+      partName: item.PartName
+    } : null">
+
             {{ item.Reference }}
+
           </a>
+
         </td>
         <td class="text-center">{{ item.stage }}</td>
         <td class="text-center">
@@ -198,18 +229,33 @@
         <td class="text-center">{{ item.PartName }}</td>
         <td class="text-center">{{ item.PartNumber }}</td>
 
-        <td class="text-center">
+        <td class="text-center" [class.disable-custom]="!canUpdate"
+          [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Defects'">
+
           <a style="color: #007bff; cursor: pointer; text-decoration: underline; font-weight: 500;"
-            (click)="openDefectsPop(item)">
+            (click)="canUpdate && openDefectsPop(item)">
+
             {{ item.Defects }}
+
           </a>
+
         </td>
 
-        <td class="text-link text-center">
-          <a [routerLink]="['/app','sqm','inspect-inner-screen','active-records']"
-            [queryParams]="{ inspectionId: item.id, reference: item.Reference, partFamily: item.PartFamily, partName: item.PartName }">
+        <td class="text-link text-center" [class.disable-custom]="!canreadDashboard"
+          [matTooltip]="!canreadDashboard ? 'You don’t have permission to view' : 'View Parameters'">
+
+          <a [routerLink]="canreadDashboard ? ['/app', 'sqm', 'inspect-inner-screen', 'active-records'] : null"
+            [queryParams]="canreadDashboard ? {
+      inspectionId: item.id,
+      reference: item.Reference,
+      partFamily: item.PartFamily,
+      partName: item.PartName
+    } : null">
+
             {{ item.Parameters }}
+
           </a>
+
         </td>
         <td class="text-center">{{ item.Remarks }}</td>
         <td class="text-center">{{ item.BatchNumber }}</td>

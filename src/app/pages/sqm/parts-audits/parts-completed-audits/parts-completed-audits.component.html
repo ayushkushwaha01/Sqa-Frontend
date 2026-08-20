@@ -13,11 +13,11 @@
   </div>
 
   <div class="toolbar-row">
-
-    <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
+    <button mat-raised-button class="btn-dark" [class.disable-custom]="!canUpdate"
+      [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid View'"
+      (click)="canUpdate && openColumnSelector()">
 
       <mat-icon>grid_on</mat-icon>
-
       Grid View
 
     </button>
@@ -476,8 +476,11 @@
               [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
 
-              <i class="fas" [ngClass]="audit.archive ? 'fa-box-open archive-icon' : 'fa-archive archive-icon'"
-                [matTooltip]="audit.archive ? 'Unarchive' : 'Archive'" (click)="changeArchiveStatus(audit)">
+              <i class="fas" [ngClass]="audit.archive
+      ? 'fa-box-open archive-icon'
+      : 'fa-archive archive-icon'" [class.disable-custom]="!canUpdate" [matTooltip]="!canUpdate
+      ? 'You don’t have permission to update'
+      : (audit.archive ? 'Unarchive' : 'Archive')" (click)="canUpdate && changeArchiveStatus(audit)">
               </i>
 
             </td>

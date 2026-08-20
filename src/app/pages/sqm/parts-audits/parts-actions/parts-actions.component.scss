@@ -196,3 +196,10 @@
  .last-frozen {
    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
  }
+
+ button.disable-custom {
+   background-color: #d3d3d3 !important;
+   color: #808080 !important;
+   filter: grayscale(1) !important;
+   cursor: not-allowed !important;
+ }

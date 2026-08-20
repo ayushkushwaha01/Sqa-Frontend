@@ -8,9 +8,13 @@
     <mat-icon class="">filter_list</mat-icon> Filter
   </button>
 
-  <button mat-raised-button style="background-color: black; color: white; " matTooltip="Grid Columns"
-    (click)="openColumnSelector()">
-    <mat-icon>grid_on</mat-icon> Grid Columns
+  <button mat-raised-button style="background-color: black; color: white;" [class.disable-custom]="!canUpdate"
+    [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid Columns'"
+    (click)="canUpdate && openColumnSelector()">
+
+    <mat-icon>grid_on</mat-icon>
+    Grid Columns
+
   </button>
 </div>
 
@@ -278,7 +282,10 @@
    }">
                   <i class="fa fa-edit"></i>
                 </a> -->
-                <a matTooltip="Delete" (click)="deleteConfirmation(applicant)">
+                <a [class.disable-custom]="!canDelete"
+                  [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                  (click)="canDelete && deleteConfirmation(applicant)">
+
                   <i class="fa fa-trash red"></i>
                 </a>
 
@@ -322,24 +329,29 @@
               </td>
 
               <!-- Docs -->
-              <td *ngSwitchCase="'Docs'" class="text-center text-primary" style="cursor:pointer"
+              <td *ngSwitchCase="'Docs'" class="text-center text-primary" [class.disable-custom]="!canUpdate"
                 [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
                 [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
-                (click)="docsPhoto(applicant)">
+                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Documents'"
+                (click)="canUpdate && docsPhoto(applicant)">
 
                 {{ applicant.docCount }}
 
               </td>
 
               <!-- Reference -->
-              <td *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
+              <!-- Reference -->
+              <td *ngSwitchCase="'Reference'" class="text-center" [class.disable-custom]="!canreadCAPAScreen"
+                [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+                [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+                [matTooltip]="!canreadCAPAScreen ? 'You don’t have permission to view' : 'View Reference'">
 
-                <a [routerLink]="['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']" [queryParams]="{
-            partAuditId: applicant.partAuditId,
-            auditParameterId: applicant.auditParameterId
-        }" style="cursor: pointer; text-decoration: underline;">
+                <a [routerLink]="canreadCAPAScreen
+      ? ['/app', 'sqm', 'parts-inner-screen', 'parts-audit-details']
+      : null" [queryParams]="canreadCAPAScreen ? {
+      partAuditId: applicant.partAuditId,
+      auditParameterId: applicant.auditParameterId
+    } : null" style="cursor: pointer; text-decoration: underline;">
 
                   {{ '2026/PART/' + padId(applicant.partAuditId) }}
 
