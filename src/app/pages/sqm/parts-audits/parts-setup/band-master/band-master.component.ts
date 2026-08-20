@@ -2,6 +2,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SetupService } from 'src/app/pages/setup/setup.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 
 export interface VendorRating {
@@ -21,6 +22,12 @@ export interface VendorRating {
 export class BandMasterComponent implements OnInit {
 
   originalData: VendorRating[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 47;
+
 
 
   constructor(
@@ -32,6 +39,10 @@ export class BandMasterComponent implements OnInit {
   tableData: any[] = [];
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
 
     this.getBandMaster();
 

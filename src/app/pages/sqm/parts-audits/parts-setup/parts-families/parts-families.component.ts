@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { PartsFamilyPopComponent } from '../defects-master/parts-family-pop/parts-family-pop.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-families',
@@ -32,6 +33,12 @@ export class PartsFamiliesComponent implements OnInit {
   // Variables for Defects tracking
   allDefectsMaster: any[] = [];
   totalDefectsCount: number = 0;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 35;
 
   constructor(
     private dialog: MatDialog,
@@ -46,6 +53,10 @@ export class PartsFamiliesComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.formInit();
     this.getAllDefectsList();
     this.getPartsFamilies();

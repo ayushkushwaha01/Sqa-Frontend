@@ -52,16 +52,19 @@
                     <!-- Actions -->
                     <td class="text-center">
 
-                        <button mat-raised-button color="primary" (click)="saveDemerit(item)">
+                        <button mat-raised-button color="primary" [ngClass]="{ 'disable-custom': !canUpdate }"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Save'"
+                            (click)="canUpdate && saveDemerit(item)">
 
                             <mat-icon class="mt-1">
                                 save
                             </mat-icon>
 
-                            Save
+                            <span class="button-text">
+                                Save
+                            </span>
 
                         </button>
-
                     </td>
 
                 </tr>

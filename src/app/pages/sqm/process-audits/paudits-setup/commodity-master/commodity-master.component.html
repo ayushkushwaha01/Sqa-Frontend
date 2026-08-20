@@ -9,11 +9,11 @@
         Filter
       </button>
 
-      <button mat-raised-button
+      <button mat-raised-button [class.disable-custom]="!canCreate"
         style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
         (click)="addCommodity(null)">
         <mat-icon class="mt-1" style="font-size: 18px; height: 18px; width: 18px;">add</mat-icon>
-        Add Commodity
+        <span class="button-text">Add Commodity</span>
       </button>
     </div>
 
@@ -74,15 +74,16 @@
             <td class="text-center">{{ item.code }}</td>
             <td class="text-center">
               <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
-                matTooltip="Click to Change Status" (click)="toggleStatus(item)" style="cursor: pointer;">
+                [class.disable-custom]="!canUpdate" matTooltip="Click to Change Status" (click)="toggleStatus(item)"
+                style="cursor: pointer;">
                 {{ item.isActive ? 'Active' : 'Inactive' }}
               </a>
             </td>
             <td class="text-center manage-icons">
-              <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addCommodity(item)"
-                style="cursor: pointer; margin-right: 10px;"></i>
-              <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteCommodity(item)"
-                style="cursor: pointer;"></i>
+              <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate" matTooltip="Edit"
+                (click)="addCommodity(item)" style="cursor: pointer; margin-right: 10px;"></i>
+              <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete" matTooltip="Delete"
+                (click)="deleteCommodity(item)" style="cursor: pointer;"></i>
             </td>
           </tr>
           <tr *ngIf="tableData.length === 0">

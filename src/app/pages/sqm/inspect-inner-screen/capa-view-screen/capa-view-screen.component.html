@@ -22,11 +22,7 @@
         <div class="row form-group mt-3 align-items-start">
           <label class="control-label col-sm-4 font-weight-bold"> CAPA Subject :</label>
           <div class="col-sm-7">
-            <textarea 
-              formControlName="subject" 
-              placeholder="Enter Subject" 
-              class="form-control" 
-              rows="4" 
+            <textarea formControlName="subject" placeholder="Enter Subject" class="form-control" rows="4"
               style="height: 100px; resize: vertical;">
             </textarea>
           </div>
@@ -133,28 +129,28 @@
         <!-- DEMERIT UI IMPLEMENTATION -->
         <div class="form-group mt-3 mb-4">
           <label class="control-label font-weight-bold mb-2">Demerit :</label>
-            <div class="demerit-container d-flex">
- 
-          <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
+          <div class="demerit-container d-flex">
+
+            <div *ngFor="let item of demeritOptions" class="demerit-card" [class.selected-demerit]="
             auditForm.get('demeritId')?.value === item.demeritId
         " (click)="selectDemerit(item)" [matTooltip]="item.description" matTooltipPosition="above">
- 
-            <div class="demerit-val">
-              {{ item.demerit }}
-            </div>
- 
-            <div class="demerit-label" [ngStyle]="{
+
+              <div class="demerit-val">
+                {{ item.demerit }}
+              </div>
+
+              <div class="demerit-label" [ngStyle]="{
                 'background-color': item.bgColor,
                 'color': item.color
             }">
- 
-              {{ item.subject }}
- 
+
+                {{ item.subject }}
+
+              </div>
+
             </div>
- 
+
           </div>
- 
-        </div>
         </div>
 
         <div class="form-group mt-3">
@@ -185,17 +181,32 @@
         <div class="gallery-container d-flex align-items-center p-2">
           <div *ngIf="!isReadOnly || isSupplier"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
-            (click)="addImage()">
+            [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Image'"
+            (click)="canCreate && addImage()">
+
             <mat-icon>add</mat-icon>
+
           </div>
 
           <!-- API Uploaded Images -->
           <div *ngFor="let img of apiImages; let i = index"
             class="gallery-item me-2 border cursor-pointer bg-white position-relative" (click)="openSlideshow(i)">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
-            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="removeApiImage($event, i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button> -->
+            <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && removeApiImage($event, i)">
+
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                close
+              </mat-icon>
+
             </button>
           </div>
 
@@ -204,9 +215,21 @@
             class="gallery-item me-2 border cursor-pointer bg-light position-relative"
             (click)="openSlideshow(apiImages.length + i)">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover opacity-75">
-            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="removeLocalImage($event, i)">
+            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              (click)="removeLocalImage($event, i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button> -->
+            <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && removeLocalImage($event, i)">
+
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                close
+              </mat-icon>
+
             </button>
           </div>
         </div>
@@ -218,37 +241,62 @@
         <div class="gallery-container d-flex align-items-center p-2">
           <div *ngIf="!isReadOnly || isSupplier"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer me-2"
-            (click)="addDocument()">
+            [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Document'"
+            (click)="canCreate && addDocument()">
+
             <mat-icon>add</mat-icon>
+
           </div>
 
           <!-- API Uploaded PDFs -->
           <div *ngFor="let doc of uploadedDocs; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-white position-relative" 
-            [matTooltip]="doc.title"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative" [matTooltip]="doc.title"
             (click)="viewApiDoc(doc.url)">
             <div class="pdf-logo">
               <div class="pdf-tag">PDF</div>
               <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
             </div>
-            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
               style="padding: 0 4px;" (click)="$event.stopPropagation(); removeApiDoc(i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button> -->
+            <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && $event.stopPropagation(); canDelete && removeApiDoc(i)">
+
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                close
+              </mat-icon>
+
             </button>
           </div>
 
           <!-- Local Pending PDFs -->
           <div *ngFor="let file of selectedFiles; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-light position-relative" 
-            [matTooltip]="file.name"
+            class="gallery-item me-2 border cursor-pointer bg-light position-relative" [matTooltip]="file.name"
             (click)="viewLocalFile(file)">
             <div class="pdf-logo opacity-75">
               <div class="pdf-tag">PDF</div>
               <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
             </div>
-            <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="$event.stopPropagation(); removeLocalFile(i)">
+            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              (click)="$event.stopPropagation(); removeLocalFile(i)">
               <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            </button> -->
+            <button *ngIf="!isReadOnly || isSupplier" type="button"
+              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+              [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && removeLocalFile(i); $event.stopPropagation()">
+
+              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+                close
+              </mat-icon>
+
             </button>
           </div>
         </div>
@@ -258,13 +306,43 @@
 
     <!-- ACTION BUTTON ROW -->
     <div class="row mb-5">
-      <div *ngIf="!isReadOnly || isSupplier" class="col-12 text-end">
+      <!-- <div *ngIf="!isReadOnly || isSupplier" class="col-12 text-end">
         <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)"
           [disabled]="isSaved || auditForm.invalid">
           <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);">
             <mat-icon>{{ isUpdate ? 'edit' : 'save' }}</mat-icon> {{ isUpdate ? 'Update' : 'Save' }}
           </span>
         </button>
+      </div> -->
+      <div *ngIf="!isReadOnly || isSupplier" class="col-12 text-end">
+
+        <button type="submit" mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255)"
+          [ngClass]="{
+      'disable-custom': (!isUpdate && !canCreate) || (isUpdate && !canUpdate)
+    }" [matTooltip]="
+      !isUpdate && !canCreate
+        ? 'You don’t have permission to create'
+        : isUpdate && !canUpdate
+          ? 'You don’t have permission to update'
+          : (isSaved || auditForm.invalid ? '' : (isUpdate ? 'Update' : 'Save'))
+    " [disabled]="isSaved || auditForm.invalid" (click)="
+      (!isUpdate && canCreate) || (isUpdate && canUpdate)
+        ? null
+        : $event.preventDefault()
+    ">
+
+          <span class="mat-button-wrapper" style="color: rgb(255, 255, 255);">
+
+            <mat-icon>
+              {{ isUpdate ? 'edit' : 'save' }}
+            </mat-icon>
+
+            {{ isUpdate ? 'Update' : 'Save' }}
+
+          </span>
+
+        </button>
+
       </div>
     </div>
 

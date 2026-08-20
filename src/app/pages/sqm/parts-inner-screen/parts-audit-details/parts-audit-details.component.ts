@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-audit-details',
@@ -36,6 +37,12 @@ export class PartsAuditDetailsComponent implements OnInit {
 
   isSlideshowOpen = false;
   currentSlideIndex = 0;
+  readonly SCREEN_ID: number = 41;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+
 
   constructor(
     private fb: FormBuilder, private dialog: MatDialog,
@@ -45,6 +52,11 @@ export class PartsAuditDetailsComponent implements OnInit {
   partAuditId: number = 0;
   auditParameterId: number = 0;
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
 
     this.route.queryParams.subscribe(params => {
 

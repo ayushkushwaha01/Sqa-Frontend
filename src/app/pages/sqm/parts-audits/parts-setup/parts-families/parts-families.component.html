@@ -8,9 +8,18 @@
     </button>
     <button mat-raised-button
       style="background-color: #2196f3; color: white; padding: 0 16px; height: 40px; border: none; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer;"
-      (click)="addPartFamily(null)">
-      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">add</mat-icon>
-      Add Parts Family
+      [class.disable-custom]="!canCreate"
+      [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Parts Family'"
+      (click)="canCreate && addPartFamily(null)">
+
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px; margin-top:4px">
+        add
+      </mat-icon>
+
+      <span class="button-text">
+        Add Parts Family
+      </span>
+
     </button>
   </div>
 
@@ -59,31 +68,56 @@
           <td>{{ item.partFamilyName }}</td>
           <td class="text-center">{{ item.partFamilyCode }}</td>
 
-          <td class="text-center">
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to assign defects'">
+
             <a class="text-blue" style="cursor: pointer; text-decoration: underline; font-weight: bold;"
-              (click)="openDefectsPopup(item)" matTooltip="Click to assign defects">
+              (click)="canUpdate && openDefectsPopup(item)">
+
               {{ getDefectsCount(item) }} / {{ totalDefectsCount }}
+
             </a>
           </td>
 
-          <td class="text-center">
+
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'">
+
             <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'"
-              matTooltip="Click to Change Status" (click)="changeStatus(item)">
+              (click)="canUpdate && changeStatus(item)">
+
               {{ item.isActive ? 'Active' : 'Inactive' }}
+
             </a>
           </td>
 
-          <td class="text-center">
+
+          <td class="text-center" [class.disable-custom]="!canUpdate"
+            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Parameter Details'">
+
             <a class="text-blue" style="cursor: pointer; text-decoration: underline;"
-              [routerLink]="['../families-inner-grid']" [queryParams]="{ partFamilyId: item.partFamilyId }"
-              matTooltip="View Parameter Details">
+              [routerLink]="canUpdate ? ['../families-inner-grid'] : null"
+              [queryParams]="canUpdate ? { partFamilyId: item.partFamilyId } : null">
+
               {{ item.parametersCount || 0 }}
+
             </a>
           </td>
 
           <td class="text-center manage-icons">
-            <i class="fa fa-edit text-primary" matTooltip="Edit" (click)="addPartFamily(item)" style="margin-right: 10px; cursor: pointer;"></i>
-            <i class="fa fa-trash text-danger" matTooltip="Delete" (click)="deleteConfirmation(item)" style="cursor: pointer;"></i>
+
+            <!-- Edit -->
+            <i class="fa fa-edit text-primary" [class.disable-custom]="!canUpdate"
+              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+              (click)="canUpdate && addPartFamily(item)" style="margin-right: 10px; cursor: pointer;">
+            </i>
+
+            <!-- Delete -->
+            <i class="fa fa-trash text-danger" [class.disable-custom]="!canDelete"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              (click)="canDelete && deleteConfirmation(item)" style="cursor: pointer;">
+            </i>
+
           </td>
         </tr>
 

@@ -14,6 +14,13 @@
   margin-bottom: 20px;
 }
 
+.btn-dark.disable-custom {
+  background-color: #d3d3d3 !important;
+  color: #808080 !important;
+  filter: grayscale(1) !important;
+  cursor: not-allowed !important;
+}
+
 /* Toolbar Buttons */
 .toolbar-row {
   display: flex;

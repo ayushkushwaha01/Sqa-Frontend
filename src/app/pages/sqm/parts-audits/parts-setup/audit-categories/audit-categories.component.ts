@@ -7,6 +7,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DownloadExcelService } from 'src/app/shared/download-excel.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-audit-categories',
@@ -27,6 +28,12 @@ export class AuditCategoriesComponent implements OnInit {
 
   filterForm!: FormGroup;
   filterToggle = false;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 33;
+
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
@@ -35,6 +42,10 @@ export class AuditCategoriesComponent implements OnInit {
     }
 
     this.formInit();
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.getPartAuditCategories();
   }
 

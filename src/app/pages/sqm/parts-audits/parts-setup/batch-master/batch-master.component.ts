@@ -6,6 +6,7 @@ import { SetupService } from 'src/app/pages/setup/setup.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-batch-master',
@@ -22,6 +23,12 @@ export class BatchMasterComponent implements OnInit {
   fromIndex: number = 0;
   pageSize: number = 5;
   tableLists: any[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+
+  readonly SCREEN_ID: number = 43;
 
   constructor(private dialog: MatDialog,
     private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder,
@@ -31,6 +38,13 @@ export class BatchMasterComponent implements OnInit {
 
 
   ngOnInit(): void {
+
+
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
     const gridLength = localStorage.getItem('GridLength');
 
     if (gridLength) {

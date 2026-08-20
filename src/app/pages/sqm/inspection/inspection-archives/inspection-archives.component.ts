@@ -8,6 +8,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { InspectionService } from '../inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { PageEvent } from '@angular/material/paginator';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-inspection-archives',
@@ -36,7 +37,13 @@ export class InspectionArchivesComponent implements OnInit {
   filteredPartNames: string[] = [];
   batchNumbers: string[] = [];
   partNameSearch = '';
-
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 30;
+  readonly SCREEN_IDd: number = 42;
   constructor(
     private dialog: MatDialog,
     private inspectionService: InspectionService,
@@ -51,6 +58,11 @@ export class InspectionArchivesComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
 
     // Initialize the form group to prevent HTML errors
     this.myGroup = new FormGroup({

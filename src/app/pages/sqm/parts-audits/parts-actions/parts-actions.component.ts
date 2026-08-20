@@ -18,6 +18,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { LookupService } from 'src/app/pages/admin/lookup/lookup.service';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-actions',
@@ -40,6 +41,14 @@ export class PartsActionsComponent implements OnInit {
   fromIndex: number = 0;
   pageSize: number = 20;
   tableLists: any[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 23;
+  readonly SCREEN_IDd: number = 41;
+
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   someElementRef: any;
@@ -52,6 +61,11 @@ export class PartsActionsComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
 
     this.formInit();
     this.getCapas();

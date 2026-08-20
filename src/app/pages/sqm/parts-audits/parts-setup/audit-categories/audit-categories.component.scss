@@ -259,6 +259,18 @@
   }
 }
 
+.disable-custom {
+  color: gray !important;
+  pointer-events: none !important;
+  filter: grayscale(1) !important;
+  cursor: not-allowed !important;
+}
+
+button.disable-custom mat-icon,
+button.disable-custom .button-text {
+  color: white !important;
+}
+
 td {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   font-size: 14px;

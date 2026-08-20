@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { AlertService } from 'src/app/shared/alert.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-defects-master',
@@ -15,8 +16,14 @@ export class DefectsMasterComponent implements OnInit {
 
   dataSource = new MatTableDataSource<any>([]);
   allData: any[] = [];
-  showFilters: boolean = false; 
+  showFilters: boolean = false;
   keyword: string = '';
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+
+  readonly SCREEN_ID: number = 36;
 
   constructor(
     private dialog: MatDialog,
@@ -25,6 +32,13 @@ export class DefectsMasterComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
+
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
     this.loadData();
   }
 
@@ -43,7 +57,7 @@ export class DefectsMasterComponent implements OnInit {
 
   filterData() {
     const key = this.keyword.toLowerCase();
-    this.dataSource.data = this.allData.filter(x => 
+    this.dataSource.data = this.allData.filter(x =>
       x.defectName.toLowerCase().includes(key)
     );
   }

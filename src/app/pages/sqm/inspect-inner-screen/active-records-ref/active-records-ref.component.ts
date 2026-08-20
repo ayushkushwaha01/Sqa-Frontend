@@ -14,6 +14,7 @@ import { AddInsParameterComponent } from './add-ins-parameter/add-ins-parameter.
 import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { AddInspectiondocPopComponent } from './add-inspectiondoc-pop/add-inspectiondoc-pop.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 export interface CategoryTab {
   name: string;
@@ -48,6 +49,13 @@ export class ActiveRecordsRefComponent implements OnInit {
   selectedCategory: string = ''; // Still matches by 'name' internally to minimize breaking changes
   categoryMap: { [key: string]: any } = {};
   isSupplier: boolean = false;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 28;
+  readonly SCREEN_IDd: number = 42;
 
   constructor(
     private location: Location,
@@ -67,6 +75,11 @@ export class ActiveRecordsRefComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
 
     this.isSupplier = localStorage.getItem('UserType') === 'Supplier';
     this.route.queryParams.subscribe(params => {

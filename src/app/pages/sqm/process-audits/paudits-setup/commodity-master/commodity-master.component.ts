@@ -6,29 +6,39 @@ import { CommodityService } from './commodity.service';
 import { AlertService } from '../../../../../shared/alert.service';
 import { ConfirmationDialogComponent } from '../../../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from '../../../../../status-change/status-change.component';
- 
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+
 @Component({
   selector: 'app-commodity-master',
   templateUrl: './commodity-master.component.html',
   styleUrls: ['./commodity-master.component.scss']
 })
 export class CommodityMasterComponent implements OnInit {
-  showFilters: boolean = false; 
+  showFilters: boolean = false;
   tableData: any[] = [];
   originalTableData: any[] = [];
   selectedKeyword: string = '';
   selectedStatus: string = '';
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 32;
 
   constructor(
-    private dialog: MatDialog, 
-    public router: Router, 
+    private dialog: MatDialog,
+    public router: Router,
     private api: CommodityService,
     private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.getCommodities();
-    
+
     // Auto-refresh the outer grid count when navigating back to the master route
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd && this.isMasterRoute()) {
@@ -50,10 +60,10 @@ export class CommodityMasterComponent implements OnInit {
     const dialogRef = this.dialog.open(AddCommodityPopComponent, {
       width: '650px', disableClose: true, data: item
     });
-    dialogRef.afterClosed().subscribe(res => { 
+    dialogRef.afterClosed().subscribe(res => {
       if (res) {
         this.alertService.createAlert(item ? 'Commodity updated successfully.' : 'Commodity added successfully.', 1);
-        this.getCommodities(); 
+        this.getCommodities();
       }
     });
   }
@@ -99,15 +109,15 @@ export class CommodityMasterComponent implements OnInit {
   }
 
   toggleFilters(): void { this.showFilters = !this.showFilters; }
-  
-  onClear(): void { 
-    this.selectedKeyword = ''; 
-    this.selectedStatus = ''; 
+
+  onClear(): void {
+    this.selectedKeyword = '';
+    this.selectedStatus = '';
     this.applyFilter();
   }
 
-  onGo(): void { 
-    this.applyFilter(); 
+  onGo(): void {
+    this.applyFilter();
   }
 
   applyFilter(): void {
@@ -115,7 +125,7 @@ export class CommodityMasterComponent implements OnInit {
 
     if (this.selectedKeyword) {
       const keyword = this.selectedKeyword.trim().toLowerCase();
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         (item.name && item.name.toLowerCase().includes(keyword)) ||
         (item.code && item.code.toLowerCase().includes(keyword))
       );

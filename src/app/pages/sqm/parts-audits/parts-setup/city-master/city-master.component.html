@@ -7,8 +7,17 @@
             Filter
         </button>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <button mat-raised-button color="primary" class="btn-blue" (click)="addSupplier(null)">
-            <mat-icon>add</mat-icon> Add City
+        <!-- Add City -->
+        <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
+            [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add City'"
+            (click)="canCreate && addSupplier(null)">
+
+            <mat-icon>add</mat-icon>
+
+            <span class="button-text">
+                Add City
+            </span>
+
         </button>
     </div>
 
@@ -83,22 +92,40 @@
                     <td>{{ item.cityName }}</td>
                     <td>{{ item.stateName }}</td>
                     <td class="text-center">
-                        <span [ngStyle]="{
-                                'color': item.isActive ? 'green' : 'red',
-                                'font-weight': '500',
-                                'cursor': 'pointer'
-                            }" (click)="toggleStatus(item)" matTooltip="Click to toggle status">
+
+                        <span [class.disable-custom]="!canUpdate"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to toggle status'"
+                            [ngStyle]="{
+      'color': item.isActive ? 'green' : 'red',
+      'font-weight': '500',
+      'cursor': 'pointer'
+    }" (click)="canUpdate && toggleStatus(item)">
+
                             {{ item.isActive ? 'Active' : 'Inactive' }}
+
                         </span>
+
                     </td>
                     <td class="text-center">
-                        <a matTooltip="Edit Record" style="margin-right: 12px; cursor: pointer;"
-                            (click)="addSupplier(item)">
+
+                        <!-- Edit -->
+                        <a [class.disable-custom]="!canUpdate"
+                            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
+                            style="margin-right: 12px; cursor: pointer;" (click)="canUpdate && addSupplier(item)">
+
                             <i class="fa fa-edit text-primary"></i>
+
                         </a>
-                        <a matTooltip="Delete Record" style="cursor: pointer;" (click)="deleteRecord(item)">
+
+                        <!-- Delete -->
+                        <a [class.disable-custom]="!canDelete"
+                            [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
+                            style="cursor: pointer;" (click)="canDelete && deleteRecord(item)">
+
                             <i class="fa fa-trash text-danger"></i>
+
                         </a>
+
                     </td>
                 </tr>
                 <tr *ngIf="!filteredCities || filteredCities.length === 0">

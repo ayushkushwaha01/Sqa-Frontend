@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-analytics',
@@ -10,7 +11,15 @@ export class PartsAnalyticsComponent implements OnInit {
   // ✅ Inject ChangeDetectorRef
   constructor(private cdr: ChangeDetectorRef) { }
 
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 18; // Screen ID for Process Analytics
+
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+
+    // 🔥 If they can't read, stop loading charts/API calls
+    if (!this.canRead) return;
+
   }
 
   // ✅ Add this function! 
@@ -19,7 +28,7 @@ export class PartsAnalyticsComponent implements OnInit {
   forceUpdate(): void {
     setTimeout(() => {
       this.cdr.detectChanges();
-    }, 50); 
+    }, 50);
   }
 
 }

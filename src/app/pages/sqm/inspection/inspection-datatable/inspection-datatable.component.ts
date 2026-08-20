@@ -8,6 +8,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { PageEvent } from '@angular/material/paginator';
 import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 export class CustomDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -89,6 +90,14 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     batchNumber: ''
   };
 
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadDashboard: boolean = false;
+  readonly SCREEN_ID: number = 27;
+  readonly SCREEN_IDd: number = 28;
+
   constructor(
     private dialog: MatDialog,
     private inspectionService: InspectionService,
@@ -102,8 +111,14 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadDashboard = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
     this.loadData();
   }
+
 
   loadData() {
     this.inspectionService.getAllInspections().subscribe({

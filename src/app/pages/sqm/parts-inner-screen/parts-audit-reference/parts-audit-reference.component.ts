@@ -11,6 +11,7 @@ import { FormBuilder } from '@angular/forms';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ActivatedRoute } from '@angular/router';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-audit-reference',
@@ -40,12 +41,24 @@ export class PartsAuditReferenceComponent implements OnInit {
   PartId: number = 0;
   partAuditId: number = 0;
   done: boolean = false;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 21;
+  readonly SCREEN_IDd: number = 41;
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
     this.route.queryParams.subscribe(params => {
 
       this.partMasterId = +params['partMasterId'] || 0;

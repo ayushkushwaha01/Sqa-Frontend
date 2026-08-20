@@ -10,6 +10,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-parts-master',
@@ -29,6 +30,12 @@ export class PartsMasterComponent implements OnInit {
   fromIndex: number = 0;
   pageSize: number = 5;
   tableLists: any[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 34;
 
   constructor(private dialog: MatDialog,
     private alertService: AlertService, private _setupService: SetupService, private fb: FormBuilder, private api: CommodityService
@@ -42,6 +49,10 @@ export class PartsMasterComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
 
     this.formInit();
     this.getCommodities();

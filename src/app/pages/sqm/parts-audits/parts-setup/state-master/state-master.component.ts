@@ -6,6 +6,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-state-master',
@@ -23,6 +24,12 @@ export class StateMasterComponent implements OnInit {
     { name: 'Active', value: true },
     { name: 'Inactive', value: false }
   ];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 44;
+
 
   constructor(
     private dialog: MatDialog,
@@ -37,6 +44,10 @@ export class StateMasterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.getAllStates();
   }
 

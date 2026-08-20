@@ -18,6 +18,7 @@ import { InspectionService } from '../inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { InspectionDocspopComponent } from './inspection-docspop/inspection-docspop.component';
 import { CapaEditPopComponent } from './capa-edit-pop/capa-edit-pop.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-inspection-capa',
@@ -39,6 +40,13 @@ export class InspectionCapaComponent implements OnInit {
   processCategories: string[] = [];
   supplierNames: string[] = [];
   actionTypes: string[] = [];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  canreadCAPAScreen: boolean = false;
+  readonly SCREEN_ID: number = 29;
+  readonly SCREEN_IDd: number = 42;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -55,6 +63,11 @@ export class InspectionCapaComponent implements OnInit {
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
 
     this.myGroup = new FormGroup({
       Keyword: new FormControl(''),
