@@ -111,6 +111,7 @@ import { AddSupplierComponent } from './add-supplier/add-supplier.component';
 import { UserNotificationComponent } from './theme/components/notification/user-notification/user-notification.component';
 import { StatusChangeComponent } from './status-change/status-change.component';
 import { ColumnSelectorComponent } from './pages/column-selector/column-selector.component';
+import { NotificationsInboxComponent } from './theme/components/notification/notifications-inbox/notifications-inbox.component';
 // import { SupplierLoginComponent } from './pages/supplier-login/supplier-login.component';
 
 
@@ -232,6 +233,7 @@ export function highchartsModules() {
     UserNotificationComponent,
     StatusChangeComponent,
     ColumnSelectorComponent,
+    NotificationsInboxComponent,
     // SupplierLoginComponent,
 
 

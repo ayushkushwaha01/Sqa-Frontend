@@ -127,7 +127,7 @@ export class ManageUsersService {
   // ==========================================
   // ----------Screen PERMISSIONS Api's ---------
   // ==========================================
-  
+
   getRolePermissions(roleId: number) {
     return this.http.get(this.apiUrl + `RolePermissions/get-role-permissions?roleId=${roleId}`);
   }
@@ -138,6 +138,22 @@ export class ManageUsersService {
 
   getUserLoginPermissions(roleId: number) {
     return this.http.get(this.apiUrl + `RolePermissions/get-user-login-permissions?roleId=${roleId}`);
+  }
+
+  // ==========================================
+  // ---------- HELP DESK API ENDPOINTS -------
+  // ==========================================
+
+  getHelpDeskNotifications(userId: number, userType: string) {
+    return this.http.get<any>(`${this.apiUrl}HelpDesk/get-notifications?userId=${userId}&userType=${userType}`);
+  }
+
+  // ==========================================
+  // ---------- ESCALATION AUTOMATION ---------
+  // ==========================================
+
+  triggerDailyEscalations() {
+    return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
 
 }

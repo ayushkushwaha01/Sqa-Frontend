@@ -1,5 +1,12 @@
-<button mat-icon-button [matMenuTriggerFor]="notificationMenu" #notificationMenuTrigger="matMenuTrigger"
+<!-- <button mat-icon-button [matMenuTriggerFor]="notificationMenu" #notificationMenuTrigger="matMenuTrigger"
     [matBadge]="getCriticalCount()" matBadgeColor="accent" matBadgeSize="small">
+    <mat-icon style="color:white;">notifications</mat-icon>
+</button> -->
+
+<button mat-icon-button [matMenuTriggerFor]="notificationMenu" #notificationMenuTrigger="matMenuTrigger"
+    [matBadge]="notifications.length" 
+    [matBadgeHidden]="notifications.length === 0"
+    matBadgeColor="accent" matBadgeSize="small">
     <mat-icon style="color:white;">notifications</mat-icon>
 </button>
 
@@ -17,8 +24,9 @@
     <mat-divider></mat-divider>
 
     <!-- Notification List -->
-    <div *ngFor="let notification of notifications" class="notification-item p-2"
-        [ngClass]="'severity-' + notification.severity.toLowerCase()">
+    <div *ngFor="let notification of notifications | slice:0:5" class="notification-item p-2"
+        [ngClass]="'severity-' + notification.severity.toLowerCase()"
+        routerLink="/app/notifications" (click)="closeNotificationMenu()" style="cursor: pointer;">
 
         <!-- Audit Type & Date -->
         <div class="notification-header-info">

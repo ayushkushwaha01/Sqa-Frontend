@@ -1,4 +1,11 @@
 // Notifications Menu Styles
+:host ::ng-deep {
+  .mat-badge-content {
+    top: 4px !important;
+    right: 4px !important;
+  }
+}
+
 .notifications-menu {
   width: 450px !important;
   max-height: 600px !important;

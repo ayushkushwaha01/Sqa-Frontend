@@ -1,0 +1,25 @@
+textarea.form-control {
+  min-height: 160px !important;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+
+  &:focus {
+    border-color: #0b57d0;
+    box-shadow: 0 0 0 0.2rem rgba(11, 87, 208, 0.25);
+  }
+}
+
+input.form-control {
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+
+  &:focus {
+    border-color: #0b57d0;
+    box-shadow: 0 0 0 0.2rem rgba(11, 87, 208, 0.25);
+  }
+}

@@ -240,6 +240,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.selectedCategory = category;
     this.processSteps = [];
     this.selectedStep = null;
+    this.resetForm();
 
     this.api.getChecklists(category.processCategoryId).subscribe((res: any) => {
       if (res.success && res.data.length > 0) {
@@ -290,18 +291,19 @@ export class ProcessAuditReferenceComponent implements OnInit {
   //   });
   // }
 
- loadSavedResponse() {
+  loadSavedResponse() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
     const chkId = this.selectedStep?.checklistId;
     
     if (!parentAuditId || !chkId) return;
 
-    // 1. INSTANT POPULATION FROM MEMORY CACHE
+    // 1. INSTANT POPULATION FROM MEMORY CACHE OR RESET FORM
     if (this.checklistResponses[chkId] && this.checklistResponses[chkId].compliance) {
       this.isExistingRecord = true; // Memory says it exists
       this.populateFormFromData(this.checklistResponses[chkId]);
     } else {
       this.isExistingRecord = false; // Memory says it's new
+      this.resetForm(); // 🔥 Reset form so previous question's data doesn't leak
     }
 
     // 2. REFRESH FROM API
@@ -316,9 +318,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
         }
       } else {
         this.isExistingRecord = false; // 🔥 API confirms it is a NEW record
-        if (!this.checklistResponses[chkId]) {
-          this.resetForm();
-        }
+        this.resetForm(); // 🔥 Always reset form when no saved record exists
       }
     });
   }
@@ -582,6 +582,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
           if (this.selectedStep?.checklistId) {
             this.checklistResponses[this.selectedStep.checklistId] = {
               ...this.checklistResponses[this.selectedStep.checklistId],
+              ...payload,
               compliance: this.complianceStatus
             };
           }

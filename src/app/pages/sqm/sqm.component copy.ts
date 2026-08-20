@@ -90,19 +90,10 @@ export class SqmComponent implements OnInit, OnDestroy {
     window.open(`assets/${fileName}`, '_blank');
   }
 
-  // openHelpDesk() {
-  //   this.dialog.open(PauditsHelpDeskComponent, { width: '600px', height: '350px' });
-  // }
-
-
-  // 🔥 Update this function
-  openHelpDesk(moduleName: string) {
-    this.dialog.open(PauditsHelpDeskComponent, { 
-      width: '650px', 
-      data: { module: moduleName } // Send module name to popup
-    });
+  openHelpDesk() {
+    this.dialog.open(PauditsHelpDeskComponent, { width: '600px', height: '350px' });
   }
-  
+
   // Inside SqmComponent class
   updateLayout(url: string) {
     // Hide sidebar entirely for specific inner screens
@@ -160,7 +151,7 @@ export class SqmComponent implements OnInit, OnDestroy {
       this.alertService.createAlert('Access Denied: You do not have permission to add a new record.', 0);
       return; 
     }
-
+    
     this.dialog.open(AddRecordPopComponent, {
       width: '1000px',
       height: 'auto',

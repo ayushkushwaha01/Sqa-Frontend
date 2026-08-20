@@ -60,8 +60,7 @@ export class PartsAuditsComponent implements OnInit, AfterViewInit {
   }
  openHelpDesk(){
      this.dialog.open(PauditsHelpDeskComponent, {
-       width: '600px',
-       height: '350px'
+       width: '650px'
      });
    }
 }

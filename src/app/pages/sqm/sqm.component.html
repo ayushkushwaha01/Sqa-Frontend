@@ -131,7 +131,7 @@
         <!-- 🔥 IT Help Desk (Screen ID 17 - Requires CREATE) 🔥 -->
         <li [ngClass]="{'disabled-nav': !canCreate(17)}">
           <!-- Has Permission -->
-          <a *ngIf="canCreate(17)" (click)="openHelpDesk()">
+          <a *ngIf="canCreate(17)" (click)="openHelpDesk('Process Audits')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
             <span *ngIf="isSidenavOpen">IT Help Desk</span>
           </a>
@@ -224,7 +224,7 @@
         </li> -->
 
         <li [ngClass]="{'disabled-nav': !canCreate(25)}">
-          <a *ngIf="canCreate(25)" (click)="openHelpDesk()">
+          <a *ngIf="canCreate(25)" (click)="openHelpDesk('Parts Audits')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
             <span *ngIf="isSidenavOpen">IT Help Desk</span>
           </a>
@@ -348,7 +348,7 @@
 
         <!-- 🔥 4. IT Help Desk (Screen ID 40 - Uses CREATE permission) 🔥 -->
         <li [ngClass]="{'disabled-nav': !canCreate(40)}">
-          <a *ngIf="canCreate(40)" (click)="openHelpDesk()">
+          <a *ngIf="canCreate(40)" (click)="openHelpDesk('Inspection')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
             <span *ngIf="isSidenavOpen">IT Help Desk</span>
           </a>

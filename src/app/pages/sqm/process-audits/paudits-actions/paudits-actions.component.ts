@@ -279,6 +279,8 @@ export class PauditsActionsComponent implements OnInit {
   pageSize = 20;
   pageIndex = 0;
 
+  overdueThreshold: number = 9999; // Default high so nothing turns red until data loads
+
   get pagedCapaData() {
     const start = this.pageIndex * this.pageSize;
     return this.tableList.slice(start, start + this.pageSize);
@@ -312,14 +314,40 @@ export class PauditsActionsComponent implements OnInit {
     });
     
     this.loadLookups();
+
+     // 🔥 Silently runs the escalation check and logs the result to the browser console!
+    this.api.triggerDailyEscalations().subscribe({
+      next: (res: any) => console.log(' Background Escalation Check:', res.message),
+      error: (err) => console.error(' Escalation Check Failed:', err)
+    });
   }
 
-  loadLookups() {
-    this.api.getLookups().subscribe((res: any) => {
-      if (res.success) {
-        this.capaStatusLookups = res.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
-        this.loadData(); 
+  // loadLookups() {
+  //   this.api.getLookups().subscribe((res: any) => {
+  //     if (res.success) {
+  //       this.capaStatusLookups = res.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
+  //       this.loadData(); 
+  //     }
+  //   });
+  // }
+
+ loadLookups() {
+    // 1. Fetch the Escalation Matrix FIRST to get the Overdue Threshold
+    this.api.getEscalations().subscribe((res: any) => {
+      if (res.success && res.data) {
+        const overdue = res.data.find((x: any) => x.escalationName === 'Overdue');
+        if (overdue && overdue.newValue) {
+          this.overdueThreshold = parseInt(overdue.newValue, 10);
+        }
       }
+
+      // 2. ONLY AFTER getting the threshold, fetch lookups and load the table data!
+      this.api.getLookups().subscribe((lookupRes: any) => {
+        if (lookupRes.success) {
+          this.capaStatusLookups = lookupRes.data.filter((l: any) => l.codeMasterName === 'Capa-Status');
+          this.loadData(); 
+        }
+      });
     });
   }
 
@@ -327,12 +355,34 @@ export class PauditsActionsComponent implements OnInit {
     this.api.getAllCapas().subscribe((res: any) => {
       if (res.success) {
         this.originalTableList = res.data.map((item: any) => {
+          
+          // 1. Map the Dropdown Status
           if (item.status && isNaN(Number(item.status))) {
             const matched = this.capaStatusLookups.find(l => l.lookupName.toLowerCase() === item.status.toLowerCase());
             item.status = matched ? matched.lookupId.toString() : '10019'; 
           } else if (!item.status) {
             item.status = '10019'; 
           }
+
+          // 🔥 2. LIVE DELAY CALCULATION FIX 🔥
+          // If there is a due date and the CAPA is NOT resolved, calculate the days between then and today
+          if (item.dueDate && !item.resolved) {
+            const currentDate = new Date();
+            const dueDate = new Date(item.dueDate);
+            
+            // Calculate time difference in milliseconds
+            const timeDiff = currentDate.getTime() - dueDate.getTime();
+            
+            // Convert milliseconds to full days
+            const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            
+            // If the difference is greater than 0, it's overdue!
+            item.delayInDays = daysDiff > 0 ? daysDiff : 0;
+          } else {
+            // If it is resolved or has no due date, delay is 0
+            item.delayInDays = 0;
+          }
+
           return item;
         });
 

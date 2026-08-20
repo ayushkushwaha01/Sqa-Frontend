@@ -1,0 +1,173 @@
+<div class="inbox-container">
+
+  <!-- TOP HEADER WITH 2 SECTION BUTTONS AND SEARCH -->
+  <div class="inbox-header">
+    <div class="section-tabs">
+      <button class="section-btn" [class.active]="activeSection === 'mails'" (click)="setSection('mails')">
+        <mat-icon>mail</mat-icon>
+        <span>Mails</span>
+        <span class="count-badge" *ngIf="mailCount > 0">{{ mailCount }}</span>
+      </button>
+
+      <button class="section-btn" [class.active]="activeSection === 'notifications'" (click)="setSection('notifications')">
+        <mat-icon>notifications</mat-icon>
+        <span>Notifications</span>
+        <span class="count-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+      </button>
+    </div>
+
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [(ngModel)]="searchQuery" [placeholder]="activeSection === 'notifications' ? 'Search notifications...' : 'Search mails...'" />
+      <button mat-icon-button *ngIf="searchQuery" (click)="searchQuery=''" class="clear-btn">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+
+    <button mat-icon-button (click)="goBack()" matTooltip="Back to previous screen" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <!-- MAIN BODY AREA (LEFT LIST + RIGHT READING PANE) -->
+  <div class="inbox-body">
+
+    <!-- LEFT LIST PANE -->
+    <div class="list-pane">
+      <div class="list-count-header">
+        <span>{{ activeSection === 'notifications' ? 'Notifications' : 'All Mails' }}</span>
+        <span class="total-count">({{ filteredItems.length }})</span>
+      </div>
+
+      <div class="items-wrapper">
+        <div *ngFor="let item of filteredItems"
+             class="item-card"
+             [class.selected]="selectedItem?.id === item.id"
+             [class.unread]="!item.isRead"
+             (click)="selectItem(item)">
+
+          <div class="item-header-row">
+            <span class="item-title">
+              <ng-container *ngIf="item.auditType === 'Help Desk'">{{ item.sender }}</ng-container>
+              <ng-container *ngIf="item.auditType !== 'Help Desk'">{{ item.auditType }}</ng-container>
+            </span>
+            <span class="item-date">{{ item.date }}</span>
+          </div>
+
+          <div class="item-body-row">
+            <span class="item-snippet">
+              <ng-container *ngIf="item.auditType !== 'Help Desk'">
+                {{ item.commodity }} - {{ item.category }}: {{ item.issue || (item.partFamily + ' ' + item.parameter) }}
+              </ng-container>
+              <ng-container *ngIf="item.auditType === 'Help Desk'">
+                {{ item.issue }} ({{ item.moduleName }})
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="filteredItems.length === 0">
+          <mat-icon>{{ activeSection === 'notifications' ? 'notifications_off' : 'mail_outline' }}</mat-icon>
+          <p>No {{ activeSection }} available</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT READING PANE -->
+    <div class="reading-pane" *ngIf="selectedItem">
+      <div class="reading-content">
+        
+        <!-- TITLE -->
+        <h2 class="reading-title">
+          <ng-container *ngIf="selectedItem.auditType !== 'Help Desk'">
+            System Alert: {{ selectedItem.commodity }} - {{ selectedItem.category }}
+          </ng-container>
+          <ng-container *ngIf="selectedItem.auditType === 'Help Desk'">
+            {{ selectedItem.issue }}
+          </ng-container>
+        </h2>
+
+        <!-- SENDER METADATA -->
+        <div class="meta-card">
+          <div class="avatar" [class.mail-avatar]="selectedItem.auditType === 'Help Desk'">
+            <mat-icon *ngIf="selectedItem.auditType !== 'Help Desk'">smart_toy</mat-icon>
+            <mat-icon *ngIf="selectedItem.auditType === 'Help Desk'">mail_outline</mat-icon>
+          </div>
+          <div class="meta-info">
+            <div class="name-line">
+              <strong *ngIf="selectedItem.auditType !== 'Help Desk'">SQA System Bot</strong>
+              <strong *ngIf="selectedItem.auditType === 'Help Desk'">SQA Administrator</strong>
+              <span class="email-sub" *ngIf="selectedItem.auditType === 'Help Desk'">&lt;sqa@updates.optionmatrix.in&gt;</span>
+              <span class="email-sub" *ngIf="selectedItem.auditType !== 'Help Desk'">&lt;alerts@sqa.com&gt;</span>
+              <span class="date-right">{{ selectedItem.date }}</span>
+            </div>
+            <div class="to-line">To: You</div>
+          </div>
+        </div>
+
+        <!-- CONTENT DETAIL -->
+        <div class="body-content">
+          <!-- Notification View -->
+          <ng-container *ngIf="selectedItem.auditType !== 'Help Desk'">
+            <p class="intro">A <strong>{{ selectedItem.auditType }}</strong> alert has been logged:</p>
+            <div class="details-box">
+              <div class="row">
+                <span class="label">Audit Type:</span>
+                <span class="value bold">{{ selectedItem.auditType }}</span>
+              </div>
+              <div class="row">
+                <span class="label">Commodity:</span>
+                <span class="value">{{ selectedItem.commodity }}</span>
+              </div>
+              <div class="row">
+                <span class="label">Category:</span>
+                <span class="value">{{ selectedItem.category }}</span>
+              </div>
+              <div class="row" *ngIf="selectedItem.issue">
+                <span class="label">Identified Issue:</span>
+                <span class="value highlight">{{ selectedItem.issue }}</span>
+              </div>
+              <div class="row" *ngIf="selectedItem.partFamily">
+                <span class="label">Part Family:</span>
+                <span class="value">{{ selectedItem.partFamily }}</span>
+              </div>
+              <div class="row" *ngIf="selectedItem.parameter">
+                <span class="label">Parameter:</span>
+                <span class="value">{{ selectedItem.parameter }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Mail View -->
+          <ng-container *ngIf="selectedItem.auditType === 'Help Desk'">
+            <div class="mail-details-card">
+              <div class="mail-field">
+                <span class="field-label">From:</span>
+                <span class="field-value">{{ selectedItem.sender }}</span>
+              </div>
+
+              <div class="mail-field" *ngIf="selectedItem.moduleName">
+                <span class="field-label">Module:</span>
+                <span class="field-value">{{ selectedItem.moduleName }}</span>
+              </div>
+
+              <mat-divider style="margin: 20px 0;"></mat-divider>
+
+              <div class="message-section">
+                <span class="field-label">Message:</span>
+                <p class="message-text">{{ selectedItem.description || 'No description provided.' }}</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty Reading Pane -->
+    <div class="reading-pane empty" *ngIf="!selectedItem">
+      <mat-icon>mark_email_unread</mat-icon>
+      <p>Select an item to read</p>
+    </div>
+
+  </div>
+</div>

@@ -37,6 +37,7 @@ import { GatesModule } from "./pages/testing/gates/gates.module";
 import { SqmComponent } from "./pages/sqm/sqm.component";
 import { SupplierLoginComponent } from "./pages/supplier-login/supplier-login.component";
 import { LoginGuard } from "./pages/helpers/login.guard";
+import { NotificationsInboxComponent } from "./theme/components/notification/notifications-inbox/notifications-inbox.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
@@ -47,6 +48,14 @@ const routes: Routes = [
     canActivate: [LoginGuard],
     children: [
       { path: "", redirectTo: "sqm", pathMatch: "full" },
+      {
+        path: "notifications",
+        component: NotificationsInboxComponent,
+        data: {
+          breadcrumb: "Notifications Inbox",
+          description: "View, manage, and inspect all system notifications and support requests."
+        },
+      },
     {
         path: "supplier-login",
         loadChildren: () =>

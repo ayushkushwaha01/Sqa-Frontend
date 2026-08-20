@@ -348,7 +348,26 @@
                 {{ applicant.reference }}
               </a>
             </td>
-            <td class="text-center">{{ applicant.actionSubject }}</td>
+            <!-- <td class="text-center">{{ applicant.actionSubject }}</td> -->
+            <!-- Replace your current CAPA Subject <td> with this: -->
+         <!-- Replace your current CAPA Subject <td> with this: -->
+<td class="text-center">
+
+  <!--  SHOW RED TEXT AND RED FLAG IF OVERDUE -->
+  <span *ngIf="applicant.delayInDays >= overdueThreshold" style="color: red; font-weight: bold;">
+    <mat-icon style="vertical-align: middle; font-size: 16px; width: 16px; height: 16px; margin-right: 4px;">flag</mat-icon>
+    {{ applicant.actionSubject }}
+  </span>
+
+  <!--  SHOW NORMAL BLACK TEXT IF NOT OVERDUE -->
+  <span *ngIf="applicant.delayInDays < overdueThreshold">
+    {{ applicant.actionSubject }}
+  </span>
+
+  <!--  TEMPORARY DEBUG TEXT: You can delete this <small> tag once it works! -->
+  <br><small style="color:blue;">(Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})</small>
+
+</td>
             <td class="text-center">{{ applicant.supplierName }}</td>
             <td class="text-center">{{ applicant.actionType }}</td>
             <td class="text-center">{{ applicant.processCategory }}</td>

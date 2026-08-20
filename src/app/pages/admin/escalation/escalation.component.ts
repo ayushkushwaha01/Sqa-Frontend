@@ -12,6 +12,7 @@ import { ManageUsersService } from '../manage-user/manage-users.service';
 })
 export class EscalationComponent implements OnInit {
 
+  isRunningEscalations: boolean = false;
   values: any[] = [];
 
   constructor(
@@ -164,6 +165,28 @@ export class EscalationComponent implements OnInit {
 
     });
 
+  }
+
+  runEscalationsNow(): void {
+    this.isRunningEscalations = true;
+    
+    // Call the new endpoint we added to your service
+    this.ManageUsersService.triggerDailyEscalations().subscribe({
+      next: (res: any) => {
+        this.isRunningEscalations = false;
+        if (res.success) {
+          // Shows exactly how many emails and notifications were generated
+          this.alertService.createAlert(res.message, 1); 
+        } else {
+          this.alertService.createAlert(res.message || 'Failed to run escalations', 0);
+        }
+      },
+      error: (err: any) => {
+        this.isRunningEscalations = false;
+        console.error('Trigger Escalation Error:', err);
+        this.alertService.createAlert('Error connecting to server to run escalations.', 0);
+      }
+    });
   }
 
 }
