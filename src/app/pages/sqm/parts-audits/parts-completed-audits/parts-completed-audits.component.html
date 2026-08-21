@@ -335,15 +335,19 @@
 
           <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
             <!-- Audit Reference -->
-            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
+            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.disable-custom]="!canreadDashboard"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)"
+              [matTooltip]="!canreadDashboard ? 'You don’t have permission to view' : 'View Audit Reference'">
 
-              <a [routerLink]="['/app/sqm/parts-inner-screen/parts-audit-reference']" [queryParams]="{
-            partMasterId: audit.partMasterId,
-            partFamilyId: audit.partFamilyId,
-            partAuditId: audit.partAuditId,done:audit.done
-        }">
+              <a [routerLink]="canreadDashboard
+      ? ['/app/sqm/parts-inner-screen/parts-audit-reference']
+      : null" [queryParams]="canreadDashboard ? {
+      partMasterId: audit.partMasterId,
+      partFamilyId: audit.partFamilyId,
+      partAuditId: audit.partAuditId,
+      done: audit.done
+    } : null">
 
                 {{ '2026/PART/' + padId(audit.partAuditId) }}
 

@@ -1,4 +1,12 @@
-.sizeAlign{
+.sizeAlign {
     margin-left: 8px;
     margin-right: 8px;
+}
+
+button.disable-custom .button-text {
+    color: white !important;
+}
+
+button.disable-custom mat-icon {
+    color: white !important;
 }

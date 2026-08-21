@@ -1,4 +1,14 @@
-<div class="row" style="padding: 15px; margin: 0;">
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <mat-icon style="font-size: 60px; height: 60px; width: 60px; color: #e53e3e;" class="mb-3">lock</mat-icon>
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view Analytics.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+
+<div class="row" style="padding: 15px; margin: 0;" *ngIf="canRead">
   <div class="col-sm-8" style="padding-left: 0;">
     <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 15px;">
 
@@ -19,8 +29,14 @@
         <mat-icon style="font-size: 20px; height: 20px; width: 20px; margin: 0;">refresh</mat-icon>
       </button>
 
-      <button mat-raised-button color="primary" (click)="addlookup(null)">
-        <mat-icon>add</mat-icon> Add Lookup
+      <!-- Add Lookup -->
+      <button mat-raised-button color="primary" [ngClass]="{'disable-custom': !canCreate}"
+        [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Lookup'"
+        (click)="canCreate && addlookup(null)">
+
+        <mat-icon>add</mat-icon>
+        <span class="button-text">Add Lookup</span>
+
       </button>
     </div>
 
@@ -38,17 +54,38 @@
           <tr *ngFor="let item of pagedData">
             <td>{{ item.lookupName }}</td>
             <td>{{ item.codeMasterName }}</td>
+            <!-- Status -->
             <td class="text-center">
-              <a class="status-link" [ngClass]="item.isActive ? 'text-blue' : 'text-red'" style="cursor:pointer;"
-                (click)="toggleStatus(item)">
+
+              <a class="status-link" [ngClass]="{
+      'text-blue': item.isActive,
+      'text-red': !item.isActive,
+      'disable-custom': !canUpdate
+    }" style="cursor:pointer;"
+                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Change Status'"
+                (click)="canUpdate && toggleStatus(item)">
+
                 {{ item.isActive ? 'Active' : 'Inactive' }}
+
               </a>
+
             </td>
+            <!-- Edit / Delete -->
             <td class="text-center">
-              <i class="fa fa-edit text-primary" style="cursor: pointer; margin-right: 15px;" matTooltip="Edit"
-                (click)="addlookup(item)"></i>
-              <i class="fa fa-trash text-danger" style="cursor: pointer;" matTooltip="Delete"
-                (click)="deleteLookup(item)"></i>
+
+              <!-- Edit -->
+              <i class="fa fa-edit text-primary" [ngClass]="{'disable-custom': !canUpdate}"
+                style="cursor: pointer; margin-right: 15px;"
+                [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
+                (click)="canUpdate && addlookup(item)">
+              </i>
+
+              <!-- Delete -->
+              <i class="fa fa-trash text-danger" [ngClass]="{'disable-custom': !canDelete}" style="cursor: pointer;"
+                [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+                (click)="canDelete && deleteLookup(item)">
+              </i>
+
             </td>
           </tr>
           <tr *ngIf="pagedData.length === 0">

@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ManageUsersService } from '../manage-user/manage-users.service';
+import { UserPermissionService } from '../../helpers/user-permission.service';
 
 @Component({
   selector: 'app-escalation',
@@ -14,6 +15,9 @@ export class EscalationComponent implements OnInit {
 
   isRunningEscalations: boolean = false;
   values: any[] = [];
+  canUpdate: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 9;
 
   constructor(
     public router: Router,
@@ -23,6 +27,8 @@ export class EscalationComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.getEscalations();
   }
 

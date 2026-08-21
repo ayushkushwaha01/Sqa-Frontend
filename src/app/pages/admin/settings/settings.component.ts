@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertService } from 'src/app/shared/alert.service';
 import { ManageUsersService } from '../manage-user/manage-users.service';
+import { UserPermissionService } from '../../helpers/user-permission.service';
 
 @Component({
   selector: 'app-settings',
@@ -10,6 +11,9 @@ import { ManageUsersService } from '../manage-user/manage-users.service';
 export class SettingsComponent implements OnInit {
 
   tableList: any[] = [];
+  canUpdate: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 7;
 
   constructor(
     private alertService: AlertService,
@@ -17,6 +21,8 @@ export class SettingsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
     this.getPreferences();
   }
 

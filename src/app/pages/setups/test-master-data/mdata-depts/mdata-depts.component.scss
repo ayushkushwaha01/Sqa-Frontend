@@ -1,13 +1,15 @@
 .active-status {
-    color: blue;
+  color: blue;
 }
 
 .inactive-status {
-    color: red;
-    
+  color: red;
+
 }
+
 .section-gap {
-  margin-bottom: 50px; /* adjust as needed */
+  margin-bottom: 50px;
+  /* adjust as needed */
 }
 
 .nav-container {
@@ -118,13 +120,20 @@
 .toggle-icon {
   font-size: 40px;
 }
+
 .nav-icon {
-  font-size: 30px;       /* Size of the icon */
+  font-size: 30px;
+  /* Size of the icon */
   height: 24px;
   width: 24px;
-  margin-left: -10px;     
+  margin-left: -10px;
   vertical-align: middle;
 }
 
+button.disable-custom .button-text {
+  color: white !important;
+}
 
-
+button.disable-custom mat-icon {
+  color: white !important;
+}

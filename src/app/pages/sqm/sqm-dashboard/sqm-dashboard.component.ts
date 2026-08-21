@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
-import { SqmDashboardService } from './sqm-dashboard.service'; 
+import { SqmDashboardService } from './sqm-dashboard.service';
+import { UserPermissionService } from '../../helpers/user-permission.service';
 
 @Component({
   selector: 'app-sqm-dashboard',
@@ -9,7 +10,7 @@ import { SqmDashboardService } from './sqm-dashboard.service';
   styleUrls: ['./sqm-dashboard.component.scss']
 })
 export class SqmDashboardComponent implements OnInit {
-  
+
   Highcharts: typeof Highcharts = Highcharts;
   filterForm!: FormGroup;
 
@@ -37,29 +38,29 @@ export class SqmDashboardComponent implements OnInit {
   getBaseOptions(isTrend: boolean = false): Highcharts.Options {
     return {
       chart: { type: 'column', backgroundColor: 'transparent' },
-      title: { text: undefined }, 
-      colors: ['#6b69a6', '#55c898'], 
-      xAxis: { 
+      title: { text: undefined },
+      colors: ['#6b69a6', '#55c898'],
+      xAxis: {
         categories: ['Quarter 1', 'Quarter 2', 'Quarter 3', 'Quarter 4'],
         lineColor: '#ccc',
         tickColor: 'transparent'
       },
-      yAxis: { 
-        min: 0, 
+      yAxis: {
+        min: 0,
         title: { text: undefined },
         gridLineColor: '#f0f0f0'
       },
-      legend: { 
-        layout: 'horizontal', 
-        align: 'center', 
+      legend: {
+        layout: 'horizontal',
+        align: 'center',
         verticalAlign: 'bottom',
         itemStyle: { fontSize: '11px', color: '#555', fontWeight: 'bold' },
-        symbolRadius: 0 
+        symbolRadius: 0
       },
       exporting: { enabled: false },
       credits: { enabled: false },
       plotOptions: { column: { pointPadding: 0.1, borderWidth: 0, groupPadding: 0.2 } },
-      series: isTrend 
+      series: isTrend
         ? [{ type: 'column', name: 'Process Audits', data: [] }, { type: 'column', name: 'Parts Audit', data: [] }]
         : [{ type: 'column', name: 'Actual', data: [] }]
     };
@@ -78,7 +79,12 @@ export class SqmDashboardComponent implements OnInit {
     });
   }
 
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 1; // Screen ID for Process Analytics
+
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    if (!this.canRead) return;
     this.loadDropdowns();
     this.loadDashboard();
   }
@@ -94,11 +100,11 @@ export class SqmDashboardComponent implements OnInit {
 
   loadDashboard() {
     const filters = this.filterForm.value;
-    
+
     // Sync the local widget dropdowns with the global filter selection
     this.localProcessCommodityId = filters.commodityId;
     this.localPartsCommodityId = filters.commodityId;
-    
+
     this.api.getDashboardData(filters.finYear, filters.commodityId, filters.severityId)
       .subscribe({
         next: (res: any) => {
@@ -116,11 +122,11 @@ export class SqmDashboardComponent implements OnInit {
     if (this.processChartRef && this.processChartRef.series.length > 0) {
       this.processChartRef.series[0].setData(chartsData.processAudits, true, false, false);
     }
-    
+
     if (this.partsChartRef && this.partsChartRef.series.length > 0) {
       this.partsChartRef.series[0].setData(chartsData.partsAudits, true, false, false);
     }
-    
+
     if (this.trendChartRef && this.trendChartRef.series.length > 1) {
       this.trendChartRef.xAxis[0].setCategories(chartsData.trendCategories, false);
       this.trendChartRef.series[0].setData(chartsData.processMonthly, false, false, false);
@@ -137,7 +143,7 @@ export class SqmDashboardComponent implements OnInit {
   onProcessCommodityChange(commodityId: number | null) {
     this.localProcessCommodityId = commodityId;
     const finYear = this.filterForm.value.finYear;
-    
+
     this.api.getProcessChartData(finYear, commodityId ? commodityId : undefined).subscribe({
       next: (res: any) => {
         if (res.success && this.processChartRef && this.processChartRef.series.length > 0) {
@@ -150,7 +156,7 @@ export class SqmDashboardComponent implements OnInit {
   onPartsCommodityChange(commodityId: number | null) {
     this.localPartsCommodityId = commodityId;
     const finYear = this.filterForm.value.finYear;
-    
+
     this.api.getPartsChartData(finYear, commodityId ? commodityId : undefined).subscribe({
       next: (res: any) => {
         if (res.success && this.partsChartRef && this.partsChartRef.series.length > 0) {
