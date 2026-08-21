@@ -6,6 +6,7 @@ import { LookupService } from './lookup.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 import { AlertService } from 'src/app/shared/alert.service';
+import { UserPermissionService } from '../../helpers/user-permission.service';
 
 @Component({
   selector: 'app-lookup',
@@ -22,6 +23,11 @@ export class LookupComponent implements OnInit {
   pageIndex: number = 0;
   pageSize: number = 10;
   pageSizeOptions: number[] = [5, 10, 25, 50, 100];
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 6;
 
   constructor(
     public dialog: MatDialog,
@@ -30,6 +36,10 @@ export class LookupComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     const gridLength = localStorage.getItem('GridLength');
 
     if (gridLength) {

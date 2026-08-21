@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MenuService } from 'src/app/theme/components/menu/menu.service';
 import { environment } from 'src/environments/environment';
 import { admindata } from '../admindata';
+import { UserPermissionService } from '../../helpers/user-permission.service';
 
 @Component({
   selector: 'app-event-log',
@@ -37,6 +38,9 @@ export class EventLogComponent implements OnInit {
   titleService: any;
   alertService: any;
   service: any;
+  canUpdate: boolean = false;
+
+  readonly SCREEN_ID: number = 8;
   constructor(public _menuService: MenuService, private fb: FormBuilder) {
     this.filterForm = this.fb.group({
       Role: new FormControl('',),
@@ -57,8 +61,11 @@ export class EventLogComponent implements OnInit {
   public setTitle(newTitle: string) {
     // this.titleService.setTitle(newTitle);
   }
+  canRead: boolean = false;
 
   ngOnInit() {
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
     if (environment.mode == 1) {
       //this.values = PartsData.getd1();
       this.eventDetails = admindata.eventLog();

@@ -1,6 +1,7 @@
 .margins {
   margin-bottom: 12px;
 }
+
 .newMarginClass {
   margin-top: 7px !important;
 }
@@ -21,7 +22,8 @@
   width: 100%;
   border-collapse: collapse;
 
-  th, td {
+  th,
+  td {
     font-family: Roboto, "Helvetica Neue", sans-serif;
     font-size: 14px;
     padding: 10px 14px;
@@ -31,25 +33,43 @@
 
   th {
     color: #FFFFFF;
-    background-color: #3f3f3f;  /* ← updated to dark gray */
+    background-color: #3f3f3f;
+    /* ← updated to dark gray */
     font-weight: 500;
     text-align: left;
-    border: 1px solid #e1e1e1;  /* ← updated */
+    border: 1px solid #e1e1e1;
+    /* ← updated */
   }
 
-  tbody tr:nth-child(even) { background-color: #f9f9f9; }
-  tbody tr:nth-child(odd) { background-color: #ffffff; }
-  tbody tr:hover { background-color: #f1f5f9; }
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  tbody tr:hover {
+    background-color: #f1f5f9;
+  }
 
   .status-link {
     cursor: pointer;
     font-weight: 400;
     text-decoration: none;
-    &:hover { text-decoration: underline; }
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
-  .text-blue { color: #0000ff !important; }
-  .text-red { color: #ff0000 !important; }
+  .text-blue {
+    color: #0000ff !important;
+  }
+
+  .text-red {
+    color: #ff0000 !important;
+  }
 
   .manage-icons {
     mat-icon {
@@ -59,8 +79,21 @@
       cursor: pointer;
       margin: 0 8px;
     }
-    .edit-icon { color: cornflowerblue; }
-    .delete-icon { color: red; }
+
+    .edit-icon {
+      color: cornflowerblue;
+    }
+
+    .delete-icon {
+      color: red;
+    }
   }
 }
 
+button.disable-custom .button-text {
+  color: white !important;
+}
+
+button.disable-custom mat-icon {
+  color: white !important;
+}

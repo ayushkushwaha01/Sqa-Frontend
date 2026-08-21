@@ -1,4 +1,13 @@
-<div fxLayout="row wrap" #resizedDiv>
+<div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
+  <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
+    <mat-icon style="font-size: 60px; height: 60px; width: 60px; color: #e53e3e;" class="mb-3">lock</mat-icon>
+    <h3 class="text-danger font-weight-bold">Access Denied</h3>
+    <p class="text-muted">You do not have permission to view Analytics.</p>
+    <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
+  </div>
+</div>
+
+<div fxLayout="row wrap" #resizedDiv *ngIf="canRead">
 
   <div class="col-sm-12 flex-p w-100">
 
@@ -48,13 +57,15 @@
 
               <div style="display: flex; justify-content: center;">
 
-                <button mat-raised-button color="primary" matTooltip="Click to Save" (click)="saveEscalation(item)">
+                <button mat-raised-button color="primary" [ngClass]="{'disable-custom': !canUpdate}"
+                  [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Click to Save'"
+                  (click)="canUpdate && saveEscalation(item)">
 
                   <mat-icon style="font-size: 20px;" class="mt-1">
                     save
                   </mat-icon>
 
-                  <span style="margin-left: 5px;">
+                  <span class="button-text" style="margin-left: 5px;">
                     Save
                   </span>
 

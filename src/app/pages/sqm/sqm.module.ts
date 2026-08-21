@@ -24,6 +24,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
 
+
 const routes: Routes = [
     { path: "", redirectTo: "sqmd", pathMatch: "full" },
     { path: 'sqmd', component: SqmDashboardComponent, data: { breadcrumb: 'Dashboard', description: 'System overview of all audits and metrics.' } },

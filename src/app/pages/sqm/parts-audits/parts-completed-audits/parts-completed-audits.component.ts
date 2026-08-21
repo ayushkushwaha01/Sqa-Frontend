@@ -38,6 +38,8 @@ export class PartsCompletedAuditsComponent implements OnInit {
   canUpdate: boolean = false;
   canDelete: boolean = false;
   canRead: boolean = false;
+  canreadDashboard: boolean = false;
+  readonly SCREEN_IDd: number = 21;
   readonly SCREEN_ID: number = 22;
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
@@ -49,6 +51,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
     this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    this.canreadDashboard = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
     this.fomrInit();
 
     this.getPartsAuidt();

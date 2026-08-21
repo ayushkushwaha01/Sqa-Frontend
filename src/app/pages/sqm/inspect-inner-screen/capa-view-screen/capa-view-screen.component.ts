@@ -51,6 +51,7 @@ export class CapaViewScreenComponent implements OnInit {
     return [...this.apiImages, ...this.localImagePreviews];
   }
 
+
   constructor(
     private fb: FormBuilder,
     private location: Location,
@@ -71,6 +72,8 @@ export class CapaViewScreenComponent implements OnInit {
     this.loadSeverities();
     this.setupScoreCalculation();
     this.getDemeritMaster();
+    this.getOccurrences();
+    this.getDetections();
 
     this.route.queryParams.subscribe(params => {
       this.isReadOnly = params['isReadOnly'] === 'true' || params['readOnly'] === 'true';
@@ -161,6 +164,33 @@ export class CapaViewScreenComponent implements OnInit {
 
   }
 
+  Occurrences: any[] = [];
+  getOccurrences() {
+    this.setupService.getOccurrence()
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.Occurrences = res.data;
+          this.calculateSodScore();
+
+        }
+      });
+  }
+  detections: any[] = [];
+  getDetections() {
+    this.setupService.getDetection()
+      .subscribe((res: any) => {
+        if (res.success) {
+
+          this.detections = res.data;
+          this.calculateSodScore();
+
+        }
+      });
+  }
+
+
+
 
   initForm(): void {
     this.auditForm = this.fb.group({
@@ -182,6 +212,9 @@ export class CapaViewScreenComponent implements OnInit {
       correctiveActions: [''],
       supplierRemarks: [''],
       demeritId: [null],
+
+      occurrenceId: [null],
+      detectionId: [null]
     });
   }
 
@@ -190,6 +223,7 @@ export class CapaViewScreenComponent implements OnInit {
       next: (res: any) => {
         if (res && res.success && res.data) {
           this.severityOptions = res.data.filter((s: any) => s.isActive && !s.isDeleted);
+          this.calculateSodScore();
         }
       },
       error: (err) => console.error('Error fetching severities', err)
@@ -236,7 +270,11 @@ export class CapaViewScreenComponent implements OnInit {
             observations: data.observations,
             correctiveActions: data.correctiveActions,
             supplierRemarks: data.supplierRemarks,
-            demeritId: data.demeritId
+            demeritId: data.demeritId,
+
+            occurrenceId: data.occurrenceId,
+            detectionId: data.detectionId,
+
           });
 
           // Parse existing images (API)
@@ -290,18 +328,24 @@ export class CapaViewScreenComponent implements OnInit {
   }
 
   setupScoreCalculation(): void {
-    this.auditForm.valueChanges.subscribe(values => {
+    this.auditForm.valueChanges.subscribe(() => {
       this.isSaved = false;
-      if (values.severityId && values.occurrence && values.detection) {
-        const selectedSeverity = this.severityOptions.find(s => s.severityId === values.severityId);
-        const severityRating = selectedSeverity ? selectedSeverity.rating : 0;
-        const sod = `${severityRating}${values.occurrence}${values.detection}`;
-
-        this.auditForm.get('sodScore')?.setValue(Number(sod), { emitEvent: false });
-      } else {
-        this.auditForm.get('sodScore')?.setValue('', { emitEvent: false });
-      }
+      this.calculateSodScore();
     });
+  }
+
+  private calculateSodScore(): void {
+    const values = this.auditForm.getRawValue();
+    const selectedSeverity = this.severityOptions.find(s => s.severityId === values.severityId);
+    const selectedOccurrence = this.Occurrences.find(o => o.occurrenceId === values.occurrenceId);
+    const selectedDetection = this.detections.find(d => d.detectionId === values.detectionId);
+
+    if (selectedSeverity && selectedOccurrence && selectedDetection) {
+      const sod = `${selectedSeverity.rating}${selectedOccurrence.rating}${selectedDetection.rating}`;
+      this.auditForm.get('sodScore')?.setValue(Number(sod), { emitEvent: false });
+    } else {
+      this.auditForm.get('sodScore')?.setValue('', { emitEvent: false });
+    }
   }
 
   // Custom setter for Demerit selection 
@@ -348,6 +392,9 @@ export class CapaViewScreenComponent implements OnInit {
       observations: formDataValues.observations || null,
       correctiveActions: formDataValues.correctiveActions || null,
       supplierRemarks: formDataValues.supplierRemarks || null,
+
+      occurrenceId: formDataValues.occurrenceId ? Number(formDataValues.occurrenceId) : null,
+      detectionId: formDataValues.detectionId ? Number(formDataValues.detectionId) : null,
       createdBy: 1
     };
 

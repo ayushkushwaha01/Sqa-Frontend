@@ -42,6 +42,15 @@
             <input type="date" formControlName="completedDate" class="form-control">
           </div>
         </div>
+        <!-- <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold">
+            Logged Date :
+          </label>
+
+          <div class="col-sm-7">
+            <input type="date" class="form-control" formControlName="loggedDate">
+          </div>
+        </div> -->
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">PDCA Status :</label>
@@ -70,11 +79,21 @@
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">Occurrence :</label>
           <div class="col-sm-7">
-            <mat-select formControlName="occurrence" placeholder="Select Occurrence"
+            <!-- <mat-select formControlName="occurrence" placeholder="Select Occurrence"
               class="form-control custom-mat-select">
               <mat-option *ngFor="let o of occurrenceOptions" [value]="o">
                 {{ o }}
               </mat-option>
+            </mat-select> -->
+            <mat-select class="form-control custom-mat-select" placeholder="Select Occurrence"
+              formControlName="occurrenceId">
+
+              <mat-option *ngFor="let o of Occurrences" [value]="o.occurrenceId">
+
+                {{o.rating}} - {{o.subject}}
+
+              </mat-option>
+
             </mat-select>
           </div>
         </div>
@@ -82,11 +101,21 @@
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">Detection :</label>
           <div class="col-sm-7">
-            <mat-select formControlName="detection" placeholder="Select Detection"
+            <!-- <mat-select formControlName="detection" placeholder="Select Detection"
               class="form-control custom-mat-select">
               <mat-option *ngFor="let d of detectionOptions" [value]="d">
                 {{ d }}
               </mat-option>
+            </mat-select> -->
+            <mat-select class="form-control custom-mat-select" placeholder="Select Detection"
+              formControlName="detectionId">
+
+              <mat-option *ngFor="let d of detections" [value]="d.detectionId">
+
+                {{d.rating}} - {{d.subject}}
+
+              </mat-option>
+
             </mat-select>
           </div>
         </div>
