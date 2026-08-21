@@ -106,59 +106,84 @@
         </div>
 
         <!-- CONTENT DETAIL -->
+        <!-- CONTENT DETAIL -->
         <div class="body-content">
-          <!-- Notification View -->
-          <ng-container *ngIf="selectedItem.auditType !== 'Help Desk'">
-            <p class="intro">A <strong>{{ selectedItem.auditType }}</strong> alert has been logged:</p>
-            <div class="details-box">
-              <div class="row">
-                <span class="label">Audit Type:</span>
-                <span class="value bold">{{ selectedItem.auditType }}</span>
-              </div>
-              <div class="row">
-                <span class="label">Commodity:</span>
-                <span class="value">{{ selectedItem.commodity }}</span>
-              </div>
-              <div class="row">
-                <span class="label">Category:</span>
-                <span class="value">{{ selectedItem.category }}</span>
-              </div>
-              <div class="row" *ngIf="selectedItem.issue">
-                <span class="label">Identified Issue:</span>
-                <span class="value highlight">{{ selectedItem.issue }}</span>
-              </div>
-              <div class="row" *ngIf="selectedItem.partFamily">
-                <span class="label">Part Family:</span>
-                <span class="value">{{ selectedItem.partFamily }}</span>
-              </div>
-              <div class="row" *ngIf="selectedItem.parameter">
-                <span class="label">Parameter:</span>
-                <span class="value">{{ selectedItem.parameter }}</span>
+          
+          <!-- 1. Standard Audit View (Process & Parts Audits) -->
+          <ng-container *ngIf="selectedItem.auditType === 'Process Audit' || selectedItem.auditType === 'Parts Audit'">
+            <div class="notification-detail-clean">
+              <p class="intro-text">
+                A <strong>{{ selectedItem.auditType }}</strong> alert has been logged for your attention.
+              </p>
+
+              <div class="metadata-grid">
+                <div class="meta-item">
+                  <span class="meta-label">Audit Type</span>
+                  <span class="meta-value bold">{{ selectedItem.auditType }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Commodity</span>
+                  <span class="meta-value">{{ selectedItem.commodity }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Category</span>
+                  <span class="meta-value">{{ selectedItem.category }}</span>
+                </div>
+                <div class="meta-item" *ngIf="selectedItem.partFamily">
+                  <span class="meta-label">Part Family</span>
+                  <span class="meta-value">{{ selectedItem.partFamily }}</span>
+                </div>
+                <div class="meta-item" *ngIf="selectedItem.parameter">
+                  <span class="meta-label">Parameter</span>
+                  <span class="meta-value">{{ selectedItem.parameter }}</span>
+                </div>
+                <div class="meta-item" *ngIf="selectedItem.issue">
+                  <span class="meta-label">Identified Issue</span>
+                  <span class="meta-value issue-highlight">{{ selectedItem.issue }}</span>
+                </div>
               </div>
             </div>
           </ng-container>
 
-          <!-- Mail View -->
+          <!-- 🔥 2. NEW: Dedicated System Escalation View 🔥 -->
+          <ng-container *ngIf="selectedItem.auditType === 'System Escalation'">
+            <div style="border-left: 5px solid #f44336; background-color: #fff8f8; padding: 20px; border-radius: 4px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+              <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <mat-icon style="color: #f44336; margin-right: 10px; font-size: 28px; width: 28px; height: 28px;">warning</mat-icon>
+                <h3 style="color: #d32f2f; margin: 0; font-size: 18px; font-weight: 600;">Attention Required</h3>
+              </div>
+              
+              <p style="font-size: 16px; font-weight: 500; color: #333; line-height: 1.5; margin-bottom: 20px;">
+                {{ selectedItem.description }}
+              </p>
+              
+              <div style="background: white; padding: 15px; border-radius: 4px; border: 1px solid #ffcdd2;">
+                <p style="margin: 0; font-size: 14px; color: #555;">
+                  <strong>Action Needed:</strong> Please navigate to the CAPA Management screen to review and resolve this issue immediately.
+                </p>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- 3. Mail View (Help Desk) -->
           <ng-container *ngIf="selectedItem.auditType === 'Help Desk'">
             <div class="mail-details-card">
               <div class="mail-field">
                 <span class="field-label">From:</span>
-                <span class="field-value">{{ selectedItem.sender }}</span>
+                <span class="field-value font-weight-bold">{{ selectedItem.sender }}</span>
               </div>
-
               <div class="mail-field" *ngIf="selectedItem.moduleName">
                 <span class="field-label">Module:</span>
-                <span class="field-value">{{ selectedItem.moduleName }}</span>
+                <span class="field-value module-badge">{{ selectedItem.moduleName }}</span>
               </div>
-
-              <mat-divider style="margin: 20px 0;"></mat-divider>
-
+              <div class="message-divider"></div>
               <div class="message-section">
                 <span class="field-label">Message:</span>
                 <p class="message-text">{{ selectedItem.description || 'No description provided.' }}</p>
               </div>
             </div>
           </ng-container>
+
         </div>
       </div>
     </div>

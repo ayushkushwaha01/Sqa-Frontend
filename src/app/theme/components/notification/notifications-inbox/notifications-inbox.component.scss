@@ -317,43 +317,51 @@
     color: #202124;
     line-height: 1.6;
 
-    .intro {
-      margin-bottom: 16px;
-      color: #5f6368;
-    }
+    .notification-detail-clean {
+      max-width: 650px;
 
-    .details-box {
-      background-color: #f8f9fa;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 16px 20px;
-      max-width: 520px;
+      .intro-text {
+        font-size: 15px;
+        color: #3c4043;
+        margin-bottom: 24px;
 
-      .row {
-        display: flex;
-        padding: 8px 0;
-        border-bottom: 1px solid #f1f3f4;
-        &:last-child {
-          border-bottom: none;
-        }
-
-        .label {
-          width: 140px;
-          color: #5f6368;
-          font-weight: 500;
-        }
-
-        .value {
-          flex: 1;
+        strong {
           color: #202124;
+        }
+      }
 
-          &.bold {
-            font-weight: 700;
+      .metadata-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px 24px;
+
+        .meta-item {
+          display: flex;
+          flex-direction: column;
+
+          .meta-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #70757a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
           }
 
-          &.highlight {
-            color: #d93025;
-            font-weight: 600;
+          .meta-value {
+            font-size: 14px;
+            color: #202124;
+            font-weight: 500;
+
+            &.bold {
+              font-weight: 700;
+              color: #1a73e8;
+            }
+
+            &.issue-highlight {
+              font-weight: 700;
+              color: #d93025;
+            }
           }
         }
       }
@@ -365,28 +373,44 @@
         align-items: center;
         gap: 8px;
         font-size: 15px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
 
         .field-label {
-          color: #202124;
-          font-weight: 700;
+          color: #70757a;
+          font-weight: 500;
           min-width: 70px;
         }
 
         .field-value {
-          color: #3c4043;
+          color: #202124;
+          font-weight: 500;
+        }
+
+        .module-badge {
+          background-color: #e8f0fe;
+          color: #1a73e8;
+          padding: 3px 10px;
+          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 600;
         }
       }
 
-      .message-section {
-        margin-top: 16px;
+      .message-divider {
+        height: 1px;
+        background-color: #f1f3f4;
+        margin: 20px 0;
+      }
 
+      .message-section {
         .field-label {
           display: block;
-          font-size: 15px;
-          font-weight: 700;
-          color: #202124;
-          margin-bottom: 10px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #70757a;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 8px;
         }
 
         .message-text {

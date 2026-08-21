@@ -4,9 +4,27 @@ import { Router } from '@angular/router';
 import { PageHeaderService } from 'src/app/shared/page-header.service';
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
 
+// export interface NotificationItem {
+//   id: number;
+//   auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk';
+//   date: string;
+//   commodity: string;
+//   category: string;
+//   issue?: string;
+//   partFamily?: string;
+//   parameter?: string;
+//   severity: 'Critical' | 'Important' | 'Medium' | 'Low';
+//   isRead: boolean;
+//   sender?: string;
+//   moduleName?: string;
+//   description?: string;
+// }
+
+
 export interface NotificationItem {
   id: number;
-  auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk';
+  // 🔥 Add 'System Escalation' here
+  auditType: 'Process Audit' | 'Parts Audit' | 'Help Desk' | 'System Escalation'; 
   date: string;
   commodity: string;
   category: string;
@@ -19,6 +37,7 @@ export interface NotificationItem {
   moduleName?: string;
   description?: string;
 }
+
 
 @Component({
   selector: 'app-notifications-inbox',
@@ -55,6 +74,42 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
     }
   }
 
+  // fetchData(): void {
+  //   const storedUserId = localStorage.getItem('UserId');
+  //   const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
+  //   const currentUserType = localStorage.getItem('UserType') || 'Internal';
+
+  //   if (currentUserId === 0) return;
+
+  //   this.api.getHelpDeskNotifications(currentUserId, currentUserType).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success && res.data) {
+  //         const liveTickets: NotificationItem[] = res.data.map((log: any) => {
+  //           return {
+  //             id: log.ticketId,
+  //             auditType: 'Help Desk',
+  //             date: new Date(log.createdDate).toLocaleDateString(),
+  //             commodity: 'System',
+  //             category: 'Support',
+  //             sender: log.userName || 'Unknown User',
+  //             moduleName: log.moduleName || 'General',
+  //             issue: log.subject || 'Help Desk Ticket',
+  //             description: log.description || '',
+  //             severity: 'Medium',
+  //             isRead: false
+  //           };
+  //         });
+
+  //         this.notificationsList = liveTickets;
+  //         this.autoSelectFirst();
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('Failed to fetch help desk logs', err);
+  //     }
+  //   });
+  // }
+
   fetchData(): void {
     const storedUserId = localStorage.getItem('UserId');
     const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
@@ -68,7 +123,8 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
           const liveTickets: NotificationItem[] = res.data.map((log: any) => {
             return {
               id: log.ticketId,
-              auditType: 'Help Desk',
+              // 🔥 THIS IS THE FIX: Routes Escalations to Notifications, and Help Desk to Mails
+              auditType: log.moduleName === 'System Escalation' ? 'System Escalation' : 'Help Desk',
               date: new Date(log.createdDate).toLocaleDateString(),
               commodity: 'System',
               category: 'Support',
@@ -80,6 +136,9 @@ export class NotificationsInboxComponent implements OnInit, OnDestroy {
               isRead: false
             };
           });
+
+          // Sort by ticket ID descending so latest item is at the top
+          liveTickets.sort((a, b) => b.id - a.id);
 
           this.notificationsList = liveTickets;
           this.autoSelectFirst();

@@ -186,54 +186,86 @@ export class PartsAuditDetailsComponent implements OnInit {
   }
 
 
+  // initForm(): void {
+
+  //   this.auditForm = this.fb.group({
+
+  //     partAuditCapaId: [0],
+
+  //     partAuditId: [this.partAuditId],
+
+  //     auditParameterId: [this.auditParameterId],
+  //     subject: [''],
+
+  //     dueDate: [''],
+
+  //     completedDate: [''],
+  //     loggedDate: [''],
+
+  //     pdcaStatus: [''],
+
+  //     severityId: [null],
+
+  //     occurrence: [null],
+
+  //     detection: [null],
+
+  //     sodScore: [''],
+
+  //     riskRating: [''],
+
+  //     isResolved: [false],
+
+  //     class: [''],
+
+  //     actionType: [''],
+
+  //     capaSubject: [''],
+
+  //     observations: [''],
+
+  //     correctiveActions: [''],
+
+  //     supplierRemarks: [''],
+  //     demeritId: [null],
+  //     occurrenceId: [null],
+  //     detectionId: [null]
+
+
+  //   });
+
+  // }
+
   initForm(): void {
-
     this.auditForm = this.fb.group({
-
       partAuditCapaId: [0],
-
       partAuditId: [this.partAuditId],
-
       auditParameterId: [this.auditParameterId],
       subject: [''],
-
       dueDate: [''],
-
       completedDate: [''],
       loggedDate: [''],
-
       pdcaStatus: [''],
-
       severityId: [null],
-
       occurrence: [null],
-
       detection: [null],
-
       sodScore: [''],
-
       riskRating: [''],
-
       isResolved: [false],
-
       class: [''],
-
       actionType: [''],
-
       capaSubject: [''],
-
       observations: [''],
-
       correctiveActions: [''],
-
       supplierRemarks: [''],
       demeritId: [null],
       occurrenceId: [null],
-      detectionId: [null]
-
-
+      detectionId: [null],
+      
+      // 🔥 FIX: Explicitly register these so Angular sends them in the JSON payload
+      createdBy: [0],
+      modifiedBy: [0]
     });
-
   }
   Riskratings = [
     { label: 'Excellent', value: 5 },
@@ -244,22 +276,67 @@ export class PartsAuditDetailsComponent implements OnInit {
     { label: 'N/A', value: 0 }
   ];
 
-  save() {
+  // save() {
 
+  //   if (this.auditForm.invalid) {
+  //     return;
+  //   }
+
+  //   const payload = this.auditForm.getRawValue();
+
+  //   this.partAuditService.upsertCapa(payload).subscribe({
+
+  //     next: (res: any) => {
+
+  //       if (res.success) {
+
+  //         this.alertService.createAlert(res.message);
+
+  //         this.auditForm.patchValue({
+  //           partAuditCapaId: res.data.partAuditCapaId
+  //         });
+
+  //         if (this.selectedPdfFiles.length > 0) {
+  //           this.uploadDocuments();
+  //         }
+
+  //         if (this.selectedImageFiles.length > 0) {
+  //           this.uploadImages();
+  //         }
+
+  //       }
+
+  //     },
+
+  //     error: err => console.error(err)
+
+  //   });
+
+  // }
+
+
+  save() {
     if (this.auditForm.invalid) {
       return;
     }
 
+    // Grab the exact User ID from local storage
+    const storedUserId = localStorage.getItem('UserId');
+    const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
+
+    // Safely patch the form with the User ID
+    this.auditForm.patchValue({
+      createdBy: currentUserId,
+      modifiedBy: currentUserId
+    });
+
+    // Get the final payload
     const payload = this.auditForm.getRawValue();
 
     this.partAuditService.upsertCapa(payload).subscribe({
-
       next: (res: any) => {
-
         if (res.success) {
-
           this.alertService.createAlert(res.message);
-
           this.auditForm.patchValue({
             partAuditCapaId: res.data.partAuditCapaId
           });
@@ -271,16 +348,12 @@ export class PartsAuditDetailsComponent implements OnInit {
           if (this.selectedImageFiles.length > 0) {
             this.uploadImages();
           }
-
         }
-
       },
-
       error: err => console.error(err)
-
     });
-
   }
+
 
   selectedPdfFiles: File[] = [];
   onPdfSelected(event: any) {

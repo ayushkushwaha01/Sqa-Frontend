@@ -354,7 +354,10 @@ export class PauditsActionsComponent implements OnInit {
   loadData() {
     this.api.getAllCapas().subscribe((res: any) => {
       if (res.success) {
-        this.originalTableList = res.data.map((item: any) => {
+        // Sort latest CAPA on top
+        const sortedData = (res.data || []).sort((a: any, b: any) => (b.capaId || 0) - (a.capaId || 0));
+
+        this.originalTableList = sortedData.map((item: any) => {
           
           // 1. Map the Dropdown Status
           if (item.status && isNaN(Number(item.status))) {

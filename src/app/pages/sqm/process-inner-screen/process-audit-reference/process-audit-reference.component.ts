@@ -471,21 +471,35 @@ export class ProcessAuditReferenceComponent implements OnInit {
   goBack(): void { this.location.back(); }
 
   // --- SAVE RECORD ---
+   
+
   // saveData() {
+  //   if (!this.isSupplier && (!this.complianceStatus || this.complianceStatus.trim() === '')) {
+  //     this.alertService.createAlert('Compliance (Pass/Fail) is mandatory.', 0);
+  //     return;
+  //   }
+
+  //   if (this.complianceStatus === 'Fail' && !this.isSupplier) {
+  //     if (!this.capaSubject || this.capaSubject.trim() === '') {
+  //       this.alertService.createAlert('CAPA Subject is mandatory when Compliance is Fail.', 0);
+  //       return;
+  //     }
+  //   }
+
   //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
 
   //   const payload = {
   //     processAuditId: parentAuditId,
   //     processCategoryId: this.selectedCategory?.processCategoryId,
   //     checklistId: this.selectedStep?.checklistId,
-  //     guideline: this.selectedStep?.guideline, // Sending the guideline text
+  //     guideline: this.selectedStep?.guideline,
   //     rating: this.rating,
   //     severityId: this.selectedSeverityId,
   //     occurrence: this.selectedOccurrence,
   //     detection: this.selectedDetection,
   //     compliance: this.complianceStatus,
       
-  //     // CAPA
+  //     // CAPA fields
   //     class: this.selectedClass,
   //     capaSubject: this.capaSubject,
   //     dueDate: this.dueDate,
@@ -501,20 +515,46 @@ export class ProcessAuditReferenceComponent implements OnInit {
   //   const formData = new FormData();
   //   formData.append('jsonData', JSON.stringify(payload));
 
-  //   // Append both file arrays separately so the backend gets everything
-  //   this.selectedFiles.forEach(file => { formData.append('files', file); });
-  //   this.selectedImageFiles.forEach(file => { formData.append('files', file); });
+  //   // Append both file arrays separately so backend receives all uploads
+  //   this.selectedFiles.forEach(file => { 
+  //     formData.append('files', file); 
+  //   });
+  //   this.selectedImageFiles.forEach(file => { 
+  //     formData.append('files', file); 
+  //   });
+
+  //   this.isSaving = true;
 
   //   this.api.saveInnerScreenDetails(formData).subscribe({
   //     next: (res: any) => {
+  //       this.isSaving = false;
   //       if (res.success) {
+  //         // Clear local selected files immediately to avoid duplicate UI display before refresh
+  //         this.selectedFiles = [];
+  //         this.selectedImageFiles = [];
+
+  //         // Update cache & category stats
+  //         if (this.selectedStep?.checklistId) {
+  //           this.checklistResponses[this.selectedStep.checklistId] = {
+  //             ...this.checklistResponses[this.selectedStep.checklistId],
+  //             ...payload,
+  //             compliance: this.complianceStatus
+  //           };
+  //         }
+  //         if (this.selectedCategory) {
+  //           this.recalculateCategoryStats(this.selectedCategory.processCategoryId, this.processSteps);
+  //         }
+
   //         this.alertService.createAlert(res.message, 1);
-  //         this.loadSavedResponse();
+  //         this.loadSavedResponse(); 
   //       } else {
-  //         this.alertService.createAlert(res.message, 0);
+  //         this.alertService.createAlert(res.message || 'Error saving response', 0);
   //       }
   //     },
-  //     error: () => this.alertService.createAlert('Error saving response', 0)
+  //     error: () => {
+  //       this.isSaving = false;
+  //       this.alertService.createAlert('Error saving response', 0);
+  //     }
   //   });
   // }
 
@@ -532,6 +572,10 @@ export class ProcessAuditReferenceComponent implements OnInit {
     }
 
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+
+    // 🔥 FIX: Grab the exact User ID from local storage
+    const storedUserId = localStorage.getItem('UserId');
+    const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
 
     const payload = {
       processAuditId: parentAuditId,
@@ -554,7 +598,11 @@ export class ProcessAuditReferenceComponent implements OnInit {
       actionType: this.actionType,
       remarks: this.remarks,
       correctiveActions: this.correctiveActions,
-      supplierRemarks: this.supplierRemarks
+      supplierRemarks: this.supplierRemarks,
+
+      // 🔥 FIX: Send User ID directly to the backend
+      createdBy: currentUserId,
+      modifiedBy: currentUserId
     };
 
     const formData = new FormData();

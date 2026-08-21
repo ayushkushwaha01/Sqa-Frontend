@@ -156,4 +156,19 @@ export class ManageUsersService {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
 
+// ==========================================
+  // DAILY ESCALATION SWEEPERS
+  // ==========================================
+  
+  triggerProcessEscalations() {
+    return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
+  }
+
+  triggerPartsEscalations() {
+    return this.http.post(this.apiUrl + 'CapaEscalation/trigger-parts-escalations', {});
+  }
+
+  triggerInspectionEscalations() {
+    return this.http.post(this.apiUrl + 'CapaEscalation/trigger-inspection-escalations', {});
+  }
 }

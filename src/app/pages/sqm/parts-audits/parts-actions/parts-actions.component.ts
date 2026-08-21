@@ -19,6 +19,7 @@ import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-se
 import { LookupService } from 'src/app/pages/admin/lookup/lookup.service';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
 
 @Component({
   selector: 'app-parts-actions',
@@ -52,7 +53,8 @@ export class PartsActionsComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   someElementRef: any;
-  constructor(public dialog: MatDialog, private partAuditService: PartAuditService, private alertService: AlertService, private fb: FormBuilder,
+  constructor(public dialog: MatDialog, private partAuditService: PartAuditService,
+     private alertService: AlertService, private fb: FormBuilder,private manageUserService: ManageUsersService,
     private lookupService: LookupService
   ) { }
   ngOnInit(): void {
@@ -72,7 +74,10 @@ export class PartsActionsComponent implements OnInit {
     this.loadGridColumns();
     this.getLookups();
 
-
+    this.manageUserService.triggerPartsEscalations().subscribe({
+      next: () => console.log('Parts Escalation Matrix Executed'),
+      error: (err) => console.error('Failed to run Parts Escalations', err)
+    });
 
   }
 
@@ -130,9 +135,40 @@ export class PartsActionsComponent implements OnInit {
 
   }
 
+  // allcaps: any[] = [];
+  // getCapas() {
+
+  //   const filter = { ...this.filterForm.value };
+
+  //   Object.keys(filter).forEach(key => {
+  //     if (
+  //       filter[key] === null ||
+  //       filter[key] === '' ||
+  //       filter[key] === undefined
+  //     ) {
+  //       delete filter[key];
+  //     }
+  //   });
+
+  //   this.partAuditService.getAllCaps(filter)
+  //     .subscribe((res: any) => {
+
+  //       if (res.success) {
+
+  //         this.allcaps = res.data.data;
+  //         this.totalSize = res.data.totalRecords;
+
+  //         this.currentPage = 0;
+  //         this.loadPageData();
+
+  //       }
+
+  //     });
+
+  // }
+
   allcaps: any[] = [];
   getCapas() {
-
     const filter = { ...this.filterForm.value };
 
     Object.keys(filter).forEach(key => {
@@ -149,18 +185,37 @@ export class PartsActionsComponent implements OnInit {
       .subscribe((res: any) => {
 
         if (res.success) {
+          
+          // 🔥 NEW: Calculate Delay In Days dynamically for the UI
+          this.allcaps = res.data.data.map((capa: any) => {
+            let calculatedDelay = 0;
+            
+            // If it has a due date, and is NOT resolved or completed
+            if (capa.dueDate && !capa.resolved && !capa.completedDate) {
+              const due = new Date(capa.dueDate).getTime();
+              const today = new Date().getTime();
+              
+              if (today > due) {
+                // Calculate exact days between today and due date
+                calculatedDelay = Math.floor((today - due) / (1000 * 3600 * 24));
+              }
+            }
 
-          this.allcaps = res.data.data;
+            return {
+              ...capa,
+              // Use backend delay if it exists, otherwise use our real-time calculated delay
+              calculatedDelayInDays: capa.delayInDays > 0 ? capa.delayInDays : calculatedDelay
+            };
+          });
+
           this.totalSize = res.data.totalRecords;
-
           this.currentPage = 0;
           this.loadPageData();
-
         }
-
       });
-
   }
+
+
   loadPageData() {
 
     this.fromIndex = this.currentPage * this.pageSize;

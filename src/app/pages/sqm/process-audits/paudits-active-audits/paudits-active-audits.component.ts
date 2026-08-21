@@ -255,8 +255,10 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   loadData() {
     this.api.getAllAudits().subscribe((res: any) => {
       if (res.success) {
-        this.auditData = res.data;
-        this.originalAuditData = [...res.data];
+        // Sort latest audit on top
+        const sorted = (res.data || []).sort((a: any, b: any) => (b.processAuditId || 0) - (a.processAuditId || 0));
+        this.auditData = sorted;
+        this.originalAuditData = [...sorted];
         // Re-apply active filters (including maskDone) after reload
         this.filter();
         this.updateCharts();
