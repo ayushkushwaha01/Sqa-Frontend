@@ -32,7 +32,138 @@
     color: white;
   }
 }
-  .btn-dark {
-    background-color: #111 !important;
-    color: #fff !important;
-  }
+
+.btn-dark {
+  background-color: #111 !important;
+  color: #fff !important;
+}
+
+/* =========================================
+   TABLE SCROLLING
+========================================= */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+  border: 1px solid #dee2e6;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.audit-table {
+  width: max-content !important;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+.audit-table th,
+.audit-table td {
+  white-space: nowrap !important;
+  padding: 10px 16px;
+  vertical-align: middle;
+}
+
+
+/* =========================================
+   FROZEN COLUMNS
+========================================= */
+
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+
+/* =========================================
+   FROZEN HEADER
+========================================= */
+
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+
+/* =========================================
+   LAST FROZEN COLUMN
+========================================= */
+
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================
+   TABLE HEADER
+========================================= */
+
+.audit-table thead th {
+  background-color: #3f3f3f;
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid #e1e1e1;
+}
+
+
+/* =========================================
+   TABLE BODY
+========================================= */
+
+.audit-table tbody td {
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+}
+
+
+/* =========================================
+   ACTION ICONS
+========================================= */
+
+.audit-table .fa-edit {
+  color: cornflowerblue;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.audit-table .fa-trash {
+  color: red;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.audit-table .fa-archive {
+  color: gray;
+  cursor: pointer;
+}
+
+
+/* =========================================
+   DISABLED PERMISSION
+========================================= */
+
+.disable-custom {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+
+/* =========================================
+   LINK
+========================================= */
+
+.audit-table a {
+  cursor: pointer;
+}
+
+.audit-table a:hover {
+  text-decoration: underline;
+}

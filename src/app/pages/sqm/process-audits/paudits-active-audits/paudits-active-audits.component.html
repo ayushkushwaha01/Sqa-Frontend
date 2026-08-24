@@ -19,9 +19,14 @@
     <mat-checkbox [(ngModel)]="maskDone" (change)="onMaskDoneChange()" style="margin-right: 16px; margin-top: 6px;">
       Mask Done
     </mat-checkbox>
-    <!-- <button mat-raised-button class="btn-dark">
-      <mat-icon>grid_on</mat-icon> Grid View
-    </button> -->
+    <button mat-raised-button class="btn-dark" [class.disable-custom]="!canUpdate"
+      [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid View'"
+      (click)="canUpdate && openColumnSelector()">
+
+      <mat-icon>grid_on</mat-icon>
+      Grid View
+
+    </button>
     <button mat-raised-button class="btn-dark" (click)="filterToggle = !filterToggle">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
@@ -29,8 +34,7 @@
       <mat-icon>person_add</mat-icon> Add Audit
     </button> -->
 
-    <button mat-raised-button color="primary" class="btn-blue"
-      [class.disable-custom]="!canCreate"
+    <button mat-raised-button color="primary" class="btn-blue" [class.disable-custom]="!canCreate"
       [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Audit'"
       (click)="canCreate && openaudit()">
       <mat-icon>person_add</mat-icon> Add Audit
@@ -89,7 +93,8 @@
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>State:</b></div>
                 <div class="col-sm-8">
-                  <mat-select placeholder="Select State" class="form-control" formControlName="State" (selectionChange)="onStateChange()">
+                  <mat-select placeholder="Select State" class="form-control" formControlName="State"
+                    (selectionChange)="onStateChange()">
                     <mat-option *ngFor="let opt of uniqueStates" [value]="opt">{{opt}}</mat-option>
                   </mat-select>
                 </div>
@@ -109,21 +114,25 @@
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>From Date:</b></div>
                 <div class="col-sm-8">
-                    <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
-                        <input matInput [matDatepicker]="fromPicker" formControlName="FromDate" placeholder="mm/dd/yyyy" style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
-                        <mat-datepicker-toggle matSuffix [for]="fromPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
-                        <mat-datepicker #fromPicker></mat-datepicker>
-                    </div>
+                  <div
+                    style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                    <input matInput [matDatepicker]="fromPicker" formControlName="FromDate" placeholder="mm/dd/yyyy"
+                      style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
+                    <mat-datepicker-toggle matSuffix [for]="fromPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                    <mat-datepicker #fromPicker></mat-datepicker>
+                  </div>
                 </div>
               </div>
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>To Date:</b></div>
                 <div class="col-sm-8">
-                    <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
-                        <input matInput [matDatepicker]="toPicker" formControlName="ToDate" placeholder="mm/dd/yyyy" style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
-                        <mat-datepicker-toggle matSuffix [for]="toPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
-                        <mat-datepicker #toPicker></mat-datepicker>
-                    </div>
+                  <div
+                    style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                    <input matInput [matDatepicker]="toPicker" formControlName="ToDate" placeholder="mm/dd/yyyy"
+                      style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
+                    <mat-datepicker-toggle matSuffix [for]="toPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                    <mat-datepicker #toPicker></mat-datepicker>
+                  </div>
                 </div>
               </div>
             </div>
@@ -146,107 +155,372 @@
   </div>
 
   <div class="table-responsive" id="grid-table-container" style="scroll-behavior: smooth;">
+
     <table class="audit-table">
+
+      <!-- ================= HEADER ================= -->
+
       <thead>
+
         <tr>
-          <th>Audit Reference</th>
-          <th>Commodity</th>
-          <th>State</th>
-          <th>City</th>
-          <th>Supplier</th>
-          <th>Auditor</th>
-          <th>Audit Date</th>
-          <th>CAPA</th>
-          <th>Report</th>
-          <th>Status</th>
-          <th>Done</th>
-          <th>Manage</th>
+
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+            <!-- Audit Reference -->
+            <th *ngSwitchCase="'Audit Reference'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Audit Reference
+
+            </th>
+
+
+            <!-- Commodity -->
+            <th *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Commodity
+
+            </th>
+
+
+            <!-- State -->
+            <th *ngSwitchCase="'State'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              State
+
+            </th>
+
+
+            <!-- City -->
+            <th *ngSwitchCase="'City'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              City
+
+            </th>
+
+
+            <!-- Supplier -->
+            <th *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Supplier
+
+            </th>
+
+
+            <!-- Auditor -->
+            <th *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Auditor
+
+            </th>
+
+
+            <!-- Audit Date -->
+            <th *ngSwitchCase="'Audit Date'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Audit Date
+
+            </th>
+
+
+            <!-- CAPA -->
+            <th *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              CAPA
+
+            </th>
+
+
+            <!-- Report -->
+            <th *ngSwitchCase="'Report'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Report
+
+            </th>
+
+
+            <!-- Status -->
+            <th *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Status
+
+            </th>
+
+
+            <!-- Done -->
+            <th *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Done
+
+            </th>
+
+
+            <!-- Actions -->
+            <th *ngSwitchCase="'Actions'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Actions
+
+            </th>
+
+          </ng-container>
+
         </tr>
+
       </thead>
+
+
+      <!-- ================= BODY ================= -->
+
       <tbody>
+
         <tr *ngFor="let audit of pagedAuditData">
-          <!-- Clickable Audit Reference routing -->
-          <td class="text-link">
-            <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']"
-              [queryParams]="{ id: audit.processAuditId, ref: audit.auditReference }">
-              {{ audit.auditReference }}
-            </a>
-          </td>
 
-          <td>{{ audit.commodityName }}</td>
-          <td>{{ audit.stateName }}</td>
-          <td>{{ audit.cityName }}</td> <!-- Or CityName, StateName -->
-          <td>{{ audit.supplierName }}</td>
-          <td>{{ audit.auditorName }}</td>
-          <td>{{ audit.auditDate | date:'dd-MM-yyyy' }}</td>
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
 
-          <!-- Locate this part in your <tbody> -->
-          <td class="text-center">
-            <span [ngClass]="{'text-success': isFullyResolved(audit), 'text-danger': !isFullyResolved(audit)}">
-              {{ audit.capaSummary }}
-            </span>
-          </td>
-          <!-- <td class="text-link text-center">{{ audit.report }}</td> -->
 
-          <!-- Clickable Report % cell -->
-          <!-- Include 'process' in the routerLink array -->
-          <td class="text-link text-center">
-            <a [routerLink]="['/app', 'sqm', 'process', 'audit-summary-report']"
-              [queryParams]="{ id: audit.processAuditId }"
-              style="font-weight: 600; color: #1d4ed8; text-decoration: underline; cursor: pointer;">
-              {{ audit.report || '0%' }}
-            </a>
-          </td>
+            <!-- Audit Reference -->
+            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
 
-          <!-- Status Dropdown loaded from DB Lookup -->
-          <td class="text-center">
-            <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
-              placeholder="Select Status"
-              [disabled]="!canUpdate"
-              style="max-width: 120px; min-width: 120px; border: 0.5px solid black; border-radius: 4px; padding: 4px;">
-              <mat-option *ngFor="let status of statusLookups" [value]="status.lookupId">
-                {{ status.lookupName }}
-              </mat-option>
-            </mat-select>
-          </td>
+              <a [routerLink]="[
+                '/app',
+                'sqm',
+                'process-inner-screen',
+                'process-audit-reference'
+              ]" [queryParams]="{
+                id: audit.processAuditId,
+                ref: audit.auditReference
+              }">
 
-          <td class="text-center">
-            <mat-checkbox 
-              [checked]="audit.isDone" 
-              [disabled]="!canUpdate" 
-              (click)="!canUpdate ? $event.preventDefault() : onDoneClick($event, audit)" 
-              color="primary">
-            </mat-checkbox>
-          </td>
+                {{ audit.auditReference }}
 
-          <!-- Actions -->
-          <td class="text-center manage-icons">
-            <i class="fas fa-edit edit-icon"
-              [class.disable-custom]="!canUpdate"
-              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit'"
-              (click)="canUpdate && openaudit(audit)">
-            </i>
-            <i class="fas fa-trash delete-icon"
-              [class.disable-custom]="!canDelete"
-              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
-              (click)="canDelete && deleteAudit(audit)"
-              style="color:red; margin-left: 10px;">
-            </i>
-          </td>
+              </a>
+
+            </td>
+
+
+            <!-- Commodity -->
+            <td *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.commodityName || '-' }}
+
+            </td>
+
+
+            <!-- State -->
+            <td *ngSwitchCase="'State'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.stateName || '-' }}
+
+            </td>
+
+
+            <!-- City -->
+            <td *ngSwitchCase="'City'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.cityName || '-' }}
+
+            </td>
+
+
+            <!-- Supplier -->
+            <td *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.supplierName || '-' }}
+
+            </td>
+
+
+            <!-- Auditor -->
+            <td *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.auditorName || '-' }}
+
+            </td>
+
+
+            <!-- Audit Date -->
+            <td *ngSwitchCase="'Audit Date'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.auditDate | date:'dd-MM-yyyy' }}
+
+            </td>
+
+
+            <!-- CAPA -->
+            <td *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <span [ngClass]="{
+                'text-success': isFullyResolved(audit),
+                'text-danger': !isFullyResolved(audit)
+              }">
+
+                {{ audit.capaSummary }}
+
+              </span>
+
+            </td>
+
+
+            <!-- Report -->
+            <td *ngSwitchCase="'Report'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
+                '/app',
+                'sqm',
+                'process',
+                'audit-summary-report'
+              ]" [queryParams]="{
+                id: audit.processAuditId
+              }" style="
+                font-weight: 600;
+                color: #1d4ed8;
+                text-decoration: underline;
+                cursor: pointer;
+              ">
+
+                {{ audit.report || '0%' }}
+
+              </a>
+
+            </td>
+
+
+            <!-- Status -->
+            <td *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
+                placeholder="Select Status" [disabled]="!canUpdate" style="
+                max-width: 120px;
+                min-width: 120px;
+                border: 0.5px solid black;
+                border-radius: 4px;
+                padding: 4px;
+              ">
+
+                <mat-option *ngFor="let status of statusLookups" [value]="status.lookupId">
+
+                  {{ status.lookupName }}
+
+                </mat-option>
+
+              </mat-select>
+
+            </td>
+
+
+            <!-- Done -->
+            <td *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <mat-checkbox [checked]="audit.isDone" [disabled]="!canUpdate" (click)="
+                !canUpdate
+                  ? $event.preventDefault()
+                  : onDoneClick($event, audit)
+              " color="primary">
+
+              </mat-checkbox>
+
+            </td>
+
+
+            <!-- Actions -->
+            <td *ngSwitchCase="'Actions'" class="text-center manage-icons" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <!-- Edit -->
+              <i class="fas fa-edit edit-icon" [class.disable-custom]="!canUpdate" [matTooltip]="
+                !canUpdate
+                  ? 'You don’t have permission to update'
+                  : 'Edit'
+              " (click)="canUpdate && openaudit(audit)">
+              </i>
+
+
+              <!-- Delete -->
+              <i class="fas fa-trash delete-icon" [class.disable-custom]="!canDelete" [matTooltip]="
+                !canDelete
+                  ? 'You don’t have permission to delete'
+                  : 'Delete'
+              " (click)="canDelete && deleteAudit(audit)" style="color:red; margin-left:10px;">
+              </i>
+
+            </td>
+
+          </ng-container>
+
         </tr>
+
+
+        <!-- No Data -->
+        <tr *ngIf="pagedAuditData.length === 0">
+
+          <td [attr.colspan]="activeColumns.length" class="text-center py-4 center">
+
+            No Data Available
+
+          </td>
+
+        </tr>
+
       </tbody>
+
     </table>
 
-    <button class="mine mine-right" mat-fab (click)="scrollRight()">
-      <mat-icon style="color: #37474f">fast_forward</mat-icon>
-    </button>
-    <button class="mine mine-left" mat-fab (click)="scrollLeft()">
-      <mat-icon style="color: #37474f">fast_rewind</mat-icon>
-    </button>
-
-    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
-      [pageSizeOptions]="[5, 10, 20, 50, 100]" (page)="onPageChange($event)" aria-label="Select page">
-    </mat-paginator>
   </div>
+  <button class="mine mine-right" mat-fab (click)="scrollRight()">
+    <mat-icon style="color: #37474f">fast_forward</mat-icon>
+  </button>
+  <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+    <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+  </button>
+
+  <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 20, 50, 100]" (page)="onPageChange($event)" aria-label="Select page">
+  </mat-paginator>
 
 </div>

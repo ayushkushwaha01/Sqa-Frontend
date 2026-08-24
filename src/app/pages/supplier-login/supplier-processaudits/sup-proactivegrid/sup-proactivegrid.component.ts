@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import * as Highcharts from 'highcharts';
+import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
 import { ActiveGridDialogComponent } from 'src/app/pages/sqm/process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
 import { ProcessAuditService } from 'src/app/pages/sqm/process-audits/process-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
@@ -48,7 +50,7 @@ export class SupProactivegridComponent implements OnInit {
     private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService,
-    private fb: FormBuilder
+    private fb: FormBuilder, private partAuditService: PartAuditService
   ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
@@ -71,6 +73,7 @@ export class SupProactivegridComponent implements OnInit {
       this.pageSize = Number(gridLength);
     }
     this.loadLookups();
+    this.loadGridColumns();
   }
 
   loadLookups() {
@@ -216,5 +219,156 @@ export class SupProactivegridComponent implements OnInit {
   onDoneClick(event: MouseEvent, audit: any): void {
     event.preventDefault();
     this.alertService.createAlert('Suppliers cannot modify the Done status.', 0);
+  }
+
+
+  defaultColumns: string[] = [
+    'Audit Reference',
+    'Commodity',
+    'Location',
+    'Supplier',
+    'Auditor',
+    'Audit Date',
+    'CAPA',
+    'Report',
+    'Status',
+    'Done',
+    'Manage'
+  ];
+
+  activeColumns: string[] = [];
+
+  frozenCount: number = 0;
+
+
+  getColumnWidth(column: string): number {
+
+    const widths: { [key: string]: number } = {
+
+      'Audit Reference': 180,
+      'Commodity': 180,
+      'Location': 180,
+      'Supplier': 180,
+      'Auditor': 180,
+      'Audit Date': 150,
+      'CAPA': 120,
+      'Report': 120,
+      'Status': 150,
+      'Done': 100,
+      'Manage': 120
+
+    };
+
+    return widths[column] || 150;
+  }
+
+
+  getStickyLeft(index: number): string {
+
+    let left = 0;
+
+    for (let i = 0; i < index; i++) {
+      left += this.getColumnWidth(this.activeColumns[i]);
+    }
+
+    return left + 'px';
+  }
+
+
+  openColumnSelector() {
+
+    const dialogRef = this.dialog.open(ColumnSelectorComponent, {
+
+      width: '750px',
+      height: 'auto',
+      disableClose: true,
+
+      data: {
+        userId: 1, // Replace with logged-in user ID
+        gridType: 'SupplierProcessAuditTable',
+        defaultColumns: this.defaultColumns
+      }
+
+    });
+
+    dialogRef.afterClosed().subscribe((didSave: boolean) => {
+
+      if (didSave) {
+
+        this.alertService.createAlert(
+          'Column layout updated successfully.'
+        );
+
+        this.loadGridColumns();
+      }
+
+    });
+  }
+
+
+  loadGridColumns() {
+
+    const filter = {
+      userId: 1, // Replace with logged-in user ID
+      gridType: 'SupplierProcessAuditTable'
+    };
+
+    this.partAuditService.getgridcolumns(filter).subscribe({
+
+      next: (res: any) => {
+
+        if (res.success && res.data) {
+
+          const parsedData = JSON.parse(
+            res.data.selectedColumnsJSON
+          );
+
+          // Old format support
+          if (Array.isArray(parsedData)) {
+
+            this.activeColumns = parsedData;
+            this.frozenCount = 0;
+
+          }
+          else {
+
+            this.activeColumns =
+              parsedData.columns ||
+              [...this.defaultColumns];
+
+            this.frozenCount =
+              parsedData.frozenCount || 0;
+
+          }
+
+        }
+        else {
+
+          this.activeColumns = [
+            ...this.defaultColumns
+          ];
+
+          this.frozenCount = 0;
+        }
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error loading grid columns',
+          error
+        );
+
+        this.activeColumns = [
+          ...this.defaultColumns
+        ];
+
+        this.frozenCount = 0;
+
+      }
+
+    });
+
   }
 }

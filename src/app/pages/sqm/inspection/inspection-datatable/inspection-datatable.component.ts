@@ -9,6 +9,8 @@ import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/
 import { PageEvent } from '@angular/material/paginator';
 import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 
 export class CustomDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -102,7 +104,9 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private inspectionService: InspectionService,
     private cdr: ChangeDetectorRef,
-    private alertService: AlertService // <-- Inject Alert Service here
+    private alertService: AlertService,// <-- Inject Alert Service here
+    private partAuditService: PartAuditService
+
   ) { }
 
   ngOnInit(): void {
@@ -117,6 +121,7 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.canreadDashboard = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
     this.loadData();
+    this.loadGridColumns();
   }
 
 
@@ -371,4 +376,177 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void { }
+
+
+  defaultColumns: string[] = [
+    'Actions',
+    'Reference',
+    'Stage',
+    'Publish',
+    'Inspection Date',
+    'Time',
+    'Inspector',
+    'Part Family',
+    'Part Name',
+    'Part Number',
+    'Defects',
+    'Parameters',
+    'Remarks',
+    'Batch Number',
+    'Batch Qty',
+    'Sample Qty',
+    'Error Rate (%)',
+    'Error Rate (PPM)'
+  ];
+
+  activeColumns: string[] = [];
+
+  frozenCount = 0;
+
+  getColumnWidth(column: string): number {
+
+    const widths: { [key: string]: number } = {
+
+      'Actions': 120,
+      'Reference': 180,
+      'Stage': 120,
+      'Publish': 100,
+      'Inspection Date': 150,
+      'Time': 120,
+      'Inspector': 180,
+      'Part Family': 180,
+      'Part Name': 180,
+      'Part Number': 160,
+      'Defects': 120,
+      'Parameters': 150,
+      'Remarks': 200,
+      'Batch Number': 150,
+      'Batch Qty': 120,
+      'Sample Qty': 120,
+      'Error Rate (%)': 150,
+      'Error Rate (PPM)': 160
+
+    };
+
+    return widths[column] || 150;
+  }
+
+
+  getStickyLeft(index: number): string {
+
+    let left = 0;
+
+    for (let i = 0; i < index; i++) {
+
+      left += this.getColumnWidth(
+        this.activeColumns[i]
+      );
+
+    }
+
+    return left + 'px';
+  }
+
+
+  openColumnSelector() {
+
+    const dialogRef = this.dialog.open(
+      ColumnSelectorComponent,
+      {
+        width: '750px',
+        height: 'auto',
+        disableClose: true,
+
+        data: {
+          userId: 1, // replace with logged-in user ID
+          gridType: 'InspectionActiveTable',
+          defaultColumns: this.defaultColumns
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe(
+      (didSave: boolean) => {
+
+        if (didSave) {
+
+          this.alertService.createAlert(
+            'Column layout updated successfully.'
+          );
+
+          this.loadGridColumns();
+
+        }
+
+      }
+    );
+  }
+
+
+  loadGridColumns() {
+
+    const filter = {
+      userId: 1, // replace with logged-in user ID
+      gridType: 'InspectionActiveTable'
+    };
+
+    this.partAuditService
+      .getgridcolumns(filter)
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res.success && res.data) {
+
+            const parsedData =
+              JSON.parse(
+                res.data.selectedColumnsJSON
+              );
+
+            // Old format support
+            if (Array.isArray(parsedData)) {
+
+              this.activeColumns =
+                parsedData;
+
+              this.frozenCount = 0;
+
+            } else {
+
+              this.activeColumns =
+                parsedData.columns ||
+                [...this.defaultColumns];
+
+              this.frozenCount =
+                parsedData.frozenCount || 0;
+
+            }
+
+          } else {
+
+            this.activeColumns =
+              [...this.defaultColumns];
+
+            this.frozenCount = 0;
+
+          }
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading grid columns',
+            error
+          );
+
+          this.activeColumns =
+            [...this.defaultColumns];
+
+          this.frozenCount = 0;
+
+        }
+
+      });
+  }
 }

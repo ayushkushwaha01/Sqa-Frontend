@@ -1,117 +1,75 @@
 <div style="margin-left: 16px">
   <div class="row" style="margin: 16px 0">
     <div class="col-lg-4 col-md-12">
-      <div
-        style="
+      <div style="
           background: #fff;
           border: 1px solid #e0e0e0;
           border-radius: 6px;
           padding: 12px;
           margin-bottom: 15px;
-        "
-      >
-        <h3
-          style="
+        ">
+        <h3 style="
             text-align: center;
             margin: 0 0 8px;
             font-size: 15px;
             color: #333;
-          "
-        >
+          ">
           Inspection by Stage
         </h3>
-        <div
-          class="w-100"
-          style="height: 350px; display: flex; justify-content: center"
-        >
-          <ngx-charts-pie-chart
-            [scheme]="colorScheme"
-            [results]="first"
-            [legend]="showLegend"
-            [explodeSlices]="explodeSlices"
-            [labels]="showLabels"
-            [doughnut]="doughnut"
-            [gradient]="gradient"
-            (select)="onSelect($event)"
-          >
+        <div class="w-100" style="height: 350px; display: flex; justify-content: center">
+          <ngx-charts-pie-chart [scheme]="colorScheme" [results]="first" [legend]="showLegend"
+            [explodeSlices]="explodeSlices" [labels]="showLabels" [doughnut]="doughnut" [gradient]="gradient"
+            (select)="onSelect($event)">
           </ngx-charts-pie-chart>
         </div>
       </div>
     </div>
 
     <div class="col-lg-4 col-md-12">
-      <div
-        style="
+      <div style="
           background: #fff;
           border: 1px solid #e0e0e0;
           border-radius: 6px;
           padding: 12px;
           margin-bottom: 15px;
-        "
-      >
-        <h3
-          style="
+        ">
+        <h3 style="
             text-align: center;
             margin: 0 0 8px;
             font-size: 15px;
             color: #333;
-          "
-        >
+          ">
           Distribution by Part Family
         </h3>
-        <div
-          class="w-100"
-          style="height: 350px; display: flex; justify-content: center"
-        >
-          <ngx-charts-pie-chart
-            [scheme]="colorScheme"
-            [results]="multi"
-            [legend]="showLegend"
-            [explodeSlices]="explodeSlices"
-            [labels]="showLabels"
-            [doughnut]="doughnut"
-            [gradient]="gradient"
-            (select)="onSelect($event)"
-          >
+        <div class="w-100" style="height: 350px; display: flex; justify-content: center">
+          <ngx-charts-pie-chart [scheme]="colorScheme" [results]="multi" [legend]="showLegend"
+            [explodeSlices]="explodeSlices" [labels]="showLabels" [doughnut]="doughnut" [gradient]="gradient"
+            (select)="onSelect($event)">
           </ngx-charts-pie-chart>
         </div>
       </div>
     </div>
 
     <div class="col-lg-4 col-md-12">
-      <div
-        style="
+      <div style="
           background: #fff;
           border: 1px solid #e0e0e0;
           border-radius: 6px;
           padding: 12px;
           margin-bottom: 15px;
-        "
-      >
-        <h3
-          style="
+        ">
+        <h3 style="
             text-align: center;
             margin: 0 0 8px;
             font-size: 15px;
             color: #333;
-          "
-        >
+          ">
           By Inspector
         </h3>
-        <div
-          class="w-100"
-          style="height: 350px; display: flex; justify-content: center"
-        >
-          <ngx-charts-pie-chart
-            [scheme]="colorScheme"
-            [results]="triple"
-            [legend]="showLegend"
-            [explodeSlices]="explodeSlices"
-            [labels]="showLabels"
-            [doughnut]="doughnut"
-            [gradient]="gradient"
-            (select)="onSelect($event)"
-          >
+        <div class="w-100" style="height: 350px; display: flex; justify-content: center">
+          <ngx-charts-pie-chart [scheme]="colorScheme" [results]="triple" [legend]="showLegend"
+            [explodeSlices]="explodeSlices" [labels]="showLabels" [doughnut]="doughnut" [gradient]="gradient"
+            (select)="onSelect($event)">
           </ngx-charts-pie-chart>
         </div>
       </div>
@@ -119,14 +77,10 @@
   </div>
 
   <div class="d-flex justify-content-end align-items-center mb-3 gap-2">
-    <!-- <button mat-raised-button class="btn-dark" (click)="openGridView(null)">
+    <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
       <mat-icon>grid_on</mat-icon> Grid View
-    </button> -->
-    <button
-      mat-raised-button
-      style="background-color: #000000; color: #ffffff"
-      (click)="showFilter = !showFilter"
-    >
+    </button>
+    <button mat-raised-button style="background-color: #000000; color: #ffffff" (click)="showFilter = !showFilter">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
     <!-- <button mat-raised-button color="primary" (click)="addrecord(null)">
@@ -145,16 +99,8 @@
               </div>
               <div class="col-sm-7">
                 <div class="date-input-wrapper">
-                  <input
-                    matInput
-                    [matDatepicker]="picker"
-                    placeholder="Select Date"
-                    [(ngModel)]="filterDate"
-                    name="filterDate"
-                    class="form-control date-input"
-                    readonly
-                    (click)="picker.open()"
-                  />
+                  <input matInput [matDatepicker]="picker" placeholder="Select Date" [(ngModel)]="filterDate"
+                    name="filterDate" class="form-control date-input" readonly (click)="picker.open()" />
                   <mat-datepicker #picker></mat-datepicker>
                 </div>
               </div>
@@ -163,16 +109,12 @@
             <div class="col-md-3 col-sm-6 row align-items-center mb-3">
               <div class="col-sm-5 newMarginClass"><b>Inspector:</b></div>
               <div class="col-sm-7">
-                <mat-select
-                  placeholder="Select Inspector"
-                  [(ngModel)]="filterInspector"
-                  name="filterInspector"
-                  class="form-control mat-select-custom"
-                >
+                <mat-select placeholder="Select Inspector" [(ngModel)]="filterInspector" name="filterInspector"
+                  class="form-control mat-select-custom">
                   <mat-option value="">Select Inspector</mat-option>
                   <mat-option *ngFor="let insp of inspectors" [value]="insp">{{
                     insp
-                  }}</mat-option>
+                    }}</mat-option>
                 </mat-select>
               </div>
             </div>
@@ -180,18 +122,10 @@
             <div class="col-md-3 col-sm-6 row align-items-center mb-3">
               <div class="col-sm-5 newMarginClass"><b>Part Family:</b></div>
               <div class="col-sm-7">
-                <mat-select
-                  placeholder="Select Part Family"
-                  [(ngModel)]="filterPartFamily"
-                  name="filterPartFamily"
-                  class="form-control mat-select-custom"
-                >
+                <mat-select placeholder="Select Part Family" [(ngModel)]="filterPartFamily" name="filterPartFamily"
+                  class="form-control mat-select-custom">
                   <mat-option value="">Select Part Family</mat-option>
-                  <mat-option
-                    *ngFor="let family of partFamilies"
-                    [value]="family"
-                    >{{ family }}</mat-option
-                  >
+                  <mat-option *ngFor="let family of partFamilies" [value]="family">{{ family }}</mat-option>
                 </mat-select>
               </div>
             </div>
@@ -199,16 +133,12 @@
             <div class="col-md-3 col-sm-6 row align-items-center mb-3">
               <div class="col-sm-5 newMarginClass"><b>Part Name:</b></div>
               <div class="col-sm-7">
-                <mat-select
-                  placeholder="Select Part Name"
-                  [(ngModel)]="filterPartName"
-                  name="filterPartName"
-                  class="form-control mat-select-custom"
-                >
+                <mat-select placeholder="Select Part Name" [(ngModel)]="filterPartName" name="filterPartName"
+                  class="form-control mat-select-custom">
                   <mat-option value="">Select Part Name</mat-option>
                   <mat-option *ngFor="let name of partNames" [value]="name">{{
                     name
-                  }}</mat-option>
+                    }}</mat-option>
                 </mat-select>
               </div>
             </div>
@@ -216,31 +146,18 @@
             <div class="col-md-3 col-sm-6 row align-items-center mb-3">
               <div class="col-sm-5 newMarginClass"><b>Part Number:</b></div>
               <div class="col-sm-7">
-                <input
-                  type="text"
-                  placeholder="Enter Part Number"
-                  [(ngModel)]="filterPartNumber"
-                  name="filterPartNumber"
-                  class="form-control"
-                />
+                <input type="text" placeholder="Enter Part Number" [(ngModel)]="filterPartNumber"
+                  name="filterPartNumber" class="form-control" />
               </div>
             </div>
 
             <div class="col-md-3 col-sm-6 row align-items-center mb-3">
               <div class="col-sm-5 newMarginClass"><b>Batch Number:</b></div>
               <div class="col-sm-7">
-                <mat-select
-                  placeholder="Select Batch Number"
-                  [(ngModel)]="filterBatchNumber"
-                  name="filterBatchNumber"
-                  class="form-control mat-select-custom"
-                >
+                <mat-select placeholder="Select Batch Number" [(ngModel)]="filterBatchNumber" name="filterBatchNumber"
+                  class="form-control mat-select-custom">
                   <mat-option value="">Select Batch Number</mat-option>
-                  <mat-option
-                    *ngFor="let batch of batchNumbers"
-                    [value]="batch"
-                    >{{ batch }}</mat-option
-                  >
+                  <mat-option *ngFor="let batch of batchNumbers" [value]="batch">{{ batch }}</mat-option>
                 </mat-select>
               </div>
             </div>
@@ -249,22 +166,11 @@
             <div class="col-md-3 col-sm-6 mb-3"></div>
 
             <!-- Buttons column aligned to the right (end of Part Name) -->
-            <div
-              class="col-md-3 col-sm-6 d-flex justify-content-end align-items-center mb-3 gap-2"
-            >
-              <button
-                mat-raised-button
-                class="btn-clear"
-                (click)="clearFilter()"
-              >
+            <div class="col-md-3 col-sm-6 d-flex justify-content-end align-items-center mb-3 gap-2">
+              <button mat-raised-button class="btn-clear" (click)="clearFilter()">
                 <mat-icon>settings_backup_restore</mat-icon> Clear
               </button>
-              <button
-                mat-raised-button
-                color="primary"
-                class="btn-search"
-                (click)="applyFilter()"
-              >
+              <button mat-raised-button color="primary" class="btn-search" (click)="applyFilter()">
                 <mat-icon>search</mat-icon> Search
               </button>
             </div>
@@ -274,178 +180,403 @@
     </div>
   </div>
 
-  <div
-    class="table-responsive"
-    id="grid-table-container"
-    #tableContainer
-    style="overflow-x: auto; white-space: nowrap; margin-bottom: 150px"
-  >
-    <table
-      id="example2"
-      class="table table-bordered table-hover"
-      style="width: 100%"
-    >
+  <div class="table-responsive" id="grid-table-container" #tableContainer
+    style="overflow-x: auto; white-space: nowrap; margin-bottom: 150px">
+
+    <table id="example2" class="table table-bordered table-hover audit-table">
+
+      <!-- ================= HEADER ================= -->
+
       <thead class="tbl-head">
+
         <tr>
-          <th class="text-center">Actions</th>
-          <th class="text-center">Reference</th>
-          <th class="text-center">Stage</th>
-          <th class="text-center">Publish</th>
-          <th class="text-center">Inspection Date</th>
-          <th class="text-center">Time</th>
-          <th class="text-center">Inspector</th>
-          <th class="text-center">Part Family</th>
-          <th class="text-center">Part Name</th>
-          <th class="text-center">Part Number</th>
-          <th class="text-center">Defects</th>
-          <th class="text-center">Parameters</th>
-          <th class="text-center">Remarks</th>
-          <th class="text-center">Batch Number</th>
-          <th class="text-center">Batch Qty</th>
-          <th class="text-center">Sample Qty</th>
-          <th class="text-center">Error Rate (%)</th>
-          <th class="text-center">Error Rate (PPM)</th>
+
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+            <!-- Actions -->
+            <th *ngSwitchCase="'Actions'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Actions
+            </th>
+
+
+            <!-- Reference -->
+            <th *ngSwitchCase="'Reference'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Reference
+            </th>
+
+
+            <!-- Stage -->
+            <th *ngSwitchCase="'Stage'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Stage
+            </th>
+
+
+            <!-- Publish -->
+            <th *ngSwitchCase="'Publish'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Publish
+            </th>
+
+
+            <!-- Inspection Date -->
+            <th *ngSwitchCase="'Inspection Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Inspection Date
+            </th>
+
+
+            <!-- Time -->
+            <th *ngSwitchCase="'Time'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Time
+            </th>
+
+
+            <!-- Inspector -->
+            <th *ngSwitchCase="'Inspector'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Inspector
+            </th>
+
+
+            <!-- Part Family -->
+            <th *ngSwitchCase="'Part Family'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Part Family
+            </th>
+
+
+            <!-- Part Name -->
+            <th *ngSwitchCase="'Part Name'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Part Name
+            </th>
+
+
+            <!-- Part Number -->
+            <th *ngSwitchCase="'Part Number'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Part Number
+            </th>
+
+
+            <!-- Defects -->
+            <th *ngSwitchCase="'Defects'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Defects
+            </th>
+
+
+            <!-- Parameters -->
+            <th *ngSwitchCase="'Parameters'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Parameters
+            </th>
+
+
+            <!-- Remarks -->
+            <th *ngSwitchCase="'Remarks'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Remarks
+            </th>
+
+
+            <!-- Batch Number -->
+            <th *ngSwitchCase="'Batch Number'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Batch Number
+            </th>
+
+
+            <!-- Batch Qty -->
+            <th *ngSwitchCase="'Batch Qty'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Batch Qty
+            </th>
+
+
+            <!-- Sample Qty -->
+            <th *ngSwitchCase="'Sample Qty'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Sample Qty
+            </th>
+
+
+            <!-- Error Rate (%) -->
+            <th *ngSwitchCase="'Error Rate (%)'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Error Rate (%)
+            </th>
+
+
+            <!-- Error Rate (PPM) -->
+            <th *ngSwitchCase="'Error Rate (PPM)'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Error Rate (PPM)
+            </th>
+
+          </ng-container>
+
         </tr>
+
       </thead>
 
+
+      <!-- ================= BODY ================= -->
+
       <tbody>
+
         <tr *ngFor="let item of inspectionData">
-          <td class="text-center">
-            <a
-              matTooltip="Edit Record"
-              style="margin-right: 8px; cursor: pointer"
-              (click)="openEditDialog(item)"
-            >
-              <i class="fa fa-edit" style="color: cornflowerblue"></i>
-            </a>
 
-            <a
-              matTooltip="Delete Record"
-              style="margin-right: 8px; cursor: pointer"
-              (click)="deleteConfirmation(item)"
-            >
-              <i class="fa fa-trash" style="color: red"></i>
-            </a>
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
 
-            <!-- <a
-          matTooltip="Archive Record"
-          style="cursor: pointer;"
-         >
-          <i class="fa fa-archive" style="color: gray;"></i>
-        </a> -->
-          </td>
+            <!-- Actions -->
+            <td *ngSwitchCase="'Actions'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
 
-          <td class="text-link text-center">
-            <a
-              [routerLink]="[
+              <a matTooltip="Edit Record" style="margin-right: 8px; cursor: pointer" (click)="openEditDialog(item)">
+                <i class="fa fa-edit" style="color: cornflowerblue"></i>
+              </a>
+
+              <a matTooltip="Delete Record" style="margin-right: 8px; cursor: pointer"
+                (click)="deleteConfirmation(item)">
+                <i class="fa fa-trash" style="color: red"></i>
+              </a>
+
+            </td>
+
+
+            <!-- Reference -->
+            <td *ngSwitchCase="'Reference'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
                 '/app',
                 'sqm',
                 'inspect-inner-screen',
                 'active-records'
-              ]"
-              [queryParams]="{
+              ]" [queryParams]="{
                 inspectionId: item.id,
                 reference: item.Reference,
                 partFamily: item.PartFamily,
                 partName: item.PartName,
                 isReadOnly: true
-              }"
-            >
-              {{ item.Reference }}
-            </a>
-          </td>
+              }">
+                {{ item.Reference }}
+              </a>
 
-          <td class="text-center">{{ item.stage }}</td>
+            </td>
 
-          <td class="text-center">
-            <mat-checkbox
-              [(ngModel)]="item.Publish"
-              color="primary"
-              [disabled]="true"
-            >
-            </mat-checkbox>
-          </td>
 
-          <td class="text-center">{{ item.InspectionDate }}</td>
-          <td class="text-center">{{ item.Time }}</td>
-          <td class="text-center">{{ item.Inspector }}</td>
-          <td class="text-center">{{ item.PartFamily }}</td>
-          <td class="text-center">{{ item.PartName }}</td>
-          <td class="text-center">{{ item.PartNumber }}</td>
+            <!-- Stage -->
+            <td *ngSwitchCase="'Stage'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.stage }}
+            </td>
 
-          <td class="text-center">
-            <a
-              style="
+
+            <!-- Publish -->
+            <td *ngSwitchCase="'Publish'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <mat-checkbox [(ngModel)]="item.Publish" color="primary" [disabled]="true">
+              </mat-checkbox>
+
+            </td>
+
+
+            <!-- Inspection Date -->
+            <td *ngSwitchCase="'Inspection Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.InspectionDate }}
+            </td>
+
+
+            <!-- Time -->
+            <td *ngSwitchCase="'Time'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.Time }}
+            </td>
+
+
+            <!-- Inspector -->
+            <td *ngSwitchCase="'Inspector'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.Inspector }}
+            </td>
+
+
+            <!-- Part Family -->
+            <td *ngSwitchCase="'Part Family'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.PartFamily }}
+            </td>
+
+
+            <!-- Part Name -->
+            <td *ngSwitchCase="'Part Name'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.PartName }}
+            </td>
+
+
+            <!-- Part Number -->
+            <td *ngSwitchCase="'Part Number'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.PartNumber }}
+            </td>
+
+
+            <!-- Defects -->
+            <td *ngSwitchCase="'Defects'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a style="
                 color: #007bff;
                 cursor: pointer;
                 text-decoration: underline;
                 font-weight: 500;
-              "
-              (click)="openDefectsPop(item)"
-            >
-              {{ item.Defects }}
-            </a>
-          </td>
+              " (click)="openDefectsPop(item)">
+                {{ item.Defects }}
+              </a>
 
-          <td class="text-link text-center">
-            <a
-              [routerLink]="[
+            </td>
+
+
+            <!-- Parameters -->
+            <td *ngSwitchCase="'Parameters'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
                 '/app',
                 'sqm',
                 'inspect-inner-screen',
                 'active-records'
-              ]"
-              [queryParams]="{
+              ]" [queryParams]="{
                 inspectionId: item.id,
                 reference: item.Reference,
                 partFamily: item.PartFamily,
                 partName: item.PartName,
                 isReadOnly: true
-              }"
-            >
-              {{ item.Parameters }}
-            </a>
+              }">
+                {{ item.Parameters }}
+              </a>
+
+            </td>
+
+
+            <!-- Remarks -->
+            <td *ngSwitchCase="'Remarks'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.Remarks }}
+            </td>
+
+
+            <!-- Batch Number -->
+            <td *ngSwitchCase="'Batch Number'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.BatchNumber }}
+            </td>
+
+
+            <!-- Batch Qty -->
+            <td *ngSwitchCase="'Batch Qty'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.BatchQuantity }}
+            </td>
+
+
+            <!-- Sample Qty -->
+            <td *ngSwitchCase="'Sample Qty'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.SampleQuantity }}
+            </td>
+
+
+            <!-- Error Rate (%) -->
+            <td *ngSwitchCase="'Error Rate (%)'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.ErrorRatePct }}
+            </td>
+
+
+            <!-- Error Rate (PPM) -->
+            <td *ngSwitchCase="'Error Rate (PPM)'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.ErrorRatePPM }}
+            </td>
+
+          </ng-container>
+
+        </tr>
+
+
+        <!-- No Records -->
+        <tr *ngIf="!inspectionData || inspectionData.length === 0">
+
+          <td [attr.colspan]="activeColumns.length || defaultColumns.length" class="text-center">
+            No records found
           </td>
 
-          <td class="text-center">{{ item.Remarks }}</td>
-          <td class="text-center">{{ item.BatchNumber }}</td>
-          <td class="text-center">{{ item.BatchQuantity }}</td>
-          <td class="text-center">{{ item.SampleQuantity }}</td>
-          <td class="text-center">{{ item.ErrorRatePct }}</td>
-          <td class="text-center">{{ item.ErrorRatePPM }}</td>
         </tr>
 
-        <tr *ngIf="!inspectionData || inspectionData.length === 0">
-          <td colspan="18" class="text-center">No records found</td>
-        </tr>
       </tbody>
+
     </table>
+
   </div>
 
-  <div
-    style="
+  <div style="
       position: fixed;
       bottom: 30px;
       right: 30px;
       z-index: 999;
       display: flex;
       gap: 15px;
-    "
-  >
-    <button
-      mat-fab
-      color="white"
-      (click)="scrollLeft()"
-      matTooltip="Scroll Left"
-    >
+    ">
+    <button mat-fab color="white" (click)="scrollLeft()" matTooltip="Scroll Left">
       <mat-icon>fast_rewind</mat-icon>
     </button>
-    <button
-      mat-fab
-      color="white"
-      (click)="scrollRight()"
-      matTooltip="Scroll Right"
-    >
+    <button mat-fab color="white" (click)="scrollRight()" matTooltip="Scroll Right">
       <mat-icon>fast_forward</mat-icon>
     </button>
   </div>

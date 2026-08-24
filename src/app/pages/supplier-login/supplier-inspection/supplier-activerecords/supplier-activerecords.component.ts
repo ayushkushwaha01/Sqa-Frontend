@@ -4,6 +4,9 @@ import { AddRecordPopComponent } from 'src/app/pages/sqm/inspection/add-record-p
 import { DefectsPopComponent } from 'src/app/pages/sqm/inspection/inspection-datatable/defects-pop/defects-pop.component';
 import { ActiveGridDialogComponent } from 'src/app/pages/sqm/process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
 import { InspectionService } from 'src/app/pages/sqm/inspection/inspection.service'; // Ensure correct path
+import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
+import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-supplier-activerecords',
@@ -15,15 +18,15 @@ export class SupplierActiverecordsComponent implements OnInit {
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
   // ── ngx-charts Configuration ──
-  public first:  any[] = []; // Inspection by Stage
-  public multi:  any[] = []; // Distribution by Part Family
+  public first: any[] = []; // Inspection by Stage
+  public multi: any[] = []; // Distribution by Part Family
   public triple: any[] = []; // By Inspector
-  
-  public showLegend    = false;
-  public showLabels    = true;
+
+  public showLegend = false;
+  public showLabels = true;
   public explodeSlices = false;
-  public doughnut      = false;
-  public gradient      = false;
+  public doughnut = false;
+  public gradient = false;
   public colorScheme: any = {
     domain: ['#2F3E9E', '#D22E2E', '#378D3B', '#0096A6', '#F47B00', '#606060']
   };
@@ -53,11 +56,12 @@ export class SupplierActiverecordsComponent implements OnInit {
 
   constructor(
     private dialog: MatDialog,
-    private api: InspectionService
+    private api: InspectionService, private partAuditService: PartAuditService, private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
     this.loadData();
+    this.loadGridColumns();
   }
 
   loadData() {
@@ -89,7 +93,7 @@ export class SupplierActiverecordsComponent implements OnInit {
             BatchQuantity: item.batchQuantity || 0,
             SampleQuantity: item.sampleQuantity || 0,
             ErrorRatePct: rawErrorRateStr.toString().includes('%') ? rawErrorRateStr : `${rawErrorRateStr}%`,
-            ErrorRatePPM: errorRatePpmVal, 
+            ErrorRatePPM: errorRatePpmVal,
             stage: item.stageName || 'N/A'
           };
         });
@@ -184,25 +188,192 @@ export class SupplierActiverecordsComponent implements OnInit {
     this.triple = Object.keys(inspectorCounts).map(key => ({ name: key, value: inspectorCounts[key] }));
   }
 
-  scrollLeft()  { this.tableContainer?.nativeElement.scrollBy({ left: -300, behavior: 'smooth' }); }
-  scrollRight() { this.tableContainer?.nativeElement.scrollBy({ left:  300, behavior: 'smooth' }); }
+  scrollLeft() { this.tableContainer?.nativeElement.scrollBy({ left: -300, behavior: 'smooth' }); }
+  scrollRight() { this.tableContainer?.nativeElement.scrollBy({ left: 300, behavior: 'smooth' }); }
 
-  addrecord(data: any)          { this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data }); }
-  openDefectsPop(item: any)     { this.dialog.open(DefectsPopComponent,   { width: '1400px', height: 'auto', data: { ...item, isReadOnly: true } }); }
-  openEditDialog(item: any)     { console.log('Edit clicked for:', item);    }
-  deleteConfirmation(item: any) { console.log('Delete clicked for:', item);  }
-  archiveRecord(item: any)      { console.log('Archive clicked for:', item); }
+  addrecord(data: any) { this.dialog.open(AddRecordPopComponent, { width: '1000px', height: 'auto', data }); }
+  openDefectsPop(item: any) { this.dialog.open(DefectsPopComponent, { width: '1400px', height: 'auto', data: { ...item, isReadOnly: true } }); }
+  openEditDialog(item: any) { console.log('Edit clicked for:', item); }
+  deleteConfirmation(item: any) { console.log('Delete clicked for:', item); }
+  archiveRecord(item: any) { console.log('Archive clicked for:', item); }
 
-  openGridView(data:any) {
+  openGridView(data: any) {
     this.dialog.open(ActiveGridDialogComponent, {
       width: '650px',
       height: 'auto',
       maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog' 
+      panelClass: 'no-scroll-dialog'
     });
   }
 
   ngAfterViewInit(): void {
     // code after view initialization
+  }
+
+  defaultColumns: string[] = [
+    'Actions',
+    'Reference',
+    'Stage',
+    'Publish',
+    'Inspection Date',
+    'Time',
+    'Inspector',
+    'Part Family',
+    'Part Name',
+    'Part Number',
+    'Defects',
+    'Parameters',
+    'Remarks',
+    'Batch Number',
+    'Batch Qty',
+    'Sample Qty',
+    'Error Rate (%)',
+    'Error Rate (PPM)'
+  ];
+
+  activeColumns: string[] = [];
+
+  frozenCount: number = 0;
+
+
+  getColumnWidth(column: string): number {
+
+    const widths: { [key: string]: number } = {
+
+      'Actions': 100,
+      'Reference': 180,
+      'Stage': 120,
+      'Publish': 100,
+      'Inspection Date': 150,
+      'Time': 120,
+      'Inspector': 160,
+      'Part Family': 180,
+      'Part Name': 180,
+      'Part Number': 160,
+      'Defects': 120,
+      'Parameters': 150,
+      'Remarks': 180,
+      'Batch Number': 150,
+      'Batch Qty': 120,
+      'Sample Qty': 120,
+      'Error Rate (%)': 150,
+      'Error Rate (PPM)': 170
+
+    };
+
+    return widths[column] || 150;
+  }
+
+
+  getStickyLeft(index: number): string {
+
+    let left = 0;
+
+    for (let i = 0; i < index; i++) {
+      left += this.getColumnWidth(this.activeColumns[i]);
+    }
+
+    return left + 'px';
+  }
+
+
+  openColumnSelector() {
+
+    const dialogRef = this.dialog.open(ColumnSelectorComponent, {
+
+      width: '750px',
+      height: 'auto',
+      disableClose: true,
+
+      data: {
+        userId: 1, // Replace with logged-in user ID
+        gridType: 'SupplierInspectionTable',
+        defaultColumns: this.defaultColumns
+      }
+
+    });
+
+    dialogRef.afterClosed().subscribe((didSave: boolean) => {
+
+      if (didSave) {
+
+        this.alertService.createAlert(
+          'Column layout updated successfully.'
+        );
+
+        this.loadGridColumns();
+
+      }
+
+    });
+
+  }
+
+
+  loadGridColumns() {
+
+    const filter = {
+      userId: 1, // Replace with logged-in user ID
+      gridType: 'SupplierInspectionTable'
+    };
+
+    this.partAuditService.getgridcolumns(filter).subscribe({
+
+      next: (res: any) => {
+
+        if (res.success && res.data) {
+
+          const parsedData = JSON.parse(
+            res.data.selectedColumnsJSON
+          );
+
+          // Old format support
+          if (Array.isArray(parsedData)) {
+
+            this.activeColumns = parsedData;
+            this.frozenCount = 0;
+
+          }
+          else {
+
+            this.activeColumns =
+              parsedData.columns ||
+              [...this.defaultColumns];
+
+            this.frozenCount =
+              parsedData.frozenCount || 0;
+
+          }
+
+        }
+        else {
+
+          this.activeColumns = [
+            ...this.defaultColumns
+          ];
+
+          this.frozenCount = 0;
+
+        }
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error loading grid columns',
+          error
+        );
+
+        this.activeColumns = [
+          ...this.defaultColumns
+        ];
+
+        this.frozenCount = 0;
+
+      }
+
+    });
+
   }
 }

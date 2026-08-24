@@ -15,10 +15,10 @@
       class="filter-hover me-2" (click)="filterToggle = !filterToggle">
       <mat-icon class="">filter_list</mat-icon> Filter
     </button>
-    <!-- <button mat-raised-button style="background-color: black; color: white;" matTooltip="Grid View"
-      (click)="openGridView()">
+    <button mat-raised-button style="background-color: black; color: white;" matTooltip="Grid View"
+      (click)="openColumnSelector()">
       <mat-icon>grid_on</mat-icon> Grid View
-    </button> -->
+    </button>
   </div>
 
   <div fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 15px">
@@ -166,32 +166,145 @@
   </div>
 
   <div class="table-responsive">
+
     <table class="audit-table">
+
       <thead>
+
         <tr>
-          <th>Audit Reference</th>
-          <th>Commodity</th>
-          <th>Location</th>
-          <th>Supplier</th>
-          <th>Auditor</th>
-          <th>Audit Date</th>
-          <th>CAPA</th>
-          <th>Report</th>
-          <th>Status</th>
-          <th>Done</th>
-          <th>Manage</th>
+
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+
+            <!-- Audit Reference -->
+            <th *ngSwitchCase="'Audit Reference'" class="text-left" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Audit Reference
+
+            </th>
+
+
+            <!-- Commodity -->
+            <th *ngSwitchCase="'Commodity'" class="text-left" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Commodity
+
+            </th>
+
+
+            <!-- Location -->
+            <th *ngSwitchCase="'Location'" class="text-left" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Location
+
+            </th>
+
+
+            <!-- Supplier -->
+            <th *ngSwitchCase="'Supplier'" class="text-left" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Supplier
+
+            </th>
+
+
+            <!-- Auditor -->
+            <th *ngSwitchCase="'Auditor'" class="text-left" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Auditor
+
+            </th>
+
+
+            <!-- Audit Date -->
+            <th *ngSwitchCase="'Audit Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Audit Date
+
+            </th>
+
+
+            <!-- CAPA -->
+            <th *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              CAPA
+
+            </th>
+
+
+            <!-- Report -->
+            <th *ngSwitchCase="'Report'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Report
+
+            </th>
+
+
+            <!-- Status -->
+            <th *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Status
+
+            </th>
+
+
+            <!-- Done -->
+            <th *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Done
+
+            </th>
+
+
+            <!-- Manage -->
+            <th *ngSwitchCase="'Manage'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Manage
+
+            </th>
+
+          </ng-container>
+
         </tr>
+
       </thead>
+
+
       <tbody>
+
         <tr *ngFor="let audit of pagedAuditData">
-          <!-- <td class="text-link">
-            <a [routerLink]="['/app','supplier-login','inner-screen','process-ref']">
-              {{ audit.ref }}
-            </a>
-          </td> -->
-          <!-- Inside sup-proactivegrid.component.html -->
-          <td class="text-link">
-            <a [routerLink]="[
+
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+
+            <!-- Audit Reference -->
+            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
                 '/app',
                 'sqm',
                 'process-inner-screen',
@@ -201,52 +314,158 @@
                 ref: audit.ref,
                 role: 'supplier'
               }">
-              <!-- 🔥 Added role: 'supplier' -->
-              {{ audit.ref }}
-            </a>
-          </td>
-          <td>{{ audit.commodity }}</td>
-          <td>{{ audit.location }}</td>
-          <td>{{ audit.supplier }}</td>
-          <td>{{ audit.auditor }}</td>
-          <td>{{ audit.date }}</td>
-          <td class="text-link text-center">{{ audit.action }}</td>
-          <td class="text-link text-center">
-            <a [routerLink]="['/app', 'sqm', 'process', 'audit-summary-report']"
-              [queryParams]="{ id: audit.processAuditId }" style="
+
+                {{ audit.ref }}
+
+              </a>
+
+            </td>
+
+
+            <!-- Commodity -->
+            <td *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.commodity }}
+
+            </td>
+
+
+            <!-- Location -->
+            <td *ngSwitchCase="'Location'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.location }}
+
+            </td>
+
+
+            <!-- Supplier -->
+            <td *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.supplier }}
+
+            </td>
+
+
+            <!-- Auditor -->
+            <td *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.auditor }}
+
+            </td>
+
+
+            <!-- Audit Date -->
+            <td *ngSwitchCase="'Audit Date'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.date }}
+
+            </td>
+
+
+            <!-- CAPA -->
+            <td *ngSwitchCase="'CAPA'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ audit.action }}
+
+            </td>
+
+
+            <!-- Report -->
+            <td *ngSwitchCase="'Report'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
+                '/app',
+                'sqm',
+                'process',
+                'audit-summary-report'
+              ]" [queryParams]="{
+                id: audit.processAuditId
+              }" style="
                 font-weight: 600;
                 color: #1d4ed8;
                 text-decoration: underline;
                 cursor: pointer;
               ">
-              {{ audit.score }}
-            </a>
-          </td>
-          <td class="text-center">
-            <span class="status-badge" [ngClass]="{
+
+                {{ audit.score }}
+
+              </a>
+
+            </td>
+
+
+            <!-- Status -->
+            <td *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <span class="status-badge" [ngClass]="{
                 'status-open': audit.status === 'Open',
                 'status-progress': audit.status === 'In Progress',
                 'status-review': audit.status === 'Pending Review',
                 'status-completed': audit.status === 'Completed',
                 'status-closed': audit.status === 'Closed'
               }">
-              {{ audit.status }}
-            </span>
-          </td>
-          <td class="text-center">
-            <mat-checkbox [checked]="audit.done" (click)="onDoneClick($event, audit)" color="primary">
-            </mat-checkbox>
-          </td>
-          <td class="text-center manage-icons">
-            <i class="fas fa-edit edit-icon" title="Edit"></i>
-            <i class="fas fa-trash delete-icon" title="Delete"></i>
-          </td>
+
+                {{ audit.status }}
+
+              </span>
+
+            </td>
+
+
+            <!-- Done -->
+            <td *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <mat-checkbox [checked]="audit.done" (click)="onDoneClick($event, audit)" color="primary">
+
+              </mat-checkbox>
+
+            </td>
+
+
+            <!-- Manage -->
+            <td *ngSwitchCase="'Manage'" class="text-center manage-icons" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <i class="fas fa-edit edit-icon" title="Edit">
+              </i>
+
+              <i class="fas fa-trash delete-icon" title="Delete">
+              </i>
+
+            </td>
+
+          </ng-container>
+
         </tr>
+
       </tbody>
+
     </table>
+
 
     <mat-paginator [length]="auditData.length" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
       aria-label="Select page">
+
     </mat-paginator>
+
   </div>
 </div>

@@ -10,24 +10,32 @@
 
 <!-- <div class="page-container p-3"> -->
 
-  <div *ngIf="canRead" class="page-container p-3"> 
+<div *ngIf="canRead" class="page-container p-3">
   <div class="charts-row">
     <div class="chart-container">
-      <highcharts-chart [Highcharts]="Highcharts" [options]="commodityChartOptions" [callbackFunction]="commodityCallback"></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="commodityChartOptions"
+        [callbackFunction]="commodityCallback"></highcharts-chart>
     </div>
     <div class="chart-container">
-      <highcharts-chart [Highcharts]="Highcharts" [options]="auditorChartOptions" [callbackFunction]="auditorCallback"></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="auditorChartOptions"
+        [callbackFunction]="auditorCallback"></highcharts-chart>
     </div>
     <div class="chart-container">
-      <highcharts-chart [Highcharts]="Highcharts" [options]="statusChartOptions" [callbackFunction]="statusCallback"></highcharts-chart>
+      <highcharts-chart [Highcharts]="Highcharts" [options]="statusChartOptions"
+        [callbackFunction]="statusCallback"></highcharts-chart>
     </div>
   </div>
 
 
   <div class="toolbar-row">
-      <!-- <button mat-raised-button class="btn-dark" (click)="openGridView()">
-        <mat-icon>grid_on</mat-icon> Grid View
-      </button> -->
+    <button mat-raised-button class="btn-dark" [class.disable-custom]="!canUpdate"
+      [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid View'"
+      (click)="canUpdate && openColumnSelector()">
+
+      <mat-icon>grid_on</mat-icon>
+      Grid View
+
+    </button>
     <button mat-raised-button class="btn-dark" (click)="filterToggle = !filterToggle">
       <mat-icon>filter_list</mat-icon> Filter
     </button>
@@ -85,7 +93,8 @@
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>State:</b></div>
                 <div class="col-sm-8">
-                  <mat-select placeholder="Select State" class="form-control" formControlName="State" (selectionChange)="onStateChange()">
+                  <mat-select placeholder="Select State" class="form-control" formControlName="State"
+                    (selectionChange)="onStateChange()">
                     <mat-option *ngFor="let opt of uniqueStates" [value]="opt">{{opt}}</mat-option>
                   </mat-select>
                 </div>
@@ -105,21 +114,25 @@
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>From Date:</b></div>
                 <div class="col-sm-8">
-                    <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
-                        <input matInput [matDatepicker]="fromPicker" formControlName="FromDate" placeholder="mm/dd/yyyy" style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
-                        <mat-datepicker-toggle matSuffix [for]="fromPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
-                        <mat-datepicker #fromPicker></mat-datepicker>
-                    </div>
+                  <div
+                    style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                    <input matInput [matDatepicker]="fromPicker" formControlName="FromDate" placeholder="mm/dd/yyyy"
+                      style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
+                    <mat-datepicker-toggle matSuffix [for]="fromPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                    <mat-datepicker #fromPicker></mat-datepicker>
+                  </div>
                 </div>
               </div>
               <div class="col-sm-4 row">
                 <div class="col-sm-4 d-flex align-items-center"><b>To Date:</b></div>
                 <div class="col-sm-8">
-                    <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
-                        <input matInput [matDatepicker]="toPicker" formControlName="ToDate" placeholder="mm/dd/yyyy" style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
-                        <mat-datepicker-toggle matSuffix [for]="toPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
-                        <mat-datepicker #toPicker></mat-datepicker>
-                    </div>
+                  <div
+                    style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                    <input matInput [matDatepicker]="toPicker" formControlName="ToDate" placeholder="mm/dd/yyyy"
+                      style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
+                    <mat-datepicker-toggle matSuffix [for]="toPicker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                    <mat-datepicker #toPicker></mat-datepicker>
+                  </div>
                 </div>
               </div>
             </div>
@@ -140,78 +153,327 @@
       </form>
     </div>
   </div>
-  
-  <div class="table-responsive bg-white" id="grid-table-container" style="scroll-behavior: smooth;">
-    <table class="custom-grid-table">
-      <thead>
-        <tr>
-          <th>Audit Reference</th>
-          <th>Commodity</th>
-          <th>State</th>
-          <th>City</th>
-          <th>Supplier</th>
-          <th>Auditor</th>
-          <th>Audit Date</th>
-          <th>CAPA</th>
-          <th>Report</th>
-          <th style="width: 150px;">Status</th>
-          <th>Done</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of pagedAuditData">
-          <td class="text-link">
-            <!-- 🔥 Routes to your reference component safely -->
-            <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']" [queryParams]="{ id: item.processAuditId, ref: item.auditReference }">
-              {{ item.auditReference }}
-            </a>
-          </td>
-          <td>{{ item.commodityName }}</td>
-          <td>{{ item.stateName }}</td>
-          <td>{{ item.cityName }}</td>
-          <td>{{ item.supplierName }}</td>
-          <td>{{ item.auditorName }}</td>
-          <td>{{ item.auditDate | date:'dd-MM-yyyy' }}</td>
-          
-          <td class="text-center">
-            <!-- Reuses the CAPA summary formatting -->
-            <span [ngClass]="{'text-success': item.capaSummary && item.capaSummary !== '-', 'text-danger': item.capaSummary === '-'}">
-              {{ item.capaSummary }}
-            </span>
-          </td>
-          <!-- Clickable Report % cell -->
-          <td class="text-link text-center">
-            <a [routerLink]="['/app', 'sqm', 'process', 'audit-summary-report']"
-              [queryParams]="{ id: item.processAuditId }"
-              style="font-weight: 600; color: #1d4ed8; text-decoration: underline; cursor: pointer;">
-              {{ item.report || '0%' }}
-            </a>
-          </td>
-          
-          <td class="text-center font-weight-bold">
-            <!-- 🔥 Rendered as Read-Only Text -->
-            {{ getStatusName(item.statusId) }}
-          </td>
-          
-          <td class="text-center">
-            <!-- 🔥 Rendered as Interactive Checkbox -->
-            <!-- <mat-checkbox [checked]="item.isDone" (click)="onDoneClick($event, item)" color="primary"></mat-checkbox> -->
 
-            <mat-checkbox [checked]="item.isDone" (click)="onDoneClick($event, item)" color="primary" [disabled]="!canUpdate"></mat-checkbox>
-          </td>
+  <div class="table-responsive bg-white" id="grid-table-container" style="scroll-behavior: smooth;">
+
+    <table class="custom-grid-table">
+
+      <thead>
+
+        <tr>
+
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+            <!-- Audit Reference -->
+            <th *ngSwitchCase="'Audit Reference'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Audit Reference
+
+            </th>
+
+
+            <!-- Commodity -->
+            <th *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Commodity
+
+            </th>
+
+
+            <!-- State -->
+            <th *ngSwitchCase="'State'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              State
+
+            </th>
+
+
+            <!-- City -->
+            <th *ngSwitchCase="'City'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              City
+
+            </th>
+
+
+            <!-- Supplier -->
+            <th *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Supplier
+
+            </th>
+
+
+            <!-- Auditor -->
+            <th *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Auditor
+
+            </th>
+
+
+            <!-- Audit Date -->
+            <th *ngSwitchCase="'Audit Date'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Audit Date
+
+            </th>
+
+
+            <!-- CAPA -->
+            <th *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              CAPA
+
+            </th>
+
+
+            <!-- Report -->
+            <th *ngSwitchCase="'Report'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Report
+
+            </th>
+
+
+            <!-- Status -->
+            <th *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Status
+
+            </th>
+
+
+            <!-- Done -->
+            <th *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              Done
+
+            </th>
+
+          </ng-container>
+
         </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr *ngFor="let item of pagedAuditData">
+
+          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+
+            <!-- Audit Reference -->
+            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
+                '/app',
+                'sqm',
+                'process-inner-screen',
+                'process-audit-reference'
+              ]" [queryParams]="{
+                id: item.processAuditId,
+                ref: item.auditReference
+              }">
+
+                {{ item.auditReference }}
+
+              </a>
+
+            </td>
+
+
+            <!-- Commodity -->
+            <td *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ item.commodityName || '-' }}
+
+            </td>
+
+
+            <!-- State -->
+            <td *ngSwitchCase="'State'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ item.stateName || '-' }}
+
+            </td>
+
+
+            <!-- City -->
+            <td *ngSwitchCase="'City'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ item.cityName || '-' }}
+
+            </td>
+
+
+            <!-- Supplier -->
+            <td *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ item.supplierName || '-' }}
+
+            </td>
+
+
+            <!-- Auditor -->
+            <td *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ item.auditorName || '-' }}
+
+            </td>
+
+
+            <!-- Audit Date -->
+            <td *ngSwitchCase="'Audit Date'" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ item.auditDate | date:'dd-MM-yyyy' }}
+
+            </td>
+
+
+            <!-- CAPA -->
+            <td *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <span [ngClass]="{
+                'text-success':
+                  item.capaSummary &&
+                  item.capaSummary !== '-',
+
+                'text-danger':
+                  item.capaSummary === '-'
+              }">
+
+                {{ item.capaSummary }}
+
+              </span>
+
+            </td>
+
+
+            <!-- Report -->
+            <td *ngSwitchCase="'Report'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <a [routerLink]="[
+                '/app',
+                'sqm',
+                'process',
+                'audit-summary-report'
+              ]" [queryParams]="{
+                id: item.processAuditId
+              }" style="
+                font-weight: 600;
+                color: #1d4ed8;
+                text-decoration: underline;
+                cursor: pointer;
+              ">
+
+                {{ item.report || '0%' }}
+
+              </a>
+
+            </td>
+
+
+            <!-- Status -->
+            <td *ngSwitchCase="'Status'" class="text-center font-weight-bold" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              {{ getStatusName(item.statusId) }}
+
+            </td>
+
+
+            <!-- Done -->
+            <td *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+
+              <mat-checkbox [checked]="item.isDone" (click)="onDoneClick($event, item)" color="primary"
+                [disabled]="!canUpdate">
+
+              </mat-checkbox>
+
+            </td>
+
+
+          </ng-container>
+
+        </tr>
+
       </tbody>
+
     </table>
 
+
+    <!-- Scroll Right -->
     <button class="mine mine-right" mat-fab (click)="scrollRight()">
-      <mat-icon style="color: #37474f">fast_forward</mat-icon>
-    </button>
-    <button class="mine mine-left" mat-fab (click)="scrollLeft()">
-      <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+
+      <mat-icon style="color: #37474f">
+        fast_forward
+      </mat-icon>
+
     </button>
 
-    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex" [pageSizeOptions]="[5, 10, 20, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
+
+    <!-- Scroll Left -->
+    <button class="mine mine-left" mat-fab (click)="scrollLeft()">
+
+      <mat-icon style="color: #37474f">
+        fast_rewind
+      </mat-icon>
+
+    </button>
+
+
+    <!-- Paginator -->
+    <mat-paginator [length]="filteredAuditData.length" [pageSize]="pageSize" [pageIndex]="pageIndex"
+      [pageSizeOptions]="[5, 10, 20, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
+
     </mat-paginator>
+
   </div>
 
 </div>

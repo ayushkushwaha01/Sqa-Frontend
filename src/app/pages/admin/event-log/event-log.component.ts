@@ -40,7 +40,10 @@ export class EventLogComponent implements OnInit {
   service: any;
   canUpdate: boolean = false;
 
+  canRead: boolean = false;
   readonly SCREEN_ID: number = 8;
+
+
   constructor(public _menuService: MenuService, private fb: FormBuilder) {
     this.filterForm = this.fb.group({
       Role: new FormControl('',),
@@ -61,7 +64,7 @@ export class EventLogComponent implements OnInit {
   public setTitle(newTitle: string) {
     // this.titleService.setTitle(newTitle);
   }
-  canRead: boolean = false;
+
 
   ngOnInit() {
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);

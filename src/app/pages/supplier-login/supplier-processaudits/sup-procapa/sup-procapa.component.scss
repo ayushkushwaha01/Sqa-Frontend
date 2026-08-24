@@ -19,7 +19,8 @@ table.table {
 /* Base column styling - stops text wrapping and shrinking */
 th[mat-header-cell],
 td[mat-cell],
-th, td {
+th,
+td {
   white-space: nowrap !important;
   min-width: 150px;
   padding: 10px 16px;
@@ -29,16 +30,16 @@ th, td {
 /* Specific column overrides (Actions and Info Icons) */
 th[mat-header-cell]:nth-child(1),
 td[mat-cell]:nth-child(1) {
-  min-width: 70px !important; 
+  min-width: 70px !important;
   max-width: 100px !important;
-  text-align: center; 
+  text-align: center;
 }
 
 th[mat-header-cell]:nth-child(13),
 td[mat-cell]:nth-child(13) {
   min-width: 50px !important;
   max-width: 220px !important;
-  text-align: center; 
+  text-align: center;
 }
 
 /* Action Icons Spacing */
@@ -61,7 +62,7 @@ td[mat-cell]:nth-child(13) {
   bottom: 80px;
   background-color: #e6e6e6 !important;
   z-index: 100;
-  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
 }
 
 .mine-right {
@@ -70,7 +71,7 @@ td[mat-cell]:nth-child(13) {
 
 /* Adjusted the left button to sit slightly next to the right button */
 .mine-left {
-  right: 110px; 
+  right: 110px;
 }
 
 /* --- UTILITIES & MISC --- */
@@ -180,4 +181,34 @@ td[mat-cell]:nth-child(13) {
 .example-card {
   max-width: 400px;
   margin-bottom: 8px;
+}
+
+/* =========================================
+   FROZEN COLUMNS
+========================================= */
+
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+
+/* =========================================
+   FROZEN HEADER
+========================================= */
+
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+
+/* =========================================
+   LAST FROZEN COLUMN DIVIDER
+========================================= */
+
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
 }

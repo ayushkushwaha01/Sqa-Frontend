@@ -19,6 +19,8 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { InspectionDocspopComponent } from './inspection-docspop/inspection-docspop.component';
 import { CapaEditPopComponent } from './capa-edit-pop/capa-edit-pop.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 
 @Component({
   selector: 'app-inspection-capa',
@@ -54,7 +56,8 @@ export class InspectionCapaComponent implements OnInit {
     public dialog: MatDialog,
     private inspectionService: InspectionService,
     private datePipe: DatePipe,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private partAuditService: PartAuditService
   ) { }
 
   ngOnInit(): void {
@@ -77,6 +80,7 @@ export class InspectionCapaComponent implements OnInit {
     });
 
     this.fetchPendingCapas();
+    this.loadGridColumns();
   }
 
   fetchPendingCapas() {
@@ -288,5 +292,178 @@ export class InspectionCapaComponent implements OnInit {
     this.tableList = [...this.originalTableList];
     this.pageIndex = 0;
     this.updatePagedList();
+  }
+  defaultColumns: string[] = [
+    'Delete',
+    'Status',
+    'Resolved',
+    'Docs',
+    'Reference',
+    'CAPA Subject',
+    'Auditor Remarks',
+    'Corrective Actions',
+    'Preventive Actions',
+    'Parameter Name',
+    'Part Family',
+    'Part Name',
+    'Supplier Name',
+    'Action Type',
+    'Audit Reference',
+    'Process Category',
+    'Log Date',
+    'Due Date',
+    'Delay In Days',
+    'Completion Date',
+    'Severity',
+    'Occurrence',
+    'Detection',
+    'Risk Rating',
+    'Rating',
+    'PDCA Status'
+  ];
+
+  activeColumns: string[] = [];
+
+  frozenCount = 0;
+
+  getColumnWidth(column: string): number {
+
+    const widths: { [key: string]: number } = {
+
+      'Delete': 80,
+      'Status': 150,
+      'Resolved': 100,
+      'Docs': 100,
+      'Reference': 150,
+      'CAPA Subject': 180,
+      'Auditor Remarks': 180,
+      'Corrective Actions': 180,
+      'Preventive Actions': 180,
+      'Parameter Name': 180,
+      'Part Family': 180,
+      'Part Name': 180,
+      'Supplier Name': 180,
+      'Action Type': 150,
+      'Audit Reference': 180,
+      'Process Category': 180,
+      'Log Date': 130,
+      'Due Date': 130,
+      'Delay In Days': 130,
+      'Completion Date': 150,
+      'Severity': 120,
+      'Occurrence': 120,
+      'Detection': 120,
+      'Risk Rating': 150,
+      'Rating': 120,
+      'PDCA Status': 150
+
+    };
+
+    return widths[column] || 150;
+  }
+
+
+  getStickyLeft(index: number): string {
+
+    let left = 0;
+
+    for (let i = 0; i < index; i++) {
+      left += this.getColumnWidth(this.activeColumns[i]);
+    }
+
+    return left + 'px';
+  }
+
+
+  openColumnSelector() {
+
+    const dialogRef = this.dialog.open(ColumnSelectorComponent, {
+
+      width: '750px',
+      height: 'auto',
+      disableClose: true,
+
+      data: {
+        userId: 1,
+        gridType: 'InspectionCapaTable',
+        defaultColumns: this.defaultColumns
+      }
+
+    });
+
+    dialogRef.afterClosed().subscribe((didSave: boolean) => {
+
+      if (didSave) {
+
+        this.alertService.createAlert(
+          'Column layout updated successfully.'
+        );
+
+        this.loadGridColumns();
+
+      }
+
+    });
+
+  }
+
+
+  loadGridColumns() {
+
+    const filter = {
+      userId: 1,
+      gridType: 'InspectionCapaTable'
+    };
+
+    this.partAuditService.getgridcolumns(filter).subscribe({
+
+      next: (res: any) => {
+
+        if (res.success && res.data) {
+
+          const parsedData =
+            JSON.parse(res.data.selectedColumnsJSON);
+
+          // Old format support
+          if (Array.isArray(parsedData)) {
+
+            this.activeColumns = parsedData;
+            this.frozenCount = 0;
+
+          }
+          else {
+
+            this.activeColumns =
+              parsedData.columns || [...this.defaultColumns];
+
+            this.frozenCount =
+              parsedData.frozenCount || 0;
+
+          }
+
+        }
+        else {
+
+          this.activeColumns = [...this.defaultColumns];
+          this.frozenCount = 0;
+
+        }
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error loading grid columns',
+          error
+        );
+
+        this.activeColumns = [...this.defaultColumns];
+        this.frozenCount = 0;
+
+      }
+
+    });
+
   }
 }
