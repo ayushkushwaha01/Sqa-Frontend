@@ -6,6 +6,7 @@ import { AlertService } from 'src/app/shared/alert.service'; // Adjust path
 import { SetupService } from 'src/app/pages/setup/setup.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-severity-master',
@@ -21,7 +22,7 @@ export class SeverityMasterComponent implements OnInit {
 
   allSeverities: any[] = [];
   filteredSeverities: any[] = [];
-  
+
   showFilters: boolean = false;
   filterForm: FormGroup;
 
@@ -30,7 +31,7 @@ export class SeverityMasterComponent implements OnInit {
     private dialog: MatDialog,
     private api: SetupService,
     private alertService: AlertService
-  ) { 
+  ) {
     this.filterForm = this.fb.group({
       severityName: [''],
       rating: [null],
@@ -38,16 +39,32 @@ export class SeverityMasterComponent implements OnInit {
     });
   }
 
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  canRead: boolean = false;
+  readonly SCREEN_ID: number = 46;
   ngOnInit(): void {
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.loadData();
+
   }
 
   loadData() {
     this.api.getSeverities().subscribe((res: any) => {
+
       if (res.success) {
-        this.allSeverities = res.data;
+
+        this.allSeverities = res.data.sort(
+          (a: any, b: any) => a.severityId - b.severityId
+        );
+
         this.filteredSeverities = [...this.allSeverities];
-        this.applyFilter(); // Re-apply filters if they were open
+
+        this.applyFilter();
       }
     });
   }
@@ -67,11 +84,11 @@ export class SeverityMasterComponent implements OnInit {
       if (filters.severityName) {
         matchesName = severity.severityName.toLowerCase().includes(filters.severityName.toLowerCase());
       }
-      
+
       if (filters.rating) {
         matchesRating = severity.rating.toString().includes(filters.rating.toString());
       }
-      
+
       if (filters.status !== null && filters.status !== undefined && filters.status !== '') {
         matchesStatus = severity.isActive === filters.status;
       }
@@ -155,6 +172,58 @@ export class SeverityMasterComponent implements OnInit {
             this.alertService.createAlert(err.error?.message || 'An error occurred while deleting.', 0);
           }
         });
+      }
+    });
+  }
+
+  saveSeverity(item: any): void {
+
+    if (!item.severityName || item.severityName.trim() === '') {
+      this.alertService.createAlert('Please enter Severity Name', 0);
+      return;
+    }
+
+    if (item.rating === null || item.rating === undefined || item.rating === '') {
+      this.alertService.createAlert('Please enter Rating', 0);
+      return;
+    }
+
+    const payload = {
+      severityId: item.severityId || 0,
+      severityName: item.severityName.trim(),
+      rating: item.rating,
+      isActive: item.isActive ?? true
+    };
+
+    this.api.upsertSeverity(payload).subscribe({
+      next: (res: any) => {
+
+        if (res && res.success) {
+
+          this.alertService.createAlert(
+            res.message || 'Severity saved successfully',
+            1
+          );
+
+          this.loadData();
+
+        } else {
+
+          this.alertService.createAlert(
+            res.message || 'Failed to save severity',
+            0
+          );
+
+        }
+      },
+
+      error: (err: any) => {
+
+        this.alertService.createAlert(
+          err.error?.message || 'An error occurred while saving.',
+          0
+        );
+
       }
     });
   }

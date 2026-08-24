@@ -1,4 +1,8 @@
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 0px;">
+  <button mat-raised-button style="background-color: black; color: white" (click)="openColumnSelector()"
+    class="filter-hover margin-right-10">
+    <mat-icon>grid_on</mat-icon> Grid View
+  </button>
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
     class="filter-hover margin-right-30" (click)="filterToggle = !filterToggle">
     <mat-icon class="">filter_list</mat-icon> Filter
@@ -81,51 +85,44 @@
   </div>
 
   <div class="col-sm-12" style="margin-top: 10px; width: 100%; padding: 0;">
-    <div class="table-responsive" id="grid-table-container">
+    <div class="table-responsive" id="grid-table-container" #tableContainer>
 
-      <table mat-table class="table table-bordered table-hover">
+      <table class="table table-bordered table-hover audit-table">
+
         <thead class="tbl-head">
-          <tr>
-            <th mat-header-cell class="text-center">Delete</th>
-            <th mat-header-cell class="text-center">Status</th>
-            <th mat-header-cell class="text-center">Resolved</th>
-            <th mat-header-cell class="text-center">Docs</th>
-            <th mat-header-cell class="text-center">Reference</th>
-            <th mat-header-cell class="text-center">CAPA Subject</th>
-            <th mat-header-cell class="text-center">Auditor Remarks</th>
-            <th mat-header-cell class="text-center">Corrective Actions</th>
-            <th mat-header-cell class="text-center">Preventive Actions</th>
-            <th mat-header-cell class="text-center">Parameter Name</th>
-            <th mat-header-cell class="text-center">Part Family</th>
-            <th mat-header-cell class="text-center">Part Name</th>
-            <th mat-header-cell class="text-center">Supplier Name</th>
-            <th mat-header-cell class="text-center">Action Type</th>
-            <th mat-header-cell class="text-center">Audit Reference</th>
-            <th mat-header-cell class="text-center">Process Category</th>
 
-            <th mat-header-cell class="text-center">Log Date</th>
-            <th mat-header-cell class="text-center">Due Date</th>
-            <!-- <th mat-header-cell class="text-center">ETA Date</th>
-            <th mat-header-cell class="text-center">Auditor Remarks</th>
-            <th mat-header-cell class="text-center">Auditee Response</th> -->
-            <th mat-header-cell class="text-center">Delay In Days</th>
-            <th mat-header-cell class="text-center">Completion Date</th>
-            <th mat-header-cell class="text-center">Severity</th>
-            <th mat-header-cell class="text-center">Occurrence</th>
-            <th mat-header-cell class="text-center">Detection</th>
-            <th mat-header-cell class="text-center">Risk Rating</th>
-            <th mat-header-cell class="text-center">Rating</th>
-            <th mat-header-cell class="text-center">PDCA Status</th>
+          <tr>
+
+            <th *ngFor="let column of activeColumns; let i = index" class="text-center"
+              [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === (frozenCount - 1)"
+              [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(column)"
+              [style.width.px]="getColumnWidth(column)">
+
+              {{ column }}
+
+            </th>
+
           </tr>
+
         </thead>
 
-        <tbody>
-          <tr *ngFor="let applicant of pagedTableList">
-            <td class="text-center">
 
-              <a [class.disable-custom]="!canDelete"
-                [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
-                (click)="canDelete && deleteConfirmation(applicant)">
+        <tbody>
+
+          <tr *ngFor="let applicant of pagedTableList">
+
+            <!-- DELETE -->
+            <td *ngIf="activeColumns.includes('Delete')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Delete') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Delete') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Delete'))"
+              [style.min-width.px]="getColumnWidth('Delete')">
+
+              <a [class.disable-custom]="!canDelete" [matTooltip]="
+              !canDelete
+                ? 'You don’t have permission to delete'
+                : 'Delete'
+            " (click)="canDelete && deleteConfirmation(applicant)">
 
                 <i class="fa fa-trash red"></i>
 
@@ -133,109 +130,290 @@
 
             </td>
 
-            <td class="text-center">
+
+            <!-- STATUS -->
+            <td *ngIf="activeColumns.includes('Status')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Status') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Status') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Status'))"
+              [style.min-width.px]="getColumnWidth('Status')">
+
               <mat-select [(ngModel)]="applicant.status" (selectionChange)="onInlineChange(applicant)"
                 class="form-control">
+
                 <mat-option [value]="1">WIP</mat-option>
                 <mat-option [value]="2">Open</mat-option>
                 <mat-option [value]="3">Closed</mat-option>
                 <mat-option [value]="4">Pending</mat-option>
                 <mat-option [value]="5">In Progress</mat-option>
                 <mat-option [value]="6">Completed</mat-option>
+
               </mat-select>
+
             </td>
 
-            <td class="text-center">
-              <mat-checkbox [(ngModel)]="applicant.resolved" [disabled]="true" color="primary"></mat-checkbox>
+
+            <!-- RESOLVED -->
+            <td *ngIf="activeColumns.includes('Resolved')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Resolved') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Resolved') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Resolved'))"
+              [style.min-width.px]="getColumnWidth('Resolved')">
+
+              <mat-checkbox [(ngModel)]="applicant.resolved" [disabled]="true" color="primary">
+              </mat-checkbox>
+
             </td>
 
-            <td class="text-center" [class.disable-custom]="!canUpdate"
-              [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Documents'"
-              style="color: blue; cursor: pointer;" (click)="canUpdate && docsPhoto(applicant)">
+
+            <!-- DOCS -->
+            <td *ngIf="activeColumns.includes('Docs')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Docs') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Docs') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Docs'))" [style.min-width.px]="getColumnWidth('Docs')"
+              style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
 
               {{ applicant?.docs }}
 
             </td>
-            <td class="text-link text-center" [class.disable-custom]="!canreadCAPAScreen"
-              [matTooltip]="!canreadCAPAScreen ? 'You don’t have permission to view' : 'View CAPA'">
 
-              <a [routerLink]="canreadCAPAScreen
-      ? ['/app', 'sqm', 'inspect-inner-screen', 'capa-view']
-      : null" [queryParams]="canreadCAPAScreen
-      ? {
-          inspectionRefId: applicant?.inspectionRefId,
-          parameterName: applicant?.parameterName
-        }
-      : null">
+
+            <!-- REFERENCE -->
+            <td *ngIf="activeColumns.includes('Reference')" class="text-link text-center"
+              [class.frozen-col]="activeColumns.indexOf('Reference') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Reference') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Reference'))"
+              [style.min-width.px]="getColumnWidth('Reference')">
+
+              <a [routerLink]="[
+              '/app',
+              'sqm',
+              'inspect-inner-screen',
+              'capa-view'
+            ]" [queryParams]="{
+              inspectionRefId: applicant?.inspectionRefId,
+              parameterName: applicant?.parameterName
+            }">
 
                 {{ applicant?.reference }}
 
               </a>
 
             </td>
-            <!-- CAPA SUBJECT (CLEAN TEXT, NO ICON) -->
-            <td class="text-center">{{ applicant?.actionSubject }}</td>
 
-            <!-- OBSERVATIONS WITH TOOLTIP ICON -->
-            <td class="text-center">
-              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
-                [matTooltip]="applicant?.observations || 'No observations available'">
-                info
-              </mat-icon>
+
+            <!-- CAPA SUBJECT -->
+            <td *ngIf="activeColumns.includes('CAPA Subject')" class="text-center">
+
+              {{ applicant?.actionSubject }}
+
             </td>
 
-            <!-- CORRECTIVE ACTIONS WITH TOOLTIP ICON -->
-            <td class="text-center">
-              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
-                [matTooltip]="applicant?.correctiveActions || 'No corrective actions available'">
+
+            <!-- AUDITOR REMARKS -->
+            <td *ngIf="activeColumns.includes('Auditor Remarks')" class="text-center">
+
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" [matTooltip]="
+              applicant?.observations ||
+              'No observations available'
+            ">
+
                 info
+
               </mat-icon>
+
             </td>
-            <!-- SUPPLIER REMARKS WITH TOOLTIP ICON -->
-            <td class="text-center">
-              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
-                [matTooltip]="applicant?.supplierRemarks || 'No remarks available'">
+
+
+            <!-- CORRECTIVE ACTIONS -->
+            <td *ngIf="activeColumns.includes('Corrective Actions')" class="text-center">
+
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" [matTooltip]="
+              applicant?.correctiveActions ||
+              'No corrective actions available'
+            ">
+
                 info
+
               </mat-icon>
+
             </td>
 
-            <td class="text-center">{{ applicant?.parameterName }}</td>
-            <td class="text-center">{{ applicant?.partFamilyName }}</td>
-            <td class="text-center">{{ applicant?.partName }}</td>
-            <td class="text-center">{{ applicant?.supplierName }}</td>
-            <td class="text-center">{{ applicant?.actionType }}</td>
-            <td class="text-center">{{ applicant?.auditReference }}</td>
-            <td class="text-center">{{ applicant?.processCategory }}</td>
+
+            <!-- PREVENTIVE ACTIONS -->
+            <td *ngIf="activeColumns.includes('Preventive Actions')" class="text-center">
+
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" [matTooltip]="
+              applicant?.supplierRemarks ||
+              'No remarks available'
+            ">
+
+                info
+
+              </mat-icon>
+
+            </td>
 
 
+            <!-- PARAMETER NAME -->
+            <td *ngIf="activeColumns.includes('Parameter Name')" class="text-center">
 
-            <td class="text-center">{{ applicant?.logDate }}</td>
-            <td class="text-center">{{ applicant?.dueDate }}</td>
-            <!-- <td class="text-center">{{ applicant?.etaDate }}</td> -->
-            <!-- <td class="text-center">{{ applicant?.auditorRemarks }}</td>
-            <td class="text-center">{{ applicant?.auditeeResponse }}</td> -->
-            <td class="text-center">{{ applicant?.delayInDays ?? '-' }}</td>
-            <td class="text-center">{{ applicant?.completion ?? '-' }}</td>
-            <td class="text-center">{{ applicant?.severity }}</td>
-            <td class="text-center">{{ applicant?.occurrence }}</td>
-            <td class="text-center">{{ applicant?.detection }}</td>
+              {{ applicant?.parameterName }}
 
-            <!-- READONLY RISK RATING -->
-            <td class="text-center font-weight-bold">
+            </td>
+
+
+            <!-- PART FAMILY -->
+            <td *ngIf="activeColumns.includes('Part Family')" class="text-center">
+
+              {{ applicant?.partFamilyName }}
+
+            </td>
+
+
+            <!-- PART NAME -->
+            <td *ngIf="activeColumns.includes('Part Name')" class="text-center">
+
+              {{ applicant?.partName }}
+
+            </td>
+
+
+            <!-- SUPPLIER -->
+            <td *ngIf="activeColumns.includes('Supplier Name')" class="text-center">
+
+              {{ applicant?.supplierName }}
+
+            </td>
+
+
+            <!-- ACTION TYPE -->
+            <td *ngIf="activeColumns.includes('Action Type')" class="text-center">
+
+              {{ applicant?.actionType }}
+
+            </td>
+
+
+            <!-- AUDIT REFERENCE -->
+            <td *ngIf="activeColumns.includes('Audit Reference')" class="text-center">
+
+              {{ applicant?.auditReference }}
+
+            </td>
+
+
+            <!-- PROCESS CATEGORY -->
+            <td *ngIf="activeColumns.includes('Process Category')" class="text-center">
+
+              {{ applicant?.processCategory }}
+
+            </td>
+
+
+            <!-- LOG DATE -->
+            <td *ngIf="activeColumns.includes('Log Date')" class="text-center">
+
+              {{ applicant?.logDate }}
+
+            </td>
+
+
+            <!-- DUE DATE -->
+            <td *ngIf="activeColumns.includes('Due Date')" class="text-center">
+
+              {{ applicant?.dueDate }}
+
+            </td>
+
+
+            <!-- DELAY -->
+            <td *ngIf="activeColumns.includes('Delay In Days')" class="text-center">
+
+              {{ applicant?.delayInDays ?? '-' }}
+
+            </td>
+
+
+            <!-- COMPLETION -->
+            <td *ngIf="activeColumns.includes('Completion Date')" class="text-center">
+
+              {{ applicant?.completion ?? '-' }}
+
+            </td>
+
+
+            <!-- SEVERITY -->
+            <td *ngIf="activeColumns.includes('Severity')" class="text-center">
+
+              {{ applicant?.severity }}
+
+            </td>
+
+
+            <!-- OCCURRENCE -->
+            <td *ngIf="activeColumns.includes('Occurrence')" class="text-center">
+
+              {{ applicant?.occurrence }}
+
+            </td>
+
+
+            <!-- DETECTION -->
+            <td *ngIf="activeColumns.includes('Detection')" class="text-center">
+
+              {{ applicant?.detection }}
+
+            </td>
+
+
+            <!-- RISK RATING -->
+            <td *ngIf="activeColumns.includes('Risk Rating')" class="text-center font-weight-bold">
+
               {{ applicant?.riskRating }}
+
             </td>
 
-            <td class="text-center">{{ applicant?.rating }}</td>
-            <td class="text-center">{{ applicant?.pdcaStatus }}</td>
+
+            <!-- RATING -->
+            <td *ngIf="activeColumns.includes('Rating')" class="text-center">
+
+              {{ applicant?.rating }}
+
+            </td>
+
+
+            <!-- PDCA -->
+            <td *ngIf="activeColumns.includes('PDCA Status')" class="text-center">
+
+              {{ applicant?.pdcaStatus }}
+
+            </td>
+
           </tr>
+
         </tbody>
+
       </table>
 
+
+      <!-- Horizontal scroll buttons -->
+
       <button class="mine mine-right" mat-fab (click)="scrollRight()">
-        <mat-icon style="color: #37474f">fast_forward</mat-icon>
+
+        <mat-icon style="color: #37474f">
+          fast_forward
+        </mat-icon>
+
       </button>
+
+
       <button class="mine mine-left" mat-fab (click)="scrollLeft()">
-        <mat-icon style="color: #37474f">fast_rewind</mat-icon>
+
+        <mat-icon style="color: #37474f">
+          fast_rewind
+        </mat-icon>
+
       </button>
 
     </div>

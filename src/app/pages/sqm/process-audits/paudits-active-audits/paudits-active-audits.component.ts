@@ -8,7 +8,9 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
- 
+import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { PartAuditService } from '../../parts-audits/part-audit.service';
+
 @Component({
   selector: "app-paudits-active-audits",
   templateUrl: "./paudits-active-audits.component.html",
@@ -201,7 +203,8 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private api: ProcessAuditService,
     private alertService: AlertService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private partAuditService: PartAuditService
   ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
@@ -232,9 +235,10 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     // If they can't even read the screen, you could redirect them out here!
     if (!this.canRead) {
-       // Optional: this.router.navigate(['/dashboard']);
+      // Optional: this.router.navigate(['/dashboard']);
     }
     this.loadLookups();
+    this.loadGridColumns();
   }
 
   onPageChange(event: any) {
@@ -542,5 +546,156 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
         this.statusChartRef = null;
       }
     } catch (e) { }
+  }
+
+  // for grid cloumns
+
+
+  defaultColumns: string[] = [
+    'Audit Reference',
+    'Commodity',
+    'State',
+    'City',
+    'Supplier',
+    'Auditor',
+    'Audit Date',
+    'CAPA',
+    'Report',
+    'Status',
+    'Done',
+    'Actions'
+  ];
+
+
+  activeColumns: string[] = [];
+
+  frozenCount = 0;
+  getColumnWidth(column: string): number {
+
+    const widths: { [key: string]: number } = {
+
+      'Audit Reference': 180,
+      'Commodity': 180,
+      'State': 150,
+      'City': 150,
+      'Supplier': 180,
+      'Auditor': 180,
+      'Audit Date': 150,
+      'CAPA': 120,
+      'Report': 120,
+      'Status': 150,
+      'Done': 100,
+      'Actions': 150
+
+    };
+
+    return widths[column] || 150;
+  }
+
+
+  getStickyLeft(index: number): string {
+
+    let left = 0;
+
+    for (let i = 0; i < index; i++) {
+
+      left += this.getColumnWidth(this.activeColumns[i]);
+
+    }
+
+    return left + 'px';
+
+  }
+
+  openColumnSelector() {
+
+    const dialogRef = this.dialog.open(ColumnSelectorComponent, {
+
+      width: '750px',
+
+      height: 'auto',
+
+      disableClose: true,
+
+      data: {
+
+        userId: 1,   // Replace with logged-in user id
+
+        gridType: 'ProcessAuditTable',
+
+        defaultColumns: this.defaultColumns
+
+      }
+
+    });
+
+    dialogRef.afterClosed().subscribe((didSave: boolean) => {
+
+      if (didSave) {
+
+        this.alertService.createAlert('Column layout updated successfully.');
+
+        this.loadGridColumns();
+
+      }
+
+    });
+
+  }
+
+
+  loadGridColumns() {
+
+    const filter = {
+
+      userId: 1, // Replace with logged-in user id
+
+      gridType: 'ProcessAuditTable'
+
+    };
+
+    this.partAuditService.getgridcolumns(filter).subscribe({
+
+      next: (res: any) => {
+
+        if (res.success && res.data) {
+
+          const parsedData = JSON.parse(res.data.selectedColumnsJSON);
+
+          // Old format support
+          if (Array.isArray(parsedData)) {
+
+            this.activeColumns = parsedData;
+            this.frozenCount = 0;
+
+          }
+          else {
+
+            this.activeColumns = parsedData.columns || [...this.defaultColumns];
+            this.frozenCount = parsedData.frozenCount || 0;
+
+          }
+
+        }
+        else {
+
+          this.activeColumns = [...this.defaultColumns];
+          this.frozenCount = 0;
+
+        }
+
+      },
+
+      error: (error) => {
+
+        console.error('Error loading grid columns', error);
+
+        this.activeColumns = [...this.defaultColumns];
+        this.frozenCount = 0;
+
+      }
+
+    });
+
   }
 }

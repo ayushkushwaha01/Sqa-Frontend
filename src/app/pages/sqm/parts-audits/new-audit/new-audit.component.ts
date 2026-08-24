@@ -419,6 +419,7 @@ export class NewAuditComponent implements OnInit {
       remakrs: [
         data?.remakrs || ''
       ],
+      statusId: [data?.statusId ?? null]
 
 
     });

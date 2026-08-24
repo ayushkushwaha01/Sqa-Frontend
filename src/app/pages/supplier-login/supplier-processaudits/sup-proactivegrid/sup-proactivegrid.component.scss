@@ -7,7 +7,8 @@
 /* Charts Grid */
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr; /* Updated to 1fr for a single chart */
+  grid-template-columns: 1fr;
+  /* Updated to 1fr for a single chart */
   gap: 10px;
   background-color: white;
   padding: 20px 0;
@@ -28,10 +29,11 @@
   }
 
   .btn-blue {
-    background-color: #0d8add !important; /* Light blue from image */
+    background-color: #0d8add !important;
+    /* Light blue from image */
     color: #fff !important;
   }
-  
+
   /* Centers the icon properly with text inside a mat-button */
   ::ng-deep .mdc-button__label {
     display: flex;
@@ -54,17 +56,23 @@
   font-size: 13px;
 
   thead {
-    background-color: #2b6ca3; /* The blue header */
+    background-color: #2b6ca3;
+    /* The blue header */
     color: white;
 
     th {
       padding: 12px 10px;
       text-align: left;
       font-weight: bold;
-      border: 1px solid #e1e1e1; /* Subtle inner border for header */
+      border: 1px solid #e1e1e1;
+      /* Subtle inner border for header */
       white-space: nowrap;
 
-      &:nth-child(7), &:nth-child(8), &:nth-child(9), &:nth-child(10), &:nth-child(11) {
+      &:nth-child(7),
+      &:nth-child(8),
+      &:nth-child(9),
+      &:nth-child(10),
+      &:nth-child(11) {
         text-align: center;
       }
     }
@@ -73,9 +81,11 @@
   tbody {
     tr {
       border-bottom: 1px solid #e0e0e0;
+
       &:nth-child(even) {
         background-color: #fafafa;
       }
+
       &:hover {
         background-color: #f1f5f9;
       }
@@ -83,12 +93,14 @@
 
     td {
       padding: 10px;
-      border: 1px solid #e0e0e0; /* Vertical column borders */
+      border: 1px solid #e0e0e0;
+      /* Vertical column borders */
       color: #333;
 
       &.text-link {
         color: #0000ee;
         cursor: pointer;
+
         &:hover {
           text-decoration: underline;
         }
@@ -115,13 +127,15 @@
   font-size: 14px;
 
   .edit-icon {
-    color: #5c7cb1; /* Slate blue */
+    color: #5c7cb1;
+    /* Slate blue */
     margin-right: 12px;
     cursor: pointer;
   }
 
   .delete-icon {
-    color: #e53935; /* Red */
+    color: #e53935;
+    /* Red */
     cursor: pointer;
   }
 }
@@ -164,4 +178,34 @@ td {
   padding: 10px 12px;
   border: 1px solid #dee2e6;
   vertical-align: middle;
+}
+
+/* =========================================
+   FROZEN COLUMNS
+========================================= */
+
+.frozen-col {
+  position: sticky !important;
+  z-index: 50 !important;
+  background-color: #fff !important;
+}
+
+
+/* =========================================
+   FROZEN HEADER
+========================================= */
+
+.audit-table thead .frozen-col {
+  background-color: #3f3f3f !important;
+  color: #fff !important;
+  z-index: 150 !important;
+}
+
+
+/* =========================================
+   LAST FROZEN COLUMN DIVIDER
+========================================= */
+
+.last-frozen {
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.08);
 }

@@ -9,6 +9,8 @@ import { InspectionService } from '../inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { PageEvent } from '@angular/material/paginator';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { PartAuditService } from '../../parts-audits/part-audit.service';
 
 @Component({
   selector: 'app-inspection-archives',
@@ -49,7 +51,8 @@ export class InspectionArchivesComponent implements OnInit {
     private inspectionService: InspectionService,
     private alertService: AlertService,
     private cdr: ChangeDetectorRef,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private partAuditService: PartAuditService
   ) { }
 
   ngOnInit(): void {
@@ -74,6 +77,7 @@ export class InspectionArchivesComponent implements OnInit {
       batchNumber: new FormControl('')
     });
     this.loadData();
+    this.loadGridColumns();
   }
 
   // --- API INTEGRATION ---
@@ -322,5 +326,174 @@ export class InspectionArchivesComponent implements OnInit {
 
     this.pageIndex = 0;
     this.updatePagedList();
+  }
+
+  defaultColumns: string[] = [
+    'Actions',
+    'Reference',
+    'Publish',
+    'Inspection Date',
+    'Time',
+    'Inspector',
+    'Part Family',
+    'Part Name',
+    'Part Number',
+    'Defects',
+    'Parameters',
+    'Remarks',
+    'Batch Number',
+    'Batch Qty',
+    'Sample Qty',
+    'Error Rate (%)',
+    'Error Rate (PPM)'
+  ];
+
+  activeColumns: string[] = [];
+
+  frozenCount = 0;
+
+  getColumnWidth(column: string): number {
+
+    const widths: { [key: string]: number } = {
+
+      'Actions': 100,
+      'Reference': 180,
+      'Publish': 100,
+      'Inspection Date': 150,
+      'Time': 120,
+      'Inspector': 180,
+      'Part Family': 180,
+      'Part Name': 180,
+      'Part Number': 160,
+      'Defects': 120,
+      'Parameters': 150,
+      'Remarks': 200,
+      'Batch Number': 150,
+      'Batch Qty': 120,
+      'Sample Qty': 120,
+      'Error Rate (%)': 150,
+      'Error Rate (PPM)': 160
+
+    };
+
+    return widths[column] || 150;
+  }
+
+
+  getStickyLeft(index: number): string {
+
+    let left = 0;
+
+    for (let i = 0; i < index; i++) {
+
+      left += this.getColumnWidth(
+        this.activeColumns[i]
+      );
+
+    }
+
+    return left + 'px';
+  }
+
+
+  openColumnSelector() {
+
+    const dialogRef = this.dialog.open(
+      ColumnSelectorComponent,
+      {
+        width: '750px',
+        height: 'auto',
+        disableClose: true,
+
+        data: {
+          userId: 1, // replace with logged-in user ID
+          gridType: 'InspectionArchivedTable',
+          defaultColumns: this.defaultColumns
+        }
+      }
+    );
+
+    dialogRef.afterClosed().subscribe(
+      (didSave: boolean) => {
+
+        if (didSave) {
+
+          this.alertService.createAlert(
+            'Column layout updated successfully.'
+          );
+
+          this.loadGridColumns();
+
+        }
+
+      }
+    );
+  }
+
+
+  loadGridColumns() {
+
+    const filter = {
+      userId: 1, // replace with logged-in user ID
+      gridType: 'InspectionArchivedTable'
+    };
+
+    this.partAuditService
+      .getgridcolumns(filter)
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res.success && res.data) {
+
+            const parsedData =
+              JSON.parse(
+                res.data.selectedColumnsJSON
+              );
+
+            if (Array.isArray(parsedData)) {
+
+              this.activeColumns =
+                parsedData;
+
+              this.frozenCount = 0;
+
+            } else {
+
+              this.activeColumns =
+                parsedData.columns ||
+                [...this.defaultColumns];
+
+              this.frozenCount =
+                parsedData.frozenCount || 0;
+
+            }
+
+          } else {
+
+            this.activeColumns =
+              [...this.defaultColumns];
+
+            this.frozenCount = 0;
+
+          }
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading grid columns',
+            error
+          );
+
+          this.activeColumns =
+            [...this.defaultColumns];
+
+          this.frozenCount = 0;
+
+        }
+
+      });
   }
 }

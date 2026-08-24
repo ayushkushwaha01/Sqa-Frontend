@@ -37,9 +37,9 @@
 </div>
 
 <div class="d-flex justify-content-end align-items-center mb-3 gap-2">
-  <!-- <button mat-raised-button class="btn-dark" (click)="openGridView(null)">
+  <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
     <mat-icon>grid_on</mat-icon> Grid View
-  </button> -->
+  </button>
   <button mat-raised-button style="background-color: #000000; color: #ffffff;" (click)="showFilter = !showFilter">
     <mat-icon>filter_list</mat-icon> Filter
   </button>
@@ -147,129 +147,332 @@
 </div>
 
 <div class="table-responsive" id="grid-table-container" #tableContainer style="overflow-x: auto; white-space: nowrap;">
-  <table id="example2" class="table table-bordered table-hover" style="width: 100%;">
+
+  <table id="example2" class="table table-bordered table-hover audit-table">
+
+    <!-- ================= HEADER ================= -->
+
     <thead class="tbl-head">
+
       <tr>
-        <th class="text-center">Actions</th>
-        <th class="text-center">Reference</th>
-        <th class="text-center">Stage</th>
-        <th class="text-center">Publish</th>
-        <th class="text-center">Inspection Date</th>
-        <th class="text-center">Time</th>
-        <th class="text-center">Inspector</th>
-        <th class="text-center">Part Family</th>
-        <th class="text-center">Part Name</th>
-        <th class="text-center">Part Number</th>
-        <th class="text-center">Defects</th>
-        <th class="text-center">Parameters</th>
-        <th class="text-center">Remarks</th>
-        <th class="text-center">Batch Number</th>
-        <th class="text-center">Batch Qty</th>
-        <th class="text-center">Sample Qty</th>
-        <th class="text-center">Error Rate (%)</th>
-        <th class="text-center">Error Rate (PPM)</th>
+
+        <th *ngFor="let col of activeColumns; let i = index" class="text-center" [class.frozen-col]="i < frozenCount"
+          [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+          [style.width.px]="getColumnWidth(col)" [style.min-width.px]="getColumnWidth(col)">
+          {{ col }}
+        </th>
+
       </tr>
+
     </thead>
 
+
+    <!-- ================= BODY ================= -->
+
     <tbody>
+
       <tr *ngFor="let item of pagedMockdata">
-        <td class="text-center">
 
-          <!-- Edit -->
-          <a matTooltip="Edit Record" [class.disable-custom]="!canUpdate"
-            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Edit Record'"
-            style="margin-right: 8px; cursor: pointer;" (click)="canUpdate && openEditDialog(item)">
+        <td *ngFor="let col of activeColumns; let i = index" class="text-center" [class.frozen-col]="i < frozenCount"
+          [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+          [style.width.px]="getColumnWidth(col)" [style.min-width.px]="getColumnWidth(col)">
 
-            <i class="fa fa-edit" style="color: cornflowerblue;"></i>
-          </a>
+          <ng-container [ngSwitch]="col">
 
-          <!-- Delete -->
-          <a [class.disable-custom]="!canDelete"
-            [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Record'"
-            style="margin-right: 8px; cursor: pointer;" (click)="canDelete && deleteConfirmation(item)">
 
-            <i class="fa fa-trash" style="color: red;"></i>
-          </a>
+            <!-- ================= ACTIONS ================= -->
 
-          <!-- Archive -->
-          <a [class.disable-custom]="!canUpdate"
-            [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Archive Record'"
-            style="cursor: pointer;" (click)="canUpdate && archiveRecord(item)">
+            <ng-container *ngSwitchCase="'Actions'">
 
-            <i class="fa fa-archive" style="color: gray;"></i>
-          </a>
+              <!-- Edit -->
+              <a matTooltip="Edit Record" [class.disable-custom]="!canUpdate" [matTooltip]="
+                  !canUpdate
+                    ? 'You don’t have permission to update'
+                    : 'Edit Record'
+                " style="
+                  margin-right: 8px;
+                  cursor: pointer;
+                " (click)="
+                  canUpdate &&
+                  openEditDialog(item)
+                ">
+                <i class="fa fa-edit" style="color: cornflowerblue;"></i>
+              </a>
+
+
+              <!-- Delete -->
+              <a [class.disable-custom]="!canDelete" [matTooltip]="
+                  !canDelete
+                    ? 'You don’t have permission to delete'
+                    : 'Delete Record'
+                " style="
+                  margin-right: 8px;
+                  cursor: pointer;
+                " (click)="
+                  canDelete &&
+                  deleteConfirmation(item)
+                ">
+                <i class="fa fa-trash" style="color: red;"></i>
+              </a>
+
+
+              <!-- Archive -->
+              <a [class.disable-custom]="!canUpdate" [matTooltip]="
+                  !canUpdate
+                    ? 'You don’t have permission to update'
+                    : 'Archive Record'
+                " style="cursor: pointer;" (click)="
+                  canUpdate &&
+                  archiveRecord(item)
+                ">
+                <i class="fa fa-archive" style="color: gray;"></i>
+              </a>
+
+            </ng-container>
+
+
+            <!-- ================= REFERENCE ================= -->
+
+            <ng-container *ngSwitchCase="'Reference'">
+
+              <a [routerLink]="
+                  canreadDashboard
+                    ? [
+                        '/app',
+                        'sqm',
+                        'inspect-inner-screen',
+                        'active-records'
+                      ]
+                    : null
+                " [queryParams]="
+                  canreadDashboard
+                    ? {
+                        inspectionId: item.id,
+                        reference: item.Reference,
+                        partFamily: item.PartFamily,
+                        partName: item.PartName
+                      }
+                    : null
+                " [class.disable-custom]="
+                  !canreadDashboard
+                " [matTooltip]="
+                  !canreadDashboard
+                    ? 'You don’t have permission to view'
+                    : 'View Record'
+                ">
+                {{ item.Reference }}
+              </a>
+
+            </ng-container>
+
+
+            <!-- ================= STAGE ================= -->
+
+            <ng-container *ngSwitchCase="'Stage'">
+              {{ item.stage }}
+            </ng-container>
+
+
+            <!-- ================= PUBLISH ================= -->
+
+            <ng-container *ngSwitchCase="'Publish'">
+
+              <mat-checkbox [(ngModel)]="item.Publish" color="primary" (change)="togglePublish(item)">
+              </mat-checkbox>
+
+            </ng-container>
+
+
+            <!-- ================= INSPECTION DATE ================= -->
+
+            <ng-container *ngSwitchCase="'Inspection Date'">
+
+              {{ item.InspectionDate | date:'dd/MM/yyyy' }}
+
+            </ng-container>
+
+
+            <!-- ================= TIME ================= -->
+
+            <ng-container *ngSwitchCase="'Time'">
+
+              {{ item.Time }}
+
+            </ng-container>
+
+
+            <!-- ================= INSPECTOR ================= -->
+
+            <ng-container *ngSwitchCase="'Inspector'">
+
+              {{ item.Inspector }}
+
+            </ng-container>
+
+
+            <!-- ================= PART FAMILY ================= -->
+
+            <ng-container *ngSwitchCase="'Part Family'">
+
+              {{ item.PartFamily }}
+
+            </ng-container>
+
+
+            <!-- ================= PART NAME ================= -->
+
+            <ng-container *ngSwitchCase="'Part Name'">
+
+              {{ item.PartName }}
+
+            </ng-container>
+
+
+            <!-- ================= PART NUMBER ================= -->
+
+            <ng-container *ngSwitchCase="'Part Number'">
+
+              {{ item.PartNumber }}
+
+            </ng-container>
+
+
+            <!-- ================= DEFECTS ================= -->
+
+            <ng-container *ngSwitchCase="'Defects'">
+
+              <a style="
+                  color: #007bff;
+                  cursor: pointer;
+                  text-decoration: underline;
+                  font-weight: 500;
+                " [class.disable-custom]="!canUpdate" [matTooltip]="
+                  !canUpdate
+                    ? 'You don’t have permission to update'
+                    : 'View Defects'
+                " (click)="
+                  canUpdate &&
+                  openDefectsPop(item)
+                ">
+                {{ item.Defects }}
+              </a>
+
+            </ng-container>
+
+
+            <!-- ================= PARAMETERS ================= -->
+
+            <ng-container *ngSwitchCase="'Parameters'">
+
+              <a [routerLink]="
+                  canreadDashboard
+                    ? [
+                        '/app',
+                        'sqm',
+                        'inspect-inner-screen',
+                        'active-records'
+                      ]
+                    : null
+                " [queryParams]="
+                  canreadDashboard
+                    ? {
+                        inspectionId: item.id,
+                        reference: item.Reference,
+                        partFamily: item.PartFamily,
+                        partName: item.PartName
+                      }
+                    : null
+                " [class.disable-custom]="
+                  !canreadDashboard
+                " [matTooltip]="
+                  !canreadDashboard
+                    ? 'You don’t have permission to view'
+                    : 'View Parameters'
+                ">
+                {{ item.Parameters }}
+              </a>
+
+            </ng-container>
+
+
+            <!-- ================= REMARKS ================= -->
+
+            <ng-container *ngSwitchCase="'Remarks'">
+
+              {{ item.Remarks }}
+
+            </ng-container>
+
+
+            <!-- ================= BATCH NUMBER ================= -->
+
+            <ng-container *ngSwitchCase="'Batch Number'">
+
+              {{ item.BatchNumber }}
+
+            </ng-container>
+
+
+            <!-- ================= BATCH QTY ================= -->
+
+            <ng-container *ngSwitchCase="'Batch Qty'">
+
+              {{ item.BatchQuantity }}
+
+            </ng-container>
+
+
+            <!-- ================= SAMPLE QTY ================= -->
+
+            <ng-container *ngSwitchCase="'Sample Qty'">
+
+              {{ item.SampleQuantity }}
+
+            </ng-container>
+
+
+            <!-- ================= ERROR RATE % ================= -->
+
+            <ng-container *ngSwitchCase="'Error Rate (%)'">
+
+              {{ item.ErrorRatePct }}
+
+            </ng-container>
+
+
+            <!-- ================= ERROR RATE PPM ================= -->
+
+            <ng-container *ngSwitchCase="'Error Rate (PPM)'">
+
+              {{ item.ErrorRatePPM }}
+
+            </ng-container>
+
+
+          </ng-container>
 
         </td>
 
-        <td class="text-link text-center" [class.disable-custom]="!canreadDashboard"
-          [matTooltip]="!canreadDashboard ? 'You don’t have permission to view' : 'View Record'">
-
-          <a [routerLink]="canreadDashboard ? ['/app', 'sqm', 'inspect-inner-screen', 'active-records'] : null"
-            [queryParams]="canreadDashboard ? {
-      inspectionId: item.id,
-      reference: item.Reference,
-      partFamily: item.PartFamily,
-      partName: item.PartName
-    } : null">
-
-            {{ item.Reference }}
-
-          </a>
-
-        </td>
-        <td class="text-center">{{ item.stage }}</td>
-        <td class="text-center">
-          <mat-checkbox [(ngModel)]="item.Publish" color="primary" (change)="togglePublish(item)"></mat-checkbox>
-        </td>
-
-        <td class="text-center">{{ item.InspectionDate | date:'dd/MM/yyyy' }}</td>
-        <td class="text-center">{{ item.Time }}</td>
-        <td class="text-center">{{ item.Inspector }}</td>
-        <td class="text-center">{{ item.PartFamily }}</td>
-        <td class="text-center">{{ item.PartName }}</td>
-        <td class="text-center">{{ item.PartNumber }}</td>
-
-        <td class="text-center" [class.disable-custom]="!canUpdate"
-          [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'View Defects'">
-
-          <a style="color: #007bff; cursor: pointer; text-decoration: underline; font-weight: 500;"
-            (click)="canUpdate && openDefectsPop(item)">
-
-            {{ item.Defects }}
-
-          </a>
-
-        </td>
-
-        <td class="text-link text-center" [class.disable-custom]="!canreadDashboard"
-          [matTooltip]="!canreadDashboard ? 'You don’t have permission to view' : 'View Parameters'">
-
-          <a [routerLink]="canreadDashboard ? ['/app', 'sqm', 'inspect-inner-screen', 'active-records'] : null"
-            [queryParams]="canreadDashboard ? {
-      inspectionId: item.id,
-      reference: item.Reference,
-      partFamily: item.PartFamily,
-      partName: item.PartName
-    } : null">
-
-            {{ item.Parameters }}
-
-          </a>
-
-        </td>
-        <td class="text-center">{{ item.Remarks }}</td>
-        <td class="text-center">{{ item.BatchNumber }}</td>
-        <td class="text-center">{{ item.BatchQuantity }}</td>
-        <td class="text-center">{{ item.SampleQuantity }}</td>
-        <td class="text-center">{{ item.ErrorRatePct }}</td>
-        <td class="text-center">{{ item.ErrorRatePPM }}</td>
       </tr>
 
-      <tr *ngIf="!mockdata || mockdata.length === 0">
-        <td colspan="18" class="text-center">No records found</td>
+
+      <!-- No records -->
+
+      <tr *ngIf="
+          !mockdata ||
+          mockdata.length === 0
+        ">
+
+        <td [attr.colspan]="activeColumns.length" class="text-center">
+          No records found
+        </td>
+
       </tr>
+
     </tbody>
+
   </table>
+
 </div>
 
 <div style="width: 100%;">
