@@ -76,80 +76,113 @@ export class EscalationComponent implements OnInit {
   }
 
   // Save / Update Escalation
-  saveEscalation(item: any): void {
+  // saveEscalation(item: any): void {
 
-    if (
-      item.newValue === null ||
-      item.newValue === undefined ||
-      item.newValue.toString().trim() === ''
-    ) {
+  //   if (
+  //     item.newValue === null ||
+  //     item.newValue === undefined ||
+  //     item.newValue.toString().trim() === ''
+  //   ) {
 
-      this.alertService.createAlert(
-        `Please enter revised value for ${item.escalationName}`
-      );
+  //     this.alertService.createAlert(
+  //       `Please enter revised value for ${item.escalationName}`
+  //     );
 
-      return;
-    }
+  //     return;
+  //   }
 
+  //   const payload = {
+
+  //     EscalationId: item.escalationId,
+
+  //     EscalationName: item.escalationName,
+
+  //     Description: item.description,
+
+  //     PreviousValue: item.previousValue,
+
+  //     NewValue: item.newValue,
+
+  //     IsActive: item.isActive ?? true,
+
+  //     IsDeleted: false,
+
+  //     ModifiedBy: null
+
+  //   };
+
+  //   console.log('Escalation Payload:', payload);
+
+  //   this.ManageUsersService.upsertEscalation(payload).subscribe({
+
+  //     next: (res: any) => {
+
+  //       console.log('Upsert Escalation Response:', res);
+
+  //       if (res.success) {
+
+  //         this.alertService.createAlert(
+  //           res.message || 'Escalation updated successfully'
+  //         );
+
+  //         // Update current value after successful save
+  //         item.previousValue = item.newValue;
+
+  //       } else {
+
+  //         this.alertService.createAlert(
+  //           res.message || 'Failed to update escalation'
+  //         );
+
+  //       }
+
+  //     },
+
+  //     error: (err: any) => {
+
+  //       console.error('Upsert Escalation Error:', err);
+
+  //       this.alertService.createAlert(
+  //         'Failed to update escalation'
+  //       );
+
+  //     }
+
+  //   });
+
+  // }
+
+  saveEscalation(item: any) {
+    
+    // 🔥 Ensure we are passing the Primary Key (escalationId) so C# doesn't insert a new row!
     const payload = {
-
-      EscalationId: item.escalationId,
-
-      EscalationName: item.escalationName,
-
-      Description: item.description,
-
-      PreviousValue: item.previousValue,
-
-      NewValue: item.newValue,
-
-      IsActive: item.isActive ?? true,
-
-      IsDeleted: false,
-
-      ModifiedBy: null
-
+      escalationId: item.escalationId, 
+      escalationName: item.escalationName,
+      description: item.description,
+      previousValue: item.previousValue,
+      newValue: item.newValue,
+      isActive: item.isActive,
+      modifiedBy: parseInt(localStorage.getItem('UserId') || '1', 10) // Track who made the change
     };
 
-    console.log('Escalation Payload:', payload);
-
+    // 🔥 FIX 1: Changed "this.api" to "this.ManageUsersService"
     this.ManageUsersService.upsertEscalation(payload).subscribe({
-
       next: (res: any) => {
-
-        console.log('Upsert Escalation Response:', res);
-
         if (res.success) {
-
-          this.alertService.createAlert(
-            res.message || 'Escalation updated successfully'
-          );
-
-          // Update current value after successful save
-          item.previousValue = item.newValue;
-
+          this.alertService.createAlert("Escalation Matrix Updated Successfully", 1);
+          
+          // 🔥 Reload the grid immediately so the user sees the numbers shift!
+          this.getEscalations(); 
         } else {
-
-          this.alertService.createAlert(
-            res.message || 'Failed to update escalation'
-          );
-
+          this.alertService.createAlert("Failed to update", 0);
         }
-
       },
-
+      // 🔥 FIX 2: Added ": any" to err
       error: (err: any) => {
-
-        console.error('Upsert Escalation Error:', err);
-
-        this.alertService.createAlert(
-          'Failed to update escalation'
-        );
-
+        console.error(err);
+        this.alertService.createAlert("An error occurred", 0);
       }
-
     });
-
   }
 
 

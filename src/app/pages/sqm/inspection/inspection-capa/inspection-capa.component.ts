@@ -82,18 +82,26 @@ export class InspectionCapaComponent implements OnInit {
   fetchPendingCapas() {
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
-        if (res.success && res.data) {
+       if (res.success && res.data) {
           this.tableList = res.data.map((item: any) => {
 
             let delayVal: any = 'N/A';
+            let calculatedDelay = 0; // 🔥 Added for the Red Flag UI
+
             if (item.dueDate) {
               const due = new Date(item.dueDate);
               const completion = item.completion ? new Date(item.completion) : new Date();
               due.setHours(0, 0, 0, 0);
               completion.setHours(0, 0, 0, 0);
               const diffTime = completion.getTime() - due.getTime();
+              
               if (diffTime > 0) {
                 delayVal = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                // 🔥 If it's NOT resolved, and NOT completed, mark it as overdue for the UI
+                if (!item.resolved && !item.completion) {
+                  calculatedDelay = delayVal;
+                }
               } else {
                 delayVal = 'N/A';
               }
@@ -125,6 +133,10 @@ export class InspectionCapaComponent implements OnInit {
               completion: item.completion ? this.datePipe.transform(item.completion, 'dd-MMM-yyyy') : '-',
               reference: item.reference,
               delayInDays: delayVal,
+
+              // 🔥 Map the calculated delay to the UI
+              calculatedDelayInDays: calculatedDelay, 
+
               severity: item.severity,
               occurrence: item.occurrence,
               detection: item.detection,

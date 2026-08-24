@@ -357,6 +357,73 @@ export class CapaViewScreenComponent implements OnInit {
     this.auditForm.markAsDirty();
   }
 
+  // onSubmit(): void {
+  //   if (this.isReadOnly && !this.isSupplier) {
+  //     return;
+  //   }
+  //   if (this.auditForm.invalid) {
+  //     this.alertService.createAlert("Please fill all required fields.");
+  //     return;
+  //   }
+
+  //   const formDataValues = this.auditForm.getRawValue();
+  //   const payload = {
+  //     capaId: formDataValues.capaId || 0,
+  //     inspectionRefId: this.inspectionRefId,
+  //     severityId: formDataValues.severityId ? Number(formDataValues.severityId) : null,
+  //     occurrence: formDataValues.occurrence ? Number(formDataValues.occurrence) : null,
+  //     detection: formDataValues.detection ? Number(formDataValues.detection) : null,
+  //     sodScore: formDataValues.sodScore ? Number(formDataValues.sodScore) : null,
+  //     subject: formDataValues.subject || '',
+  //     dueDate: formDataValues.dueDate || null,
+  //     completedDate: formDataValues.completedDate || null,
+  //     pdcaStatus: formDataValues.pdcaStatus || null,
+
+  //     // Pass mapped demerit value to the API (also keeping riskRating mapped just in case the backend wasn't updated)
+  //     demerit: formDataValues.demerit || null,
+  //     riskRating: formDataValues.demerit ? formDataValues.demerit.toString() : null,
+  //     demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
+
+  //     // demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
+
+  //     class: formDataValues.class || null,
+  //     actionType: formDataValues.actionType || null,
+  //     capaSubject: formDataValues.capaSubject || null,
+  //     observations: formDataValues.observations || null,
+  //     correctiveActions: formDataValues.correctiveActions || null,
+  //     supplierRemarks: formDataValues.supplierRemarks || null,
+
+  //     occurrenceId: formDataValues.occurrenceId ? Number(formDataValues.occurrenceId) : null,
+  //     detectionId: formDataValues.detectionId ? Number(formDataValues.detectionId) : null,
+  //     createdBy: 1
+  //   };
+
+  //   const sendData = new FormData();
+  //   sendData.append('jsonData', JSON.stringify(payload));
+
+  //   // Append newly selected PDFs
+  //   this.selectedFiles.forEach(file => {
+  //     sendData.append('files', file);
+  //   });
+
+  //   // Append newly selected Images
+  //   this.localImageFiles.forEach(file => {
+  //     sendData.append('files', file);
+  //   });
+
+  //   this.inspectionService.saveCapa(sendData).subscribe({
+  //     next: (res) => {
+  //       this.alertService.createAlert("CAPA saved successfully!");
+  //       this.isSaved = true;
+  //       this.loadCapaDetails();
+  //     },
+  //     error: (err) => {
+  //       console.error("Error saving CAPA", err);
+  //       this.alertService.createAlert("Failed to save CAPA.");
+  //     }
+  //   });
+  // }
+
   onSubmit(): void {
     if (this.isReadOnly && !this.isSupplier) {
       return;
@@ -365,6 +432,10 @@ export class CapaViewScreenComponent implements OnInit {
       this.alertService.createAlert("Please fill all required fields.");
       return;
     }
+
+    // 🔥 1. Grab the exact User ID from local storage
+    const storedUserId = localStorage.getItem('UserId');
+    const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
 
     const formDataValues = this.auditForm.getRawValue();
     const payload = {
@@ -378,24 +449,21 @@ export class CapaViewScreenComponent implements OnInit {
       dueDate: formDataValues.dueDate || null,
       completedDate: formDataValues.completedDate || null,
       pdcaStatus: formDataValues.pdcaStatus || null,
-
-      // Pass mapped demerit value to the API (also keeping riskRating mapped just in case the backend wasn't updated)
       demerit: formDataValues.demerit || null,
       riskRating: formDataValues.demerit ? formDataValues.demerit.toString() : null,
       demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
-
-      // demeritId: formDataValues.demeritId ? Number(formDataValues.demeritId) : null,
-
       class: formDataValues.class || null,
       actionType: formDataValues.actionType || null,
       capaSubject: formDataValues.capaSubject || null,
       observations: formDataValues.observations || null,
       correctiveActions: formDataValues.correctiveActions || null,
       supplierRemarks: formDataValues.supplierRemarks || null,
-
       occurrenceId: formDataValues.occurrenceId ? Number(formDataValues.occurrenceId) : null,
       detectionId: formDataValues.detectionId ? Number(formDataValues.detectionId) : null,
-      createdBy: 1
+
+      // 🔥 2. Explicitly send the User ID to the backend!
+      createdBy: currentUserId,
+      modifiedBy: currentUserId
     };
 
     const sendData = new FormData();

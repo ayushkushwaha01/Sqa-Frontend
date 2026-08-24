@@ -174,8 +174,38 @@
 
             </td>
             <!-- CAPA SUBJECT (CLEAN TEXT, NO ICON) -->
-            <td class="text-center">{{ applicant?.actionSubject }}</td>
+            <!-- <td class="text-center">{{ applicant?.actionSubject }}</td> -->
 
+            
+            <!-- 🔥 CAPA Subject (WITH RED FLAG ESCALATION UI) -->
+            <td class="text-center">
+
+              <!-- If Escalated / Overdue -->
+              <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
+                <span style="color: red; font-weight: 600;">
+                  <i class="fa fa-flag" style="margin-right: 4px;"></i>
+                  {{ applicant.actionSubject || '-' }}
+                </span>
+                <br>
+                <span style="font-size: 12px; color: blue;">(Delay: {{ applicant.calculatedDelayInDays }} Days)</span>
+              </div>
+
+              <!-- Normal / Not Overdue -->
+              <ng-template #normalSubject>
+                {{ applicant.actionSubject || '-' }}
+              </ng-template>
+
+            </td>
+
+            <!-- 🔥 Delay In Days -->
+            <td class="text-center">
+
+              <!-- Shows the delay number in bold red if overdue -->
+              <span [ngStyle]="{'color': applicant.calculatedDelayInDays > 0 ? 'red' : 'inherit', 'font-weight': applicant.calculatedDelayInDays > 0 ? 'bold' : 'normal'}">
+                {{ applicant.calculatedDelayInDays > 0 ? applicant.calculatedDelayInDays : (applicant.delayInDays ?? '-') }}
+              </span>
+
+            </td>
             <!-- OBSERVATIONS WITH TOOLTIP ICON -->
             <td class="text-center">
               <mat-icon style="color: blue; font-size: 20px; cursor: pointer;"
