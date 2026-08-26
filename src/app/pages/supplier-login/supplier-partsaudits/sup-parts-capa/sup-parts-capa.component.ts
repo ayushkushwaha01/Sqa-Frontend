@@ -17,6 +17,7 @@ import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.serv
 import { AlertService } from 'src/app/shared/alert.service';
 import { LookupService } from 'src/app/pages/admin/lookup/lookup.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-sup-parts-capa',
@@ -351,4 +352,47 @@ export class SupPartsCapaComponent implements OnInit {
   }
 
 
+
+  changeResolvedStatus(applicant: any) {
+
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: 'auto',
+      data: {
+        component: null,
+        title: 'Change Status Confirmation',
+        content: `Are you sure you want to mark this record as ${applicant.isResolved ? 'Not Resolved' : 'Resolved'}?`,
+        isConfirmation: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result) {
+        return;
+      }
+
+      this.partAuditService.updateResolvedStatus({
+        partAuditCapaId: applicant.partAuditCapaId
+      }).subscribe({
+
+        next: (res: any) => {
+
+          if (res.success) {
+            applicant.isResolved = res.isResolved; // update the row's state directly
+            this.alertService.createAlert(res.message, 1);
+          } else {
+            this.alertService.createAlert(res.message, 0);
+          }
+
+        },
+
+        error: () => {
+          this.alertService.createAlert('Something went wrong.', 0);
+        }
+
+      });
+
+    });
+
+  }
 }

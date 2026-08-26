@@ -30,7 +30,11 @@ export class AddBatchPopComponent implements OnInit {
 
   partsFamilies: any[] = [];
   getPartsFamilies() {
-    this._setupService.getPartFamilies(null)
+    const userId = localStorage.getItem('UserId');
+    const payload = {
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getPartFamilies(payload)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -43,7 +47,11 @@ export class AddBatchPopComponent implements OnInit {
 
   partsMasters: any[] = [];
   getPartsMasters() {
-    this._setupService.getPartMaster(null)
+    const userId = localStorage.getItem('UserId');
+    const payload = {
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getPartMaster(payload)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -102,9 +110,14 @@ export class AddBatchPopComponent implements OnInit {
       this.myGroup.markAllAsTouched();
       return;
     }
+    const userId = localStorage.getItem('UserId');
+    const paylaod = {
+      ...this.myGroup.value,
+      UserId: userId ? Number(userId) : null
+    };
 
     this._setupService
-      .upsertBatchMaster(this.myGroup.value)
+      .upsertBatchMaster(paylaod)
       .subscribe({
 
         next: (res: any) => {

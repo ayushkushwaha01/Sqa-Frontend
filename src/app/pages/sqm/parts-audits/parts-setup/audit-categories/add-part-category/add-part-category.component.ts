@@ -70,8 +70,13 @@ export class AddPartCategoryComponent implements OnInit {
       this.myGroup.markAllAsTouched();
       return;
     }
+    const userId = localStorage.getItem('UserId');
+    const paylaod = {
+      ...this.myGroup.value,
+      UserId: userId ? Number(userId) : null
+    };
 
-    this._setupService.upsertPartAuditCategory(this.myGroup.value)
+    this._setupService.upsertPartAuditCategory(paylaod)
       .subscribe({
         next: (data: any) => {
           if (data.success) {

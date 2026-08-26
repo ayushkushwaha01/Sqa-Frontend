@@ -46,7 +46,11 @@ export class AddPartspopComponent implements OnInit {
 
   partsFamilies: any[] = [];
   getPartsFamilies() {
-    this._setupService.getPartFamilies(null)
+    const userId = localStorage.getItem('UserId');
+    const payload = {
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getPartFamilies(payload)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -113,8 +117,13 @@ export class AddPartspopComponent implements OnInit {
       return;
     }
 
+    const userId = localStorage.getItem('UserId');
+    const paylaod = {
+      ...this.myGroup.value,
+      UserId: userId ? Number(userId) : null
+    };
     this._setupService
-      .upsertPartMaster(this.myGroup.value)
+      .upsertPartMaster(paylaod)
       .subscribe({
 
         next: (res: any) => {

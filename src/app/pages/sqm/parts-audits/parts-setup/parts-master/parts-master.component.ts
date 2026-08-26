@@ -88,7 +88,11 @@ export class PartsMasterComponent implements OnInit {
   }
   partsFamilies: any[] = [];
   getPartsFamilies() {
-    this._setupService.getPartFamilies(null)
+    const userId = localStorage.getItem('UserId');
+    const payload = {
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getPartFamilies(payload)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -125,8 +129,14 @@ export class PartsMasterComponent implements OnInit {
         delete filter[key];
       }
     });
+    const userId = localStorage.getItem('UserId');
 
-    this._setupService.getPartMaster(filter).subscribe((res: any) => {
+    const Payload = {
+      ...filter,                          // ✅ use the cleaned object
+      UserId: userId ? Number(userId) : null
+    };
+
+    this._setupService.getPartMaster(Payload).subscribe((res: any) => {
       if (res.success) {
 
         this.partsMasters = res.data.data || [];
@@ -164,7 +174,14 @@ export class PartsMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        this._setupService.deletePartMaster(item).subscribe({
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+
+        this._setupService.deletePartMaster(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert(res.message, 1);
@@ -187,7 +204,14 @@ export class PartsMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        this._setupService.changeStatusPartMaster(item).subscribe({
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+
+        this._setupService.changeStatusPartMaster(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert(res.message, 1);

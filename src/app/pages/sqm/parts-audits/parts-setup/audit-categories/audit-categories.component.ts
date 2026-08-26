@@ -89,7 +89,13 @@ export class AuditCategoriesComponent implements OnInit {
   }
   partAuditCategories: any[] = [];
   getPartAuditCategories() {
-    this._setupService.getPartAuditCategories(this.filterForm.value)
+    const userId = localStorage.getItem('UserId');
+
+    const filter = {
+      ...this.filterForm.value,
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getPartAuditCategories(filter)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -121,46 +127,86 @@ export class AuditCategoriesComponent implements OnInit {
   }
 
   deleteConfirmation(item: any) {
+
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
-      data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+      data: {
+        component: null,
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to Delete?',
+        isConfirmation: true
+      }
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
+
       if (data) {
-        this._setupService.deletePartAuditCategory(item).subscribe({
-          next: (res: any) => {
-            if (res.success) {
-              this.alertService.createAlert(res.message, 1);
-              this.getPartAuditCategories();
-            } else {
-              this.alertService.createAlert(res.message, 0);
+
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+
+        console.log('Delete Payload:', payload);
+
+        this._setupService.deletePartAuditCategory(payload)
+          .subscribe({
+            next: (res: any) => {
+
+              if (res.success) {
+                this.alertService.createAlert(res.message, 1);
+                this.getPartAuditCategories();
+              } else {
+                this.alertService.createAlert(res.message, 0);
+              }
+
             }
-          }
-        });
+          });
       }
     });
   }
 
 
   changeStatus(item: any) {
+
     let dialogRef = this.dialog.open(DialogComponent, {
       width: 'auto',
-      data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
+      data: {
+        component: null,
+        title: 'Change Status Confirmation',
+        content: 'Are you sure you want to change the status?',
+        isConfirmation: true
+      }
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
+
       if (data) {
-        this._setupService.ChangeStatus(item).subscribe({
-          next: (res: any) => {
-            if (res.success) {
-              this.alertService.createAlert(res.message, 1);
-              this.getPartAuditCategories();
-            } else {
-              this.alertService.createAlert(res.message, 0);
+
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+
+        console.log('Toggle Status Payload:', payload);
+
+        this._setupService.ChangeStatus(payload)
+          .subscribe({
+            next: (res: any) => {
+
+              if (res.success) {
+                this.alertService.createAlert(res.message, 1);
+                this.getPartAuditCategories();
+              } else {
+                this.alertService.createAlert(res.message, 0);
+              }
+
             }
-          }
-        });
+          });
       }
     });
   }

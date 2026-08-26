@@ -72,8 +72,13 @@ export class AddPartsFamilypopComponent implements OnInit {
       this.myGroup.markAllAsTouched();
       return;
     }
+    const userId = localStorage.getItem('UserId');
+    const paylaod = {
+      ...this.myGroup.value,
+      UserId: userId ? Number(userId) : null
+    };
 
-    this._setupService.upsertPartFamily(this.myGroup.value)
+    this._setupService.upsertPartFamily(paylaod)
       .subscribe({
         next: (data: any) => {
           if (data.success) {

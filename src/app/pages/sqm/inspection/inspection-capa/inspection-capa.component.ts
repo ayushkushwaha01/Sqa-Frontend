@@ -86,7 +86,7 @@ export class InspectionCapaComponent implements OnInit {
   fetchPendingCapas() {
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
-       if (res.success && res.data) {
+        if (res.success && res.data) {
           this.tableList = res.data.map((item: any) => {
 
             let delayVal: any = 'N/A';
@@ -98,10 +98,10 @@ export class InspectionCapaComponent implements OnInit {
               due.setHours(0, 0, 0, 0);
               completion.setHours(0, 0, 0, 0);
               const diffTime = completion.getTime() - due.getTime();
-              
+
               if (diffTime > 0) {
                 delayVal = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                
+
                 // 🔥 If it's NOT resolved, and NOT completed, mark it as overdue for the UI
                 if (!item.resolved && !item.completion) {
                   calculatedDelay = delayVal;
@@ -139,11 +139,13 @@ export class InspectionCapaComponent implements OnInit {
               delayInDays: delayVal,
 
               // 🔥 Map the calculated delay to the UI
-              calculatedDelayInDays: calculatedDelay, 
+              calculatedDelayInDays: calculatedDelay,
 
               severity: item.severity,
               occurrence: item.occurrence,
               detection: item.detection,
+              detectionRating: item.detectionRating,
+              occurrenceRating: item.occurrenceRating,
               riskRating: item.riskRating || 'N/A',
               rating: item.rating,
               pdcaStatus: item.pdcaStatus
@@ -317,8 +319,8 @@ export class InspectionCapaComponent implements OnInit {
     'Severity',
     'Occurrence',
     'Detection',
-    'Risk Rating',
-    'Rating',
+    // 'Risk Rating',
+    // 'Rating',
     'PDCA Status'
   ];
 
@@ -353,8 +355,8 @@ export class InspectionCapaComponent implements OnInit {
       'Severity': 120,
       'Occurrence': 120,
       'Detection': 120,
-      'Risk Rating': 150,
-      'Rating': 120,
+      // 'Risk Rating': 150,
+      // 'Rating': 120,
       'PDCA Status': 150
 
     };

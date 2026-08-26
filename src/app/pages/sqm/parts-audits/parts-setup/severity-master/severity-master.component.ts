@@ -176,6 +176,57 @@ export class SeverityMasterComponent implements OnInit {
     });
   }
 
+  // saveSeverity(item: any): void {
+
+  //   if (!item.severityName || item.severityName.trim() === '') {
+  //     this.alertService.createAlert('Please enter Severity Name', 0);
+  //     return;
+  //   }
+
+  //   if (item.rating === null || item.rating === undefined || item.rating === '') {
+  //     this.alertService.createAlert('Please enter Rating', 0);
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     severityId: item.severityId || 0,
+  //     severityName: item.severityName.trim(),
+  //     rating: item.rating,
+  //     isActive: item.isActive ?? true
+  //   };
+
+  //   this.api.upsertSeverity(payload).subscribe({
+  //     next: (res: any) => {
+
+  //       if (res && res.success) {
+
+  //         this.alertService.createAlert(
+  //           res.message || 'Severity saved successfully',
+  //           1
+  //         );
+
+  //         this.loadData();
+
+  //       } else {
+
+  //         this.alertService.createAlert(
+  //           res.message || 'Failed to save severity',
+  //           0
+  //         );
+
+  //       }
+  //     },
+
+  //     error: (err: any) => {
+
+  //       this.alertService.createAlert(
+  //         err.error?.message || 'An error occurred while saving.',
+  //         0
+  //       );
+
+  //     }
+  //   });
+  // }
   saveSeverity(item: any): void {
 
     if (!item.severityName || item.severityName.trim() === '') {
@@ -188,11 +239,15 @@ export class SeverityMasterComponent implements OnInit {
       return;
     }
 
+    const currentUserId = Number(localStorage.getItem('UserId')) || 1;
+
     const payload = {
       severityId: item.severityId || 0,
       severityName: item.severityName.trim(),
       rating: item.rating,
-      isActive: item.isActive ?? true
+      isActive: item.isActive ?? true,
+      createdBy: currentUserId,
+      modifiedBy: currentUserId
     };
 
     this.api.upsertSeverity(payload).subscribe({
@@ -227,4 +282,5 @@ export class SeverityMasterComponent implements OnInit {
       }
     });
   }
+
 }
