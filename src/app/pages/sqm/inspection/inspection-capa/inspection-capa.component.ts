@@ -93,8 +93,6 @@ export class InspectionCapaComponent implements OnInit {
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
-          this.tableList = res.data.map((item: any) => {
-       if (res.success && res.data) {
           const sortedData = (res.data || []).sort((a: any, b: any) => {
             if (b.capaId && a.capaId && b.capaId !== a.capaId) {
               return b.capaId - a.capaId;
