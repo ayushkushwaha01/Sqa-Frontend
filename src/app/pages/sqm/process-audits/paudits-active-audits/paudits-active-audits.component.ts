@@ -366,10 +366,49 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   auditorCallback: Highcharts.ChartCallbackFunction = (chart) => { this.auditorChartRef = chart; };
   statusCallback: Highcharts.ChartCallbackFunction = (chart) => { this.statusChartRef = chart; };
 
+  // updateCharts() {
+  //   if (this.isDestroyed) return;
+  //   const getCounts = (key: string) => {
+  //     return this.filteredAuditData.reduce((acc: any, curr: any) => {
+  //       const name = curr[key] || 'Unassigned';
+  //       acc[name] = (acc[name] || 0) + 1;
+  //       return acc;
+  //     }, {});
+  //   };
+
+  //   const commodityCounts = getCounts('commodityName');
+  //   const auditorCounts = getCounts('auditorName');
+
+  //   const statusCounts = this.filteredAuditData.reduce((acc: any, curr: any) => {
+  //     const statusObj = this.statusLookups.find(l => l.lookupId === curr.statusId);
+  //     const name = statusObj ? statusObj.lookupName : 'Pending/None';
+  //     acc[name] = (acc[name] || 0) + 1;
+  //     return acc;
+  //   }, {});
+
+  //   const formatData = (counts: any) => Object.keys(counts).map(k => ({ name: k, y: counts[k] }));
+
+  //   if (this.commodityChartRef && this.commodityChartRef.series.length > 0) {
+  //     this.commodityChartRef.series[0].setData(formatData(commodityCounts), true, false, false);
+  //   }
+  //   if (this.auditorChartRef && this.auditorChartRef.series.length > 0) {
+  //     this.auditorChartRef.series[0].setData(formatData(auditorCounts), true, false, false);
+  //   }
+  //   if (this.statusChartRef && this.statusChartRef.series.length > 0) {
+  //     this.statusChartRef.series[0].setData(formatData(statusCounts), true, false, false);
+  //   }
+  // }
+
   updateCharts() {
     if (this.isDestroyed) return;
+
+    // 🔥 THE MAGIC FIX: We filter the data just for the charts!
+    // This tells the Pie Charts to ONLY look at records where the "Done" checkbox is ticked.
+    // Your HTML table will still show all records (both ticked and unticked).
+   const chartData = this.filteredAuditData;
+
     const getCounts = (key: string) => {
-      return this.filteredAuditData.reduce((acc: any, curr: any) => {
+      return chartData.reduce((acc: any, curr: any) => {
         const name = curr[key] || 'Unassigned';
         acc[name] = (acc[name] || 0) + 1;
         return acc;
@@ -379,8 +418,8 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     const commodityCounts = getCounts('commodityName');
     const auditorCounts = getCounts('auditorName');
 
-    const statusCounts = this.filteredAuditData.reduce((acc: any, curr: any) => {
-      const statusObj = this.statusLookups.find(l => l.lookupId === curr.statusId);
+    const statusCounts = chartData.reduce((acc: any, curr: any) => {
+      const statusObj = this.statusLookups.find((l: any) => l.lookupId === curr.statusId);
       const name = statusObj ? statusObj.lookupName : 'Pending/None';
       acc[name] = (acc[name] || 0) + 1;
       return acc;

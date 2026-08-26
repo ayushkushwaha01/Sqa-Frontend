@@ -270,3 +270,10 @@ $page-header-bar-height: 68px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+:host ::ng-deep {
+  button[mat-icon-button] .mat-badge-content {
+    top: 4px !important;
+    right: 4px !important;
+  }
+}
+

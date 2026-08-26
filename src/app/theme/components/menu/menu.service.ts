@@ -17,9 +17,9 @@ export class MenuService {
 
   // 🔥 UPDATED METHOD: Dynamically checks UserType to serve the correct menu 🔥
   public getHorizontalMenuItems():Array<Menu> {
-    const userType = localStorage.getItem('UserType');
+    const userType = localStorage.getItem('UserType') || localStorage.getItem('userType');
 
-    if (userType === 'Supplier') {
+    if (userType === 'Supplier' || userType === 'supplier') {
       return supplierMenuItems;
     } else {
       return horizontalMenuItems;

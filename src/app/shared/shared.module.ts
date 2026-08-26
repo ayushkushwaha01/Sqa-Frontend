@@ -39,6 +39,8 @@ import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { ColorSketchModule } from 'ngx-color/sketch';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MglTimelineModule } from 'angular-mgl-timeline';
+import { ResetPasswordDialogComponent } from '../pages/admin/manage-user/users/reset-password-dialog/reset-password-dialog.component';
+
 @NgModule({
   imports: [
     FormsModule,
@@ -117,13 +119,14 @@ import { MglTimelineModule } from 'angular-mgl-timeline';
     MatStepperModule,
     FormsModule,
     ReactiveFormsModule,
-    NgxChartsModule
+    NgxChartsModule,
+    ResetPasswordDialogComponent
   ],
   declarations: [
     ConfirmationDialogComponent,
     DialogComponent,
     ColorPickerComponent,
-
+    ResetPasswordDialogComponent
   ]
 })
 export class SharedModule { }

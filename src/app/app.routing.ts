@@ -38,6 +38,7 @@ import { SqmComponent } from "./pages/sqm/sqm.component";
 import { SupplierLoginComponent } from "./pages/supplier-login/supplier-login.component";
 import { LoginGuard } from "./pages/helpers/login.guard";
 import { NotificationsInboxComponent } from "./theme/components/notification/notifications-inbox/notifications-inbox.component";
+import { SentMailsDialogComponent } from "./sent-mails-dialog/sent-mails-dialog.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
@@ -54,6 +55,14 @@ const routes: Routes = [
         data: {
           breadcrumb: "Notifications Inbox",
           description: "View, manage, and inspect all system notifications and support requests."
+        },
+      },
+      {
+        path: "sent-mails",
+        component: SentMailsDialogComponent,
+        data: {
+          breadcrumb: "Sent Mails",
+          description: "View all sent emails and support tickets submitted to IT Help Desk."
         },
       },
     {

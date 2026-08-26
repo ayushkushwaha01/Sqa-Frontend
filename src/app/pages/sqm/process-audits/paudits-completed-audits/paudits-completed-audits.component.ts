@@ -222,9 +222,44 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     return status ? status.lookupName : 'N/A';
   }
 
+  // updateCharts() {
+  //   const getCounts = (key: string) => {
+  //     return this.completedAuditData.reduce((acc: any, curr: any) => {
+  //       const name = curr[key] || 'Unassigned';
+  //       acc[name] = (acc[name] || 0) + 1;
+  //       return acc;
+  //     }, {});
+  //   };
+
+  //   const commodityCounts = getCounts('commodityName');
+  //   const auditorCounts = getCounts('auditorName');
+
+  //   const statusCounts = this.completedAuditData.reduce((acc: any, curr: any) => {
+  //     const name = this.getStatusName(curr.statusId);
+  //     acc[name] = (acc[name] || 0) + 1;
+  //     return acc;
+  //   }, {});
+
+  //   const formatData = (counts: any) => Object.keys(counts).map(k => ({ name: k, y: counts[k] }));
+
+  //   if (this.commodityChartRef && this.commodityChartRef.series.length > 0) {
+  //     this.commodityChartRef.series[0].setData(formatData(commodityCounts), true, false, false);
+  //   }
+  //   if (this.auditorChartRef && this.auditorChartRef.series.length > 0) {
+  //     this.auditorChartRef.series[0].setData(formatData(auditorCounts), true, false, false);
+  //   }
+  //   if (this.statusChartRef && this.statusChartRef.series.length > 0) {
+  //     this.statusChartRef.series[0].setData(formatData(statusCounts), true, false, false);
+  //   }
+  // }
+
   updateCharts() {
+    // 🔥 FIX 1: Use filteredAuditData so the charts respond when you search or use dropdowns
+    // 🔥 FIX 2: Strictly enforce that ONLY "Done" records are counted in these pie charts
+    const chartData = this.filteredAuditData;
+
     const getCounts = (key: string) => {
-      return this.completedAuditData.reduce((acc: any, curr: any) => {
+      return chartData.reduce((acc: any, curr: any) => {
         const name = curr[key] || 'Unassigned';
         acc[name] = (acc[name] || 0) + 1;
         return acc;
@@ -234,7 +269,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     const commodityCounts = getCounts('commodityName');
     const auditorCounts = getCounts('auditorName');
 
-    const statusCounts = this.completedAuditData.reduce((acc: any, curr: any) => {
+    const statusCounts = chartData.reduce((acc: any, curr: any) => {
       const name = this.getStatusName(curr.statusId);
       acc[name] = (acc[name] || 0) + 1;
       return acc;

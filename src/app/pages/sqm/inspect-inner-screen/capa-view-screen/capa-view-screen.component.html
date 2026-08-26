@@ -3,7 +3,7 @@
     <span style="color: blue; cursor: pointer; margin-left:5px" (click)="goBack()">
       CAPA
     </span>
-    >
+    
     {{ parameterName || 'Details' }}
   </div>
 
@@ -29,6 +29,14 @@
         </div>
 
 
+        <div class="row form-group mt-3 align-items-center">
+          <label class="control-label col-sm-4 font-weight-bold"> Log Date :</label>
+          <div class="col-sm-7">
+            <input type="date" formControlName="logDate" class="form-control">
+          </div>
+        </div>
+
+        
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold"> Due Date :</label>
           <div class="col-sm-7">

@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ManageUsersService } from '../../manage-users.service'; // Adjust path if needed
-import { AlertService } from 'src/app/shared/alert.service'; // Adjust path if needed
+import { ManageUsersService } from '../../manage-users.service';
+import { AlertService } from 'src/app/shared/alert.service';
 
 @Component({
   selector: 'app-reset-password-dialog',
@@ -13,6 +13,8 @@ export class ResetPasswordDialogComponent implements OnInit {
 
   myform: FormGroup;
   isSubmitting = false;
+  dialogTitle = 'Reset Password';
+  isSelfChange = false;
 
   constructor(
     public fb: FormBuilder,
@@ -21,16 +23,21 @@ export class ResetPasswordDialogComponent implements OnInit {
     private api: ManageUsersService,
     private alertService: AlertService
   ) {
+    this.isSelfChange = !!(this.data && this.data.isSelfChange);
+    this.dialogTitle = this.isSelfChange ? 'Change Password' : 'Reset Password';
+
     this.myform = this.fb.group({
-      // We extract the userId directly from the row data passed in from the grid
-      UserId: new FormControl(this.data ? this.data.userId : null),
+      UserId: new FormControl(this.data ? (this.data.userId || this.data.UserId) : null),
+      OldPassword: new FormControl(null, this.isSelfChange ? [Validators.required] : []),
       Password: new FormControl(null, Validators.compose([Validators.required])),
-      UserPassword: new FormControl(null, Validators.compose([Validators.required])) // This is the Confirm field
+      UserPassword: new FormControl(null, Validators.compose([Validators.required]))
     });
   }
 
   ngOnInit() {
   }
+
+  
 
   close(): void {
     this.dialogRef.close();
@@ -40,35 +47,38 @@ export class ResetPasswordDialogComponent implements OnInit {
     if (this.myform.valid) {
       let password = this.myform.controls['Password'].value;
       let confirmPassword = this.myform.controls['UserPassword'].value;
+      let oldPassword = this.myform.controls['OldPassword'].value;
       
       // Validation Check
       if (password !== confirmPassword) {
         this.alertService.createAlert('Passwords do not match', 0);
-        return; // Stop execution
+        return;
       } 
       
       this.isSubmitting = true;
       
-      // Build the payload matching the C# ResetPasswordDto
-      let payload = {
+      let payload: any = {
         userId: this.myform.value.UserId,
         newPassword: password
       };
 
-      // Call the API
+      if (this.isSelfChange && oldPassword) {
+        payload.oldPassword = oldPassword;
+      }
+
       this.api.resetPassword(payload).subscribe({
         next: (res: any) => {
           this.isSubmitting = false;
           if (res.success) {
-            this.alertService.createAlert(res.message, 1);
-            this.dialogRef.close(true); // Tell the grid to refresh
+            this.alertService.createAlert(res.message || 'Password changed successfully', 1);
+            this.dialogRef.close(true);
           } else {
-            this.alertService.createAlert(res.message, 0);
+            this.alertService.createAlert(res.message || 'Failed to update password', 0);
           }
         },
-        error: () => {
+        error: (err: any) => {
           this.isSubmitting = false;
-          this.alertService.createAlert("Server Error while resetting password", 0);
+          this.alertService.createAlert(err?.error?.message || "Server Error while updating password", 0);
         }
       });
       

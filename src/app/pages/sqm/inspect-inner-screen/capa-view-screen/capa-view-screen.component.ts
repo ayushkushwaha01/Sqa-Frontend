@@ -193,10 +193,18 @@ export class CapaViewScreenComponent implements OnInit {
 
 
   initForm(): void {
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = ('0' + (today.getMonth() + 1)).slice(-2);
+    const day = ('0' + today.getDate()).slice(-2);
+    const localToday = `${year}-${month}-${day}`;
+
     this.auditForm = this.fb.group({
       capaId: [0],
       inspectionRefId: [0],
       subject: [''],
+      logDate: [localToday],
       dueDate: [''],
       completedDate: [''],
       pdcaStatus: [''],
@@ -256,6 +264,7 @@ export class CapaViewScreenComponent implements OnInit {
             capaId: data.id,
             inspectionRefId: this.inspectionRefId,
             subject: data.subject,
+            logDate: data.logDate ? data.logDate.split('T')[0] : '',
             dueDate: data.dueDate ? data.dueDate.split('T')[0] : '',
             completedDate: data.completedDate ? data.completedDate.split('T')[0] : '',
             pdcaStatus: data.status,
@@ -446,6 +455,7 @@ export class CapaViewScreenComponent implements OnInit {
       detection: formDataValues.detection ? Number(formDataValues.detection) : null,
       sodScore: formDataValues.sodScore ? Number(formDataValues.sodScore) : null,
       subject: formDataValues.subject || '',
+      createdDate: formDataValues.logDate || null,
       dueDate: formDataValues.dueDate || null,
       completedDate: formDataValues.completedDate || null,
       pdcaStatus: formDataValues.pdcaStatus || null,

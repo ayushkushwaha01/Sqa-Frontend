@@ -206,6 +206,32 @@ export class SupProcapaComponent implements OnInit {
     this.updatePagination();
   }
 
+  // 🔥 Triggered when the Supplier clicks the Resolved checkbox
+  onResolvedChange(item: any, event: any) {
+    item.resolved = event.checked;
+
+    const payload = {
+      CapaId: item.capaId,
+      Status: item.status != null ? item.status.toString() : null, // Keeps the status whatever it currently is
+      IsResolved: item.resolved
+    };
+
+    this.api.updateCapaStatus(payload).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
+        } else {
+          this.alertService.createAlert(res.message || 'Failed to update status', 0);
+          item.resolved = !event.checked; // Revert UI if API fails
+        }
+      },
+      error: () => {
+        this.alertService.createAlert('Error updating CAPA status', 0);
+        item.resolved = !event.checked; // Revert UI on error
+      }
+    });
+  }
+
   scrollRight() { document.getElementById('grid-table-container')?.scrollBy({ left: 300, behavior: 'smooth' }); }
   scrollLeft() { document.getElementById('grid-table-container')?.scrollBy({ left: -300, behavior: 'smooth' }); }
 

@@ -10,11 +10,6 @@
   margin: 10px 0;
 }
 
-::ng-deep .overdue-highlight {
-  color: #dc3545 !important;
-  font-weight: 700 !important;
-}
-
 /* TOP HEADER */
 .inbox-header {
   display: flex;
@@ -29,6 +24,13 @@
     align-items: center;
     gap: 12px;
 
+    .back-btn {
+      color: #5f6368;
+      &:hover {
+        background-color: #f1f3f4;
+      }
+    }
+
     .section-title {
       display: flex;
       align-items: center;
@@ -37,7 +39,7 @@
       font-weight: 700;
       color: #202124;
 
-      .notifications-icon {
+      .sent-icon {
         color: #1a73e8;
         font-size: 22px;
         width: 22px;
@@ -130,7 +132,6 @@
 
     .total-count {
       color: #1a73e8;
-      font-weight: 700;
     }
   }
 
@@ -155,15 +156,37 @@
           font-size: 14px;
           font-weight: 700;
           color: #202124;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: 240px;
         }
 
         .item-date {
           font-size: 12px;
           color: #80868b;
+        }
+      }
+
+      .item-subject-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+
+        .module-badge {
+          background-color: #e8f0fe;
+          color: #1a73e8;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 4px;
+          white-space: nowrap;
+        }
+
+        .item-subject {
+          font-size: 13px;
+          font-weight: 600;
+          color: #3c4043;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
 
@@ -213,6 +236,12 @@
       p {
         font-size: 15px;
         font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      small {
+        font-size: 12px;
+        color: #9aa0a6;
       }
     }
   }
@@ -243,15 +272,21 @@
     border-bottom: 1px solid #f1f3f4;
     margin-bottom: 24px;
 
-    .avatar.bot-avatar {
+    .avatar {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background-color: #1a73e8;
+      background-color: #0b57d0;
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
+
+      .avatar-initial {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1;
+      }
 
       mat-icon {
         font-size: 22px;
@@ -286,29 +321,48 @@
         font-size: 13px;
         color: #5f6368;
         margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .module-badge-highlight {
+          background-color: #e8f0fe;
+          color: #1a73e8;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 6px;
+        }
       }
     }
   }
 
   .body-content {
-    font-size: 15px;
+    font-size: 14px;
+    color: #202124;
     line-height: 1.6;
-    margin-top: 16px;
 
-    .notification-details {
-      .notification-text {
+    .mail-details-card {
+      .field-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #70757a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+      }
+
+      .message-text {
         margin: 0;
         font-size: 15px;
-        font-weight: 500;
         color: #202124;
         line-height: 1.6;
         white-space: pre-wrap;
-
-        ::ng-deep .overdue-highlight,
-        .overdue-highlight {
-          color: #dc3545 !important;
-          font-weight: 700 !important;
-        }
+        background-color: #f8fafd;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e8eaed;
       }
     }
   }

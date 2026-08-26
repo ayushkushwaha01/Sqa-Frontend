@@ -284,6 +284,194 @@
           <tr *ngFor="let applicant of pagedTableList">
 
             <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+            <!-- DELETE -->
+            <td *ngIf="activeColumns.includes('Delete')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Delete') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Delete') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Delete'))"
+              [style.min-width.px]="getColumnWidth('Delete')">
+
+              <a [class.disable-custom]="!canDelete" [matTooltip]="
+              !canDelete
+                ? 'You don’t have permission to delete'
+                : 'Delete'
+            " (click)="canDelete && deleteConfirmation(applicant)">
+
+                <i class="fa fa-trash red"></i>
+
+              </a>
+
+            </td>
+
+
+            <!-- STATUS -->
+            <td *ngIf="activeColumns.includes('Status')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Status') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Status') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Status'))"
+              [style.min-width.px]="getColumnWidth('Status')">
+
+              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onInlineChange(applicant)"
+                class="form-control">
+
+                <mat-option [value]="1">WIP</mat-option>
+                <mat-option [value]="2">Open</mat-option>
+                <mat-option [value]="3">Closed</mat-option>
+                <mat-option [value]="4">Pending</mat-option>
+                <mat-option [value]="5">In Progress</mat-option>
+                <mat-option [value]="6">Completed</mat-option>
+
+              </mat-select>
+
+            </td>
+
+
+            <!-- RESOLVED -->
+            <td *ngIf="activeColumns.includes('Resolved')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Resolved') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Resolved') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Resolved'))"
+              [style.min-width.px]="getColumnWidth('Resolved')">
+
+              <mat-checkbox [(ngModel)]="applicant.resolved" [disabled]="true" color="primary">
+              </mat-checkbox>
+
+            </td>
+
+
+            <!-- DOCS -->
+            <td *ngIf="activeColumns.includes('Docs')" class="text-center"
+              [class.frozen-col]="activeColumns.indexOf('Docs') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Docs') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Docs'))" [style.min-width.px]="getColumnWidth('Docs')"
+              style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
+
+              {{ applicant?.docs }}
+
+            </td>
+
+
+            <!-- REFERENCE -->
+            <td *ngIf="activeColumns.includes('Reference')" class="text-link text-center"
+              [class.frozen-col]="activeColumns.indexOf('Reference') < frozenCount"
+              [class.last-frozen]="activeColumns.indexOf('Reference') === (frozenCount - 1)"
+              [style.left]="getStickyLeft(activeColumns.indexOf('Reference'))"
+              [style.min-width.px]="getColumnWidth('Reference')">
+
+              <a [routerLink]="[
+              '/app',
+              'sqm',
+              'inspect-inner-screen',
+              'capa-view'
+            ]" [queryParams]="{
+              inspectionRefId: applicant?.inspectionRefId,
+              parameterName: applicant?.parameterName
+            }">
+
+                {{ applicant?.reference }}
+
+              </a>
+
+            </td>
+
+
+            <!-- CAPA SUBJECT -->
+            <!-- <td *ngIf="activeColumns.includes('CAPA Subject')" class="text-center">
+
+              {{ applicant?.actionSubject }}
+
+            </td> -->
+
+            <!-- CAPA SUBJECT -->
+            <td *ngIf="activeColumns.includes('CAPA Subject')" class="text-center">
+
+              <!-- 🔥 If Escalated / Overdue -->
+              <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
+                <span style="color: red; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">
+                  <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">flag</mat-icon>
+                  {{ applicant?.actionSubject || '-' }}
+                </span>
+                <br>
+                <span style="font-size: 12px; color: blue;">
+                  (Delay: {{ applicant.calculatedDelayInDays }} Days)
+                </span>
+              </div>
+
+              <!-- Normal / Not Overdue -->
+              <ng-template #normalSubject>
+                <div style="line-height: 1.4;">
+                  <span>{{ applicant?.actionSubject || '-' }}</span>
+                </div>
+              </ng-template>
+
+            </td>
+
+
+            <!-- AUDITOR REMARKS -->
+            <td *ngIf="activeColumns.includes('Auditor Remarks')" class="text-center">
+
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" [matTooltip]="
+              applicant?.observations ||
+              'No observations available'
+            ">
+
+                info
+
+              </mat-icon>
+
+            </td>
+
+
+            <!-- CORRECTIVE ACTIONS -->
+            <td *ngIf="activeColumns.includes('Corrective Actions')" class="text-center">
+
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" [matTooltip]="
+              applicant?.correctiveActions ||
+              'No corrective actions available'
+            ">
+
+                info
+
+              </mat-icon>
+
+            </td>
+
+
+            <!-- PREVENTIVE ACTIONS -->
+            <td *ngIf="activeColumns.includes('Preventive Actions')" class="text-center">
+
+              <mat-icon style="color: blue; font-size: 20px; cursor: pointer;" [matTooltip]="
+              applicant?.supplierRemarks ||
+              'No remarks available'
+            ">
+
+                info
+
+              </mat-icon>
+
+            </td>
+
+
+            <!-- PARAMETER NAME -->
+            <td *ngIf="activeColumns.includes('Parameter Name')" class="text-center">
+
+              {{ applicant?.parameterName }}
+
+            </td>
+
+
+            <!-- PART FAMILY -->
+            <td *ngIf="activeColumns.includes('Part Family')" class="text-center">
+
+              {{ applicant?.partFamilyName }}
+
+            </td>
+
+
+            <!-- PART NAME -->
+            <td *ngIf="activeColumns.includes('Part Name')" class="text-center">
+
+              {{ applicant?.partName }}
 
               <!-- Delete -->
               <td *ngSwitchCase="'Delete'" class="text-center" [class.frozen-col]="i < frozenCount"

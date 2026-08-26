@@ -148,6 +148,10 @@ export class ManageUsersService {
     return this.http.get<any>(`${this.apiUrl}HelpDesk/get-notifications?userId=${userId}&userType=${userType}`);
   }
 
+  getSentMails(userId: number, userType: string) {
+    return this.http.get<any>(`${this.apiUrl}HelpDesk/get-sent-mails?userId=${userId}&userType=${userType}`);
+  }
+
   // ==========================================
   // ---------- ESCALATION AUTOMATION ---------
   // ==========================================
@@ -171,4 +175,5 @@ export class ManageUsersService {
   triggerInspectionEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-inspection-escalations', {});
   }
+  
 }

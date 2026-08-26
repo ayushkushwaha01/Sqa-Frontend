@@ -114,19 +114,17 @@
 
 
         <!-- 🔥 User Manual (Screen ID 16 - Requires READ) 🔥 -->
-        <li [ngClass]="{'disabled-nav': !canRead(16)}">
-          <!-- Has Permission -->
-          <a *ngIf="canRead(16)" (click)="openUserManual('sample-1.pdf')">
+        <!-- <li [ngClass]="{'disabled-nav': !canRead(16)}">
+           <a *ngIf="canRead(16)" (click)="openUserManual('sample-1.pdf')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
           </a>
-          <!-- No Permission -->
-          <a *ngIf="!canRead(16)" (click)="showAccessDenied('view the User Manual')">
+           <a *ngIf="!canRead(16)" (click)="showAccessDenied('view the User Manual')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen"
               matTooltip="User Manual (Access Denied)">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
           </a>
-        </li>
+        </li> -->
 
         <!-- 🔥 IT Help Desk (Screen ID 17 - Requires CREATE) 🔥 -->
         <li [ngClass]="{'disabled-nav': !canCreate(17)}">
@@ -244,7 +242,7 @@
           </a>
         </li> -->
 
-        <li [ngClass]="{'disabled-nav': !canRead(24)}">
+        <!-- <li [ngClass]="{'disabled-nav': !canRead(24)}">
           <a *ngIf="canRead(24)" (click)="openUserManual('sample-1.pdf')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
@@ -254,7 +252,7 @@
               matTooltip="User Manual (Access Denied)">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
           </a>
-        </li>
+        </li> -->
         <!-- <li (click)="openHelpDesk()">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="IT Help Desk">support_agent</mat-icon>
@@ -396,7 +394,7 @@
         <!-- ========================================== -->
 
         <!-- 🔥 3. User Manual (Screen ID 39 - Uses READ permission) 🔥 -->
-        <li [ngClass]="{'disabled-nav': !canRead(39)}">
+        <!-- <li [ngClass]="{'disabled-nav': !canRead(39)}">
           <a *ngIf="canRead(39)" (click)="openUserManual('sample-1.pdf')">
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="User Manual">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
@@ -406,7 +404,7 @@
               matTooltip="User Manual (Access Denied)">menu_book</mat-icon>
             <span *ngIf="isSidenavOpen">User Manual</span>
           </a>
-        </li>
+        </li> -->
 
         <!-- 🔥 4. IT Help Desk (Screen ID 40 - Uses CREATE permission) 🔥 -->
         <li [ngClass]="{'disabled-nav': !canCreate(40)}">
@@ -425,7 +423,7 @@
     </nav>
 
     <!-- Setup sidenav -->
-    <nav class="nav-links" *ngIf="activeTab === 'setup'">
+    <!-- <nav class="nav-links" *ngIf="activeTab === 'setup'">
       <ul>
         <li routerLinkActive="active" routerLink="./process/setup/process-cat">
           <a>
@@ -469,19 +467,7 @@
             <span *ngIf="isSidenavOpen">Defects Master</span>
           </a>
         </li>
-        <!-- <li routerLinkActive="active" routerLink="./parts/setup/vender-rating">
-          <a>
-            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Vendor Rating">star_rate</mat-icon>
-            <span *ngIf="isSidenavOpen">Vendor Rating</span>
-          </a>
-        </li> -->
-        <!-- <li routerLinkActive="active" routerLink="./parts/setup/supplier-master">
-          <a>
-            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Supplier Master">business</mat-icon>
-            <span *ngIf="isSidenavOpen">Supplier Master</span>
-          </a>
-        </li> -->
-
+    
 
         <li routerLinkActive="active" routerLink="./parts/setup/state-master">
           <a>
@@ -518,8 +504,7 @@
             </span>
           </a>
         </li>
-        <!-- Occurrence Master -->
-        <li routerLinkActive="active" routerLink="./parts/setup/occurrence-master">
+         <li routerLinkActive="active" routerLink="./parts/setup/occurrence-master">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Occurrence Master">
               settings
@@ -532,8 +517,7 @@
         </li>
 
 
-        <!-- Detection Master -->
-        <li routerLinkActive="active" routerLink="./parts/setup/detection-master">
+         <li routerLinkActive="active" routerLink="./parts/setup/detection-master">
           <a>
             <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Detection Master">
               settings
@@ -545,6 +529,181 @@
           </a>
         </li>
 
+
+      </ul>
+    </nav> -->
+
+    <!-- Setup sidenav -->
+    <nav class="nav-links" *ngIf="activeTab === 'setup'">
+      <ul>
+
+        <!-- Process Audit Categories (Screen ID: 31) -->
+        <li [ngClass]="{'disabled-nav': !canRead(31)}">
+          <a *ngIf="canRead(31)" routerLinkActive="active" routerLink="./process/setup/process-cat">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Process Audit Categories">category</mat-icon>
+            <span *ngIf="isSidenavOpen">Process Audit Categories</span>
+          </a>
+          <a *ngIf="!canRead(31)" (click)="showAccessDenied('view Process Audit Categories')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Process Audit Categories (Access Denied)">category</mat-icon>
+            <span *ngIf="isSidenavOpen">Process Audit Categories</span>
+          </a>
+        </li>
+
+        <!-- Commodity Master (Screen ID: 32) -->
+        <li [ngClass]="{'disabled-nav': !canRead(32)}">
+          <a *ngIf="canRead(32)" routerLinkActive="active" routerLink="./process/setup/commodity">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Commodity Master">inventory_2</mat-icon>
+            <span *ngIf="isSidenavOpen">Commodity Master</span>
+          </a>
+          <a *ngIf="!canRead(32)" (click)="showAccessDenied('view Commodity Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Commodity Master (Access Denied)">inventory_2</mat-icon>
+            <span *ngIf="isSidenavOpen">Commodity Master</span>
+          </a>
+        </li>
+
+        <!-- Parts Audit Categories (Screen ID: 33) -->
+        <li [ngClass]="{'disabled-nav': !canRead(33)}">
+          <a *ngIf="canRead(33)" routerLinkActive="active" routerLink="./parts/setup/parts-cat">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Audit Categories">list_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Audit Categories</span>
+          </a>
+          <a *ngIf="!canRead(33)" (click)="showAccessDenied('view Parts Audit Categories')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Audit Categories (Access Denied)">list_alt</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Audit Categories</span>
+          </a>
+        </li>
+
+        <!-- Parts Families (Screen ID: 35) -->
+        <li [ngClass]="{'disabled-nav': !canRead(35)}">
+          <a *ngIf="canRead(35)" routerLinkActive="active" routerLink="./parts/setup/families">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Families">account_tree</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Families</span>
+          </a>
+          <a *ngIf="!canRead(35)" (click)="showAccessDenied('view Parts Families')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Families (Access Denied)">account_tree</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Families</span>
+          </a>
+        </li>
+
+        <!-- Parts Master (Screen ID: 34) -->
+        <li [ngClass]="{'disabled-nav': !canRead(34)}">
+          <a *ngIf="canRead(34)" routerLinkActive="active" routerLink="./parts/setup/master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Master">build_circle</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Master</span>
+          </a>
+          <a *ngIf="!canRead(34)" (click)="showAccessDenied('view Parts Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Parts Master (Access Denied)">build_circle</mat-icon>
+            <span *ngIf="isSidenavOpen">Parts Master</span>
+          </a>
+        </li>
+
+        <!-- Batch Master (Screen ID: 43) -->
+        <li [ngClass]="{'disabled-nav': !canRead(43)}">
+          <a *ngIf="canRead(43)" routerLinkActive="active" routerLink="./parts/setup/batchmaster">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Batch Master">layers</mat-icon>
+            <span *ngIf="isSidenavOpen">Batch Master</span>
+          </a>
+          <a *ngIf="!canRead(43)" (click)="showAccessDenied('view Batch Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Batch Master (Access Denied)">layers</mat-icon>
+            <span *ngIf="isSidenavOpen">Batch Master</span>
+          </a>
+        </li>
+
+        <!-- Defects Master (Screen ID: 36) -->
+        <li [ngClass]="{'disabled-nav': !canRead(36)}">
+          <a *ngIf="canRead(36)" routerLinkActive="active" routerLink="./parts/setup/defectsmaster">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Defects Master">bug_report</mat-icon>
+            <span *ngIf="isSidenavOpen">Defects Master</span>
+          </a>
+          <a *ngIf="!canRead(36)" (click)="showAccessDenied('view Defects Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Defects Master (Access Denied)">bug_report</mat-icon>
+            <span *ngIf="isSidenavOpen">Defects Master</span>
+          </a>
+        </li>
+
+        <!-- State Master (Screen ID: 44) -->
+        <li [ngClass]="{'disabled-nav': !canRead(44)}">
+          <a *ngIf="canRead(44)" routerLinkActive="active" routerLink="./parts/setup/state-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="State Master">map</mat-icon>
+            <span *ngIf="isSidenavOpen">State Master</span>
+          </a>
+          <a *ngIf="!canRead(44)" (click)="showAccessDenied('view State Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="State Master (Access Denied)">map</mat-icon>
+            <span *ngIf="isSidenavOpen">State Master</span>
+          </a>
+        </li>
+
+        <!-- City Master (Screen ID: 45) -->
+        <li [ngClass]="{'disabled-nav': !canRead(45)}">
+          <a *ngIf="canRead(45)" routerLinkActive="active" routerLink="./parts/setup/city-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="City Master">location_city</mat-icon>
+            <span *ngIf="isSidenavOpen">City Master</span>
+          </a>
+          <a *ngIf="!canRead(45)" (click)="showAccessDenied('view City Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="City Master (Access Denied)">location_city</mat-icon>
+            <span *ngIf="isSidenavOpen">City Master</span>
+          </a>
+        </li>
+
+        <!-- Severity Master (Screen ID: 46) -->
+        <li [ngClass]="{'disabled-nav': !canRead(46)}">
+          <a *ngIf="canRead(46)" routerLinkActive="active" routerLink="./parts/setup/severity-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Severity Master">report_problem</mat-icon>
+            <span *ngIf="isSidenavOpen">Severity Master</span>
+          </a>
+          <a *ngIf="!canRead(46)" (click)="showAccessDenied('view Severity Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Severity Master (Access Denied)">report_problem</mat-icon>
+            <span *ngIf="isSidenavOpen">Severity Master</span>
+          </a>
+        </li>
+
+        <!-- Vendor Rating / Band Master (Screen ID: 47) -->
+        <li [ngClass]="{'disabled-nav': !canRead(47)}">
+          <a *ngIf="canRead(47)" routerLinkActive="active" routerLink="./parts/setup/bandmaster">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Vendor Rating">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Vendor Rating</span>
+          </a>
+          <a *ngIf="!canRead(47)" (click)="showAccessDenied('view Vendor Rating')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Vendor Rating (Access Denied)">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Vendor Rating</span>
+          </a>
+        </li>
+
+        <!-- Demerit Master (Screen ID: 37) -->
+        <li [ngClass]="{'disabled-nav': !canRead(37)}">
+          <a *ngIf="canRead(37)" routerLinkActive="active" routerLink="./parts/setup/demerit-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Demerit Master">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Demerit Master</span>
+          </a>
+          <a *ngIf="!canRead(37)" (click)="showAccessDenied('view Demerit Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Demerit Master (Access Denied)">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Demerit Master</span>
+          </a>
+        </li>
+
+        <!-- Occurrence Master (Screen ID: 48) -->
+        <li [ngClass]="{'disabled-nav': !canRead(48)}">
+          <a *ngIf="canRead(48)" routerLinkActive="active" routerLink="./parts/setup/occurrence-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Occurrence Master">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Occurrence Master</span>
+          </a>
+          <a *ngIf="!canRead(48)" (click)="showAccessDenied('view Occurrence Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Occurrence Master (Access Denied)">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Occurrence Master</span>
+          </a>
+        </li>
+
+        <!-- Detection Master (Screen ID: 49) -->
+        <li [ngClass]="{'disabled-nav': !canRead(49)}">
+          <a *ngIf="canRead(49)" routerLinkActive="active" routerLink="./parts/setup/detection-master">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Detection Master">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Detection Master</span>
+          </a>
+          <a *ngIf="!canRead(49)" (click)="showAccessDenied('view Detection Master')">
+            <mat-icon class="nav-icon" *ngIf="!isSidenavOpen" matTooltip="Detection Master (Access Denied)">settings</mat-icon>
+            <span *ngIf="isSidenavOpen">Detection Master</span>
+          </a>
+        </li>
 
       </ul>
     </nav>

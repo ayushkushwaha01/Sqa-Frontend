@@ -278,6 +278,8 @@ export class PauditsActionsComponent implements OnInit {
   canRead: boolean = false;
   readonly SCREEN_ID: number = 15;
 
+  isSupplier: boolean = false;
+
   pageSize = 20;
   pageIndex = 0;
 
@@ -302,6 +304,10 @@ export class PauditsActionsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
+    this.isSupplier = localStorage.getItem('UserType') === 'Supplier' || 
+                      window.location.href.toLowerCase().includes('role=supplier');
+
     // 🔥 Load Permissions (check both numeric ID 15 and string name 'CAPA')
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID) || UserPermissionService.fnGetReadPermissions('CAPA');
     this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID) || UserPermissionService.fnGetCreatePermissions('CAPA');
@@ -420,8 +426,28 @@ export class PauditsActionsComponent implements OnInit {
     });
   }
 
+  // onResolvedChange(item: any, event: any) {
+  //   if (!this.canUpdate) return; // Guard clause
+
+  //   item.resolved = event.checked;
+
+  //   const payload = {
+  //     CapaId: item.capaId,
+  //     Status: item.status != null ? item.status.toString() : null,
+  //     IsResolved: item.resolved
+  //   };
+
+  //   this.api.updateCapaStatus(payload).subscribe((res: any) => {
+  //     if (res.success) {
+  //       this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
+  //     }
+  //   });
+  // }
+
+
   onResolvedChange(item: any, event: any) {
-    if (!this.canUpdate) return; // Guard clause
+    // 🔥 Guard clause: Block if they are NOT a supplier, or if they lack update permissions
+    if (!this.isSupplier || !this.canUpdate) return; 
 
     item.resolved = event.checked;
 
@@ -437,7 +463,6 @@ export class PauditsActionsComponent implements OnInit {
       }
     });
   }
-
   scrollRight() {
     const container = document.getElementById('grid-table-container');
     if (container) container.scrollBy({ left: 300, behavior: 'smooth' });

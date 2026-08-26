@@ -1,4 +1,3 @@
-
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -6,8 +5,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
-
-
 
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { CustomOverlayContainer } from './theme/utils/custom-overlay-container';
@@ -35,7 +32,7 @@ import { ApplicationsComponent } from './theme/components/applications/applicati
 import { MessagesComponent } from './theme/components/messages/messages.component';
 import { UserMenuComponent } from './theme/components/user-menu/user-menu.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-//import { BoxChartModule } from '@swimlane/ngx-charts';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -68,9 +65,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorComponent } from './pages/error/error.component';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-//import { MatCardModule } from '@angular/material/card/card-module';
 import { MatBadgeModule } from '@angular/material/badge';
-// import { LogissueInnerForm2Component } from './pages/logissue-inner-form2/logissue-inner-form2.component';
+
 import { LogissueInnerFormComponent } from './pages/logissue-inner-form/logissue-inner-form.component';
 import exporting from 'highcharts/modules/exporting.src';
 import windbarb from 'highcharts/modules/windbarb.src';
@@ -112,23 +108,16 @@ import { UserNotificationComponent } from './theme/components/notification/user-
 import { StatusChangeComponent } from './status-change/status-change.component';
 import { ColumnSelectorComponent } from './pages/column-selector/column-selector.component';
 import { NotificationsInboxComponent } from './theme/components/notification/notifications-inbox/notifications-inbox.component';
-// import { SupplierLoginComponent } from './pages/supplier-login/supplier-login.component';
-
-
-
-
-
+import { SentMailsDialogComponent } from './sent-mails-dialog/sent-mails-dialog.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { UserIdInterceptor } from './shared/user-id.interceptor'; // Ensure this path matches where you saved it!
 
 export function highchartsModules() {
-  // apply Highcharts Modules to this array
   return [exporting, windbarb];
 }
 
-
 @NgModule({
   imports: [
-
-
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
@@ -138,14 +127,11 @@ export function highchartsModules() {
     PipesModule,
     AppRoutingModule,
     NgxChartsModule,
-    //BoxChartModule,
-    //NgxChartsModule,
     FlexLayoutModule,
     MatCardModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatButtonToggleModule,
-    MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
     MatDatepickerModule,
@@ -177,12 +163,7 @@ export function highchartsModules() {
     PerfectScrollbarModule,
     MatBadgeModule,
     HighchartsChartModule,
-    //ChartModule,
-    NgxChartsModule,
-    
-
     DragulaModule.forRoot()
-
   ],
   declarations: [
     AppComponent,
@@ -197,7 +178,6 @@ export function highchartsModules() {
     ApplicationsComponent,
     MessagesComponent,
     UserMenuComponent,
-    //LogissueInnerForm2Component,
     LogissueInnerFormComponent,
     TestingComponent,
     ComplaintsComponent,
@@ -206,12 +186,10 @@ export function highchartsModules() {
     AddCapaComponent,
     AttendanceComponent,
     MeetingComponent,
-
     AddMeetingPageComponent,
     ReferenceNumberComponent,
     AddtractorsComponent,
     AddtestsComponent,
-
     MSectionsComponent,
     AddsecComponent,
     FiletrCurrentStatusComponent,
@@ -234,26 +212,14 @@ export function highchartsModules() {
     StatusChangeComponent,
     ColumnSelectorComponent,
     NotificationsInboxComponent,
-    // SupplierLoginComponent,
-
-
-
-
-
-
-
-
-
-
-
-
+    SentMailsDialogComponent
   ],
   providers: [
     AppSettings,
-    // { provide: HIGHCHARTS_MODULES, useFactory: highchartsModules },
     { provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG },
     { provide: OverlayContainer, useClass: CustomOverlayContainer },
-    { provide: LocationStrategy, useClass: HashLocationStrategy }
+    { provide: LocationStrategy, useClass: HashLocationStrategy },
+    { provide: HTTP_INTERCEPTORS, useClass: UserIdInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

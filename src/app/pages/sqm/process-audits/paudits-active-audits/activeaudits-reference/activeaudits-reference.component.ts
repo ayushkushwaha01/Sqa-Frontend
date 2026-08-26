@@ -29,7 +29,7 @@ export class ActiveauditsReferenceComponent implements OnInit {
   selectedStep = 10;
 
   // Form Controls Models
-  rating = '5';
+  rating = 'NA';
   
   // Dropdown Options
   severities = [
