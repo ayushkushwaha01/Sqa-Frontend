@@ -89,7 +89,13 @@ export class PartsFamiliesComponent implements OnInit {
   }
 
   getPartsFamilies() {
-    this._setupService.getPartFamilies(this.filterForm.value).subscribe((res: any) => {
+    const userId = localStorage.getItem('UserId');
+
+    const filter = {
+      ...this.filterForm.value,
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getPartFamilies(filter).subscribe((res: any) => {
       if (res.success) {
 
         this.partsFamilies = res.data.data || [];
@@ -188,7 +194,15 @@ export class PartsFamiliesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        this._setupService.deletePartFamily(item).subscribe({
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+
+        console.log('Delete Part Family Payload:', payload);
+        this._setupService.deletePartFamily(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert(res.message, 1);
@@ -210,7 +224,13 @@ export class PartsFamiliesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        this._setupService.changeStatusPartFamily(item).subscribe({
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+        this._setupService.changeStatusPartFamily(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert(res.message, 1);

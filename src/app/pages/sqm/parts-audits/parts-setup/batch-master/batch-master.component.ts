@@ -72,7 +72,15 @@ export class BatchMasterComponent implements OnInit {
 
   BatchMasters: any[] = [];
   getBatchMaster() {
-    this._setupService.getBatchMaster(this.filterForm.value)
+
+
+    const userId = localStorage.getItem('UserId');
+
+    const payload = {
+      ...this.filterForm.value,
+      UserId: userId ? Number(userId) : null
+    };
+    this._setupService.getBatchMaster(payload)
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -111,7 +119,13 @@ export class BatchMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        this._setupService.deleteBatchMaster(item).subscribe({
+        const userId = localStorage.getItem('UserId');
+
+        const payload = {
+          ...item,
+          UserId: userId ? Number(userId) : null
+        };
+        this._setupService.deleteBatchMaster(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert(res.message, 1);

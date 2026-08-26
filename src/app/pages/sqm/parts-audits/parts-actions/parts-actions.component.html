@@ -319,7 +319,7 @@
               </td>
 
               <!-- Resolved -->
-              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+              <!-- <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
@@ -327,7 +327,14 @@
                   (click)="$event.preventDefault(); changeResolvedStatus(applicant)">
                 </mat-checkbox>
 
+              </td> -->
+              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <mat-checkbox [checked]="applicant.isResolved" color="primary" [disabled]="true">
+                </mat-checkbox>
               </td>
+
 
               <!-- Docs -->
               <td *ngSwitchCase="'Docs'" class="text-center text-primary" [class.disable-custom]="!canUpdate"
@@ -436,7 +443,8 @@
                 [style.min-width.px]="getColumnWidth(col)">
 
                 <!-- Shows the delay number in bold red if overdue -->
-                <span [ngStyle]="{'color': applicant.calculatedDelayInDays > 0 ? 'red' : 'inherit', 'font-weight': applicant.calculatedDelayInDays > 0 ? 'bold' : 'normal'}">
+                <span
+                  [ngStyle]="{'color': applicant.calculatedDelayInDays > 0 ? 'red' : 'inherit', 'font-weight': applicant.calculatedDelayInDays > 0 ? 'bold' : 'normal'}">
                   {{ applicant.calculatedDelayInDays > 0 ? applicant.calculatedDelayInDays : '-' }}
                 </span>
 
@@ -492,6 +500,15 @@
 
               </td>
 
+              <!-- Delay In Days -->
+              <!-- <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                {{ applicant.delayInDays ?? '-' }}
+
+              </td> -->
+
               <!-- Completion Date -->
               <td *ngSwitchCase="'Completion Date'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
@@ -515,7 +532,7 @@
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                {{ applicant.occurrence ?? '-' }}
+                {{ applicant.occurrenceRating ?? '-' }}
 
               </td>
 
@@ -524,7 +541,7 @@
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                {{ applicant.detection ?? '-' }}
+                {{ applicant.detectionRating ?? '-' }}
 
               </td>
 
