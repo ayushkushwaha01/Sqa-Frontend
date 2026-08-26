@@ -3,6 +3,7 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: 10px;
+    margin-left: -14px;
   ">
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
     class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
@@ -343,11 +344,25 @@
 
 
               <!-- Resolved -->
-              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+              <!-- <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
                 <mat-checkbox [checked]="applicant.resolved" color="primary">
+                </mat-checkbox>
+
+              </td> -->
+
+              <!-- Resolved -->
+              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- 🔥 Added ngModel and change event to make it clickable! -->
+                <mat-checkbox 
+                  [(ngModel)]="applicant.resolved" 
+                  (change)="onResolvedChange(applicant, $event)"
+                  color="primary">
                 </mat-checkbox>
 
               </td>

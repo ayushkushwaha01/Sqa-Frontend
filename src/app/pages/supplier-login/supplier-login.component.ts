@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PageHeaderService } from 'src/app/shared/page-header.service';
 
 @Component({
   selector: 'app-supplier-login',
@@ -7,9 +8,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SupplierLoginComponent implements OnInit {
 
-  constructor() { }
+  constructor(private pageHeaderService: PageHeaderService) { }
 
   ngOnInit(): void {
+    this.pageHeaderService.setSidenavWidth(0);
   }
 
 }

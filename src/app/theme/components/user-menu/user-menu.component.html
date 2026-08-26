@@ -1,39 +1,3 @@
-<!-- <button mat-icon-button [matMenuTriggerFor]="userMenu" #userMenuTrigger="matMenuTrigger" >
-    <mat-icon style="color:white ;">account_circle</mat-icon>
-</button>
-
-<mat-menu #userMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu user-menu">
-    
-        <mat-toolbar >
-            <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
-                <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6">
-                <p>Emilio Verdines <br> <small>Web developer</small></p>
-            </div>  
-        </mat-toolbar>
-       
-        <a mat-menu-item routerLink="/"> 
-            <mat-icon>lock</mat-icon>
-            <span>Lock screen</span> 
-        </a>
-<div class="divider"></div>
-        <a mat-menu-item routerLink="/"> 
-            <mat-icon>password</mat-icon>
-            <span>Change Password</span> 
-        </a>
-        
-        <div class="divider"></div>
-        <a mat-menu-item routerLink="/login"> 
-            <mat-icon>power_settings_new</mat-icon>
-            <span>Log out</span> 
-        </a>
-   
-</mat-menu> -->
-
-
-
-
-
-<!-- after introducing supplier login -->
 <button mat-icon-button [matMenuTriggerFor]="userMenu" #userMenuTrigger="matMenuTrigger">
     <mat-icon style="color:white;">account_circle</mat-icon>
 </button>
@@ -55,10 +19,10 @@
         <mat-icon>lock</mat-icon>
         <span>Lock screen</span> 
     </a>
-    <a mat-menu-item disabled> 
-        <mat-icon>password</mat-icon>
-        <span>Change Password</span> 
-    </a>
+    <button mat-menu-item (click)="openChangePassword()">
+    <mat-icon>password</mat-icon>
+    <span>Change Password</span>
+</button>
     
     <mat-divider></mat-divider>
     

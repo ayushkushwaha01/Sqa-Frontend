@@ -8,7 +8,6 @@ import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { EditUserComponent } from './users/edit-user/edit-user.component';
 import { ProjPermComponent } from './users/proj-perm/proj-perm.component';
-import { ResetPasswordDialogComponent } from './users/reset-password-dialog/reset-password-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AddRolesComponent } from './roles/add-roles/add-roles.component';
@@ -48,7 +47,6 @@ export const routes = [
     UsersComponent,
     EditUserComponent,
     ProjPermComponent,
-    ResetPasswordDialogComponent,
     AddRolesComponent,
     PermissionComponent,
     SplPermissionsComponent,

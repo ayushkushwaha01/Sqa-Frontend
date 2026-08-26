@@ -21,6 +21,7 @@ import { CapaEditPopComponent } from './capa-edit-pop/capa-edit-pop.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
 
 @Component({
   selector: 'app-inspection-capa',
@@ -57,7 +58,8 @@ export class InspectionCapaComponent implements OnInit {
     private inspectionService: InspectionService,
     private datePipe: DatePipe,
     private alertService: AlertService,
-    private partAuditService: PartAuditService
+    private partAuditService: PartAuditService,
+    private manageUserService: ManageUsersService
   ) { }
 
   ngOnInit(): void {
@@ -81,13 +83,23 @@ export class InspectionCapaComponent implements OnInit {
 
     this.fetchPendingCapas();
     this.loadGridColumns();
+    this.manageUserService.triggerInspectionEscalations().subscribe({
+      next: () => console.log('Inspection Escalation Matrix Executed!'),
+      error: (err) => console.error('Failed to run Inspection Escalations', err)
+    });
   }
 
   fetchPendingCapas() {
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
        if (res.success && res.data) {
-          this.tableList = res.data.map((item: any) => {
+          const sortedData = (res.data || []).sort((a: any, b: any) => {
+            if (b.capaId && a.capaId && b.capaId !== a.capaId) {
+              return b.capaId - a.capaId;
+            }
+            return (b.reference || '').localeCompare(a.reference || '', undefined, { numeric: true });
+          });
+          this.tableList = sortedData.map((item: any) => {
 
             let delayVal: any = 'N/A';
             let calculatedDelay = 0; // 🔥 Added for the Red Flag UI
@@ -103,7 +115,7 @@ export class InspectionCapaComponent implements OnInit {
                 delayVal = Math.floor(diffTime / (1000 * 60 * 60 * 24));
                 
                 // 🔥 If it's NOT resolved, and NOT completed, mark it as overdue for the UI
-                if (!item.resolved && !item.completion) {
+                if (!item.resolved) {
                   calculatedDelay = delayVal;
                 }
               } else {

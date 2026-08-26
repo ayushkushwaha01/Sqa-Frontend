@@ -1,7 +1,6 @@
 <!-- 🔥 Show Access Denied message if user cannot read 🔥 -->
 <div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
   <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
-    <mat-icon style="font-size: 60px; height: 60px; width: 60px; color: #e53e3e;" class="mb-3">lock</mat-icon>
     <h3 class="text-danger font-weight-bold">Access Denied</h3>
     <p class="text-muted">You do not have permission to view the Audit Dashboard.</p>
     <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
@@ -168,10 +167,9 @@
       </div>
 
       <!-- ======================= RIGHT COLUMN ======================= -->
-      <div class="col-md-6">
+      <!-- <div class="col-md-6">
 
-        <!-- COMPLIANCE PASS/FAIL (LOCKED) -->
-        <fieldset [disabled]="isSupplier || !hasEditAccess"
+         <fieldset [disabled]="isSupplier || !hasEditAccess"
           [ngClass]="{'supplier-locked': isSupplier || !hasEditAccess}">
           <div class="form-group row align-items-center mb-3">
             <label class="col-sm-4 col-form-label fw-bold">Compliance : <span class="text-danger">*</span></label>
@@ -190,8 +188,7 @@
           </div>
         </fieldset>
 
-        <!-- CAPA SECTION -->
-        <fieldset [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+         <fieldset [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
           <div class="form-group row align-items-center mb-3">
             <label class="col-sm-4 col-form-label fw-bold">Class :</label>
             <div class="col-sm-8">
@@ -257,6 +254,117 @@
               [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'"></textarea>
           </div>
         </fieldset>
+
+         <div class="form-group mb-3">
+          <label class="fw-bold mb-2">Corrective Actions :</label>
+          <textarea rows="4" [(ngModel)]="correctiveActions" class="form-control custom-textarea"
+            [disabled]="!hasEditAccess || complianceStatus === 'Pass'"></textarea>
+        </div>
+
+         <div class="form-group mb-4 mt-3">
+          <label class="fw-bold mb-2">Preventive Actions :</label>
+          <textarea rows="4" [(ngModel)]="supplierRemarks" class="form-control custom-textarea"
+            [disabled]="!hasEditAccess || complianceStatus === 'Pass'"></textarea>
+        </div>
+      </div> -->
+
+      <!-- ======================= RIGHT COLUMN ======================= -->
+      <div class="col-md-6">
+
+        <!-- COMPLIANCE PASS/FAIL (LOCKED FOR EVERYONE EXCEPT AUDITOR) -->
+        <fieldset [disabled]="isSupplier || !hasEditAccess"
+          [ngClass]="{'supplier-locked': isSupplier || !hasEditAccess}">
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Compliance : <span class="text-danger">*</span></label>
+            <div class="col-sm-8 d-flex align-items-center gap-5">
+              <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold mb-0" style="margin-top: 2px;">Pass :</label>
+                <mat-checkbox style="margin-bottom:-5px" [checked]="complianceStatus === 'Pass'"
+                  (change)="complianceStatus = $event.checked ? 'Pass' : ''"></mat-checkbox>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold mb-0" style="margin-top: 2px;">Fail :</label>
+                <mat-checkbox style="margin-bottom:-5px" [checked]="complianceStatus === 'Fail'"
+                  (change)="complianceStatus = $event.checked ? 'Fail' : ''"></mat-checkbox>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- CAPA AUDITOR SECTION (LOCKED FOR SUPPLIER) -->
+        <fieldset [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Class :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedClass" placeholder="Select Class">
+                <mat-option *ngFor="let cls of classOptions" [value]="cls">{{ cls }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">CAPA Subject : <span class="text-danger"
+                *ngIf="complianceStatus === 'Fail'">*</span></label>
+            <div class="col-sm-8">
+              <input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Log Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="logDate" class="form-control"
+                [disabled]="isSupplier || !hasEditAccess || complianceStatus === 'Pass'">
+            </div>
+          </div>
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Due Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="dueDate" class="form-control">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Completed Date :</label>
+            <div class="col-sm-8">
+              <input type="date" [(ngModel)]="completedDate" class="form-control">
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">PDCA Status :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="pdcaStatus" placeholder="Select PDCA Status">
+                <mat-option *ngFor="let status of pdcaStatuses" [value]="status">{{ status }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          <div class="form-group row align-items-center mb-4">
+            <label class="col-sm-4 col-form-label fw-bold">Action Type :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="actionType" placeholder="Select Action Type">
+                <mat-option *ngFor="let type of actionTypes" [value]="type">{{ type }}</mat-option>
+              </mat-select>
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label class="fw-bold mb-2">Auditor Remarks :</label>
+            <textarea rows="4" [(ngModel)]="remarks" class="form-control custom-textarea"></textarea>
+          </div>
+        </fieldset>
+        <!-- 🔥 END OF LOCKED FIELDSET 🔥 -->
+
+        <!-- 🔥 MARK AS RESOLVED: MOVED OUTSIDE THE FIELDSET! -->
+        <div class="form-group row align-items-center mb-3 mt-3">
+          <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
+          <div class="col-sm-8 d-flex align-items-center">
+            
+            <!-- 🔥 [disabled]="!isSupplier" means ONLY the Supplier can click this! -->
+            <mat-checkbox [(ngModel)]="isResolved"
+              [disabled]="!isSupplier || !hasEditAccess || complianceStatus === 'Pass'"
+              color="primary">
+            </mat-checkbox>
+
+          </div>
+        </div>
 
         <!-- CORRECTIVE ACTIONS: EDITABLE BY SUPPLIER & AUDITOR -->
         <div class="form-group mb-3">

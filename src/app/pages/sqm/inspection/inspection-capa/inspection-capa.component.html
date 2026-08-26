@@ -203,9 +203,33 @@
 
 
             <!-- CAPA SUBJECT -->
-            <td *ngIf="activeColumns.includes('CAPA Subject')" class="text-center">
+            <!-- <td *ngIf="activeColumns.includes('CAPA Subject')" class="text-center">
 
               {{ applicant?.actionSubject }}
+
+            </td> -->
+
+            <!-- CAPA SUBJECT -->
+            <td *ngIf="activeColumns.includes('CAPA Subject')" class="text-center">
+
+              <!-- 🔥 If Escalated / Overdue -->
+              <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
+                <span style="color: red; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">
+                  <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">flag</mat-icon>
+                  {{ applicant?.actionSubject || '-' }}
+                </span>
+                <br>
+                <span style="font-size: 12px; color: blue;">
+                  (Delay: {{ applicant.calculatedDelayInDays }} Days)
+                </span>
+              </div>
+
+              <!-- Normal / Not Overdue -->
+              <ng-template #normalSubject>
+                <div style="line-height: 1.4;">
+                  <span>{{ applicant?.actionSubject || '-' }}</span>
+                </div>
+              </ng-template>
 
             </td>
 

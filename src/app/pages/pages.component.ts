@@ -6,9 +6,9 @@ import { Settings } from '../app.settings.model';
 import { MenuService } from '../theme/components/menu/menu.service';
 import { filter } from 'rxjs/operators';
 import { PageHeaderService } from '../shared/page-header.service';
-
-
-
+import { MatDialog } from '@angular/material/dialog';
+import { SentMailsDialogComponent } from '../sent-mails-dialog/sent-mails-dialog.component';
+import { ManageUsersService } from './admin/manage-user/manage-users.service';
 
 @Component({
   selector: 'app-pages',
@@ -20,6 +20,7 @@ export class PagesComponent implements OnInit {
   showBreadcrumb = true;
   showBackBtn = false;
   sidenavWidth = 0;
+  sentMailsCount = 0;
   @ViewChild('sidenav') sidenav: any;
   @ViewChild('backToTop') backToTop: any;
   @ViewChildren(PerfectScrollbarDirective) pss!: QueryList<PerfectScrollbarDirective>;
@@ -37,25 +38,8 @@ export class PagesComponent implements OnInit {
     '/app/prts-part',
     '/app/prtsnavbar',
     '/app/prtsonepager',
-    // '/base-info',
-    // '/alert',
-    // '/updates',
-    // '/mitigation',
-    // '/document',
-    // '/grid-view',
-    // '/calenders',
-    // '/moniter',
-    // '/action-grid-calender/grid-meet',
-    // '/d1',
-    // '/d2',
-    // '/d3',
-    // '/d3-b',
-    // '/d4',
-    // '/d4-b',
-    // '/d5',
-    // '/d6',
-    // '/d7',
-    // '/closure'
+    '/app/sent-mails',
+    '/app/notifications'
   ];
 
   constructor(
@@ -63,7 +47,9 @@ export class PagesComponent implements OnInit {
     public router: Router,
     private menuService: MenuService,
     public pageHeaderService: PageHeaderService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private manageUsersService: ManageUsersService
   ) {
 
     this.settings = this.appSettings.settings;
@@ -72,6 +58,9 @@ export class PagesComponent implements OnInit {
     const checkUrl = (url: string) => {
       const path = url.split('?')[0];
       this.showBreadcrumb = !this.hiddenRoutes.some(route => path.startsWith(route));
+      if (!path.startsWith('/app/sqm')) {
+        this.pageHeaderService.setSidenavWidth(0);
+      }
     };
 
     checkUrl(this.router.url);
@@ -93,6 +82,27 @@ export class PagesComponent implements OnInit {
     this.menuOption = this.settings.menu;
     this.menuTypeOption = this.settings.menuType;
     this.defaultMenu = this.settings.menu;
+    this.fetchSentMailsCount();
+  }
+
+  fetchSentMailsCount(): void {
+    const storedUserId = localStorage.getItem('UserId');
+    const currentUserId = storedUserId ? parseInt(storedUserId, 10) : 0;
+    const currentUserType = localStorage.getItem('UserType') || 'Internal';
+
+    if (currentUserId === 0) return;
+
+    this.manageUsersService.getSentMails(currentUserId, currentUserType).subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          const list = res.data.filter((m: any) => m.moduleName !== 'System Escalation');
+          this.sentMailsCount = list.length;
+        }
+      },
+      error: (err: any) => {
+        console.error('Error fetching sent mails count', err);
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -221,5 +231,9 @@ export class PagesComponent implements OnInit {
   }
   alerts() {
     this.router.navigate(['/app/prts-part/new-alerts']);
+  }
+
+  openSentMails() {
+    this.router.navigate(['/app/sent-mails']);
   }
 }

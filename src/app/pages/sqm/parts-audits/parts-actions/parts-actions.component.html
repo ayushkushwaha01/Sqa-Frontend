@@ -18,6 +18,7 @@
   </button>
 </div>
 
+
 <div class="col-sm-12" style="overflow: hidden; width: 100%;">
 
   <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle">
@@ -369,12 +370,11 @@
               </td> -->
 
               <!-- 🔥 CAPA Subject (WITH RED FLAG ESCALATION UI) -->
-              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                <!-- If Escalated / Overdue -->
-                <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
+                 <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
                   <span style="color: red; font-weight: 600;">
                     <i class="fa fa-flag" style="margin-right: 4px;"></i>
                     {{ applicant.capaSubject || '-' }}
@@ -383,12 +383,52 @@
                   <span style="font-size: 12px; color: blue;">(Delay: {{ applicant.calculatedDelayInDays }} Days)</span>
                 </div>
 
-                <!-- Normal / Not Overdue -->
-                <ng-template #normalSubject>
+                 <ng-template #normalSubject>
                   {{ applicant.capaSubject || '-' }}
                 </ng-template>
 
+              </td> -->
+
+              <!-- 🔥 CAPA Subject (WITH RED FLAG ESCALATION UI) -->
+              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- If Escalated / Overdue -->
+                <div *ngIf="applicant.calculatedDelayInDays > 0; else normalSubject" style="line-height: 1.4;">
+                  <span style="color: red; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">flag</mat-icon>
+                    {{ applicant.subject || applicant.capaSubject || '-' }}
+                  </span>
+                  <br>
+                  <span style="font-size: 12px; color: blue;">
+                    (Delay: {{ applicant.calculatedDelayInDays }} Days)
+                  </span>
+                </div>
+
+                <!-- Normal / Not Overdue -->
+                <ng-template #normalSubject>
+                  <div style="line-height: 1.4;">
+                    <span>{{ applicant.subject || applicant.capaSubject || '-' }}</span>
+                  </div>
+                </ng-template>
+
               </td>
+
+              <!-- 🔥 Delay In Days -->
+              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- Shows the delay number in bold red if overdue -->
+                <span [ngStyle]="{
+                  'color': applicant.calculatedDelayInDays > 0 ? 'red' : 'inherit', 
+                  'font-weight': applicant.calculatedDelayInDays > 0 ? 'bold' : 'normal'
+                }">
+                  {{ applicant.delayInDays }}
+                </span>
+
+              </td> 
 
               <!-- 🔥 Delay In Days (Uses new calculated variable) -->
               <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
@@ -449,15 +489,6 @@
                 [style.min-width.px]="getColumnWidth(col)">
 
                 {{ applicant.dueDate | date:'MM/dd/yyyy' }}
-
-              </td>
-
-              <!-- Delay In Days -->
-              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
-
-                {{ applicant.delayInDays ?? '-' }}
 
               </td>
 

@@ -7,6 +7,7 @@ import { ConfirmationDialogComponent } from '../../../../../shared/confirmation-
 import { StatusChangeComponent } from '../../../../../status-change/status-change.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
+
 @Component({
   selector: 'app-process-audits-categories',
   templateUrl: './process-audits-categories.component.html',
@@ -39,19 +40,39 @@ export class ProcessAuditsCategoriesComponent implements OnInit {
     private alertService: AlertService
   ) { }
 
+  // ngOnInit(): void {
+  //   const gridLength = localStorage.getItem('GridLength');
+
+  //   if (gridLength) {
+  //     this.pageSize = Number(gridLength);
+  //   }
+  //   this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+  //   this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+  //   this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+  //   this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+  //   this.getCategories();
+  // }
+
+
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
 
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
+    
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
     this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
+    // 🔥 THE FIX: Stop loading data if they don't have read access!
+    if (!this.canRead) return;
+
     this.getCategories();
   }
 
+  
   getCategories(): void {
     this.api.getCategories().subscribe((res: any) => {
 

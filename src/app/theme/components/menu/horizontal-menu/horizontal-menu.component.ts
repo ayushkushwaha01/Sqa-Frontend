@@ -39,12 +39,12 @@ export class HorizontalMenuComponent implements OnInit {
 
   ngOnInit() {
     const isClient = localStorage.getItem("isClient");
-    const userType = localStorage.getItem("userType");
+    const userType = localStorage.getItem("UserType") || localStorage.getItem("userType");
 
     // 1. Determine which menu list to use
     let activeMenuArray = [];
 
-    if (userType === "supplier") {
+    if (userType === "Supplier" || userType === "supplier") {
       activeMenuArray = supplierMenuItems; // Use the imported supplier menu
     } else if (isClient && JSON.parse(isClient) == true) {
       activeMenuArray = this.menuService.getClientMenuItems();

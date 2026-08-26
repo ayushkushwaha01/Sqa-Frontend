@@ -72,7 +72,7 @@ export class PartsActionsComponent implements OnInit {
     this.formInit();
     this.getCapas();
     this.loadGridColumns();
-    this.getLookups();
+    this.getLookups();  
 
     this.manageUserService.triggerPartsEscalations().subscribe({
       next: () => console.log('Parts Escalation Matrix Executed'),
@@ -183,28 +183,62 @@ export class PartsActionsComponent implements OnInit {
 
     this.partAuditService.getAllCaps(filter)
       .subscribe((res: any) => {
-
         if (res.success) {
-          
-          // 🔥 NEW: Calculate Delay In Days dynamically for the UI
-          this.allcaps = res.data.data.map((capa: any) => {
-            let calculatedDelay = 0;
+          const sortedCaps = (res.data?.data || []).sort((a: any, b: any) => {
+            if (b.capaId && a.capaId && b.capaId !== a.capaId) {
+              return b.capaId - a.capaId;
+            }
+            return (b.reference || '').localeCompare(a.reference || '', undefined, { numeric: true });
+          });
+          // this.allcaps = sortedCaps.map((capa: any) => {
+          //   let calculatedDelay = 0;
             
-            // If it has a due date, and is NOT resolved or completed
-            if (capa.dueDate && !capa.resolved && !capa.completedDate) {
-              const due = new Date(capa.dueDate).getTime();
-              const today = new Date().getTime();
+          //   // If it has a due date, and is NOT resolved or completed
+          //   if (capa.dueDate && !capa.resolved && !capa.completedDate) {
+          //     const due = new Date(capa.dueDate).getTime();
+          //     const today = new Date().getTime();
               
-              if (today > due) {
-                // Calculate exact days between today and due date
-                calculatedDelay = Math.floor((today - due) / (1000 * 3600 * 24));
+          //     if (today > due) {
+          //       // Calculate exact days between today and due date
+          //       calculatedDelay = Math.floor((today - due) / (1000 * 3600 * 24));
+          //     }
+          //   }
+
+          //   return {
+          //     ...capa,
+          //     // Use backend delay if it exists, otherwise use our real-time calculated delay
+          //     calculatedDelayInDays: capa.delayInDays > 0 ? capa.delayInDays : calculatedDelay
+          //   };
+          // });
+
+          this.allcaps = sortedCaps.map((capa: any) => {
+            let delayVal: any = '-';
+            let calculatedDelay = 0;
+
+            // 🔥 FIX: Calculate real delay using the exact same logic as Inspection
+            if (capa.dueDate) {
+              const due = new Date(capa.dueDate);
+              const completion = capa.completedDate ? new Date(capa.completedDate) : new Date();
+              due.setHours(0, 0, 0, 0);
+              completion.setHours(0, 0, 0, 0);
+              const diffTime = completion.getTime() - due.getTime();
+
+              if (diffTime > 0) {
+                delayVal = Math.floor(diffTime / (1000 * 3600 * 24));
+
+                // 🔥 FIX: Check 'isResolved' (Not 'resolved') and keep flag active until checked!
+                if (!capa.isResolved) {
+                  calculatedDelay = delayVal;
+                }
+              } else {
+                delayVal = '-';
               }
             }
 
             return {
               ...capa,
-              // Use backend delay if it exists, otherwise use our real-time calculated delay
-              calculatedDelayInDays: capa.delayInDays > 0 ? capa.delayInDays : calculatedDelay
+              delayInDays: delayVal,
+              calculatedDelayInDays: calculatedDelay
             };
           });
 

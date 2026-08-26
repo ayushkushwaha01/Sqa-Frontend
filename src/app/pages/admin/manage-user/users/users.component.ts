@@ -10,6 +10,7 @@ import { AlertService } from 'src/app/shared/alert.service'; // Make sure this p
 import { ManagerDialogComponent } from './manager-dialog/manager-dialog.component';
 import { ResetPasswordDialogComponent } from './reset-password-dialog/reset-password-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
+import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
 @Component({
   selector: 'app-users',
@@ -17,6 +18,12 @@ import { StatusChangeComponent } from 'src/app/status-change/status-change.compo
   styleUrls: ['./users.component.scss']
 })
 export class UsersComponent implements OnInit {
+
+  canRead: boolean = false;
+  canCreate: boolean = false;
+  canUpdate: boolean = false;
+  canDelete: boolean = false;
+  readonly SCREEN_ID: number = 3;
 
   dataSource = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -42,9 +49,26 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    const gridLength = localStorage.getItem('GridLength');
+  // ngOnInit() {
+  //   const gridLength = localStorage.getItem('GridLength');
 
+  //   if (gridLength) {
+  //     this.pageSize = Number(gridLength);
+  //   }
+  //   this.getAllUsers();
+  // }
+
+  ngOnInit() {
+    // 🔥 3. Load Permissions
+    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
+    // Stop loading data if they can't even read
+    if (!this.canRead) return;
+
+    const gridLength = localStorage.getItem('GridLength');
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
@@ -63,7 +87,24 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  // openEditDialog(item: any = null) {
+  //   let dialogRef = this.dialog.open(EditUserComponent, {
+  //     data: item,
+  //     height: 'auto',
+  //     width: '850px'
+  //   });
+
+  //   dialogRef.afterClosed().subscribe(data => {
+  //     if (data) {
+  //       this.getAllUsers();
+  //     }
+  //   });
+  // }
+
   openEditDialog(item: any = null) {
+    if (!item && !this.canCreate) return; // Block Add
+    if (item && !this.canUpdate) return; // Block Edit
+
     let dialogRef = this.dialog.open(EditUserComponent, {
       data: item,
       height: 'auto',
@@ -77,7 +118,32 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  // toggleStatus(item: any) {
+  //   let dialogRef = this.dialog.open(StatusChangeComponent, {
+  //     width: '360px',
+  //     panelClass: 'no-padding-dialog',
+  //     disableClose: true
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((result: any) => {
+  //     if (result) {
+  //       this.api.toggleUserStatus(item).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             item.isActive = !item.isActive;
+  //             this.alertService.createAlert(res.message, 1);
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
   toggleStatus(item: any) {
+    if (!this.canUpdate) return; // 🔥 Safety Guard
+
     let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',
       panelClass: 'no-padding-dialog',
@@ -100,7 +166,32 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  // deleteConfirmation(item: any) {
+  //   let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+  //     width: '360px',
+  //     panelClass: 'no-padding-dialog',
+  //     data: { title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((result: any) => {
+  //     if (result) {
+  //       this.api.deleteUser(item).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getAllUsers();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
   deleteConfirmation(item: any) {
+    if (!this.canDelete) return; // 🔥 Safety Guard
+
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '360px',
       panelClass: 'no-padding-dialog',
@@ -128,11 +219,20 @@ export class UsersComponent implements OnInit {
     return managerStr.split(',').filter(x => x).length;
   }
 
+  // openManagersDialog(managerStr: string) {
+  //   if (!managerStr) return; // Do nothing if 0 managers
+
+  //   this.dialog.open(ManagerDialogComponent, {
+  //     data: managerStr, // Pass the "1,4" string to the popup
+  //     width: '350px'
+  //   });
+  // }
+
   openManagersDialog(managerStr: string) {
-    if (!managerStr) return; // Do nothing if 0 managers
+    if (!managerStr || !this.canUpdate) return; // Do nothing if 0 managers or no access
 
     this.dialog.open(ManagerDialogComponent, {
-      data: managerStr, // Pass the "1,4" string to the popup
+      data: managerStr, 
       width: '350px'
     });
   }
@@ -144,7 +244,26 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  // toggleRole(item: any) {
+  //   this.api.upsertUser(item).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success) {
+  //         this.alertService.createAlert('Role updated successfully', 1);
+  //       } else {
+  //         this.alertService.createAlert(res.message, 0);
+  //         this.getAllUsers(); // Revert on failure
+  //       }
+  //     },
+  //     error: () => {
+  //       this.alertService.createAlert('Failed to update role', 0);
+  //       this.getAllUsers(); // Revert on error
+  //     }
+  //   });
+  // }
+
   toggleRole(item: any) {
+    if (!this.canUpdate) return; // 🔥 Safety Guard
+
     this.api.upsertUser(item).subscribe({
       next: (res: any) => {
         if (res.success) {

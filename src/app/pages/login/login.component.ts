@@ -203,9 +203,14 @@ export class LoginComponent implements OnInit {
                 }
               },
               error: () => {
-                // Fallback if permission fetch fails, still let them log in
-                this.alertService.createAlert('Login Successful, but failed to load permissions', 1);
-                this.router.navigate(['/app/sqm/sqmd']);
+                // Fallback if permission fetch fails, still route based on userType
+                if (res.userData?.userType === 'Supplier') {
+                  this.alertService.createAlert('Login Successful', 1);
+                  this.router.navigate(['/app/supplier-login/dashboard']);
+                } else {
+                  this.alertService.createAlert('Login Successful, but failed to load permissions', 1);
+                  this.router.navigate(['/app/sqm/sqmd']);
+                }
               }
             });
           }

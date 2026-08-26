@@ -198,7 +198,7 @@
   </div>
 </div> -->
 
-<div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
+<div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 5px;">
   <button mat-raised-button style="background-color: black; color: white" [class.disable-custom]="!canUpdate"
     class="filter-hover margin-right-10" [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid View'"
     (click)="canUpdate && openColumnSelector()">
@@ -558,7 +558,7 @@
 
 
               <!-- RESOLVED -->
-              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+              <!-- <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
@@ -574,8 +574,25 @@
               " color="primary">
                 </mat-checkbox>
 
-              </td>
+              </td> -->
 
+
+              <!-- RESOLVED -->
+              <td *ngSwitchCase="'Resolved'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- 🔥 Locked if user is NOT a supplier OR lacks update rights -->
+                <mat-checkbox 
+                  [checked]="applicant.resolved" 
+                  [disabled]="!isSupplier || !canUpdate" 
+                  [matTooltip]="!isSupplier ? 'Only Suppliers can mark this as resolved' : ''"
+                  (click)="(!isSupplier || !canUpdate) ? $event.preventDefault() : null" 
+                  (change)="onResolvedChange(applicant, $event)" 
+                  color="primary">
+                </mat-checkbox>
+
+              </td>
 
               <!-- DOCS -->
               <td *ngSwitchCase="'Docs'" class="text-center" [class.frozen-col]="i < frozenCount"
@@ -616,7 +633,7 @@
 
 
               <!-- CAPA SUBJECT -->
-              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
@@ -644,6 +661,54 @@
                   | Threshold: {{ overdueThreshold }})
 
                 </small>
+
+              </td> -->
+
+
+              <!-- CAPA SUBJECT -->
+              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- 🔥 If Escalated / Overdue -->
+                <div *ngIf="applicant.delayInDays >= overdueThreshold; else normalSubject" style="line-height: 1.4;">
+                  <span
+                    style="color: red; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">flag</mat-icon>
+                    {{ applicant.actionSubject || '-' }}
+                  </span>
+                  <br>
+                  <span style="font-size: 12px; color: blue;">
+                    (Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})
+                  </span>
+                </div>
+
+                <!-- Normal / Not Overdue -->
+                <ng-template #normalSubject>
+                  <div style="line-height: 1.4;">
+                    <span>{{ applicant.actionSubject || '-' }}</span>
+                    <br>
+                    <span style="font-size: 12px; color: gray;">
+                      (Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})
+                    </span>
+                  </div>
+                </ng-template>
+
+              </td>
+
+
+              <!-- DELAY IN DAYS -->
+              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- 🔥 Shows the delay number in bold red if overdue -->
+                <span [ngStyle]="{
+                    'color': applicant.delayInDays >= overdueThreshold ? 'red' : 'inherit', 
+                    'font-weight': applicant.delayInDays >= overdueThreshold ? 'bold' : 'normal'
+                  }">
+                  {{ applicant.delayInDays === 0 ? '-' : applicant.delayInDays }}
+                </span>
 
               </td>
 
@@ -727,19 +792,6 @@
 
               </td>
 
-
-              <!-- DELAY IN DAYS -->
-              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
-
-                {{
-                applicant.delayInDays === 0
-                ? '-'
-                : applicant.delayInDays
-                }}
-
-              </td>
 
 
               <!-- COMPLETION DATE -->

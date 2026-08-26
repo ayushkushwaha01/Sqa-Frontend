@@ -1,32 +1,31 @@
 <div class="inbox-container">
 
-  <!-- TOP HEADER WITH 2 SECTION BUTTONS AND SEARCH -->
+  <!-- TOP HEADER WITH TITLE, SEARCH & ACTIONS -->
   <div class="inbox-header">
-    <div class="section-tabs">
-      <button class="section-btn" [class.active]="activeSection === 'mails'" (click)="setSection('mails')">
-        <mat-icon>mail</mat-icon>
-        <span>Mails</span>
-        <span class="count-badge" *ngIf="mailCount > 0">{{ mailCount }}</span>
-      </button>
-
-      <button class="section-btn" [class.active]="activeSection === 'notifications'" (click)="setSection('notifications')">
-        <mat-icon>notifications</mat-icon>
+    <div class="header-left">
+      <div class="section-title">
+        <mat-icon class="notifications-icon">notifications</mat-icon>
         <span>Notifications</span>
         <span class="count-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
-      </button>
+      </div>
     </div>
 
     <div class="search-box">
       <mat-icon class="search-icon">search</mat-icon>
-      <input type="text" [(ngModel)]="searchQuery" [placeholder]="activeSection === 'notifications' ? 'Search notifications...' : 'Search mails...'" />
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search notifications..." />
       <button mat-icon-button *ngIf="searchQuery" (click)="searchQuery=''" class="clear-btn">
         <mat-icon>clear</mat-icon>
       </button>
     </div>
 
-    <button mat-icon-button (click)="goBack()" matTooltip="Back to previous screen" class="back-btn">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
+    <div class="action-buttons">
+      <button mat-icon-button (click)="fetchData()" matTooltip="Refresh Notifications" class="icon-btn">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button (click)="goBack()" matTooltip="Back to previous screen" class="icon-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- MAIN BODY AREA (LEFT LIST + RIGHT READING PANE) -->
@@ -35,7 +34,7 @@
     <!-- LEFT LIST PANE -->
     <div class="list-pane">
       <div class="list-count-header">
-        <span>{{ activeSection === 'notifications' ? 'Notifications' : 'All Mails' }}</span>
+        <span>System Notifications</span>
         <span class="total-count">({{ filteredItems.length }})</span>
       </div>
 
@@ -43,32 +42,21 @@
         <div *ngFor="let item of filteredItems"
              class="item-card"
              [class.selected]="selectedItem?.id === item.id"
-             [class.unread]="!item.isRead"
              (click)="selectItem(item)">
 
           <div class="item-header-row">
-            <span class="item-title">
-              <ng-container *ngIf="item.auditType === 'Help Desk'">{{ item.sender }}</ng-container>
-              <ng-container *ngIf="item.auditType !== 'Help Desk'">{{ item.auditType }}</ng-container>
-            </span>
+            <span class="item-title">{{ item.issue }}</span>
             <span class="item-date">{{ item.date }}</span>
           </div>
 
-          <div class="item-body-row">
-            <span class="item-snippet">
-              <ng-container *ngIf="item.auditType !== 'Help Desk'">
-                {{ item.commodity }} - {{ item.category }}: {{ item.issue || (item.partFamily + ' ' + item.parameter) }}
-              </ng-container>
-              <ng-container *ngIf="item.auditType === 'Help Desk'">
-                {{ item.issue }} ({{ item.moduleName }})
-              </ng-container>
-            </span>
+          <div class="item-snippet-row">
+            <span class="item-snippet" [innerHTML]="getFormattedDescription(item.description)"></span>
           </div>
         </div>
 
         <div class="empty-state" *ngIf="filteredItems.length === 0">
-          <mat-icon>{{ activeSection === 'notifications' ? 'notifications_off' : 'mail_outline' }}</mat-icon>
-          <p>No {{ activeSection }} available</p>
+          <mat-icon>notifications_off</mat-icon>
+          <p>No notifications available</p>
         </div>
       </div>
     </div>
@@ -78,120 +66,37 @@
       <div class="reading-content">
         
         <!-- TITLE -->
-        <h2 class="reading-title">
-          <ng-container *ngIf="selectedItem.auditType !== 'Help Desk'">
-            System Alert: {{ selectedItem.commodity }} - {{ selectedItem.category }}
-          </ng-container>
-          <ng-container *ngIf="selectedItem.auditType === 'Help Desk'">
-            {{ selectedItem.issue }}
-          </ng-container>
-        </h2>
+        <h2 class="reading-title">{{ selectedItem.issue }}</h2>
 
         <!-- SENDER METADATA -->
         <div class="meta-card">
-          <div class="avatar" [class.mail-avatar]="selectedItem.auditType === 'Help Desk'">
-            <mat-icon *ngIf="selectedItem.auditType !== 'Help Desk'">smart_toy</mat-icon>
-            <mat-icon *ngIf="selectedItem.auditType === 'Help Desk'">mail_outline</mat-icon>
+          <div class="avatar bot-avatar">
+            <mat-icon>smart_toy</mat-icon>
           </div>
           <div class="meta-info">
             <div class="name-line">
-              <strong *ngIf="selectedItem.auditType !== 'Help Desk'">SQA System Bot</strong>
-              <strong *ngIf="selectedItem.auditType === 'Help Desk'">SQA Administrator</strong>
-              <span class="email-sub" *ngIf="selectedItem.auditType === 'Help Desk'">&lt;sqa@updates.optionmatrix.in&gt;</span>
-              <span class="email-sub" *ngIf="selectedItem.auditType !== 'Help Desk'">&lt;alerts@sqa.com&gt;</span>
+              <strong>SQA System Bot</strong>
+              <span class="email-sub">&lt;alerts@sqa.com&gt;</span>
               <span class="date-right">{{ selectedItem.date }}</span>
             </div>
-            <div class="to-line">To: You</div>
+            <div class="to-line">Target: Quality Manager & Escalation Matrix</div>
           </div>
         </div>
 
-        <!-- CONTENT DETAIL -->
-        <!-- CONTENT DETAIL -->
+        <!-- CONTENT DETAIL CARD -->
         <div class="body-content">
-          
-          <!-- 1. Standard Audit View (Process & Parts Audits) -->
-          <ng-container *ngIf="selectedItem.auditType === 'Process Audit' || selectedItem.auditType === 'Parts Audit'">
-            <div class="notification-detail-clean">
-              <p class="intro-text">
-                A <strong>{{ selectedItem.auditType }}</strong> alert has been logged for your attention.
-              </p>
-
-              <div class="metadata-grid">
-                <div class="meta-item">
-                  <span class="meta-label">Audit Type</span>
-                  <span class="meta-value bold">{{ selectedItem.auditType }}</span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-label">Commodity</span>
-                  <span class="meta-value">{{ selectedItem.commodity }}</span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-label">Category</span>
-                  <span class="meta-value">{{ selectedItem.category }}</span>
-                </div>
-                <div class="meta-item" *ngIf="selectedItem.partFamily">
-                  <span class="meta-label">Part Family</span>
-                  <span class="meta-value">{{ selectedItem.partFamily }}</span>
-                </div>
-                <div class="meta-item" *ngIf="selectedItem.parameter">
-                  <span class="meta-label">Parameter</span>
-                  <span class="meta-value">{{ selectedItem.parameter }}</span>
-                </div>
-                <div class="meta-item" *ngIf="selectedItem.issue">
-                  <span class="meta-label">Identified Issue</span>
-                  <span class="meta-value issue-highlight">{{ selectedItem.issue }}</span>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-
-          <!-- 🔥 2. NEW: Dedicated System Escalation View 🔥 -->
-          <ng-container *ngIf="selectedItem.auditType === 'System Escalation'">
-            <div style="border-left: 5px solid #f44336; background-color: #fff8f8; padding: 20px; border-radius: 4px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-              <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <mat-icon style="color: #f44336; margin-right: 10px; font-size: 28px; width: 28px; height: 28px;">warning</mat-icon>
-                <h3 style="color: #d32f2f; margin: 0; font-size: 18px; font-weight: 600;">Attention Required</h3>
-              </div>
-              
-              <p style="font-size: 16px; font-weight: 500; color: #333; line-height: 1.5; margin-bottom: 20px;">
-                {{ selectedItem.description }}
-              </p>
-              
-              <div style="background: white; padding: 15px; border-radius: 4px; border: 1px solid #ffcdd2;">
-                <p style="margin: 0; font-size: 14px; color: #555;">
-                  <strong>Action Needed:</strong> Please navigate to the CAPA Management screen to review and resolve this issue immediately.
-                </p>
-              </div>
-            </div>
-          </ng-container>
-
-          <!-- 3. Mail View (Help Desk) -->
-          <ng-container *ngIf="selectedItem.auditType === 'Help Desk'">
-            <div class="mail-details-card">
-              <div class="mail-field">
-                <span class="field-label">From:</span>
-                <span class="field-value font-weight-bold">{{ selectedItem.sender }}</span>
-              </div>
-              <div class="mail-field" *ngIf="selectedItem.moduleName">
-                <span class="field-label">Module:</span>
-                <span class="field-value module-badge">{{ selectedItem.moduleName }}</span>
-              </div>
-              <div class="message-divider"></div>
-              <div class="message-section">
-                <span class="field-label">Message:</span>
-                <p class="message-text">{{ selectedItem.description || 'No description provided.' }}</p>
-              </div>
-            </div>
-          </ng-container>
-
+          <div class="notification-details">
+            <p class="notification-text" [innerHTML]="getFormattedDescription(selectedItem.description)"></p>
+          </div>
         </div>
+
       </div>
     </div>
 
     <!-- Empty Reading Pane -->
     <div class="reading-pane empty" *ngIf="!selectedItem">
-      <mat-icon>mark_email_unread</mat-icon>
-      <p>Select an item to read</p>
+      <mat-icon>notifications_none</mat-icon>
+      <p>Select a notification to read</p>
     </div>
 
   </div>

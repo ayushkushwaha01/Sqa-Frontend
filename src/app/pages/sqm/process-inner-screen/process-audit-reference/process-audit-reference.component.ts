@@ -44,7 +44,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   classOptions = ['Regular', 'Important', 'Critical', 'Fitment', 'Safety'];
 
   // Form Bindings
-  rating = '5';
+  rating = 'NA';
   selectedSeverityId: any = null;
   
   selectedOccurrence: any = null;
@@ -52,6 +52,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   complianceStatus: string = '';
   selectedClass = '';
   capaSubject = '';
+  logDate: any = null
   dueDate: any = null;
   completedDate: any = null;
   pdcaStatus = '';
@@ -89,33 +90,66 @@ export class ProcessAuditReferenceComponent implements OnInit {
     private dialog: MatDialog
   ) { }
 
+  // ngOnInit(): void {
+
+  //   //Screen Permissions
+  //   //  1. Load Permissions First
+  //   this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+  //   this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+  //   this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+  //   this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+
+  //   // 2. Block page load if they cannot read
+  //   if (!this.canRead) return;
+
+
+  //   this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
+  //   this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
+  //   this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
+
+  //   // Check if the user is a supplier via Angular Router OR Raw URL
+  //   this.route.queryParams.subscribe(params => {
+  //     if (params['role'] === 'supplier') {
+  //       this.isSupplier = true;
+  //     }
+  //   });
+  //   if (window.location.href.toLowerCase().includes('role=supplier')) {
+  //     this.isSupplier = true;
+  //   }
+
+  //   this.loadMasterData(); 
+  // }
+
   ngOnInit(): void {
+    // 🔥 1. Check if user is a Supplier FIRST
+    this.isSupplier = localStorage.getItem('UserType') === 'Supplier' || 
+                      window.location.href.toLowerCase().includes('role=supplier');
 
-    //Screen Permissions
-    //  1. Load Permissions First
-    this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
-    this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
-    this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
-    this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    // 🔥 2. Apply Permissions based on User Type
+    if (this.isSupplier) {
+      // Suppliers ALWAYS have permission to read the page and update their CAPA responses
+      this.canRead = true;
+      this.canUpdate = true;
+      this.canCreate = false; // Suppliers cannot create new audits
+      this.canDelete = false; // Suppliers cannot delete
+    } 
+    else {
+      // Internal users get their permissions from the Database Setup Matrix
+      this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
+      this.canCreate = UserPermissionService.fnGetCreatePermissions(this.SCREEN_ID);
+      this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
+      this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
+    }
 
-    // 2. Block page load if they cannot read
+    // 3. Block page load if they truly cannot read
     if (!this.canRead) return;
 
-
+    // 4. Load Route Parameters
     this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
     this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
     this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
 
-    // Check if the user is a supplier via Angular Router OR Raw URL
-    this.route.queryParams.subscribe(params => {
-      if (params['role'] === 'supplier') {
-        this.isSupplier = true;
-      }
-    });
-    if (window.location.href.toLowerCase().includes('role=supplier')) {
-      this.isSupplier = true;
-    }
-
+    // 5. Load Data
     this.loadMasterData(); 
   }
 
@@ -324,7 +358,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   }
 
   populateFormFromData(d: any) {
-    this.rating = d.rating || '5';
+    this.rating = d.rating || 'NA';
     this.selectedSeverityId = d.severityId;
     this.selectedOccurrence = d.occurrence;
     this.selectedDetection = d.detection;
@@ -340,9 +374,11 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.correctiveActions = d.correctiveActions || '';
     this.supplierRemarks = d.supplierRemarks || '';
 
+    this.logDate = d.createdDate ? this.formatDateForInput(d.createdDate) : this.getTodayDateString();
+
     // Format dates correctly for HTML <input type="date">
-    this.dueDate = d.dueDate ? new Date(d.dueDate).toISOString().split('T')[0] : null;
-    this.completedDate = d.completedDate ? new Date(d.completedDate).toISOString().split('T')[0] : null;
+    this.dueDate = d.dueDate ? this.formatDateForInput(d.dueDate) : null;
+    this.completedDate = d.completedDate ? this.formatDateForInput(d.completedDate) : null;
 
     // Clear local arrays on reload
     this.selectedFiles = []; 
@@ -591,6 +627,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
       // CAPA fields
       class: this.selectedClass,
       capaSubject: this.capaSubject,
+      createdDate: this.logDate,
       dueDate: this.dueDate,
       completedDate: this.completedDate,
       pdcaStatus: this.pdcaStatus,
@@ -677,7 +714,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   resetForm() {
     this.isExistingRecord = false; // 🔥 Reset to new record state
-    this.rating = '5';
+    this.rating = 'NA';
     this.selectedSeverityId = null;
     this.selectedOccurrence = null;
     this.selectedDetection = null;
@@ -685,6 +722,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
     
     this.selectedClass = '';
     this.capaSubject = '';
+    
+    this.logDate = this.getTodayDateString();
     this.dueDate = null;
     this.completedDate = null;
     this.pdcaStatus = '';
@@ -698,6 +737,28 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.selectedImageFiles = []; 
     this.galleryImages = [];
     this.uploadedDocs = [];
+  }
+
+  formatDateForInput(dateVal: any): string | null {
+    if (!dateVal) return null;
+    if (typeof dateVal === 'string') {
+      const match = dateVal.match(/^(\d{4}-\d{2}-\d{2})/);
+      if (match) return match[1];
+    }
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return null;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  getTodayDateString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   // Add this method inside ProcessAuditReferenceComponent class
