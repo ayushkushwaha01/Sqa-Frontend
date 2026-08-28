@@ -39,6 +39,7 @@ import { SupplierLoginComponent } from "./pages/supplier-login/supplier-login.co
 import { LoginGuard } from "./pages/helpers/login.guard";
 import { NotificationsInboxComponent } from "./theme/components/notification/notifications-inbox/notifications-inbox.component";
 import { SentMailsDialogComponent } from "./sent-mails-dialog/sent-mails-dialog.component";
+import { ResetPasswordWithTokenComponentComponent } from "./pages/login/reset-password-with-token-component/reset-password-with-token-component.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
@@ -319,6 +320,10 @@ const routes: Routes = [
     path: "error",
     component: ErrorComponent,
   },
+  { 
+    path: "login/reset-password-with-token", 
+    component: ResetPasswordWithTokenComponentComponent 
+  }
 ];
 
 @NgModule({

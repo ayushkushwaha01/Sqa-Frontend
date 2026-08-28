@@ -11,6 +11,7 @@ import { ManagerDialogComponent } from './manager-dialog/manager-dialog.componen
 import { ResetPasswordDialogComponent } from './reset-password-dialog/reset-password-dialog.component';
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { MfaSetupDialogComponent } from 'src/app/pages/mfa-setup-dialog/mfa-setup-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -278,5 +279,47 @@ export class UsersComponent implements OnInit {
         this.getAllUsers(); // Revert on error
       }
     });
+  }
+
+
+  // ==========================================================
+  // 🔥 SMART MFA CHECKBOX HANDLER
+  // ==========================================================
+  public onMfaChange(item: any, event: any) {
+    if (!this.canUpdate) return;
+
+    // Get the ID of the Admin who is currently clicking the screen
+    const currentLoggedInUserId = localStorage.getItem('UserId');
+
+    // 1. IF TURNING MFA ON
+    if (event.checked) {
+      
+      // A) If Admin is checking their OWN row -> Show the Popup!
+      if (item.userId == currentLoggedInUserId) {
+        const dialogRef = this.dialog.open(MfaSetupDialogComponent, { 
+          width: '450px',
+          disableClose: true 
+        });
+        
+        dialogRef.afterClosed().subscribe(verified => {
+          if (verified) {
+            // Success! They scanned the code and typed the 6 digits. Save to DB.
+            this.toggleRole(item); 
+          } else {
+            // They cancelled the popup. Revert the checkbox visually.
+            item.isMfaEnabled = false; 
+          }
+        });
+      } 
+      // B) If Admin is checking SOMEONE ELSE's row -> Enforce silently!
+      else {
+        this.alertService.createAlert(`MFA Enforced for ${item.userName}.`, 1);
+        this.toggleRole(item);
+      }
+    } 
+    // 2. IF TURNING MFA OFF
+    else {
+      this.toggleRole(item);
+    }
   }
 }

@@ -110,7 +110,9 @@ import { ColumnSelectorComponent } from './pages/column-selector/column-selector
 import { NotificationsInboxComponent } from './theme/components/notification/notifications-inbox/notifications-inbox.component';
 import { SentMailsDialogComponent } from './sent-mails-dialog/sent-mails-dialog.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { UserIdInterceptor } from './shared/user-id.interceptor'; // Ensure this path matches where you saved it!
+import { UserIdInterceptor } from './shared/user-id.interceptor';
+import { MfaSetupDialogComponent } from './pages/mfa-setup-dialog/mfa-setup-dialog.component';
+import { PasskeyManageDialogComponent } from './pages/passkey-manage-dialog/passkey-manage-dialog.component'; // Ensure this path matches where you saved it!
 
 export function highchartsModules() {
   return [exporting, windbarb];
@@ -212,7 +214,9 @@ export function highchartsModules() {
     StatusChangeComponent,
     ColumnSelectorComponent,
     NotificationsInboxComponent,
-    SentMailsDialogComponent
+    SentMailsDialogComponent,
+    MfaSetupDialogComponent,
+    PasskeyManageDialogComponent
   ],
   providers: [
     AppSettings,

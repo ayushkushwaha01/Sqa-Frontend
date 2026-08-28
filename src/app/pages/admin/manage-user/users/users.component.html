@@ -232,6 +232,8 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Department</th>
+                            <th class="text-center">MFA</th>
+                      <th class="text-center">Email OTP</th>
                             <th>Role</th>
                             <th class="text-center">HOD</th>
                             <th class="text-center">Inspector</th>
@@ -294,6 +296,17 @@
                             <td>{{item.email}}</td>
                             <td>{{item.phoneNumber}}</td>
                             <td>{{item.department}}</td>
+
+                            <!-- 🔥 SMART MFA CHECKBOX -->
+              <td class="text-center">
+                  <mat-checkbox [(ngModel)]="item.isMfaEnabled" 
+                                (change)="onMfaChange(item, $event)" 
+                                [disabled]="!canUpdate">
+                  </mat-checkbox>
+              </td>
+              <td class="text-center">
+                  <mat-checkbox [(ngModel)]="item.twoFactor" (change)="toggleRole(item)" [disabled]="!canUpdate"></mat-checkbox>
+              </td>
 
                             <td><b>{{item.roleName}}</b></td>
 

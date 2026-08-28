@@ -16,6 +16,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ResetPasswordWithTokenComponentComponent } from './reset-password-with-token-component/reset-password-with-token-component.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login-page', pathMatch: 'full' },
@@ -26,7 +27,8 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     LoginComponent,
-    ForgotComponent
+    ForgotComponent,
+    ResetPasswordWithTokenComponentComponent
   ],
   imports: [
     CommonModule,
