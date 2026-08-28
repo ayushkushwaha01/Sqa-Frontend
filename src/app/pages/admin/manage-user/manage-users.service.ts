@@ -160,10 +160,10 @@ export class ManageUsersService {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
 
-// ==========================================
+  // ==========================================
   // DAILY ESCALATION SWEEPERS
   // ==========================================
-  
+
   triggerProcessEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
@@ -175,5 +175,10 @@ export class ManageUsersService {
   triggerInspectionEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-inspection-escalations', {});
   }
-  
+
+  // for eventLog 
+
+  getEventLog(filter: any) { return this.http.get(this.apiUrl + 'Preference/get-event-log', { params: filter }); }
+
+
 }

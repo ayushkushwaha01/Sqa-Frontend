@@ -1,3 +1,4 @@
+import { PartAuditService } from './../../parts-audits/part-audit.service';
 import { Location } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -58,7 +59,8 @@ export class CapaViewScreenComponent implements OnInit {
     private route: ActivatedRoute,
     private inspectionService: InspectionService,
     private alertService: AlertService,
-    private setupService: SetupService
+    private setupService: SetupService,
+    private PartAuditService: PartAuditService
   ) { }
 
   ngOnInit(): void {
@@ -105,12 +107,12 @@ export class CapaViewScreenComponent implements OnInit {
   demeritOptions: any[] = [];
   getDemeritMaster() {
 
-    this.setupService.getDemeritMaster({})
+    this.PartAuditService.getDemeritDD()
       .subscribe((res: any) => {
 
         if (res.success) {
 
-          this.demeritOptions = res.data.data.map((item: any) => {
+          this.demeritOptions = res.data.map((item: any) => {
 
             let bgColor = '';
             let color = '';
@@ -166,7 +168,7 @@ export class CapaViewScreenComponent implements OnInit {
 
   Occurrences: any[] = [];
   getOccurrences() {
-    this.setupService.getOccurrence()
+    this.PartAuditService.getOccurrenceDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -178,7 +180,7 @@ export class CapaViewScreenComponent implements OnInit {
   }
   detections: any[] = [];
   getDetections() {
-    this.setupService.getDetection()
+    this.PartAuditService.getDetectionDD()
       .subscribe((res: any) => {
         if (res.success) {
 

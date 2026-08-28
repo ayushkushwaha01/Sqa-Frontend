@@ -89,12 +89,12 @@ export class PartsAuditDetailsComponent implements OnInit {
   demeritOptions: any[] = [];
   getDemeritMaster() {
 
-    this.setupService.getDemeritMaster({})
+    this.partAuditService.getDemeritDD()
       .subscribe((res: any) => {
 
         if (res.success) {
 
-          this.demeritOptions = res.data.data.map((item: any) => {
+          this.demeritOptions = res.data.map((item: any) => {
 
             let bgColor = '';
             let color = '';
@@ -152,7 +152,7 @@ export class PartsAuditDetailsComponent implements OnInit {
 
   severities: any[] = [];
   getSeverities() {
-    this.setupService.getSeverities()
+    this.partAuditService.getSeverityDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -164,7 +164,7 @@ export class PartsAuditDetailsComponent implements OnInit {
 
   Occurrences: any[] = [];
   getOccurrences() {
-    this.setupService.getOccurrence()
+    this.partAuditService.getOccurrenceDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -175,7 +175,7 @@ export class PartsAuditDetailsComponent implements OnInit {
   }
   detections: any[] = [];
   getDetections() {
-    this.setupService.getDetection()
+    this.partAuditService.getDetectionDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -261,7 +261,7 @@ export class PartsAuditDetailsComponent implements OnInit {
       demeritId: [null],
       occurrenceId: [null],
       detectionId: [null],
-      
+
       // 🔥 FIX: Explicitly register these so Angular sends them in the JSON payload
       createdBy: [0],
       modifiedBy: [0]

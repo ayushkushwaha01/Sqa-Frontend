@@ -116,11 +116,11 @@ export class PartsCompletedAuditsComponent implements OnInit {
   }
   partsFamilies: any[] = [];
   getPartsFamilies() {
-    this._setupService.getPartFamilies(null)
+    this.partAuditService.getFamilyDD()
       .subscribe((res: any) => {
         if (res.success) {
 
-          this.partsFamilies = res.data.data;
+          this.partsFamilies = res.data;
 
         }
       });
@@ -128,28 +128,29 @@ export class PartsCompletedAuditsComponent implements OnInit {
 
   parts: any[] = [];
   getParts() {
-    this._setupService.getPartMaster(null)
+    this.partAuditService.getPartDD()
       .subscribe((res: any) => {
         if (res.success) {
 
-          this.parts = res.data.data;
+          this.parts = res.data;
 
         }
       });
   }
   originalTableData: any[] = [];
   getCommodities() {
-    this.api.getCommodities().subscribe((res: any) => {
-      if (res.success) {
-        this.originalTableData = res.data;
+    this.partAuditService.getCommodityDD()
+      .subscribe((res: any) => {
+        if (res.success) {
+          this.originalTableData = res.data;
 
-      }
-    });
+        }
+      });
   }
 
   Suppliers: any[] = [];
   getSuppliers() {
-    this.manageUsersService.getSuppliers()
+    this.partAuditService.getSupplierDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -161,7 +162,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
 
   states: any[] = []
   getStates() {
-    this._setupService.getAllStates()
+    this.partAuditService.getStateDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -174,7 +175,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
 
   cities: any[] = []
   getCities() {
-    this._setupService.getAllCities()
+    this.partAuditService.getCityDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -187,7 +188,7 @@ export class PartsCompletedAuditsComponent implements OnInit {
   Auditors: any[] = [];
 
   getAuditors() {
-    this.manageUsersService.getAllUsers()
+    this.partAuditService.getAuditorDD()
       .subscribe((res: any) => {
         if (res.success) {
           this.Auditors = res.data;
@@ -196,13 +197,12 @@ export class PartsCompletedAuditsComponent implements OnInit {
       });
   }
 
-
   lookups: any[] = [];
 
   getLookups() {
-    this.lookupService.getLookups().subscribe((res: any) => {
+    this.partAuditService.getAuditStatusDD().subscribe((res: any) => {
       if (res.success) {
-        this.lookups = res.data.filter((x: any) => x.codeId === 2);
+        this.lookups = res.data;
       }
     });
   }

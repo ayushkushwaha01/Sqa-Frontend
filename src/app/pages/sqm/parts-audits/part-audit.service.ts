@@ -42,6 +42,9 @@ export class PartAuditService {
   upsertPartAuditParameter(data: any) {
     return this.http.post(this.apiUrl + 'PartsAudit/upsert-audit-parameter', data);
   }
+  DeletePartAuditParameter(data: any) {
+    return this.http.post(this.apiUrl + 'PartsAudit/delete-parts-audit-parameter', data);
+  }
 
   upsertgridcolumns(data: any) {
     return this.http.post(this.apiUrl + 'PartsAudit/save-user-gridcolumns', data);
@@ -124,5 +127,58 @@ export class PartAuditService {
       this.apiUrl + 'PartsAuditInnerScreen/delete-image',
       data
     );
+  }
+
+
+  // For all dd
+  getCommodityDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-commodities-dd');
+  }
+
+  getFamilyDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-family-dd');
+  }
+
+  getPartDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-part-dd');
+  }
+
+  getStateDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-state-dd');
+  }
+
+  getCityDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-city-dd');
+  }
+
+  getSupplierDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-supplier-dd');
+  }
+
+  getAuditorDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-auditor-dd');
+  }
+  getAuditStatusDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-audit-status-dd');
+  }
+  getCapaStatusDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-capa-status-dd');
+  }
+  getUserDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-user-dd');
+  }
+  getSeverityDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-severity-dd');
+  }
+  getDemeritDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-demerit-dd');
+  }
+
+  getDetectionDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-detection-dd');
+  }
+
+  getOccurrenceDD() {
+    return this.http.get(this.apiUrl + 'AllDD/get-occurrence-dd');
   }
 }
