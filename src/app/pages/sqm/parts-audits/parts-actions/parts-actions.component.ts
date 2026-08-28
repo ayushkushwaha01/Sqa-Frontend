@@ -54,7 +54,7 @@ export class PartsActionsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   someElementRef: any;
   constructor(public dialog: MatDialog, private partAuditService: PartAuditService,
-     private alertService: AlertService, private fb: FormBuilder,private manageUserService: ManageUsersService,
+    private alertService: AlertService, private fb: FormBuilder, private manageUserService: ManageUsersService,
     private lookupService: LookupService
   ) { }
   ngOnInit(): void {
@@ -72,7 +72,7 @@ export class PartsActionsComponent implements OnInit {
     this.formInit();
     this.getCapas();
     this.loadGridColumns();
-    this.getLookups();  
+    this.getLookups();
 
     this.manageUserService.triggerPartsEscalations().subscribe({
       next: () => console.log('Parts Escalation Matrix Executed'),
@@ -108,9 +108,9 @@ export class PartsActionsComponent implements OnInit {
   lookups: any[] = [];
 
   getLookups() {
-    this.lookupService.getLookups().subscribe((res: any) => {
+    this.partAuditService.getCapaStatusDD().subscribe((res: any) => {
       if (res.success) {
-        this.lookups = res.data.filter((x: any) => x.codeId === 8);
+        this.lookups = res.data;
       }
     });
   }
@@ -192,12 +192,12 @@ export class PartsActionsComponent implements OnInit {
           });
           // this.allcaps = sortedCaps.map((capa: any) => {
           //   let calculatedDelay = 0;
-            
+
           //   // If it has a due date, and is NOT resolved or completed
           //   if (capa.dueDate && !capa.resolved && !capa.completedDate) {
           //     const due = new Date(capa.dueDate).getTime();
           //     const today = new Date().getTime();
-              
+
           //     if (today > due) {
           //       // Calculate exact days between today and due date
           //       calculatedDelay = Math.floor((today - due) / (1000 * 3600 * 24));

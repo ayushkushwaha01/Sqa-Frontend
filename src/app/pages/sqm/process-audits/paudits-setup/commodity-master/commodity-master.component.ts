@@ -7,6 +7,9 @@ import { AlertService } from '../../../../../shared/alert.service';
 import { ConfirmationDialogComponent } from '../../../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { StatusChangeComponent } from '../../../../../status-change/status-change.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-commodity-master',
@@ -24,7 +27,7 @@ export class CommodityMasterComponent implements OnInit {
   canDelete: boolean = false;
   canRead: boolean = false;
   readonly SCREEN_ID: number = 32;
-
+  private destroy$ = new Subject<void>();
   constructor(
     private dialog: MatDialog,
     public router: Router,
@@ -40,13 +43,28 @@ export class CommodityMasterComponent implements OnInit {
     this.getCommodities();
 
     // Auto-refresh the outer grid count when navigating back to the master route
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd && this.isMasterRoute()) {
-        this.getCommodities();
-      }
-    });
+    // this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationEnd && this.isMasterRoute()) {
+    //     this.getCommodities();
+    //   }
+    // });
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        if (this.isMasterRoute()) {
+          this.getCommodities();
+        }
+      });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   getCommodities() {
     this.api.getCommodities().subscribe((res: any) => {
       if (res.success) {

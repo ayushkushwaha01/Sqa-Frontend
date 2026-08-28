@@ -6,6 +6,7 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
 import { PartsAuditAnalayticsService } from '../../../process-audits/paudits-analytics/parts-audit-analaytics.service';
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
+import { PartAuditService } from '../../part-audit.service';
 
 @Component({
   selector: 'app-parts-summary',
@@ -21,7 +22,8 @@ export class PartsSummaryComponent implements OnInit {
     private alertService: AlertService,
     private api: CommodityService,
     private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
-    private manageUsersService: ManageUsersService
+    private manageUsersService: ManageUsersService,
+    private PartAuditService: PartAuditService
   ) { }
 
   filterForm!: FormGroup;
@@ -253,7 +255,7 @@ export class PartsSummaryComponent implements OnInit {
   Auditors: any[] = [];
 
   getAuditors() {
-    this.manageUsersService.getAllUsers()
+    this.PartAuditService.getAuditorDD()
       .subscribe((res: any) => {
         if (res.success) {
           this.Auditors = res.data;

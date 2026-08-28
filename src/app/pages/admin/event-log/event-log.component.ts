@@ -1,9 +1,11 @@
+import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MenuService } from 'src/app/theme/components/menu/menu.service';
 import { environment } from 'src/environments/environment';
 import { admindata } from '../admindata';
 import { UserPermissionService } from '../../helpers/user-permission.service';
+import { ManageUsersService } from '../manage-user/manage-users.service';
 
 @Component({
   selector: 'app-event-log',
@@ -15,15 +17,12 @@ export class EventLogComponent implements OnInit {
   sortedData: any;
   tableList: Object[] = [];
   alltableListLookup: any;
-  public pageSize = parseInt(localStorage.getItem('settings') ? localStorage.getItem('settings') : '10');
-  public currentPage = 0;
-  public totalSize = 0;
   tableListLookup = [];
   public allReports: Array<any> = [];
   // sortedData = [];
   type: any;
   navParameter: any;
-  filterForm: FormGroup;
+
   roleDetails: any;
   options = [];
   filteredEvents: any;
@@ -44,21 +43,17 @@ export class EventLogComponent implements OnInit {
   readonly SCREEN_ID: number = 8;
 
 
-  constructor(public _menuService: MenuService, private fb: FormBuilder) {
-    this.filterForm = this.fb.group({
-      Role: new FormControl('',),
-      Keyword: new FormControl('',)
-    });
+  constructor(public _menuService: MenuService, private fb: FormBuilder, private ManageUsersService: ManageUsersService,
+    private PartAuditService: PartAuditService
+  ) {
+
   }
   public popoverTitle: string = 'Confirm Delete';
   public popoverMessage: string = 'Are you sure you want to delete this.?';
   public cancelClicked: boolean = false;
   public popoverStatusTitle: string = 'Confirm Status Change';
   public popoverStatusMessage: string = 'Are you sure you want to change status.?';
-  filterToggle: boolean;
-  deleteUser(elementValues) {
-    console.log(elementValues);
-  }
+
   name: any;
 
   public setTitle(newTitle: string) {
@@ -69,75 +64,108 @@ export class EventLogComponent implements OnInit {
   ngOnInit() {
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
-    if (environment.mode == 1) {
-      //this.values = PartsData.getd1();
-      this.eventDetails = admindata.eventLog();
+    const gridLength = localStorage.getItem('GridLength');
+
+    if (gridLength) {
+      this.pageSize = Number(gridLength);
     }
-    else {
-
-    }
+    this.formInit();
+    this.getEventLog();
+    this.getAllusers();
 
 
   }
+  filterForm!: FormGroup;
 
-  eventDetails: Array<any> = [
-  ];
-
-
-  deleteLookup() {
-    this.alertService.createAlert('Successfully deleted.', 1);
-  }
-
-  saveStatus() {
-    this.alertService.createAlert('Successfully saved.', 1);
-  }
-  getAllevents() {
-    this.service.GetAllEvents().subscribe(res => {
-      if (res['Success'] == true) {
-        console.log(res);
-        this.eventDetails = res['Data'];
-        // this.options = this.eventDetails;
-        this.sortedData = this.eventDetails.slice();
-        this.bindData(res['Data']);
-
-        //this.getallusers();
-      }
-      else {
-        this.alertService.createAlert(res['Message'], 0);
-      }
+  formInit() {
+    this.filterForm = this.fb.group({
+      Keyword: [''],
+      EventType: [''],
+      userId: [null],
+      FromDate: [null],
+      ToDate: [null]
     });
-  }
-  public bindData(data) {
-    //this.allRoles = data['RolesList'];
-    this.allRoles = data;
-    this.filter();
-  }
-
-  filter() {
-
-    this.filteredEvents = this.allRoles;
-    let keyword = this.filterForm.controls['Keyword'].value;
-    let role = this.filterForm.controls['Role'].value;
-
-    if (keyword != null && keyword != '') {
-      this.filteredEvents = this.filteredEvents.filter(function (item) {
-        return JSON.stringify(item).toLowerCase().includes(keyword.toLowerCase());
-      });
-    }
-    if (role != null && role != '') {
-      this.filteredEvents = this.filteredEvents.filter(x => x['RoleName'] == role);
-    }
-
-    this.eventDetails = this.filteredEvents.slice(this.currentPage * this.pageSize, (this.currentPage * this.pageSize) + this.pageSize);
-    this.totalSize = this.filteredEvents.length;
-    this.sortedData = this.eventDetails.slice();
-    console.log(this.eventDetails);
-
   }
 
   clearFilter() {
-    this.filterForm.reset();
-    this.getAllevents();
+    this.filterForm.reset({
+      Keyword: '',
+      EventType: '',
+      userId: null,
+      FromDate: null,
+      ToDate: null
+    });
+
+    this.getEventLog();
   }
+
+
+  eventDetails: any[] = [];
+
+  currentPage: number = 0;
+  totalSize: number = 0;
+  fromIndex: number = 0;
+  pageSize: number = 20;
+
+  tableLists: any[] = [];
+  filterToggle: boolean = false
+
+  getEventLog() {
+    const filter: any = {
+      Keyword: this.filterForm.value.Keyword || ''
+    };
+
+    const selectedUserId = this.filterForm.value.userId;
+
+    if (selectedUserId !== null && selectedUserId !== undefined && selectedUserId !== '') {
+      filter.UserId = Number(selectedUserId);
+    }
+
+    if (this.filterForm.value.FromDate) {
+      filter.FromDate = this.filterForm.value.FromDate;
+    }
+
+    if (this.filterForm.value.ToDate) {
+      filter.ToDate = this.filterForm.value.ToDate;
+    }
+
+    console.log('Event Log Filter:', filter);
+
+    this.ManageUsersService.getEventLog(filter).subscribe((res: any) => {
+      if (res.success) {
+        this.eventDetails = res.data.data || [];
+        this.totalSize = res.data.totalRecords || 0;
+
+        this.currentPage = 0;
+        this.loadPageData();
+      }
+    });
+  }
+  allusers: any
+  getAllusers() {
+    this.PartAuditService.getUserDD()
+      .subscribe((res: any) => {
+        if (res.success) {
+          this.allusers = res.data;
+
+        }
+      });
+  }
+  loadPageData() {
+    this.fromIndex = this.currentPage * this.pageSize;
+
+    this.tableLists = this.eventDetails.slice(
+      this.fromIndex,
+      this.fromIndex + this.pageSize
+    );
+  }
+  fnHandlePage(event: any) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+
+    this.loadPageData();
+  }
+
+
 
 }

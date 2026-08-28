@@ -203,7 +203,7 @@ export class NewAuditComponent implements OnInit {
 
   Suppliers: any[] = [];
   getSuppliers() {
-    this.manageUsersService.getSuppliers()
+    this.partAuditService.getSupplierDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -271,7 +271,7 @@ export class NewAuditComponent implements OnInit {
   }
   states: any[] = []
   getStates() {
-    this._setupService.getAllStates()
+    this.partAuditService.getStateDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -285,7 +285,7 @@ export class NewAuditComponent implements OnInit {
   cities: any[] = []
   allCities: any[] = [];
   getCities() {
-    this._setupService.getAllCities()
+    this.partAuditService.getCityDD()
       .subscribe((res: any) => {
         if (res.success) {
 
@@ -310,7 +310,7 @@ export class NewAuditComponent implements OnInit {
   Auditors: any[] = [];
 
   getAuditors() {
-    this.manageUsersService.getAllUsers()
+    this.partAuditService.getAuditorDD()
       .subscribe((res: any) => {
         if (res.success) {
           this.Auditors = res.data;

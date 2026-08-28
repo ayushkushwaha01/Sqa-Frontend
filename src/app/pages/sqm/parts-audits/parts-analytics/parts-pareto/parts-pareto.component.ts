@@ -5,6 +5,7 @@ import * as Highcharts from 'highcharts';
 import { AlertService } from 'src/app/shared/alert.service';
 import { CommodityService } from '../../../process-audits/paudits-setup/commodity-master/commodity.service';
 import { PartsAuditAnalayticsService } from '../../../process-audits/paudits-analytics/parts-audit-analaytics.service';
+import { PartAuditService } from '../../part-audit.service';
 
 @Component({
   selector: 'app-parts-pareto',
@@ -16,7 +17,8 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
   Highcharts: typeof Highcharts = Highcharts;
 
   constructor(private dialog: MatDialog, private fb: FormBuilder,
-    private alertService: AlertService, private api: CommodityService, private PartsAuditAnalayticsService: PartsAuditAnalayticsService
+    private alertService: AlertService, private api: CommodityService, private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
+    private PartAuditService: PartAuditService
   ) { }
 
   filterForm!: FormGroup;
@@ -30,18 +32,19 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
 
   originalTableData: any[] = [];
   getCommodities() {
-    this.api.getCommodities().subscribe({
-      next: (res: any) => {
-        console.log('Commodities response:', res);
-        if (res.success) {
-          this.originalTableData = res.data;
+    this.PartAuditService.getCommodityDD()
+      .subscribe({
+        next: (res: any) => {
+          console.log('Commodities response:', res);
+          if (res.success) {
+            this.originalTableData = res.data;
+          }
+        },
+        error: (err) => {
+          console.error('Commodities API error:', err);
+          this.alertService.createAlert(err.error?.message || 'Failed to load commodities', 0);
         }
-      },
-      error: (err) => {
-        console.error('Commodities API error:', err);
-        this.alertService.createAlert(err.error?.message || 'Failed to load commodities', 0);
-      }
-    });
+      });
   }
   getPareto() {
 

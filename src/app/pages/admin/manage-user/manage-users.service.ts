@@ -248,10 +248,10 @@ verifyPasskeyLogin(clientResponse: any, email: string) {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
 
-// ==========================================
+  // ==========================================
   // DAILY ESCALATION SWEEPERS
   // ==========================================
-  
+
   triggerProcessEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
@@ -263,6 +263,11 @@ verifyPasskeyLogin(clientResponse: any, email: string) {
   triggerInspectionEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-inspection-escalations', {});
   }
+
+  // for eventLog 
+
+  getEventLog(filter: any) { return this.http.get(this.apiUrl + 'Preference/get-event-log', { params: filter }); }
+
 
 
   

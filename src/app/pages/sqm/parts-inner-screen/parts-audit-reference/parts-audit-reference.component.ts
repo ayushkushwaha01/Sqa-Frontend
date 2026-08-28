@@ -12,6 +12,7 @@ import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ActivatedRoute } from '@angular/router';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-parts-audit-reference',
@@ -364,20 +365,42 @@ export class PartsAuditReferenceComponent implements OnInit {
     });
   }
 
-  deleteParameter(item: any): void {
-    const confirmDelete = window.confirm('Are you sure you want to delete??');
+  // deleteParameter(item: any): void {
+  //   const confirmDelete = window.confirm('Are you sure you want to delete??');
 
-    if (confirmDelete) {
-      // Find the index of the item in the currently active tableData array
-      const index = this.tableData.indexOf(item);
+  //   if (confirmDelete) {
+  //     // Find the index of the item in the currently active tableData array
+  //     const index = this.tableData.indexOf(item);
 
-      if (index > -1) {
-        // Remove the item from the array
-        this.tableData.splice(index, 1);
+  //     if (index > -1) {
+  //       // Remove the item from the array
+  //       this.tableData.splice(index, 1);
 
-        // Refresh the paginated view to reflect the deletion
-        this.updatePage();
+  //       // Refresh the paginated view to reflect the deletion
+  //       this.updatePage();
+  //     }
+  //   }
+  // }
+
+  deleteConfirmation(item: any) {
+    let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: 'auto',
+      data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+    });
+
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.partAuditService.DeletePartAuditParameter(item).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert(res.message, 1);
+              this.getPartsMasters();
+            } else {
+              this.alertService.createAlert(res.message, 0);
+            }
+          }
+        });
       }
-    }
+    });
   }
 }
