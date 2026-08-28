@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -64,6 +64,18 @@ export class ManageUsersService {
   // ---------- AUTHENTICATION ----------------
   // ==========================================
 
+  // login(credentials: any) {
+  //   return this.http.post(this.apiUrl + 'Auth/login', credentials);
+  // }
+
+  // forgotPassword(email: string) {
+  //   return this.http.post(this.apiUrl + 'Auth/forgot-password', { email: email });
+  // }
+
+  // resetPasswordWithToken(data: any) {
+  //   return this.http.post(this.apiUrl + 'Auth/reset-password-with-token', data);
+  // }
+
   login(credentials: any) {
     return this.http.post(this.apiUrl + 'Auth/login', credentials);
   }
@@ -74,6 +86,82 @@ export class ManageUsersService {
 
   resetPasswordWithToken(data: any) {
     return this.http.post(this.apiUrl + 'Auth/reset-password-with-token', data);
+  }
+
+  // 🔥 NEW MFA ENDPOINTS 🔥
+  verifyMfaLogin(data: { code: string }) {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Auth/verify-mfa-login', data, { headers });
+  }
+
+  verifyEmailOtp(data: { code: string }) {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Auth/verify-email-otp', data, { headers });
+  }
+
+  sendEmailOtp() {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Auth/send-email-otp', {}, { headers });
+  }
+
+ passkeyLoginOptions(email: string) {
+    // Passkeys don't need a token because you aren't logged in yet
+    return this.http.post(this.apiUrl + 'Auth/passkey-login-options', { email: email });
+  }
+
+verifyPasskeyLogin(clientResponse: any, email: string) {
+    return this.http.post(this.apiUrl + `Auth/verify-passkey-login?email=${email}`, clientResponse);
+  }
+
+
+ 
+// 🔥 PASSKEY SETUP ENDPOINTS 🔥
+  setupPasskeyOptions() {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Mfa/setup-passkey-options', {}, { headers });
+  }
+
+  setupPasskeyRegister(data: any) {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Mfa/setup-passkey-register', data, { headers });
+  }
+
+
+  getPasskeyStatus() {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get(this.apiUrl + 'Mfa/passkey-status', { headers });
+  }
+
+  getPasskeyInfo() {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get(this.apiUrl + 'Mfa/passkey-info', { headers });
+  }
+
+  deletePasskey() {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Mfa/delete-passkey', {}, { headers });
+  }
+
+
+  // 🔥 AUTHENTICATOR APP SETUP ENDPOINTS 🔥
+  setupAuthenticator() {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Mfa/setup-authenticator', {}, { headers });
+  }
+
+  verifyAuthenticator(data: { code: string }) {
+    const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(this.apiUrl + 'Mfa/verify-authenticator', data, { headers });
   }
 
   // ==========================================
@@ -175,5 +263,8 @@ export class ManageUsersService {
   triggerInspectionEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-inspection-escalations', {});
   }
+
+
+  
   
 }

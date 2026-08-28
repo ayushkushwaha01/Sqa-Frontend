@@ -677,20 +677,20 @@
                     <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">flag</mat-icon>
                     {{ applicant.actionSubject || '-' }}
                   </span>
-                  <br>
+                  <!-- <br>
                   <span style="font-size: 12px; color: blue;">
                     (Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})
-                  </span>
+                  </span> -->
                 </div>
 
                 <!-- Normal / Not Overdue -->
                 <ng-template #normalSubject>
                   <div style="line-height: 1.4;">
                     <span>{{ applicant.actionSubject || '-' }}</span>
-                    <br>
+                    <!-- <br>
                     <span style="font-size: 12px; color: gray;">
                       (Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})
-                    </span>
+                    </span> -->
                   </div>
                 </ng-template>
 

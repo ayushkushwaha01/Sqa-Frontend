@@ -1,0 +1,45 @@
+<div class="dialog-header">
+    <mat-icon style="color: #6b7280; margin-right: 10px;">fingerprint</mat-icon>
+    <h2 mat-dialog-title style="margin: 0;">Passkey Setup</h2>
+</div>
+
+<mat-dialog-content>
+    <div *ngIf="isLoading" style="text-align: center; padding: 20px;">Loading...</div>
+
+    <div *ngIf="!isLoading">
+        <h3 style="margin-bottom: 5px; font-weight: 600;">Your Passkeys</h3>
+        <p style="color: #6b7280; font-size: 13px; margin-bottom: 20px;">
+            You have {{ hasPasskey ? 1 : 0 }} passkey(s) registered on different devices.
+        </p>
+
+        <!-- The Registered Passkey Card -->
+        <div class="passkey-card" *ngIf="hasPasskey">
+            <div class="icon-circle">
+                <mat-icon style="color: #9ca3af;">fingerprint</mat-icon>
+            </div>
+            <div class="passkey-details">
+                <h4>{{ passkeyInfo.deviceName }}</h4>
+                <span>Created: {{ passkeyInfo.createdDate | date:'medium' }}</span>
+            </div>
+            <button mat-icon-button color="warn" (click)="deletePasskey()">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+
+        <!-- The Dashed "Add" Box -->
+        <div class="add-dashed-box" *ngIf="hasPasskey">
+            Want to add another device?
+        </div>
+        
+        <div class="add-dashed-box" *ngIf="!hasPasskey" style="text-align: center;">
+            No passkeys registered yet. Set one up to log in securely without a password!
+        </div>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" style="padding-bottom: 20px; padding-right: 20px;">
+    <button mat-button mat-dialog-close style="font-weight: 600;">Close</button>
+    <button mat-raised-button color="primary" (click)="addNewDevice()" style="background-color: #e5e7eb; color: #374151; font-weight: 600; box-shadow: none;">
+        <mat-icon>add</mat-icon> {{ hasPasskey ? 'Add Another Device' : 'Setup Passkey' }}
+    </button>
+</mat-dialog-actions>
