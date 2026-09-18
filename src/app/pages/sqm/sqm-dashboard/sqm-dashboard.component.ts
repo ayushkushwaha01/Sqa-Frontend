@@ -18,7 +18,7 @@ export class SqmDashboardComponent implements OnInit {
   dashboardData: any = null;
   commodities: any[] = [];
   severities: any[] = [];
-  years = ['FY 2021-2022', 'FY 2022-2023', 'FY 2023-2024', 'FY 2024-2025', 'FY 2025-2026', 'FY 2026-2027'];
+  years = ['2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026', '2026-2027'];
 
   // Local widget filter selections
   localProcessCommodityId: number | null = null;
@@ -75,7 +75,7 @@ export class SqmDashboardComponent implements OnInit {
     this.filterForm = this.fb.group({
       commodityId: [null],
       severityId: [null],
-      finYear: ['FY 2026-2027']
+      finYear: ['2026-2027']
     });
   }
 
@@ -87,6 +87,14 @@ export class SqmDashboardComponent implements OnInit {
     if (!this.canRead) return;
     this.loadDropdowns();
     this.loadDashboard();
+  }
+
+  onTableWheel(event: WheelEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    if (!target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    target.scrollTop += event.deltaY;
   }
 
   loadDropdowns() {
@@ -135,6 +143,15 @@ export class SqmDashboardComponent implements OnInit {
   }
 
   onFilterSubmit() {
+    this.loadDashboard();
+  }
+
+  onClearFilter() {
+    this.filterForm.patchValue({
+      commodityId: null,
+      severityId: null,
+      finYear: '2026-2027'
+    });
     this.loadDashboard();
   }
 

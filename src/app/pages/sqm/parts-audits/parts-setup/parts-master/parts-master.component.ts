@@ -86,18 +86,30 @@ export class PartsMasterComponent implements OnInit {
     this.getPartsMasters();
     this.getPartsFamilies();
   }
+  // partsFamilies: any[] = [];
+  // getPartsFamilies() {
+  //   const userId = localStorage.getItem('UserId');
+  //   const payload = {
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getPartFamilies(payload)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.partsFamilies = res.data.data;
+
+  //       }
+  //     });
+  // }
+
   partsFamilies: any[] = [];
+  
   getPartsFamilies() {
-    const userId = localStorage.getItem('UserId');
-    const payload = {
-      UserId: userId ? Number(userId) : null
-    };
-    this._setupService.getPartFamilies(payload)
+    // 🔥 ZERO TRUST FIX: Do not send UserId
+    this._setupService.getPartFamilies({}) // Pass an empty object
       .subscribe((res: any) => {
         if (res.success) {
-
           this.partsFamilies = res.data.data;
-
         }
       });
   }
@@ -117,6 +129,41 @@ export class PartsMasterComponent implements OnInit {
 
 
   partsMasters: any[] = [];
+  // getPartsMasters() {
+  //   const filter = { ...this.filterForm.value };
+
+  //   Object.keys(filter).forEach(key => {
+  //     if (
+  //       filter[key] === null ||
+  //       filter[key] === '' ||
+  //       filter[key] === undefined
+  //     ) {
+  //       delete filter[key];
+  //     }
+  //   });
+  //   const userId = localStorage.getItem('UserId');
+
+  //   const Payload = {
+  //     ...filter,                          // ✅ use the cleaned object
+  //     UserId: userId ? Number(userId) : null
+  //   };
+
+  //   this._setupService.getPartMaster(Payload).subscribe((res: any) => {
+  //     if (res.success) {
+
+  //       this.partsMasters = res.data.data || [];
+  //       this.totalSize = res.data.toatalRecords || 0;
+
+  //       this.currentPage = 0;
+  //       this.loadPageData();
+
+  //       console.log('Total Size:', this.totalSize);
+  //       console.log('Data Length:', this.partsMasters.length);
+  //     }
+  //   });
+  // }
+
+
   getPartsMasters() {
     const filter = { ...this.filterForm.value };
 
@@ -129,24 +176,16 @@ export class PartsMasterComponent implements OnInit {
         delete filter[key];
       }
     });
-    const userId = localStorage.getItem('UserId');
 
-    const Payload = {
-      ...filter,                          // ✅ use the cleaned object
-      UserId: userId ? Number(userId) : null
-    };
+    // 🔥 ZERO TRUST: Just send the filter, NO UserId!
+    const Payload = { ...filter };
 
     this._setupService.getPartMaster(Payload).subscribe((res: any) => {
       if (res.success) {
-
         this.partsMasters = res.data.data || [];
         this.totalSize = res.data.toatalRecords || 0;
-
         this.currentPage = 0;
         this.loadPageData();
-
-        console.log('Total Size:', this.totalSize);
-        console.log('Data Length:', this.partsMasters.length);
       }
     });
   }
@@ -166,6 +205,35 @@ export class PartsMasterComponent implements OnInit {
 
     this.loadPageData();
   }
+  // deleteConfirmation(item: any) {
+  //   let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+  //     width: 'auto',
+  //     data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (data) {
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+
+  //       this._setupService.deletePartMaster(payload).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getPartsMasters();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
@@ -174,12 +242,8 @@ export class PartsMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        const userId = localStorage.getItem('UserId');
-
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
+        // 🔥 ZERO TRUST: Just pass the item, NO UserId!
+        const payload = { ...item };
 
         this._setupService.deletePartMaster(payload).subscribe({
           next: (res: any) => {
@@ -196,6 +260,35 @@ export class PartsMasterComponent implements OnInit {
   }
 
 
+  // changeStatus(item: any) {
+  //   let dialogRef = this.dialog.open(DialogComponent, {
+  //     width: 'auto',
+  //     data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (data) {
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+
+  //       this._setupService.changeStatusPartMaster(payload).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getPartsMasters();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
   changeStatus(item: any) {
     let dialogRef = this.dialog.open(DialogComponent, {
       width: 'auto',
@@ -204,12 +297,8 @@ export class PartsMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        const userId = localStorage.getItem('UserId');
-
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
+        // 🔥 ZERO TRUST: Just pass the item, NO UserId!
+        const payload = { ...item };
 
         this._setupService.changeStatusPartMaster(payload).subscribe({
           next: (res: any) => {
@@ -224,6 +313,7 @@ export class PartsMasterComponent implements OnInit {
       }
     });
   }
+  
   toggleFilters(): void {
 
     this.showFilters = !this.showFilters;

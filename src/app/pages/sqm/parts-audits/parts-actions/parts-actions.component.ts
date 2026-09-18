@@ -42,6 +42,7 @@ export class PartsActionsComponent implements OnInit {
   fromIndex: number = 0;
   pageSize: number = 20;
   tableLists: any[] = [];
+  isLoading: boolean = true;
   canCreate: boolean = false;
   canUpdate: boolean = false;
   canDelete: boolean = false;
@@ -50,6 +51,8 @@ export class PartsActionsComponent implements OnInit {
   readonly SCREEN_ID: number = 23;
   readonly SCREEN_IDd: number = 41;
 
+  overdueThreshold: number = 9999; 
+  escalateThreshold: number = 9999;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   someElementRef: any;
@@ -70,6 +73,7 @@ export class PartsActionsComponent implements OnInit {
     this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
 
     this.formInit();
+    this.activeColumns = [...this.defaultColumns];
     this.getCapas();
     this.loadGridColumns();
     this.getLookups();
@@ -107,11 +111,37 @@ export class PartsActionsComponent implements OnInit {
 
   lookups: any[] = [];
 
+  // getLookups() {
+  //   this.partAuditService.getCapaStatusDD().subscribe((res: any) => {
+  //     if (res.success) {
+  //       this.lookups = res.data;
+  //     }
+  //   });
+  // }
+
   getLookups() {
-    this.partAuditService.getCapaStatusDD().subscribe((res: any) => {
-      if (res.success) {
-        this.lookups = res.data;
+    // 1. Fetch the Escalation Matrix FIRST to get both thresholds
+    this.manageUserService.getEscalation().subscribe((res: any) => {
+      if (res.success && res.data) {
+        // Grab Overdue (for red text)
+        const overdue = res.data.find((x: any) => x.escalationName === 'Overdue');
+        if (overdue && overdue.newValue) {
+          this.overdueThreshold = parseInt(overdue.newValue, 10);
+        }
+
+        // Grab Escalate (for the flag icon)
+        const escalate = res.data.find((x: any) => x.escalationName === 'Escalate');
+        if (escalate && escalate.newValue) {
+          this.escalateThreshold = parseInt(escalate.newValue, 10);
+        }
       }
+
+      // 2. AFTER getting the thresholds, fetch the CAPA status dropdowns!
+      this.partAuditService.getCapaStatusDD().subscribe((statusRes: any) => {
+        if (statusRes.success) {
+          this.lookups = statusRes.data;
+        }
+      });
     });
   }
   changeStatus(applicant: any) {
@@ -169,6 +199,7 @@ export class PartsActionsComponent implements OnInit {
 
   allcaps: any[] = [];
   getCapas() {
+    this.isLoading = true;
     const filter = { ...this.filterForm.value };
 
     Object.keys(filter).forEach(key => {
@@ -182,69 +213,55 @@ export class PartsActionsComponent implements OnInit {
     });
 
     this.partAuditService.getAllCaps(filter)
-      .subscribe((res: any) => {
-        if (res.success) {
-          const sortedCaps = (res.data?.data || []).sort((a: any, b: any) => {
-            if (b.capaId && a.capaId && b.capaId !== a.capaId) {
-              return b.capaId - a.capaId;
-            }
-            return (b.reference || '').localeCompare(a.reference || '', undefined, { numeric: true });
-          });
-          // this.allcaps = sortedCaps.map((capa: any) => {
-          //   let calculatedDelay = 0;
-
-          //   // If it has a due date, and is NOT resolved or completed
-          //   if (capa.dueDate && !capa.resolved && !capa.completedDate) {
-          //     const due = new Date(capa.dueDate).getTime();
-          //     const today = new Date().getTime();
-
-          //     if (today > due) {
-          //       // Calculate exact days between today and due date
-          //       calculatedDelay = Math.floor((today - due) / (1000 * 3600 * 24));
-          //     }
-          //   }
-
-          //   return {
-          //     ...capa,
-          //     // Use backend delay if it exists, otherwise use our real-time calculated delay
-          //     calculatedDelayInDays: capa.delayInDays > 0 ? capa.delayInDays : calculatedDelay
-          //   };
-          // });
-
-          this.allcaps = sortedCaps.map((capa: any) => {
-            let delayVal: any = '-';
-            let calculatedDelay = 0;
-
-            // 🔥 FIX: Calculate real delay using the exact same logic as Inspection
-            if (capa.dueDate) {
-              const due = new Date(capa.dueDate);
-              const completion = capa.completedDate ? new Date(capa.completedDate) : new Date();
-              due.setHours(0, 0, 0, 0);
-              completion.setHours(0, 0, 0, 0);
-              const diffTime = completion.getTime() - due.getTime();
-
-              if (diffTime > 0) {
-                delayVal = Math.floor(diffTime / (1000 * 3600 * 24));
-
-                // 🔥 FIX: Check 'isResolved' (Not 'resolved') and keep flag active until checked!
-                if (!capa.isResolved) {
-                  calculatedDelay = delayVal;
-                }
-              } else {
-                delayVal = '-';
+      .subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            const sortedCaps = (res.data?.data || []).sort((a: any, b: any) => {
+              if (b.capaId && a.capaId && b.capaId !== a.capaId) {
+                return b.capaId - a.capaId;
               }
-            }
+              return (b.reference || '').localeCompare(a.reference || '', undefined, { numeric: true });
+            });
 
-            return {
-              ...capa,
-              delayInDays: delayVal,
-              calculatedDelayInDays: calculatedDelay
-            };
-          });
+            this.allcaps = sortedCaps.map((capa: any) => {
+              let delayVal: any = '-';
+              let calculatedDelay = 0;
 
-          this.totalSize = res.data.totalRecords;
-          this.currentPage = 0;
-          this.loadPageData();
+              // 🔥 FIX: Calculate real delay using the exact same logic as Inspection
+              if (capa.dueDate) {
+                const due = new Date(capa.dueDate);
+                const completion = capa.completedDate ? new Date(capa.completedDate) : new Date();
+                due.setHours(0, 0, 0, 0);
+                completion.setHours(0, 0, 0, 0);
+                const diffTime = completion.getTime() - due.getTime();
+
+                if (diffTime > 0) {
+                  delayVal = Math.floor(diffTime / (1000 * 3600 * 24));
+
+                  // 🔥 FIX: Check 'isResolved' (Not 'resolved') and keep flag active until checked!
+                  if (!capa.isResolved) {
+                    calculatedDelay = delayVal;
+                  }
+                } else {
+                  delayVal = '-';
+                }
+              }
+
+              return {
+                ...capa,
+                delayInDays: delayVal,
+                calculatedDelayInDays: calculatedDelay
+              };
+            });
+
+            this.totalSize = res.data.totalRecords;
+            this.currentPage = 0;
+            this.loadPageData();
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
         }
       });
   }

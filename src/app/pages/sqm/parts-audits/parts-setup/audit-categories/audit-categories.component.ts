@@ -88,24 +88,45 @@ export class AuditCategoriesComponent implements OnInit {
     });
   }
   partAuditCategories: any[] = [];
-  getPartAuditCategories() {
-    const userId = localStorage.getItem('UserId');
+  // getPartAuditCategories() {
+  //   // const userId = localStorage.getItem('UserId');
 
-    const filter = {
-      ...this.filterForm.value,
-      UserId: userId ? Number(userId) : null
-    };
+  //   const filter = {
+  //     ...this.filterForm.value,
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getPartAuditCategories(filter)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.partAuditCategories = res.data.data;
+  //         this.totalSize = res.data.toatalRecords;
+
+  //         this.tableLists = this.partAuditCategories.slice(
+  //           this.fromIndex,
+  //           this.pageSize
+  //         );
+  //       }
+  //     });
+  // }
+
+  getPartAuditCategories() {
+    // 🔥 ZERO TRUST: Removed UserId from here entirely!
+    const filter = { ...this.filterForm.value };
+
+    // Clean up empty strings so they don't clutter the URL
+    Object.keys(filter).forEach(key => {
+      if (filter[key] === null || filter[key] === '') {
+        delete filter[key];
+      }
+    });
+
     this._setupService.getPartAuditCategories(filter)
       .subscribe((res: any) => {
         if (res.success) {
-
           this.partAuditCategories = res.data.data;
           this.totalSize = res.data.toatalRecords;
-
-          this.tableLists = this.partAuditCategories.slice(
-            this.fromIndex,
-            this.pageSize
-          );
+          this.tableLists = this.partAuditCategories.slice(this.fromIndex, this.pageSize);
         }
       });
   }
@@ -126,42 +147,68 @@ export class AuditCategoriesComponent implements OnInit {
     this.loadPageData();
   }
 
-  deleteConfirmation(item: any) {
+  // deleteConfirmation(item: any) {
 
+  //   let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+  //     width: 'auto',
+  //     data: {
+  //       component: null,
+  //       title: 'Delete Confirmation',
+  //       content: 'Are you sure you want to Delete?',
+  //       isConfirmation: true
+  //     }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+
+  //     if (data) {
+
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+
+  //       console.log('Delete Payload:', payload);
+
+  //       this._setupService.deletePartAuditCategory(payload)
+  //         .subscribe({
+  //           next: (res: any) => {
+
+  //             if (res.success) {
+  //               this.alertService.createAlert(res.message, 1);
+  //               this.getPartAuditCategories();
+  //             } else {
+  //               this.alertService.createAlert(res.message, 0);
+  //             }
+
+  //           }
+  //         });
+  //     }
+  //   });
+  // }
+
+  deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
-      data: {
-        component: null,
-        title: 'Delete Confirmation',
-        content: 'Are you sure you want to Delete?',
-        isConfirmation: true
-      }
+      data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
-
       if (data) {
-
-        const userId = localStorage.getItem('UserId');
-
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
-
-        console.log('Delete Payload:', payload);
+        // 🔥 ZERO TRUST: Just pass the item, don't attach UserId
+        const payload = { ...item };
 
         this._setupService.deletePartAuditCategory(payload)
           .subscribe({
             next: (res: any) => {
-
               if (res.success) {
                 this.alertService.createAlert(res.message, 1);
                 this.getPartAuditCategories();
               } else {
                 this.alertService.createAlert(res.message, 0);
               }
-
             }
           });
       }
@@ -169,47 +216,76 @@ export class AuditCategoriesComponent implements OnInit {
   }
 
 
-  changeStatus(item: any) {
+  // changeStatus(item: any) {
 
+  //   let dialogRef = this.dialog.open(DialogComponent, {
+  //     width: 'auto',
+  //     data: {
+  //       component: null,
+  //       title: 'Change Status Confirmation',
+  //       content: 'Are you sure you want to change the status?',
+  //       isConfirmation: true
+  //     }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+
+  //     if (data) {
+
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+
+  //       console.log('Toggle Status Payload:', payload);
+
+  //       this._setupService.ChangeStatus(payload)
+  //         .subscribe({
+  //           next: (res: any) => {
+
+  //             if (res.success) {
+  //               this.alertService.createAlert(res.message, 1);
+  //               this.getPartAuditCategories();
+  //             } else {
+  //               this.alertService.createAlert(res.message, 0);
+  //             }
+
+  //           }
+  //         });
+  //     }
+  //   });
+  // }
+
+
+
+  changeStatus(item: any) {
     let dialogRef = this.dialog.open(DialogComponent, {
       width: 'auto',
-      data: {
-        component: null,
-        title: 'Change Status Confirmation',
-        content: 'Are you sure you want to change the status?',
-        isConfirmation: true
-      }
+      data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
     });
 
     dialogRef.afterClosed().subscribe((data: any) => {
-
       if (data) {
-
-        const userId = localStorage.getItem('UserId');
-
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
-
-        console.log('Toggle Status Payload:', payload);
+        // 🔥 ZERO TRUST: Just pass the item, don't attach UserId
+        const payload = { ...item };
 
         this._setupService.ChangeStatus(payload)
           .subscribe({
             next: (res: any) => {
-
               if (res.success) {
                 this.alertService.createAlert(res.message, 1);
                 this.getPartAuditCategories();
               } else {
                 this.alertService.createAlert(res.message, 0);
               }
-
             }
           });
       }
     });
   }
+  
   // --- ADD THIS NEW METHOD ---
   downloadTemplate(): void {
     // 1. Define the headers and sample data for your CSV template

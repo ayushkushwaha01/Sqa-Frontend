@@ -70,9 +70,17 @@ export class EventLogComponent implements OnInit {
       this.pageSize = Number(gridLength);
     }
     this.formInit();
+
+    
+    // this.getEventLog();
+    // this.getAllusers();
+
+    if (this.canRead) {
+      
     this.getEventLog();
     this.getAllusers();
 
+    }
 
   }
   filterForm!: FormGroup;

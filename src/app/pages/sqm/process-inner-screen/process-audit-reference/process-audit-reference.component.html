@@ -2,7 +2,7 @@
 <div *ngIf="!canRead" class="container text-center" style="margin-top: 80px;">
   <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
     <h3 class="text-danger font-weight-bold">Access Denied</h3>
-    <p class="text-muted">You do not have permission to view the Audit Dashboard.</p>
+    <p class="text-muted">You do not have permission to view this page.</p>
     <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
     <button mat-raised-button color="primary" class="mt-4" (click)="goBack()">Go Back</button>
   </div>
@@ -21,9 +21,9 @@
         <span style="margin: 8px; font-size: 14px">{{ parentAuditRef }}</span>
       </p>
     </div>
-    <div class="col-sm-6" style="display: flex; justify-content: flex-end;">
+    <div class="col-sm-6" style="display: flex; justify-content: flex-end; gap: 10px;">
       <button mat-raised-button
-        style="background-color: #808080; color: white; margin-right: 10px; height: 42px; line-height: 32px; padding: 0 12px; font-size: 13px;"
+        style="background-color: #808080; color: white; height: 42px; line-height: 32px; padding: 0 12px; font-size: 13px;"
         (click)="goBack()">
         <mat-icon>arrow_back</mat-icon> Back
       </button>
@@ -138,20 +138,44 @@
             </div>
           </div>
 
-          <div class="form-group row align-items-center mb-3">
+          <!-- <div class="form-group row align-items-center mb-3">
             <label class="col-sm-4 col-form-label fw-bold">Occurrence :</label>
             <div class="col-sm-8">
               <mat-select class="custom-mat-select" [(value)]="selectedOccurrence" placeholder="Select Occurrence">
                 <mat-option *ngFor="let occ of occurrences" [value]="occ">{{ occ }}</mat-option>
               </mat-select>
             </div>
+          </div> -->
+
+          <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Occurrence :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedOccurrence" placeholder="Select Occurrence">
+                <!-- 🔥 UPDATED BINDING -->
+                <mat-option *ngFor="let occ of occurrences" [value]="occ.rating">
+                  {{ occ.rating }} - {{ occ.subject }}
+                </mat-option>
+              </mat-select>
+            </div>
           </div>
+
+          <!-- <div class="form-group row align-items-center mb-3">
+            <label class="col-sm-4 col-form-label fw-bold">Detection :</label>
+            <div class="col-sm-8">
+              <mat-select class="custom-mat-select" [(value)]="selectedDetection" placeholder="Select Detection">
+                <mat-option *ngFor="let det of detections" [value]="det">{{ det }}</mat-option>
+              </mat-select>
+            </div>
+          </div> -->
 
           <div class="form-group row align-items-center mb-3">
             <label class="col-sm-4 col-form-label fw-bold">Detection :</label>
             <div class="col-sm-8">
               <mat-select class="custom-mat-select" [(value)]="selectedDetection" placeholder="Select Detection">
-                <mat-option *ngFor="let det of detections" [value]="det">{{ det }}</mat-option>
+                <!-- 🔥 UPDATED BINDING -->
+                <mat-option *ngFor="let det of detections" [value]="det.rating">
+                  {{ det.rating }} - {{ det.subject }}
+                </mat-option>
               </mat-select>
             </div>
           </div>
@@ -305,7 +329,8 @@
             <label class="col-sm-4 col-form-label fw-bold">CAPA Subject : <span class="text-danger"
                 *ngIf="complianceStatus === 'Fail'">*</span></label>
             <div class="col-sm-8">
-              <input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject">
+              <input type="text" [(ngModel)]="capaSubject" class="form-control" placeholder="Enter CAPA Subject"
+                style="background-color: #fefec4 !important;">
             </div>
           </div>
           <div class="form-group row align-items-center mb-3">
@@ -344,7 +369,7 @@
               </mat-select>
             </div>
           </div>
-          
+
           <div class="form-group mb-3">
             <label class="fw-bold mb-2">Auditor Remarks :</label>
             <textarea rows="4" [(ngModel)]="remarks" class="form-control custom-textarea"></textarea>
@@ -356,11 +381,10 @@
         <div class="form-group row align-items-center mb-3 mt-3">
           <label class="col-sm-4 col-form-label fw-bold">Mark as Resolved:</label>
           <div class="col-sm-8 d-flex align-items-center">
-            
+
             <!-- 🔥 [disabled]="!isSupplier" means ONLY the Supplier can click this! -->
             <mat-checkbox [(ngModel)]="isResolved"
-              [disabled]="!isSupplier || !hasEditAccess || complianceStatus === 'Pass'"
-              color="primary">
+              [disabled]="!isSupplier || !hasEditAccess || complianceStatus === 'Pass'" color="primary">
             </mat-checkbox>
 
           </div>
@@ -387,8 +411,7 @@
 
       <!-- 1. ADD DOCUMENT BAND -->
       <div class="col-md-6 mb-3">
-        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Document <span
-            class="text-danger">*</span></label>
+        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Document</label>
 
         <input type="file" #docFileInput style="display: none;" [disabled]="!hasEditAccess"
           (change)="onFileSelected($event)" multiple accept=".pdf,.doc,.docx,.xls,.xlsx">
@@ -396,7 +419,7 @@
         <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto"
           style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
 
-          <div *ngIf="!isSupplier && hasEditAccess"
+          <div *ngIf="hasEditAccess"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer"
             style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
             (click)="docFileInput.click()" matTooltip="Add PDF / Document">
@@ -412,13 +435,7 @@
             <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{
               doc.title }}</span>
 
-            <!-- <i *ngIf="!isSupplier && canDelete" class="fa fa-trash" matTooltip="Delete Document"
-              style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
-              (click)="$event.stopPropagation(); deleteDocument(i, doc)">
-            </i> -->
-
-            <!-- Change this line -->
-            <i *ngIf="!isSupplier && hasEditAccess" class="fa fa-trash" matTooltip="Delete Document"
+            <i *ngIf="hasEditAccess" class="fa fa-trash" matTooltip="Delete Document"
               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
               (click)="$event.stopPropagation(); deleteDocument(i, doc)">
             </i>
@@ -433,7 +450,7 @@
             <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">{{
               file.name }}</span>
 
-            <i *ngIf="!isSupplier && hasEditAccess" class="fa fa-trash" matTooltip="Remove Document"
+            <i *ngIf="hasEditAccess" class="fa fa-trash" matTooltip="Remove Document"
               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
               (click)="$event.stopPropagation(); removeFile(i)">
             </i>
@@ -443,13 +460,12 @@
 
       <!-- 2. ADD PICTURES BAND -->
       <div class="col-md-6 mb-3">
-        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Pictures <span
-            class="text-danger">*</span></label>
+        <label class="fw-bold text-dark mb-2 d-block" style="font-size: 14px;">Add Pictures</label>
 
         <div class="gallery-container d-flex align-items-center p-2 gap-2 overflow-auto"
           style="background-color: #eceaea; border-radius: 4px; min-height: 100px;">
 
-          <div *ngIf="!isSupplier && hasEditAccess"
+          <div *ngIf="hasEditAccess"
             class="gallery-item add-btn text-white d-flex justify-content-center align-items-center cursor-pointer"
             style="width: 85px; height: 85px; background-color: #141313; border-radius: 4px; flex-shrink: 0;"
             (click)="addImage()" matTooltip="Add Picture">
@@ -463,13 +479,7 @@
             (click)="openSlideshow(i)" matTooltip="Click to view full image">
             <img [src]="img" class="img-fluid h-100 w-100 object-fit-cover">
 
-            <!-- <i *ngIf="!isSupplier && (canDelete || img.startsWith('data:'))" class="fa fa-trash" matTooltip="Delete Image"
-              style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
-              (click)="$event.stopPropagation(); deleteImage(i, img)">
-            </i> -->
-
-            <!-- Change this line -->
-            <i *ngIf="!isSupplier && (hasEditAccess || img.startsWith('data:'))" class="fa fa-trash"
+            <i *ngIf="hasEditAccess || img.startsWith('data:')" class="fa fa-trash"
               matTooltip="Delete Image"
               style="position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); color: red; padding: 4px; border-radius: 50%; font-size: 12px; cursor: pointer;"
               (click)="$event.stopPropagation(); deleteImage(i, img)">

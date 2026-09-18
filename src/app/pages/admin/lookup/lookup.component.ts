@@ -46,8 +46,14 @@ export class LookupComponent implements OnInit {
       this.pageSize = Number(gridLength);
     }
 
-    this.getCodeMasters();
-    this.getLookups();
+    // this.getCodeMasters();
+    // this.getLookups();
+
+    if (this.canRead) {
+      
+      this.getCodeMasters();
+      this.getLookups();
+    }
   }
 
   getCodeMasters() {

@@ -18,7 +18,7 @@
 
                     <div class="col-sm-8">
                         <input type="text" class="form-control" placeholder="Enter Parts Family Name"
-                            formControlName="PartFamilyName">
+                            formControlName="PartFamilyName" style="background-color: #fefec4 !important;">
 
                         <small class="text-danger"
                             *ngIf="f['PartFamilyName'].touched && f['PartFamilyName'].errors?.['required']">
@@ -39,7 +39,8 @@
                             formControlName="PartFamilyCode" maxlength="5" > -->
                         <input type="text" class="form-control" placeholder="Enter Part Code"
                             formControlName="PartFamilyCode" maxlength="5"
-                            (input)="onUppercaseInput($event, 'PartFamilyCode')">
+                            (input)="onUppercaseInput($event, 'PartFamilyCode')"
+                            style="background-color: #fefec4 !important;">
 
                         <small class="text-danger"
                             *ngIf="f['PartFamilyCode'].touched && f['PartFamilyCode'].errors?.['required']">

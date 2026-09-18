@@ -103,4 +103,13 @@ export class ProcessAuditService {
   triggerDailyEscalations() {
     return this.http.post(this.apiUrl + 'CapaEscalation/trigger-daily-escalations', {});
   }
+
+
+  getOccurrences() {
+    return this.http.get(this.apiUrl + 'Occurrence/get-occurrences');
+  }
+
+  getDetections() {
+    return this.http.get(this.apiUrl + 'Occurrence/get-detections');
+  }
 }

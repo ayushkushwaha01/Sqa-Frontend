@@ -35,6 +35,7 @@ export class InspectionCapaComponent implements OnInit {
   totalSize = 0;
   pageSize = 20;
   pageIndex = 0;
+  isLoading: boolean = true;
   pagedTableList: any[] = [];
   myGroup!: FormGroup;
 
@@ -50,6 +51,9 @@ export class InspectionCapaComponent implements OnInit {
   canreadCAPAScreen: boolean = false;
   readonly SCREEN_ID: number = 29;
   readonly SCREEN_IDd: number = 42;
+
+  overdueThreshold: number = 9999; 
+  escalateThreshold: number = 9999;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -74,6 +78,20 @@ export class InspectionCapaComponent implements OnInit {
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.canreadCAPAScreen = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
 
+    // this.myGroup = new FormGroup({
+    //   Keyword: new FormControl(''),
+    //   TractorIdSections: new FormControl(''),
+    //   ResponsibleSections: new FormControl(''),
+    //   ResponsibleSectionLeadId: new FormControl('')
+    // });
+
+    // this.fetchPendingCapas();
+    // this.loadGridColumns();
+    // this.manageUserService.triggerInspectionEscalations().subscribe({
+    //   next: () => console.log('Inspection Escalation Matrix Executed!'),
+    //   error: (err) => console.error('Failed to run Inspection Escalations', err)
+    // });
+
     this.myGroup = new FormGroup({
       Keyword: new FormControl(''),
       TractorIdSections: new FormControl(''),
@@ -81,15 +99,32 @@ export class InspectionCapaComponent implements OnInit {
       ResponsibleSectionLeadId: new FormControl('')
     });
 
-    this.fetchPendingCapas();
-    this.loadGridColumns();
-    this.manageUserService.triggerInspectionEscalations().subscribe({
-      next: () => console.log('Inspection Escalation Matrix Executed!'),
-      error: (err) => console.error('Failed to run Inspection Escalations', err)
+    this.activeColumns = [...this.defaultColumns];
+
+    // 🔥 1. Fetch Escalation Thresholds FIRST, then fetch the data
+    this.manageUserService.getEscalation().subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.data) {
+          // Grab Overdue (for red text)
+          const overdue = res.data.find((x: any) => x.escalationName === 'Overdue');
+          if (overdue && overdue.newValue) this.overdueThreshold = parseInt(overdue.newValue, 10);
+
+          // Grab Escalate (for the flag icon)
+          const escalate = res.data.find((x: any) => x.escalationName === 'Escalate');
+          if (escalate && escalate.newValue) this.escalateThreshold = parseInt(escalate.newValue, 10);
+        }
+        this.fetchPendingCapas();
+      },
+      error: () => {
+        this.fetchPendingCapas();
+      }
     });
+
+    this.loadGridColumns();
   }
 
   fetchPendingCapas() {
+    this.isLoading = true;
     this.inspectionService.getPendingCapaRecords().subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
@@ -169,9 +204,11 @@ export class InspectionCapaComponent implements OnInit {
           this.updatePagedList();
           this.populateFilterDropdowns();
         }
+        this.isLoading = false;
       },
       error: (err) => {
         console.error("Error fetching CAPA records:", err);
+        this.isLoading = false;
       }
     });
   }

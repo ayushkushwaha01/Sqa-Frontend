@@ -88,22 +88,44 @@ export class PartsFamiliesComponent implements OnInit {
     });
   }
 
-  getPartsFamilies() {
-    const userId = localStorage.getItem('UserId');
+  // getPartsFamilies() {
+  //   const userId = localStorage.getItem('UserId');
 
-    const filter = {
-      ...this.filterForm.value,
-      UserId: userId ? Number(userId) : null
-    };
+  //   const filter = {
+  //     ...this.filterForm.value,
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getPartFamilies(filter).subscribe((res: any) => {
+  //     if (res.success) {
+
+  //       this.partsFamilies = res.data.data || [];
+  //       this.totalSize = res.data.toatalRecords || 0;
+
+  //       // Reset to first page whenever data is loaded
+  //       this.currentPage = 0;
+
+  //       this.loadPageData();
+  //     }
+  //   });
+  // }
+
+
+  getPartsFamilies() {
+    // 🔥 ZERO TRUST: Removed UserId logic!
+    const filter = { ...this.filterForm.value };
+
+    // Clean up empty strings so they don't clutter the URL
+    Object.keys(filter).forEach(key => {
+      if (filter[key] === null || filter[key] === '') {
+        delete filter[key];
+      }
+    });
+
     this._setupService.getPartFamilies(filter).subscribe((res: any) => {
       if (res.success) {
-
         this.partsFamilies = res.data.data || [];
         this.totalSize = res.data.toatalRecords || 0;
-
-        // Reset to first page whenever data is loaded
         this.currentPage = 0;
-
         this.loadPageData();
       }
     });
@@ -186,6 +208,37 @@ export class PartsFamiliesComponent implements OnInit {
     });
   }
 
+  // deleteConfirmation(item: any) {
+  //   let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+  //     width: 'auto',
+  //     data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (data) {
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+
+  //       console.log('Delete Part Family Payload:', payload);
+  //       this._setupService.deletePartFamily(payload).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getPartsFamilies();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
+
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
@@ -194,12 +247,8 @@ export class PartsFamiliesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        const userId = localStorage.getItem('UserId');
-
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
+        // 🔥 ZERO TRUST: Just pass the item
+        const payload = { ...item };
 
         console.log('Delete Part Family Payload:', payload);
         this._setupService.deletePartFamily(payload).subscribe({
@@ -216,6 +265,36 @@ export class PartsFamiliesComponent implements OnInit {
     });
   }
 
+
+
+  // changeStatus(item: any) {
+  //   let dialogRef = this.dialog.open(DialogComponent, {
+  //     width: 'auto',
+  //     data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (data) {
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+  //       this._setupService.changeStatusPartFamily(payload).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getPartsFamilies();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
   changeStatus(item: any) {
     let dialogRef = this.dialog.open(DialogComponent, {
       width: 'auto',
@@ -224,12 +303,11 @@ export class PartsFamiliesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        const userId = localStorage.getItem('UserId');
+        // 🔥 ZERO TRUST: Just pass the item
+        const payload = { ...item };
+        
+        console.log('Toggle Status Payload:', payload);
 
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
         this._setupService.changeStatusPartFamily(payload).subscribe({
           next: (res: any) => {
             if (res.success) {

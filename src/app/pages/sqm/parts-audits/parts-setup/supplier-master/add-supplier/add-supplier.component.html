@@ -11,7 +11,7 @@
                 <label class="mt-2" style="font-weight: bold;">Supplier Name : <span class="text-danger">*</span></label>
             </div>
             <div class="col-sm-8">
-                <input type="text" class="form-control" formControlName="supplierName" placeholder="Enter Supplier Name">
+                <input type="text" class="form-control" formControlName="supplierName" placeholder="Enter Supplier Name" style="background-color: #fefec4 !important;">
             </div>
         </div>
 
@@ -29,7 +29,7 @@
                 <label class="mt-2" style="font-weight: bold;">Select State : <span class="text-danger">*</span></label>
             </div>
             <div class="col-sm-8">
-                <mat-select placeholder="Select State" class="form-control" formControlName="stateId">
+                <mat-select placeholder="Select State" class="form-control" formControlName="stateId" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let state of states" [value]="state.stateId">
                         {{ state.stateName }}
                     </mat-option>
@@ -42,7 +42,7 @@
                 <label class="mt-2" style="font-weight: bold;">Select City : <span class="text-danger">*</span></label>
             </div>
             <div class="col-sm-8">
-                <mat-select placeholder="Select City" class="form-control" formControlName="cityId">
+                <mat-select placeholder="Select City" class="form-control" formControlName="cityId" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let city of cities" [value]="city.cityId">
                         {{ city.cityName }}
                     </mat-option>

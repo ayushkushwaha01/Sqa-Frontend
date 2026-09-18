@@ -55,10 +55,19 @@ export class PartsPerformanceComponent {
       });
   }
 
+  // forminit() {
+  //   this.filterForm = this.fb.group({
+  //     commodityId: [null],
+  //     Year: [null],
+  //   });
+  // }
+
+  years: number[] = [2023, 2024, 2025, 2026];
   forminit() {
+    const currentDate = new Date();
     this.filterForm = this.fb.group({
       commodityId: [null],
-      Year: [null],
+      Year: [currentDate.getFullYear()],
     });
   }
   onClearFilter() {

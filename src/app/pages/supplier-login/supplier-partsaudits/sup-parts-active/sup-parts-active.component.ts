@@ -12,6 +12,7 @@ import { ActiveGridDialogComponent } from 'src/app/pages/sqm/process-audits/paud
 import { AuditDonePopupComponent } from 'src/app/pages/sqm/process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/audit-done-popup/audit-done-popup.component';
 import { CommodityService } from 'src/app/pages/sqm/process-audits/paudits-setup/commodity-master/commodity.service';
 import { AlertService } from 'src/app/shared/alert.service';
+import { jwtDecode } from 'jwt-decode';
 // import { NewAuditComponent } from '../new-audit/new-audit.component';
 // import { ActiveGridDialogComponent } from '../../process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
 // import { AuditDonePopupComponent } from '../../process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/audit-done-popup/audit-done-popup.component';
@@ -116,6 +117,17 @@ export class SupPartsActiveComponent implements OnInit {
       });
   }
 
+
+private getSupplierId(): number {
+  const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  if (!token) return 0;
+  try {
+    const decoded: any = jwtDecode(token);
+    return Number(decoded.nameid) || 0;
+  } catch {
+    return 0;
+  }
+}
   parts: any[] = [];
   getParts() {
     this._setupService.getPartMaster(null)
@@ -199,7 +211,8 @@ export class SupPartsActiveComponent implements OnInit {
   partsAudits: any[] = [];
   getPartsAuidt() {
 
-    const supplierId = Number(localStorage.getItem('UserId')) || 0;
+    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+    const supplierId = this.getSupplierId();
 
     const filter = {
       ...this.filterForm.value,
@@ -249,7 +262,8 @@ export class SupPartsActiveComponent implements OnInit {
         {
           type: 'column',
           name: 'Audit Score',
-          data: scores
+          data: scores,
+          animation: false
         }
       ]
     };
@@ -287,7 +301,8 @@ export class SupPartsActiveComponent implements OnInit {
   auditScoreChartOptions: Highcharts.Options = {
     chart: {
       type: 'column',
-      height: 420
+      height: 420,
+      animation: false
     },
 
     title: {
@@ -308,18 +323,7 @@ export class SupPartsActiveComponent implements OnInit {
     },
 
     xAxis: {
-      categories: [
-        '254871',
-        '254832',
-        '254812',
-        '254854',
-        '254865',
-        '254866',
-        '254867',
-        '254868',
-        '254869',
-        '254870'
-      ],
+      categories: [],
       title: {
         text: 'Audit Reference'
       }
@@ -345,7 +349,11 @@ export class SupPartsActiveComponent implements OnInit {
     },
 
     plotOptions: {
+      series: {
+        animation: false
+      },
       column: {
+        animation: false,
         pointWidth: 55,
         color: '#2f6fa5',
         borderWidth: 0,
@@ -364,7 +372,7 @@ export class SupPartsActiveComponent implements OnInit {
       {
         type: 'column',
         name: 'Audit Score',
-        data: [87, 80, 90, 75, 95, 82, 88, 79, 91, 94]
+        data: []
       }
     ]
   };

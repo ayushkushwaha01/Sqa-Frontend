@@ -123,6 +123,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   // Pagination
   pageSize = 20;
   pageIndex = 0;
+  isLoading: boolean = true;
 
   // Filter variables
   originalAuditData: any[] = [];
@@ -184,6 +185,7 @@ export class PauditsCompletedAuditsComponent implements OnInit {
     //  2. Block API calls if no read access
     if (!this.canRead) return;
 
+    this.activeColumns = [...this.defaultColumns];
     this.loadLookups();
     this.loadGridColumns();
   }
@@ -198,20 +200,27 @@ export class PauditsCompletedAuditsComponent implements OnInit {
   }
 
   loadData() {
-    this.api.getAllAudits().subscribe((res: any) => {
-      if (res.success) {
-        // ONLY keep records where isDone is true
-        this.completedAuditData = res.data.filter((a: any) => a.isDone === true);
-        this.originalAuditData = [...this.completedAuditData];
-        this.filteredAuditData = [...this.completedAuditData];
+    this.isLoading = true;
+    this.api.getAllAudits().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          // ONLY keep records where isDone is true
+          this.completedAuditData = res.data.filter((a: any) => a.isDone === true);
+          this.originalAuditData = [...this.completedAuditData];
+          this.filteredAuditData = [...this.completedAuditData];
 
-        // If the current page becomes empty after unticking an item, go back one page
-        const maxPage = Math.ceil(this.filteredAuditData.length / this.pageSize) - 1;
-        if (this.pageIndex > maxPage && this.pageIndex > 0) {
-          this.pageIndex = maxPage;
+          // If the current page becomes empty after unticking an item, go back one page
+          const maxPage = Math.ceil(this.filteredAuditData.length / this.pageSize) - 1;
+          if (this.pageIndex > maxPage && this.pageIndex > 0) {
+            this.pageIndex = maxPage;
+          }
+
+          this.updateCharts();
         }
-
-        this.updateCharts();
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
       }
     });
   }

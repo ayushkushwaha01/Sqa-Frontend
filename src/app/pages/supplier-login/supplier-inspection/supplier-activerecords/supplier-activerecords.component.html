@@ -78,7 +78,7 @@
 
   <div class="d-flex justify-content-end align-items-center mb-3 gap-2">
     <button mat-raised-button class="btn-dark" (click)="openColumnSelector()">
-      <mat-icon>grid_on</mat-icon> Grid View
+      <mat-icon>grid_on</mat-icon> Columns
     </button>
     <button mat-raised-button style="background-color: #000000; color: #ffffff" (click)="showFilter = !showFilter">
       <mat-icon>filter_list</mat-icon> Filter
@@ -88,95 +88,96 @@
   </button> -->
   </div>
 
-  <div class="row mb-3" *ngIf="showFilter">
-    <div class="col-12">
-      <div class="expanded-filter-content">
-        <form>
-          <div class="row">
-            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-              <div class="col-sm-5 newMarginClass">
-                <b>Inspection Date:</b>
+  <div fxLayout="row wrap" *ngIf="showFilter" style="margin-bottom: 15px;">
+    <div fxFlex="100" class="flex-p w-100">
+      <form>
+        <mat-card class="filter">
+          <mat-card-content>
+            <!-- ROW 1 -->
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Inspection Date:</b></div>
+                <div class="col-sm-8">
+                  <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; width: 100%; background-color: white; overflow: hidden;">
+                    <input matInput [matDatepicker]="picker" placeholder="mm/dd/yyyy" [(ngModel)]="filterDate"
+                      name="filterDate" readonly (click)="picker.open()"
+                      style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent; cursor: pointer;" />
+                    <mat-datepicker-toggle matSuffix [for]="picker" style="flex-shrink: 0;"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                  </div>
+                </div>
               </div>
-              <div class="col-sm-7">
-                <div class="date-input-wrapper">
-                  <input matInput [matDatepicker]="picker" placeholder="Select Date" [(ngModel)]="filterDate"
-                    name="filterDate" class="form-control date-input" readonly (click)="picker.open()" />
-                  <mat-datepicker #picker></mat-datepicker>
+
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Part Family:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Part Family" [(ngModel)]="filterPartFamily" name="filterPartFamily"
+                    class="form-control">
+                    <mat-option value="">Select Part Family</mat-option>
+                    <mat-option *ngFor="let family of partFamilies" [value]="family">{{ family }}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Part Number:</b></div>
+                <div class="col-sm-8">
+                  <input type="text" placeholder="Enter Part Number" [(ngModel)]="filterPartNumber"
+                    name="filterPartNumber" class="form-control" />
                 </div>
               </div>
             </div>
 
-            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-              <div class="col-sm-5 newMarginClass"><b>Inspector:</b></div>
-              <div class="col-sm-7">
-                <mat-select placeholder="Select Inspector" [(ngModel)]="filterInspector" name="filterInspector"
-                  class="form-control mat-select-custom">
-                  <mat-option value="">Select Inspector</mat-option>
-                  <mat-option *ngFor="let insp of inspectors" [value]="insp">{{
-                    insp
-                    }}</mat-option>
-                </mat-select>
+            <!-- ROW 2 -->
+            <div class="row col-sm-12 mb-3">
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Inspector:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Inspector" [(ngModel)]="filterInspector" name="filterInspector"
+                    class="form-control">
+                    <mat-option value="">Select Inspector</mat-option>
+                    <mat-option *ngFor="let insp of inspectors" [value]="insp">{{ insp }}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Part Name:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Part Name" [(ngModel)]="filterPartName" name="filterPartName"
+                    class="form-control">
+                    <mat-option value="">Select Part Name</mat-option>
+                    <mat-option *ngFor="let name of partNames" [value]="name">{{ name }}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+
+              <div class="col-sm-4 row">
+                <div class="col-sm-4 d-flex align-items-center"><b>Batch Number:</b></div>
+                <div class="col-sm-8">
+                  <mat-select placeholder="Select Batch Number" [(ngModel)]="filterBatchNumber" name="filterBatchNumber"
+                    class="form-control">
+                    <mat-option value="">Select Batch Number</mat-option>
+                    <mat-option *ngFor="let batch of batchNumbers" [value]="batch">{{ batch }}</mat-option>
+                  </mat-select>
+                </div>
               </div>
             </div>
 
-            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-              <div class="col-sm-5 newMarginClass"><b>Part Family:</b></div>
-              <div class="col-sm-7">
-                <mat-select placeholder="Select Part Family" [(ngModel)]="filterPartFamily" name="filterPartFamily"
-                  class="form-control mat-select-custom">
-                  <mat-option value="">Select Part Family</mat-option>
-                  <mat-option *ngFor="let family of partFamilies" [value]="family">{{ family }}</mat-option>
-                </mat-select>
+            <!-- ROW 3 (Buttons) -->
+            <div class="row col-sm-12 mt-3">
+              <div class="col-sm-12 d-flex align-items-center justify-content-end">
+                <button mat-raised-button class="btn-default me-2" (click)="clearFilter()">
+                  <mat-icon>settings_backup_restore</mat-icon> Clear
+                </button>
+                <button mat-raised-button color="primary" (click)="applyFilter()">
+                  <mat-icon>search</mat-icon> Search
+                </button>
               </div>
             </div>
-
-            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-              <div class="col-sm-5 newMarginClass"><b>Part Name:</b></div>
-              <div class="col-sm-7">
-                <mat-select placeholder="Select Part Name" [(ngModel)]="filterPartName" name="filterPartName"
-                  class="form-control mat-select-custom">
-                  <mat-option value="">Select Part Name</mat-option>
-                  <mat-option *ngFor="let name of partNames" [value]="name">{{
-                    name
-                    }}</mat-option>
-                </mat-select>
-              </div>
-            </div>
-
-            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-              <div class="col-sm-5 newMarginClass"><b>Part Number:</b></div>
-              <div class="col-sm-7">
-                <input type="text" placeholder="Enter Part Number" [(ngModel)]="filterPartNumber"
-                  name="filterPartNumber" class="form-control" />
-              </div>
-            </div>
-
-            <div class="col-md-3 col-sm-6 row align-items-center mb-3">
-              <div class="col-sm-5 newMarginClass"><b>Batch Number:</b></div>
-              <div class="col-sm-7">
-                <mat-select placeholder="Select Batch Number" [(ngModel)]="filterBatchNumber" name="filterBatchNumber"
-                  class="form-control mat-select-custom">
-                  <mat-option value="">Select Batch Number</mat-option>
-                  <mat-option *ngFor="let batch of batchNumbers" [value]="batch">{{ batch }}</mat-option>
-                </mat-select>
-              </div>
-            </div>
-
-            <!-- Empty spacer column to push buttons to the 4th column -->
-            <div class="col-md-3 col-sm-6 mb-3"></div>
-
-            <!-- Buttons column aligned to the right (end of Part Name) -->
-            <div class="col-md-3 col-sm-6 d-flex justify-content-end align-items-center mb-3 gap-2">
-              <button mat-raised-button class="btn-clear" (click)="clearFilter()">
-                <mat-icon>settings_backup_restore</mat-icon> Clear
-              </button>
-              <button mat-raised-button color="primary" class="btn-search" (click)="applyFilter()">
-                <mat-icon>search</mat-icon> Search
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
     </div>
   </div>
 
@@ -246,6 +247,14 @@
               [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
               Inspector
+            </th>
+
+
+            <!-- Supplier -->
+            <th *ngSwitchCase="'Supplier'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              Supplier
             </th>
 
 
@@ -431,6 +440,14 @@
               [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
               [style.min-width.px]="getColumnWidth(col)">
               {{ item.Inspector }}
+            </td>
+
+
+            <!-- Supplier -->
+            <td *ngSwitchCase="'Supplier'" class="text-center" [class.frozen-col]="i < frozenCount"
+              [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+              [style.min-width.px]="getColumnWidth(col)">
+              {{ item.Supplier }}
             </td>
 
 

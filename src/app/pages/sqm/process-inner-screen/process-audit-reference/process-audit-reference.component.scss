@@ -1,12 +1,12 @@
 .audit-container {
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  
+
   // Top Categories & Process Audit Buttons
   .category-btn {
     min-width: 130px;
     border-radius: 4px;
     font-weight: 500;
-    
+
     // REMOVED: box-shadow: none !important;
     // ADDED: Drop shadow for resting and active states
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
@@ -15,7 +15,7 @@
     // Optional: Adds a slightly larger shadow when hovered
     &:hover {
       box-shadow: 0 0px 10px rgba(0, 0, 0, 0.3) !important;
-       
+
     }
 
     &.category-btn-active {
@@ -52,30 +52,44 @@
     align-items: center;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: transform 0.1s ease;
-    
+
     &:hover {
       transform: translateY(-2px);
     }
-    
+
     &.selected-step {
-      border: 3px solid transparent; 
+      border: 3px solid transparent;
       outline: 2px solid #000;
     }
   }
 
-  .bg-green { background-color: #008000; }
-  .bg-red { background-color: #ff0000; }
-  .bg-yellow { background-color: #ffff00; }
+  .bg-green {
+    background-color: #008000;
+  }
+
+  .bg-red {
+    background-color: #ff0000;
+  }
+
+  .bg-yellow {
+    background-color: #ffff00;
+  }
 
   // Guidelines Cards
   .guideline-card {
     border: none;
     border-radius: 2px;
   }
-  .bg-gray-light { background-color: #c0bebe; }
-  .bg-blue-light { background-color: #e1f0f5; }
+
+  .bg-gray-light {
+    background-color: #c0bebe;
+  }
+
+  .bg-blue-light {
+    background-color: #e1f0f5;
+  }
 
   // Rating Buttons
   .rating-btn {
@@ -86,20 +100,21 @@
     font-weight: bold;
     font-size: 1.2rem;
     background-color: transparent;
-    
+
     &.active {
       background-color: #f8f9fa;
-      box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+      box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     }
   }
 
   // Form Controls
-// Form Controls
+  // Form Controls
   .custom-mat-select {
-    display: flex; /* Added here to vertically center the inner components */
+    display: flex;
+    /* Added here to vertically center the inner components */
     align-items: center;
-    width: 100%; 
-    height: 38px; 
+    width: 100%;
+    height: 38px;
     border: 1px solid #ced4da;
     border-radius: 5px;
     padding: 0 0.75rem;
@@ -107,21 +122,23 @@
     box-sizing: border-box;
 
     ::ng-deep {
+
       /* Let Angular Material handle the display type, just force it full width */
       .mat-select-trigger {
         width: 100%;
       }
-      
+
       .mat-select-value {
-        color: #495057; 
+        color: #495057;
       }
 
       /* Removes the default native downward shift of the arrow */
       .mat-select-arrow-wrapper {
-        transform: translateY(0); 
+        transform: translateY(0);
       }
     }
   }
+
   .custom-textarea {
     background-color: #ffffff;
     border: 1px solid #ced4da;
@@ -145,8 +162,10 @@
   fieldset[disabled] {
     opacity: 0.65;
     cursor: not-allowed;
-    
-    .form-control, .custom-textarea, .custom-mat-select {
+
+    .form-control,
+    .custom-textarea,
+    .custom-mat-select {
       background-color: #e9ecef !important;
       cursor: not-allowed !important;
     }
@@ -160,6 +179,80 @@
     height: 45px;
   }
 }
+
+.expanded-filter-content {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  margin-bottom: 8px;
+
+  .filter-field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .form-control, .mat-select-custom {
+    height: 38px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    width: 100%;
+    font-size: 13px !important;
+    color: #1e293b !important;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .btn-clear {
+    height: 38px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: none;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .btn-search {
+    height: 38px;
+    background-color: #0284c7 !important;
+    color: white !important;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
 .drag-drop-zone {
   width: 100%;
   border: 2px dashed #b5b5b5;
@@ -179,39 +272,55 @@
 }
 
 // Step Boxes
-  .step-box {
-    width: 45px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    transition: transform 0.1s ease;
-    background-color: #e9ecef; /* Default inactive color */
-    
-    &:hover {
-      transform: translateY(-2px);
-    }
-    
-    // The active outer border with gap
-    &.selected-step {
-      outline: 2px solid #0f2e4a; /* Dark border from your image */
-      outline-offset: 3px; /* Creates the white margin space */
-      border: none; /* Removes the old transparent border */
-    }
+.step-box {
+  width: 45px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+  background-color: #e9ecef;
+  /* Default inactive color */
+
+  &:hover {
+    transform: translateY(-2px);
   }
 
-  /* Status Colors */
-  .bg-green { background-color: #00b050 !important; }
-  .bg-red { background-color: #ff0000 !important; }
-  .bg-grey { background-color: #d9d9d9 !important; }
-  .bg-orange { background-color: #fd7e14 !important; color: #ffffff !important; }
+  // The active outer border with gap
+  &.selected-step {
+    outline: 2px solid #0f2e4a;
+    /* Dark border from your image */
+    outline-offset: 3px;
+    /* Creates the white margin space */
+    border: none;
+    /* Removes the old transparent border */
+  }
+}
+
+/* Status Colors */
+.bg-green {
+  background-color: #00b050 !important;
+}
+
+.bg-red {
+  background-color: #ff0000 !important;
+}
+
+.bg-grey {
+  background-color: #d9d9d9 !important;
+}
+
+.bg-orange {
+  background-color: #fd7e14 !important;
+  color: #ffffff !important;
+}
 
 
 
-  /* --- SLIDESHOW OVERLAY STYLES --- */
+/* --- SLIDESHOW OVERLAY STYLES --- */
 .slideshow-overlay {
   position: fixed;
   top: 0;
@@ -251,13 +360,13 @@
   cursor: pointer;
   z-index: 10000;
   transition: all 0.2s ease;
-  
+
   mat-icon {
     font-size: 24px;
     height: 24px;
     width: 24px;
   }
-  
+
   &:hover {
     background: rgba(239, 68, 68, 0.9);
     border-color: #ef4444;
@@ -295,8 +404,13 @@
     transform: translateY(-50%) scale(1.1);
   }
 
-  &.prev { left: 30px; }
-  &.next { right: 30px; }
+  &.prev {
+    left: 30px;
+  }
+
+  &.next {
+    right: 30px;
+  }
 }
 
 // 2 Separate Light Grey Attachment Bands
@@ -349,7 +463,7 @@
   &.red-indicator {
     background-color: #fee2e2;
     border: 1px solid #fca5a5;
-    
+
     .pill-dot {
       width: 8px;
       height: 8px;
@@ -361,7 +475,7 @@
   &.blue-indicator {
     background-color: #dbeafe;
     border: 1px solid #93c5fd;
-    
+
     .pill-dot {
       width: 8px;
       height: 8px;

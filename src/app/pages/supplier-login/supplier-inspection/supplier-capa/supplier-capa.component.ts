@@ -15,6 +15,10 @@ import { AlertService } from 'src/app/shared/alert.service';
 import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 
+// 🔥 Import ManageUsersService and ProcessAuditService
+import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
+import { ProcessAuditService } from 'src/app/pages/sqm/process-audits/process-audit.service';
+import { jwtDecode } from 'jwt-decode';
 @Component({
   selector: 'app-supplier-capa',
   templateUrl: './supplier-capa.component.html',
@@ -36,6 +40,10 @@ export class SupplierCapaComponent implements OnInit {
 
   myGroup!: FormGroup;
 
+  // 🔥 Threshold Variables
+  overdueThreshold: number = 9999;
+  escalateThreshold: number = 9999;
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   TractorIdSections = [
@@ -55,12 +63,14 @@ export class SupplierCapaComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private api: InspectionService,
-    private alertService: AlertService, private partAuditService: PartAuditService
+    private alertService: AlertService, 
+    private partAuditService: PartAuditService,
+    private manageUserService: ManageUsersService, // 🔥 Injected
+    private processAuditApi: ProcessAuditService   // 🔥 Injected for sending emails
   ) { }
 
   ngOnInit(): void {
     const gridLength = localStorage.getItem('GridLength');
-
     if (gridLength) {
       this.pageSize = Number(gridLength);
     }
@@ -71,16 +81,61 @@ export class SupplierCapaComponent implements OnInit {
       ResponsibleSectionLeadId: new FormControl(''),
     });
 
-    this.loadData();
     this.loadGridColumns();
+
+    // 🔥 Fetch Matrix FIRST, then fetch data
+    this.manageUserService.getEscalation().subscribe((res: any) => {
+      if (res.success && res.data) {
+        const overdue = res.data.find((x: any) => x.escalationName === 'Overdue' || x.EscalationName === 'Overdue');
+        if (overdue) this.overdueThreshold = parseInt(overdue.newValue || overdue.NewValue, 10);
+
+        const escalate = res.data.find((x: any) => x.escalationName === 'Escalate' || x.EscalationName === 'Escalate');
+        if (escalate) this.escalateThreshold = parseInt(escalate.newValue || escalate.NewValue, 10);
+      }
+      this.loadData();
+    });
   }
 
+
+private getSupplierId(): number {
+  const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  if (!token) return 0;
+  try {
+    const decoded: any = jwtDecode(token);
+    return Number(decoded.nameid) || 0;
+  } catch {
+    return 0;
+  }
+}
+
   loadData() {
-    const supplierId = Number(localStorage.getItem('UserId')) || 0;
+    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+    const supplierId = this.getSupplierId();
 
     this.api.getPendingCapaRecords(supplierId).subscribe((res: any) => {
       if (res.success && res.data) {
         this.originalTableList = res.data.map((item: any) => {
+          
+          let delayVal: any = '-';
+          let calculatedDelay = 0;
+
+          // 🔥 PERMANENT DELAY CALCULATION
+          if (item.dueDate) {
+            const due = new Date(item.dueDate);
+            const completion = item.completion ? new Date(item.completion) : new Date();
+            due.setHours(0, 0, 0, 0);
+            completion.setHours(0, 0, 0, 0);
+
+            const diffTime = completion.getTime() - due.getTime();
+            if (diffTime > 0) {
+              delayVal = Math.floor(diffTime / (1000 * 3600 * 24));
+              // Let delay stay permanent for the UI history
+              calculatedDelay = delayVal;
+            } else {
+              delayVal = '-';
+            }
+          }
+
           return {
             id: item.capaId,
             inspectionRefId: item.inspectionRefId,
@@ -107,7 +162,8 @@ export class SupplierCapaComponent implements OnInit {
             etaDate: item.etaDate ? new Date(item.etaDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
             auditorRemarks: item.auditorRemarks,
             auditeeResponse: item.auditeeResponse,
-            delayInDays: item.delayInDays || null,
+            delayInDays: delayVal,
+            calculatedDelayInDays: calculatedDelay, // 🔥 Bind permanent delay here
             completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
             severity: item.severity,
             occurrence: item.occurrence,
@@ -115,7 +171,7 @@ export class SupplierCapaComponent implements OnInit {
             riskRating: item.riskRating || 'Medium',
             rating: item.rating,
             pdcaStatus: item.pdcaStatus || '-',
-            isAlert: item.delayInDays > 0
+            isAlert: calculatedDelay > 5
           };
         });
 
@@ -140,7 +196,6 @@ export class SupplierCapaComponent implements OnInit {
 
     this.tableList = baseList.filter(item => {
       let isMatch = true;
-
       if (keyword) {
         isMatch = isMatch && (
           (item.actionSubject && item.actionSubject.toLowerCase().includes(keyword)) ||
@@ -197,10 +252,7 @@ export class SupplierCapaComponent implements OnInit {
 
   docsPhoto(applicant: any) {
     const dialogRef = this.dialog.open(InspectionDocspopComponent, {
-      width: '750px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'no-scroll-dialog',
+      width: '750px', height: 'auto', maxHeight: '90vh', panelClass: 'no-scroll-dialog',
       data: {
         capaId: applicant.id,
         inspectionRefId: applicant.inspectionRefId,
@@ -209,9 +261,7 @@ export class SupplierCapaComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadData();
-      }
+      if (result) this.loadData();
     });
   }
 
@@ -227,12 +277,7 @@ export class SupplierCapaComponent implements OnInit {
     let statusNum: number | null = null;
     if (typeof applicant.status === 'string') {
       const statusMap: { [key: string]: number } = {
-        'WIP': 1,
-        'Open': 2,
-        'Closed': 3,
-        'Pending': 4,
-        'In Progress': 5,
-        'Completed': 6
+        'WIP': 1, 'Open': 2, 'Closed': 3, 'Pending': 4, 'In Progress': 5, 'Completed': 6
       };
       statusNum = statusMap[applicant.status] || null;
     } else if (typeof applicant.status === 'number') {
@@ -249,6 +294,21 @@ export class SupplierCapaComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           this.alertService.createAlert('Record updated successfully', 1);
+
+          // 🔥 NOTIFICATION EMAIL LOGIC
+          if (applicant.resolved) {
+            const notifPayload = {
+              UserId: Number(localStorage.getItem('UserId')) || 0,
+              UserType: localStorage.getItem('UserType') || 'Supplier',
+              UserName: 'System Alert',
+              ModuleName: 'CAPA Resolution',
+              Subject: `Inspection CAPA Resolved: ${applicant.reference}`,
+              Description: `Supplier has successfully marked Inspection CAPA ${applicant.reference} as Resolved. It is now pending internal review.`,
+              SentToEmail: localStorage.getItem('Email') || 'admin@sqa.com'
+            };
+            this.processAuditApi.sendHelpDeskMail(notifPayload).subscribe();
+          }
+
         } else {
           this.alertService.createAlert(res.message || 'Failed to update record', 0);
         }
@@ -261,166 +321,80 @@ export class SupplierCapaComponent implements OnInit {
   }
 
   defaultColumns: string[] = [
-    'Action',
-    'Status',
-    'Resolved',
-    'Docs',
-    'Reference',
-    'Subject',
-    'Parameter Name',
-    'Part Family',
-    'Part Name',
-    'Supplier Name',
-    'Action Type',
-    'Audit Reference',
-    'Process Category',
-    'Supplier Remarks',
-    'Log Date',
-    'Due Date',
-    'ETA Date',
-    'Auditor Remarks',
-    'Auditee Response',
-    'Delay In Days',
-    'Completion Date',
-    'Severity',
-    'Occurrence',
-    'Detection',
-    'Risk Rating',
-    'Rating',
-    'PDCA Status'
+    'Action', 'Status', 'Resolved', 'Docs', 'Reference', 'Subject',
+    'Parameter Name', 'Part Family', 'Part Name', 'Supplier Name',
+    'Action Type', 'Audit Reference', 'Process Category', 'Supplier Remarks',
+    'Log Date', 'Due Date', 'ETA Date', 'Auditor Remarks', 'Auditee Response',
+    'Delay In Days', 'Completion Date', 'Severity', 'Occurrence', 'Detection',
+    'Risk Rating', 'Rating', 'PDCA Status'
   ];
 
   activeColumns: string[] = [];
-
   frozenCount = 0;
 
   getColumnWidth(column: string): number {
     const widths: { [key: string]: number } = {
-
-      'Action': 100,
-      'Status': 150,
-      'Resolved': 100,
-      'Docs': 100,
-      'Reference': 180,
-      'Subject': 200,
-      'Parameter Name': 180,
-      'Part Family': 180,
-      'Part Name': 180,
-      'Supplier Name': 180,
-      'Action Type': 150,
-      'Audit Reference': 180,
-      'Process Category': 180,
-      'Supplier Remarks': 200,
-      'Log Date': 150,
-      'Due Date': 150,
-      'ETA Date': 150,
-      'Auditor Remarks': 200,
-      'Auditee Response': 200,
-      'Delay In Days': 130,
-      'Completion Date': 160,
-      'Severity': 120,
-      'Occurrence': 120,
-      'Detection': 120,
-      'Risk Rating': 150,
-      'Rating': 120,
-      'PDCA Status': 150
-
+      'Action': 100, 'Status': 150, 'Resolved': 100, 'Docs': 100,
+      'Reference': 180, 'Subject': 200, 'Parameter Name': 180,
+      'Part Family': 180, 'Part Name': 180, 'Supplier Name': 180,
+      'Action Type': 150, 'Audit Reference': 180, 'Process Category': 180,
+      'Supplier Remarks': 200, 'Log Date': 150, 'Due Date': 150,
+      'ETA Date': 150, 'Auditor Remarks': 200, 'Auditee Response': 200,
+      'Delay In Days': 130, 'Completion Date': 160, 'Severity': 120,
+      'Occurrence': 120, 'Detection': 120, 'Risk Rating': 150,
+      'Rating': 120, 'PDCA Status': 150
     };
-
     return widths[column] || 150;
   }
 
   getStickyLeft(index: number): string {
-
     let left = 0;
-
     for (let i = 0; i < index; i++) {
       left += this.getColumnWidth(this.activeColumns[i]);
     }
-
     return left + 'px';
   }
+
   openColumnSelector() {
-
     const dialogRef = this.dialog.open(ColumnSelectorComponent, {
-      width: '750px',
-      height: 'auto',
-      disableClose: true,
-
+      width: '750px', height: 'auto', disableClose: true,
       data: {
-        userId: 1, // replace with logged-in user ID
-        gridType: 'SupplierInspectionCapaTable',
-        defaultColumns: this.defaultColumns
+        userId: 1, gridType: 'SupplierInspectionCapaTable', defaultColumns: this.defaultColumns
       }
     });
 
     dialogRef.afterClosed().subscribe((didSave: boolean) => {
-
       if (didSave) {
-
-        this.alertService.createAlert(
-          'Column layout updated successfully.'
-        );
-
+        this.alertService.createAlert('Column layout updated successfully.');
         this.loadGridColumns();
       }
-
     });
   }
 
-
   loadGridColumns() {
-
-    const filter = {
-      userId: 1, // replace with logged-in user ID
-      gridType: 'SupplierInspectionCapaTable'
-    };
+    const filter = { userId: 1, gridType: 'SupplierInspectionCapaTable' };
 
     this.partAuditService.getgridcolumns(filter).subscribe({
-
       next: (res: any) => {
-
         if (res.success && res.data) {
-
-          const parsedData = JSON.parse(
-            res.data.selectedColumnsJSON
-          );
-
-          // Old format support
+          const parsedData = JSON.parse(res.data.selectedColumnsJSON);
           if (Array.isArray(parsedData)) {
-
             this.activeColumns = parsedData;
             this.frozenCount = 0;
-
           } else {
-
-            this.activeColumns =
-              parsedData.columns || [...this.defaultColumns];
-
-            this.frozenCount =
-              parsedData.frozenCount || 0;
+            this.activeColumns = parsedData.columns || [...this.defaultColumns];
+            this.frozenCount = parsedData.frozenCount || 0;
           }
-
         } else {
-
           this.activeColumns = [...this.defaultColumns];
           this.frozenCount = 0;
         }
-
       },
-
       error: (error) => {
-
-        console.error(
-          'Error loading grid columns',
-          error
-        );
-
+        console.error('Error loading grid columns', error);
         this.activeColumns = [...this.defaultColumns];
         this.frozenCount = 0;
-
       }
-
     });
   }
 }

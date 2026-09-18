@@ -24,7 +24,7 @@
       (click)="canUpdate && openColumnSelector()">
 
       <mat-icon>grid_on</mat-icon>
-      Grid View
+      Columns
 
     </button>
     <button mat-raised-button class="btn-dark" (click)="filterToggle = !filterToggle">
@@ -293,220 +293,174 @@
 
 
       <!-- ================= BODY ================= -->
-
       <tbody>
-
-        <tr *ngFor="let audit of pagedAuditData">
-
-          <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
-
-
-            <!-- Audit Reference -->
-            <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              <a [routerLink]="[
-                '/app',
-                'sqm',
-                'process-inner-screen',
-                'process-audit-reference'
-              ]" [queryParams]="{
-                id: audit.processAuditId,
-                ref: audit.auditReference
-              }">
-
-                {{ audit.auditReference }}
-
-              </a>
-
-            </td>
-
-
-            <!-- Commodity -->
-            <td *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              {{ audit.commodityName || '-' }}
-
-            </td>
-
-
-            <!-- State -->
-            <td *ngSwitchCase="'State'" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              {{ audit.stateName || '-' }}
-
-            </td>
-
-
-            <!-- City -->
-            <td *ngSwitchCase="'City'" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              {{ audit.cityName || '-' }}
-
-            </td>
-
-
-            <!-- Supplier -->
-            <td *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              {{ audit.supplierName || '-' }}
-
-            </td>
-
-
-            <!-- Auditor -->
-            <td *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              {{ audit.auditorName || '-' }}
-
-            </td>
-
-
-            <!-- Audit Date -->
-            <td *ngSwitchCase="'Audit Date'" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              {{ audit.auditDate | date:'dd-MM-yyyy' }}
-
-            </td>
-
-
-            <!-- CAPA -->
-            <td *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              <span [ngClass]="{
-                'text-success': isFullyResolved(audit),
-                'text-danger': !isFullyResolved(audit)
-              }">
-
-                {{ audit.capaSummary }}
-
-              </span>
-
-            </td>
-
-
-            <!-- Report -->
-            <td *ngSwitchCase="'Report'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              <a [routerLink]="[
-                '/app',
-                'sqm',
-                'process',
-                'audit-summary-report'
-              ]" [queryParams]="{
-                id: audit.processAuditId
-              }" style="
-                font-weight: 600;
-                color: #1d4ed8;
-                text-decoration: underline;
-                cursor: pointer;
-              ">
-
-                {{ audit.report || '0%' }}
-
-              </a>
-
-            </td>
-
-
-            <!-- Status -->
-            <td *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
-                placeholder="Select Status" [disabled]="!canUpdate" style="
-                max-width: 120px;
-                min-width: 120px;
-                border: 0.5px solid black;
-                border-radius: 4px;
-                padding: 4px;
-              ">
-
-                <mat-option *ngFor="let status of statusLookups" [value]="status.lookupId">
-
-                  {{ status.lookupName }}
-
-                </mat-option>
-
-              </mat-select>
-
-            </td>
-
-
-            <!-- Done -->
-            <td *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              <mat-checkbox [checked]="audit.isDone" [disabled]="!canUpdate" (click)="
-                !canUpdate
-                  ? $event.preventDefault()
-                  : onDoneClick($event, audit)
-              " color="primary">
-
-              </mat-checkbox>
-
-            </td>
-
-
-            <!-- Actions -->
-            <td *ngSwitchCase="'Actions'" class="text-center manage-icons" [class.frozen-col]="i < frozenCount"
-              [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
-              [style.min-width.px]="getColumnWidth(col)">
-
-              <!-- Edit -->
-              <i class="fas fa-edit edit-icon" [class.disable-custom]="!canUpdate" [matTooltip]="
-                !canUpdate
-                  ? 'You don’t have permission to update'
-                  : 'Edit'
-              " (click)="canUpdate && openaudit(audit)">
-              </i>
-
-
-              <!-- Delete -->
-              <i class="fas fa-trash delete-icon" [class.disable-custom]="!canDelete" [matTooltip]="
-                !canDelete
-                  ? 'You don’t have permission to delete'
-                  : 'Delete'
-              " (click)="canDelete && deleteAudit(audit)" style="color:red; margin-left:10px;">
-              </i>
-
-            </td>
-
-          </ng-container>
-
-        </tr>
-
-
-        <!-- No Data -->
-        <tr *ngIf="pagedAuditData.length === 0">
-
-          <td [attr.colspan]="activeColumns.length" class="text-center py-4 center">
-
-            No Data Available
-
+        <!-- Loading Spinner Row -->
+        <tr *ngIf="isLoading">
+          <td [attr.colspan]="activeColumns.length || defaultColumns.length || 20" style="padding: 50px 0; background: #ffffff; border: none;">
+            <div style="position: sticky; left: 0; width: 100%; max-width: calc(100vw - 280px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+              <mat-spinner diameter="40"></mat-spinner>
+              <span style="font-size: 14px; font-weight: 500; color: #333;">Loading data, please wait...</span>
+            </div>
           </td>
-
         </tr>
 
+        <ng-container *ngIf="!isLoading">
+          <tr *ngFor="let audit of pagedAuditData">
+            <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
+
+              <!-- Audit Reference -->
+              <td *ngSwitchCase="'Audit Reference'" class="text-link" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <a [routerLink]="[
+                  '/app',
+                  'sqm',
+                  'process-inner-screen',
+                  'process-audit-reference'
+                ]" [queryParams]="{
+                  id: audit.processAuditId,
+                  ref: audit.auditReference
+                }">
+                  {{ audit.auditReference }}
+                </a>
+              </td>
+
+              <!-- Commodity -->
+              <td *ngSwitchCase="'Commodity'" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                {{ audit.commodityName || '-' }}
+              </td>
+
+              <!-- State -->
+              <td *ngSwitchCase="'State'" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                {{ audit.stateName || '-' }}
+              </td>
+
+              <!-- City -->
+              <td *ngSwitchCase="'City'" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                {{ audit.cityName || '-' }}
+              </td>
+
+              <!-- Supplier -->
+              <td *ngSwitchCase="'Supplier'" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                {{ audit.supplierName || '-' }}
+              </td>
+
+              <!-- Auditor -->
+              <td *ngSwitchCase="'Auditor'" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                {{ audit.auditorName || '-' }}
+              </td>
+
+              <!-- Audit Date -->
+              <td *ngSwitchCase="'Audit Date'" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                {{ audit.auditDate | date:'dd-MM-yyyy' }}
+              </td>
+
+              <!-- CAPA -->
+              <td *ngSwitchCase="'CAPA'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <span [ngClass]="{
+                  'text-success': isFullyResolved(audit),
+                  'text-danger': !isFullyResolved(audit)
+                }">
+                  {{ audit.capaSummary }}
+                </span>
+              </td>
+
+              <!-- Report -->
+              <td *ngSwitchCase="'Report'" class="text-link text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <a [routerLink]="[
+                  '/app',
+                  'sqm',
+                  'process',
+                  'audit-summary-report'
+                ]" [queryParams]="{
+                  id: audit.processAuditId
+                }" style="
+                  font-weight: 600;
+                  color: #1d4ed8;
+                  text-decoration: underline;
+                  cursor: pointer;
+                ">
+                  {{ audit.report || '0%' }}
+                </a>
+              </td>
+
+              <!-- Status -->
+              <td *ngSwitchCase="'Status'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <mat-select [(ngModel)]="audit.statusId" (selectionChange)="onStatusChange(audit)"
+                  placeholder="Select Status" [disabled]="!canUpdate" style="
+                  max-width: 120px;
+                  min-width: 120px;
+                  border: 0.5px solid black;
+                  border-radius: 4px;
+                  padding: 4px;
+                ">
+                  <mat-option *ngFor="let status of statusLookups" [value]="status.lookupId">
+                    {{ status.lookupName }}
+                  </mat-option>
+                </mat-select>
+              </td>
+
+              <!-- Done -->
+              <td *ngSwitchCase="'Done'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <mat-checkbox [checked]="audit.isDone" [disabled]="!canUpdate" (click)="
+                  !canUpdate
+                    ? $event.preventDefault()
+                    : onDoneClick($event, audit)
+                " color="primary">
+                </mat-checkbox>
+              </td>
+
+              <!-- Actions -->
+              <td *ngSwitchCase="'Actions'" class="text-center manage-icons" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === (frozenCount - 1)" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+                <!-- Edit -->
+                <i class="fas fa-edit edit-icon" [class.disable-custom]="!canUpdate" [matTooltip]="
+                  !canUpdate
+                    ? 'You don’t have permission to update'
+                    : 'Edit'
+                " (click)="canUpdate && openaudit(audit)">
+                </i>
+
+                <!-- Delete -->
+                <i class="fas fa-trash delete-icon" [class.disable-custom]="!canDelete" [matTooltip]="
+                  !canDelete
+                    ? 'You don’t have permission to delete'
+                    : 'Delete'
+                " (click)="canDelete && deleteAudit(audit)" style="color:red; margin-left:10px;">
+                </i>
+              </td>
+
+            </ng-container>
+          </tr>
+
+          <!-- No Data -->
+          <tr *ngIf="pagedAuditData.length === 0">
+            <td [attr.colspan]="activeColumns.length" class="text-center py-4 center">
+              No Data Available
+            </td>
+          </tr>
+        </ng-container>
       </tbody>
 
     </table>

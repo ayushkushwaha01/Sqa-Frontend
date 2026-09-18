@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
@@ -11,8 +12,12 @@ import { AlertService } from 'src/app/shared/alert.service';
 export class PasskeyManageDialogComponent implements OnInit {
   
   public hasPasskey: boolean = false;
-  public passkeyInfo: any = null;
+  public passkeysList: any[] = [];
   public isLoading: boolean = true;
+  
+  // Toggle for the naming screen
+  public isAddingNew: boolean = false;
+  public newDeviceName: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<PasskeyManageDialogComponent>,
@@ -29,31 +34,36 @@ export class PasskeyManageDialogComponent implements OnInit {
     this.api.getPasskeyInfo().subscribe({
       next: (res: any) => {
         this.hasPasskey = res.hasPasskey;
-        if (this.hasPasskey) {
-          this.passkeyInfo = res;
-        }
+        this.passkeysList = res.passkeysList || []; // Maps to our C# backend list!
         this.isLoading = false;
+        this.isAddingNew = false; // Reset view
+        this.newDeviceName = '';
       },
       error: () => this.isLoading = false
     });
   }
 
-  deletePasskey() {
-    if(confirm("Are you sure you want to delete this passkey? You will need to use a password to log in.")) {
-      this.api.deletePasskey().subscribe({
+  deletePasskey(passkeyId: number) {
+    if(confirm("Are you sure you want to remove this device?")) {
+      this.api.deletePasskey(passkeyId).subscribe({
         next: (res: any) => {
           this.alertService.createAlert(res.message, 1);
-          this.hasPasskey = false;
-          this.passkeyInfo = null;
+          this.loadPasskeyInfo(); // Refresh the list
         }
       });
     }
   }
 
-  // ==========================================================
-  // 🔥 THE FINGERPRINT SCANNER LOGIC (Moved from the menu!)
-  // ==========================================================
-  public addNewDevice() {
+  startAddNewDevice() {
+    this.isAddingNew = true;
+  }
+
+  public executePasskeyRegistration() {
+    if (!this.newDeviceName.trim()) {
+      this.alertService.createAlert('Please enter a device name.', 0);
+      return;
+    }
+
     this.api.setupPasskeyOptions().subscribe({
       next: async (options: any) => {
         try {
@@ -82,10 +92,11 @@ export class PasskeyManageDialogComponent implements OnInit {
             }
           };
 
-          this.api.setupPasskeyRegister(attestationResponse).subscribe({
+          // 🔥 Pass the typed device name to the backend!
+          this.api.setupPasskeyRegister(attestationResponse, this.newDeviceName).subscribe({
              next: (res: any) => {
                this.alertService.createAlert(res.message, 1);
-               this.loadPasskeyInfo(); // Refresh the popup!
+               this.loadPasskeyInfo(); // Go back to list and refresh!
              },
              error: (err: any) => this.alertService.createAlert(err.error?.message || 'Passkey setup failed', 0)
           });
@@ -96,7 +107,6 @@ export class PasskeyManageDialogComponent implements OnInit {
     });
   }
 
-  // --- WebAuthn Helpers ---
   private base64urlToBuffer(base64url: string): ArrayBuffer {
     const padding = '==='.slice((base64url.length + 3) % 4);
     const base64 = (base64url + padding).replace(/-/g, '+').replace(/_/g, '/');

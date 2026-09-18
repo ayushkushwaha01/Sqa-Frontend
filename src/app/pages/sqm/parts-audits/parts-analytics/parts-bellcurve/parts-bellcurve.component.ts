@@ -23,10 +23,18 @@ export class PartsBellcurveComponent implements OnInit {
     this.forminit();
     this.getBellCurve();
   }
-  forminit() {
+  // forminit() {
+  //   this.filterForm = this.fb.group({
+
+  //     Year: [null],
+  //   });
+  // }
+
+   forminit() {
+    const currentDate = new Date();
     this.filterForm = this.fb.group({
 
-      Year: [null],
+      Year: [currentDate.getFullYear()],
     });
   }
   onClearFilter() {

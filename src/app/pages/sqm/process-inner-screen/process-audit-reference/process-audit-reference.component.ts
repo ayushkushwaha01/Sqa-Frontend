@@ -25,8 +25,16 @@ export class ProcessAuditReferenceComponent implements OnInit {
   get hasEditAccess(): boolean {
     return this.isExistingRecord ? this.canUpdate : this.canCreate;
   }
-  
+
   isSaving: boolean = false; // Add loading state
+
+  // 🔥 Filter Panel
+  showFilter: boolean = false;
+  filterCategory: any = null;
+  filterCompliance: string = '';
+  filterRating: string = '';
+  filterSeverityId: any = null;
+  allProcessSteps: any[] = []; // Stores unfiltered steps for reset
 
   // Dynamic Master Data
   categories: any[] = [];
@@ -36,9 +44,14 @@ export class ProcessAuditReferenceComponent implements OnInit {
   severities: any[] = [];
   parentAuditRef: string = 'Pending...';
 
-  // Dropdown Options
-  occurrences = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  detections = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // // Dropdown Options
+  // occurrences = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // detections = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  // NEW DYNAMIC ARRAYS
+  occurrences: any[] = [];
+  detections: any[] = [];
+
   pdcaStatuses = ['Plan', 'Do', 'Check', 'Act'];
   actionTypes = ['Containment', 'Corrective', 'Preventive'];
   classOptions = ['Regular', 'Important', 'Critical', 'Fitment', 'Safety'];
@@ -46,7 +59,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // Form Bindings
   rating = 'NA';
   selectedSeverityId: any = null;
-  
+
   selectedOccurrence: any = null;
   selectedDetection: any = null;
   complianceStatus: string = '';
@@ -62,7 +75,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   correctiveActions = '';
   supplierRemarks = '';
 
-   targetCategoryId: any = null;  // 🔥 Add this
+  targetCategoryId: any = null;  // 🔥 Add this
   targetChecklistId: any = null; // 🔥 Add this
 
   // File Upload Variables
@@ -122,8 +135,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   ngOnInit(): void {
     // 🔥 1. Check if user is a Supplier FIRST
-    this.isSupplier = localStorage.getItem('UserType') === 'Supplier' || 
-                      window.location.href.toLowerCase().includes('role=supplier');
+    this.isSupplier = localStorage.getItem('UserType') === 'Supplier' ||
+      window.location.href.toLowerCase().includes('role=supplier');
 
     // 🔥 2. Apply Permissions based on User Type
     if (this.isSupplier) {
@@ -132,7 +145,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
       this.canUpdate = true;
       this.canCreate = false; // Suppliers cannot create new audits
       this.canDelete = false; // Suppliers cannot delete
-    } 
+    }
     else {
       // Internal users get their permissions from the Database Setup Matrix
       this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
@@ -146,24 +159,39 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
     // 4. Load Route Parameters
     this.parentAuditRef = this.route.snapshot.queryParamMap.get('ref') || 'New Audit';
-    this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId'); 
-    this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId'); 
+    this.targetCategoryId = this.route.snapshot.queryParamMap.get('categoryId');
+    this.targetChecklistId = this.route.snapshot.queryParamMap.get('checklistId');
 
     // 5. Load Data
-    this.loadMasterData(); 
+    this.loadMasterData();
   }
 
   loadMasterData() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
 
     this.api.getSeverities().subscribe((res: any) => {
-      if (res.success) this.severities = res.data;
+      if (res.success && res.data) {
+        this.severities = res.data.sort((a: any, b: any) => Number(a.rating || 0) - Number(b.rating || 0));
+      }
     });
+
+    this.api.getOccurrences().subscribe((res: any) => {
+      if (res.success && res.data) {
+        this.occurrences = res.data.sort((a: any, b: any) => Number(a.rating || 0) - Number(b.rating || 0));
+      }
+    });
+
+    this.api.getDetections().subscribe((res: any) => {
+      if (res.success && res.data) {
+        this.detections = res.data.sort((a: any, b: any) => Number(a.rating || 0) - Number(b.rating || 0));
+      }
+    });
+
 
     this.api.getProcessCategories().subscribe((res: any) => {
       if (res.success && res.data.length > 0) {
         this.categories = res.data;
-        
+
         // Fetch checklist counts and responses for each category
         this.categories.forEach((cat: any) => {
           const catId = cat.processCategoryId;
@@ -201,7 +229,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
           const found = this.categories.find(c => c.processCategoryId == this.targetCategoryId);
           if (found) catToSelect = found;
         }
-        
+
         this.selectCategory(catToSelect);
       }
     });
@@ -279,17 +307,18 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.api.getChecklists(category.processCategoryId).subscribe((res: any) => {
       if (res.success && res.data.length > 0) {
         this.processSteps = res.data;
-        
+        this.allProcessSteps = [...res.data]; // 🔥 Cache unfiltered steps
+
         let stepToSelect = this.processSteps[0];
         if (this.targetChecklistId) {
           const found = this.processSteps.find(s => s.checklistId == this.targetChecklistId);
           if (found) stepToSelect = found;
-          
+
           // Clear the target ID so if the user clicks other tabs manually, it works normally
-          this.targetChecklistId = null; 
+          this.targetChecklistId = null;
         }
-        
-        this.selectStep(stepToSelect); 
+
+        this.selectStep(stepToSelect);
       }
     });
   }
@@ -302,7 +331,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // loadSavedResponse() {
   //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
   //   const chkId = this.selectedStep?.checklistId;
-    
+
   //   if (!parentAuditId || !chkId) return;
 
   //   // ⚡ INSTANT POPULATION FROM MEMORY CACHE (0ms lag!)
@@ -328,7 +357,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   loadSavedResponse() {
     const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
     const chkId = this.selectedStep?.checklistId;
-    
+
     if (!parentAuditId || !chkId) return;
 
     // 1. INSTANT POPULATION FROM MEMORY CACHE OR RESET FORM
@@ -363,7 +392,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.selectedOccurrence = d.occurrence;
     this.selectedDetection = d.detection;
     this.complianceStatus = d.compliance || '';
-    
+
     // CAPA fields
     this.selectedClass = d.class || '';
     this.capaSubject = d.capaSubject || '';
@@ -381,9 +410,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.completedDate = d.completedDate ? this.formatDateForInput(d.completedDate) : null;
 
     // Clear local arrays on reload
-    this.selectedFiles = []; 
-    this.selectedImageFiles = []; 
-    
+    this.selectedFiles = [];
+    this.selectedImageFiles = [];
+
     this.galleryImages = [];
     this.uploadedDocs = [];
 
@@ -420,7 +449,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // }
   setRating(val: string) {
     // 🔥 Block if supplier OR if user lacks the correct access (Create vs Update)
-    if (this.isSupplier || !this.hasEditAccess) return; 
+    if (this.isSupplier || !this.hasEditAccess) return;
     this.rating = val;
     if (this.selectedStep?.checklistId) {
       const chkId = this.selectedStep.checklistId;
@@ -434,7 +463,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // --- Dynamic SOD Calculation ---
   get sodScore(): string {
     if (!this.selectedSeverityId || !this.selectedOccurrence || !this.selectedDetection) return '';
-    
+
     // Find the actual rating value from the severity master
     const severity = this.severities.find(s => s.severityId === this.selectedSeverityId);
     const severityVal = severity ? severity.rating : 0;
@@ -454,7 +483,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   }
   addFiles(files: FileList): void { for (let i = 0; i < files.length; i++) this.selectedFiles.push(files[i]); }
   removeFile(index: number): void { this.selectedFiles.splice(index, 1); }
-  
+
   removeApiDoc(index: number): void {
     this.uploadedDocs.splice(index, 1);
     // You might also need an API call here to delete the doc if required by backend,
@@ -478,8 +507,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
     fileInput.onchange = (event: any) => {
       const file = event.target.files[0];
       if (file) {
-        
-        this.selectedImageFiles.push(file); 
+
+        this.selectedImageFiles.push(file);
 
         const reader = new FileReader();
         reader.onload = () => { this.galleryImages.push(reader.result as string); }; // Local Preview
@@ -493,8 +522,8 @@ export class ProcessAuditReferenceComponent implements OnInit {
   // --- Slideshow Logic ---
   openSlideshow(index: number): void { if (this.galleryImages.length > 0) { this.currentSlideIndex = index; this.isSlideshowOpen = true; } }
   closeSlideshow(): void { this.isSlideshowOpen = false; }
-  prevSlide(event?: Event): void { if(event) event.stopPropagation(); this.currentSlideIndex = (this.currentSlideIndex - 1 + this.galleryImages.length) % this.galleryImages.length; }
-  nextSlide(event?: Event): void { if(event) event.stopPropagation(); this.currentSlideIndex = (this.currentSlideIndex + 1) % this.galleryImages.length; }
+  prevSlide(event?: Event): void { if (event) event.stopPropagation(); this.currentSlideIndex = (this.currentSlideIndex - 1 + this.galleryImages.length) % this.galleryImages.length; }
+  nextSlide(event?: Event): void { if (event) event.stopPropagation(); this.currentSlideIndex = (this.currentSlideIndex + 1) % this.galleryImages.length; }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
@@ -506,8 +535,74 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   goBack(): void { this.location.back(); }
 
+  // --- FILTER PANEL METHODS ---
+  toggleFilter(): void {
+    this.showFilter = !this.showFilter;
+  }
+
+  applyFilter(): void {
+    if (this.filterCategory && this.filterCategory !== this.selectedCategory) {
+      this.selectCategory(this.filterCategory);
+      setTimeout(() => this.filterSteps(), 500);
+    } else {
+      this.filterSteps();
+    }
+  }
+
+  filterSteps(): void {
+    if (this.allProcessSteps.length === 0 && this.processSteps.length > 0) {
+      this.allProcessSteps = [...this.processSteps];
+    }
+
+    let filtered = [...this.allProcessSteps];
+
+    if (this.filterCompliance) {
+      filtered = filtered.filter(step => {
+        const resp = this.checklistResponses[step.checklistId];
+        return resp && resp.compliance === this.filterCompliance;
+      });
+    }
+
+    if (this.filterRating) {
+      filtered = filtered.filter(step => {
+        const resp = this.checklistResponses[step.checklistId];
+        return resp && resp.rating === this.filterRating;
+      });
+    }
+
+    if (this.filterSeverityId) {
+      filtered = filtered.filter(step => {
+        const resp = this.checklistResponses[step.checklistId];
+        return resp && resp.severityId === this.filterSeverityId;
+      });
+    }
+
+    this.processSteps = filtered;
+
+    if (this.processSteps.length > 0) {
+      this.selectStep(this.processSteps[0]);
+    }
+
+    this.alertService.createAlert(`Found ${filtered.length} matching checklist(s)`, 1);
+  }
+
+  clearFilter(): void {
+    this.filterCategory = null;
+    this.filterCompliance = '';
+    this.filterRating = '';
+    this.filterSeverityId = null;
+
+    if (this.allProcessSteps.length > 0) {
+      this.processSteps = [...this.allProcessSteps];
+      this.allProcessSteps = [];
+      if (this.processSteps.length > 0) {
+        this.selectStep(this.processSteps[0]);
+      }
+    }
+  }
+
   // --- SAVE RECORD ---
-   
+
 
   // saveData() {
   //   if (!this.isSupplier && (!this.complianceStatus || this.complianceStatus.trim() === '')) {
@@ -534,7 +629,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   //     occurrence: this.selectedOccurrence,
   //     detection: this.selectedDetection,
   //     compliance: this.complianceStatus,
-      
+
   //     // CAPA fields
   //     class: this.selectedClass,
   //     capaSubject: this.capaSubject,
@@ -623,7 +718,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
       occurrence: this.selectedOccurrence,
       detection: this.selectedDetection,
       compliance: this.complianceStatus,
-      
+
       // CAPA fields
       class: this.selectedClass,
       capaSubject: this.capaSubject,
@@ -646,11 +741,11 @@ export class ProcessAuditReferenceComponent implements OnInit {
     formData.append('jsonData', JSON.stringify(payload));
 
     // Append both file arrays separately so backend receives all uploads
-    this.selectedFiles.forEach(file => { 
-      formData.append('files', file); 
+    this.selectedFiles.forEach(file => {
+      formData.append('files', file);
     });
-    this.selectedImageFiles.forEach(file => { 
-      formData.append('files', file); 
+    this.selectedImageFiles.forEach(file => {
+      formData.append('files', file);
     });
 
     this.isSaving = true;
@@ -676,7 +771,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
           }
 
           this.alertService.createAlert(res.message, 1);
-          this.loadSavedResponse(); 
+          this.loadSavedResponse();
         } else {
           this.alertService.createAlert(res.message || 'Error saving response', 0);
         }
@@ -694,7 +789,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   //   this.selectedOccurrence = null;
   //   this.selectedDetection = null;
   //   this.complianceStatus = '';
-    
+
   //   this.selectedClass = '';
   //   this.capaSubject = '';
   //   this.dueDate = null;
@@ -705,7 +800,7 @@ export class ProcessAuditReferenceComponent implements OnInit {
   //   this.remarks = '';
   //   this.correctiveActions = '';
   //   this.supplierRemarks = '';
-    
+
   //   this.selectedFiles = [];
   //   this.selectedImageFiles = []; 
   //   this.galleryImages = [];
@@ -719,10 +814,10 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.selectedOccurrence = null;
     this.selectedDetection = null;
     this.complianceStatus = '';
-    
+
     this.selectedClass = '';
     this.capaSubject = '';
-    
+
     this.logDate = this.getTodayDateString();
     this.dueDate = null;
     this.completedDate = null;
@@ -732,9 +827,9 @@ export class ProcessAuditReferenceComponent implements OnInit {
     this.remarks = '';
     this.correctiveActions = '';
     this.supplierRemarks = '';
-    
+
     this.selectedFiles = [];
-    this.selectedImageFiles = []; 
+    this.selectedImageFiles = [];
     this.galleryImages = [];
     this.uploadedDocs = [];
   }
@@ -763,157 +858,157 @@ export class ProcessAuditReferenceComponent implements OnInit {
 
   // Add this method inside ProcessAuditReferenceComponent class
 
-// deleteImage(index: number, imgUrl: string): void {
-//   // 1. If it's a local Base64 preview that hasn't been saved to DB yet
-//   if (imgUrl.startsWith('data:')) {
-//     this.galleryImages.splice(index, 1);
-//     const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
-//     if (localIndex >= 0) {
-//       this.selectedImageFiles.splice(localIndex, 1);
-//     }
-//     return;
-//   }
+  // deleteImage(index: number, imgUrl: string): void {
+  //   // 1. If it's a local Base64 preview that hasn't been saved to DB yet
+  //   if (imgUrl.startsWith('data:')) {
+  //     this.galleryImages.splice(index, 1);
+  //     const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
+  //     if (localIndex >= 0) {
+  //       this.selectedImageFiles.splice(localIndex, 1);
+  //     }
+  //     return;
+  //   }
 
-//   // 2. Safely grab the IDs even after a page refresh
-//   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-//   // 🔥 FIXED: Changed this.checklistId to this.targetChecklistId
-//   const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
+  //   // 2. Safely grab the IDs even after a page refresh
+  //   const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+  //   // 🔥 FIXED: Changed this.checklistId to this.targetChecklistId
+  //   const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
 
-//   if (!parentAuditId || !stepChecklistId) {
-//     this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
-//     return;
-//   }
+  //   if (!parentAuditId || !stepChecklistId) {
+  //     this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
+  //     return;
+  //   }
 
-//   const payload = {
-//     processAuditId: parentAuditId,
-//     checklistId: stepChecklistId,
-//     fileUrl: imgUrl
-//   };
+  //   const payload = {
+  //     processAuditId: parentAuditId,
+  //     checklistId: stepChecklistId,
+  //     fileUrl: imgUrl
+  //   };
 
-//   this.api.deleteInnerScreenDocument(payload).subscribe({
-//     next: (res: any) => {
-//       if (res.success) {
-//         this.alertService.createAlert('Image deleted successfully', 1);
-//         this.loadSavedResponse(); // 🔥 Reloads clean data from DB
-//       } else {
-//         this.alertService.createAlert(res.message || 'Failed to delete image', 0);
-//       }
-//     },
-//     error: () => this.alertService.createAlert('Error deleting image', 0)
-//   });
-// }
+  //   this.api.deleteInnerScreenDocument(payload).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success) {
+  //         this.alertService.createAlert('Image deleted successfully', 1);
+  //         this.loadSavedResponse(); // 🔥 Reloads clean data from DB
+  //       } else {
+  //         this.alertService.createAlert(res.message || 'Failed to delete image', 0);
+  //       }
+  //     },
+  //     error: () => this.alertService.createAlert('Error deleting image', 0)
+  //   });
+  // }
 
-deleteImage(index: number, imgUrl: string): void {
-  if (!this.canDelete && !imgUrl.startsWith('data:')) {
+  deleteImage(index: number, imgUrl: string): void {
+    if (!this.canDelete && !this.hasEditAccess && !imgUrl.startsWith('data:')) {
       this.alertService.createAlert('Access Denied: You cannot delete images.', 0);
-      return; 
-  }
-
-  // 1. Open the confirmation popup FIRST for ANY image
-  const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-    width: '360px',
-    panelClass: 'no-padding-dialog',
-    data: { 
-      title: 'Delete Confirmation', 
-      content: 'Are you sure you want to delete this image?', 
-      isConfirmation: true 
+      return;
     }
-  });
 
-  // 2. Only proceed if the user clicks "Yes / Confirm"
-  dialogRef.afterClosed().subscribe((result: any) => {
-    if (result) {
-      // A. If it's a local Base64 preview that hasn't been saved to DB yet
-      if (imgUrl.startsWith('data:')) {
-        this.galleryImages.splice(index, 1);
-        const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
-        if (localIndex >= 0) {
-          this.selectedImageFiles.splice(localIndex, 1);
+    // 1. Open the confirmation popup FIRST for ANY image
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: {
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to delete this image?',
+        isConfirmation: true
+      }
+    });
+
+    // 2. Only proceed if the user clicks "Yes / Confirm"
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        // A. If it's a local Base64 preview that hasn't been saved to DB yet
+        if (imgUrl.startsWith('data:')) {
+          this.galleryImages.splice(index, 1);
+          const localIndex = this.selectedImageFiles.length - (this.galleryImages.length - index) - 1;
+          if (localIndex >= 0) {
+            this.selectedImageFiles.splice(localIndex, 1);
+          }
+          this.alertService.createAlert('Image removed', 1);
+          return;
         }
-        this.alertService.createAlert('Image removed', 1);
-        return;
+
+        // B. If it's an existing S3 image saved in the database
+        const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+        const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
+
+        if (!parentAuditId || !stepChecklistId) {
+          this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
+          return;
+        }
+
+        const payload = {
+          processAuditId: parentAuditId,
+          checklistId: stepChecklistId,
+          fileUrl: imgUrl
+        };
+
+        this.api.deleteInnerScreenDocument(payload).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert('Image deleted successfully', 1);
+              this.loadSavedResponse(); // Reload clean data from DB
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to delete image', 0);
+            }
+          },
+          error: () => this.alertService.createAlert('Error deleting image', 0)
+        });
       }
+    });
+  }
 
-      // B. If it's an existing S3 image saved in the database
-      const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-      const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
+  // Replace removeApiDoc(index: number) with this:
 
-      if (!parentAuditId || !stepChecklistId) {
-        this.alertService.createAlert('Cannot delete: Missing Audit or Checklist ID', 0);
-        return;
-      }
-
-      const payload = {
-        processAuditId: parentAuditId,
-        checklistId: stepChecklistId,
-        fileUrl: imgUrl
-      };
-
-      this.api.deleteInnerScreenDocument(payload).subscribe({
-        next: (res: any) => {
-          if (res.success) {
-            this.alertService.createAlert('Image deleted successfully', 1);
-            this.loadSavedResponse(); // Reload clean data from DB
-          } else {
-            this.alertService.createAlert(res.message || 'Failed to delete image', 0);
-          }
-        },
-        error: () => this.alertService.createAlert('Error deleting image', 0)
-      });
-    }
-  });
-}
-
-// Replace removeApiDoc(index: number) with this:
-
-deleteDocument(index: number, doc: any): void {
-  if (!this.canDelete) {
+  deleteDocument(index: number, doc: any): void {
+    if (!this.canDelete && !this.hasEditAccess) {
       this.alertService.createAlert('Access Denied: You cannot delete documents.', 0);
-      return; 
-  }
-
-  // 1. Check if we have the required IDs before making an API call
-  const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
-  const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
-
-  if (!parentAuditId || !stepChecklistId || !doc?.url) {
-    // Fallback: If it's just a local item or IDs are missing, remove from UI array
-    this.uploadedDocs.splice(index, 1);
-    return;
-  }
-
-  // 2. Open confirmation popup
-  const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-    width: '360px',
-    panelClass: 'no-padding-dialog',
-    data: { 
-      title: 'Delete Confirmation', 
-      content: 'Are you sure you want to delete this document?', 
-      isConfirmation: true 
+      return;
     }
-  });
 
-  // 3. Call backend API if confirmed
-  dialogRef.afterClosed().subscribe((result: any) => {
-    if (result) {
-      const payload = {
-        processAuditId: parentAuditId,
-        checklistId: stepChecklistId,
-        fileUrl: doc.url // Your backend C# RemoveKey() will match and remove this from PdfDocs
-      };
+    // 1. Check if we have the required IDs before making an API call
+    const parentAuditId = parseInt(this.route.snapshot.queryParamMap.get('id') || '0');
+    const stepChecklistId = this.selectedStep?.checklistId || this.selectedStep?.ChecklistId || this.targetChecklistId;
 
-      this.api.deleteInnerScreenDocument(payload).subscribe({
-        next: (res: any) => {
-          if (res.success) {
-            this.alertService.createAlert('Document deleted successfully', 1);
-            this.loadSavedResponse(); // 🔥 Reloads clean data directly from the DB
-          } else {
-            this.alertService.createAlert(res.message || 'Failed to delete document', 0);
-          }
-        },
-        error: () => this.alertService.createAlert('Error deleting document', 0)
-      });
+    if (!parentAuditId || !stepChecklistId || !doc?.url) {
+      // Fallback: If it's just a local item or IDs are missing, remove from UI array
+      this.uploadedDocs.splice(index, 1);
+      return;
     }
-  });
-}
+
+    // 2. Open confirmation popup
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '360px',
+      panelClass: 'no-padding-dialog',
+      data: {
+        title: 'Delete Confirmation',
+        content: 'Are you sure you want to delete this document?',
+        isConfirmation: true
+      }
+    });
+
+    // 3. Call backend API if confirmed
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const payload = {
+          processAuditId: parentAuditId,
+          checklistId: stepChecklistId,
+          fileUrl: doc.url // Your backend C# RemoveKey() will match and remove this from PdfDocs
+        };
+
+        this.api.deleteInnerScreenDocument(payload).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.alertService.createAlert('Document deleted successfully', 1);
+              this.loadSavedResponse(); // 🔥 Reloads clean data directly from the DB
+            } else {
+              this.alertService.createAlert(res.message || 'Failed to delete document', 0);
+            }
+          },
+          error: () => this.alertService.createAlert('Error deleting document', 0)
+        });
+      }
+    });
+  }
 }

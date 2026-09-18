@@ -19,7 +19,8 @@
                         
                         <div class="col-sm-8">
                             <input type="text" formControlName="stateName" class="form-control" 
-                                   placeholder="Enter State Name" autofocus (keypress)="onlyAlphabets($event)">
+                                   placeholder="Enter State Name" autofocus (keypress)="onlyAlphabets($event)"
+                                   style="background-color: #fefec4 !important;">
                             
                             <div *ngIf="stateForm.get('stateName')?.hasError('required') && stateForm.get('stateName')?.touched" 
                                  style="color: red; font-size: 12px; margin-top: 4px;">

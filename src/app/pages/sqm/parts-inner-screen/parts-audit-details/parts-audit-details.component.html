@@ -29,11 +29,12 @@
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
-            CAPA Subject :
+            CAPA Subject : <span class="text-danger">*</span>
           </label>
 
           <div class="col-sm-7">
-            <input type="text" class="form-control" placeholder="Enter CAPA Subject" formControlName="capaSubject">
+            <input type="text" class="form-control" placeholder="Enter CAPA Subject" formControlName="capaSubject"
+              style="background-color: #fefec4 !important;">
           </div>
         </div>
 
@@ -95,11 +96,12 @@
 
         <div class="row form-group mt-3 align-items-center">
           <label class="control-label col-sm-4 font-weight-bold">
-            Logged Date :
+            Logged Date : <span class="text-danger">*</span>
           </label>
 
           <div class="col-sm-7">
-            <input type="date" class="form-control" formControlName="loggedDate">
+            <input type="date" class="form-control" formControlName="loggedDate"
+              style="background-color: #fefec4 !important;">
           </div>
         </div>
         <div class="row form-group mt-3 align-items-center">
@@ -460,7 +462,7 @@
 
       <div class="col-sm-12 text-end mt-4">
 
-        <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);"
+        <!-- <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);"
           [ngClass]="{ 'disable-custom': !canCreate && !canUpdate }" [matTooltip]="
     !canCreate && !canUpdate
       ? 'You don’t have permission to create or update'
@@ -470,7 +472,20 @@
           <mat-icon>save</mat-icon>
           Save
 
+        </button> -->
+
+          <button mat-raised-button class="custom-save-btn" style="background-color: rgb(0, 153, 255);"
+          [ngClass]="{ 'disable-custom': done || (!canCreate && !canUpdate) }" [matTooltip]="
+    !canCreate && !canUpdate
+      ? 'You don’t have permission to create or update'
+      : 'Save'
+  " (click)="!done && (canCreate || canUpdate) && save()">
+
+          <mat-icon>save</mat-icon>
+          Save
+
         </button>
+
 
       </div>
 

@@ -15,8 +15,13 @@
                         <mat-icon class="color:white">person</mat-icon>
                     </button>
 
-                    <a routerLink="/"
+                    <!-- <a routerLink="/"
                         style="margin-left: 20px; display: inline-flex; align-items: center; text-decoration: none;">
+                        <img src="../../assets/sqa-logo.svg" alt="SQA - Supplier Quality Audits"
+                            style="height: 40px; width: auto;">
+                    </a> -->
+
+                    <a style="margin-left: 20px; display: inline-flex; align-items: center; text-decoration: none;">
                         <img src="../../assets/sqa-logo.svg" alt="SQA - Supplier Quality Audits"
                             style="height: 40px; width: auto;">
                     </a>
@@ -28,13 +33,9 @@
                 </div>
                 <div fxLayout="row" fxLayoutAlign="end center">
                     <!-- Envelope Icon for Sent Mails -->
-                    <button mat-icon-button 
-                            matTooltip="Sent Mails" 
-                            [matBadge]="sentMailsCount" 
-                            [matBadgeHidden]="sentMailsCount === 0" 
-                            matBadgeColor="accent" 
-                            matBadgeSize="small" 
-                            (click)="openSentMails()">
+                    <button mat-icon-button matTooltip="Sent Mails" [matBadge]="sentMailsCount"
+                        [matBadgeHidden]="sentMailsCount === 0" matBadgeColor="accent" matBadgeSize="small"
+                        (click)="openSentMails()">
                         <mat-icon style="color: white;">mail</mat-icon>
                     </button>
 
@@ -57,7 +58,7 @@
 
         <div id="main-content" class="inner-sidenav-content transition-2"
             [class.with-page-header]="showBreadcrumb || showBackBtn" perfectScrollbar (psScrollY)="onPsScrollY($event)">
-            
+
             <!-- Page header bar: placed INSIDE main-content so it scrolls naturally with page content -->
             <div class="page-header-bar" *ngIf="showBreadcrumb || showBackBtn" [style.margin-left.px]="sidenavWidth">
                 <app-breadcrumb *ngIf="showBreadcrumb"></app-breadcrumb>

@@ -11,7 +11,7 @@
         <div class="row" style="margin-bottom: 12px;">
             <div class="col-sm-4"><label style="font-weight: bold;">Commodity <span class="text-danger">*</span></label></div>
             <div class="col-sm-8">
-                <mat-select formControlName="commodityId" placeholder="Select Commodity" class="form-control">
+                <mat-select formControlName="commodityId" placeholder="Select Commodity" class="form-control" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let c of commodities" [value]="c.commodityId">{{c.name}}</mat-option>
                 </mat-select>
             </div>
@@ -21,7 +21,7 @@
         <div class="row" style="margin-bottom: 12px;">
             <div class="col-sm-4"><label style="font-weight: bold;">Supplier <span class="text-danger">*</span></label></div>
             <div class="col-sm-8">
-                <mat-select formControlName="supplierId" placeholder="Select Supplier" class="form-control">
+                <mat-select formControlName="supplierId" placeholder="Select Supplier" class="form-control" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let s of suppliers" [value]="s.supplierId">{{s.supplierName}}</mat-option>
                 </mat-select>
             </div>
@@ -31,7 +31,7 @@
         <div class="row" style="margin-bottom: 12px;">
             <div class="col-sm-4"><label style="font-weight: bold;">State <span class="text-danger">*</span></label></div>
             <div class="col-sm-8">
-                <mat-select formControlName="stateId" placeholder="Select State" class="form-control" (selectionChange)="onStateChange($event.value)">
+                <mat-select formControlName="stateId" placeholder="Select State" class="form-control" (selectionChange)="onStateChange($event.value)" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let s of states" [value]="s.stateId">{{s.stateName}}</mat-option>
                 </mat-select>
             </div>
@@ -41,7 +41,7 @@
         <div class="row" style="margin-bottom: 12px;">
             <div class="col-sm-4"><label style="font-weight: bold;">City <span class="text-danger">*</span></label></div>
             <div class="col-sm-8">
-                <mat-select formControlName="cityId" placeholder="Select City" class="form-control">
+                <mat-select formControlName="cityId" placeholder="Select City" class="form-control" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let c of filteredCities" [value]="c.cityId">{{c.cityName}}</mat-option>
                 </mat-select>
             </div>
@@ -51,7 +51,7 @@
         <div class="row" style="margin-bottom: 12px;">
             <div class="col-sm-4"><label style="font-weight: bold;">Auditor <span class="text-danger">*</span></label></div>
             <div class="col-sm-8">
-                <mat-select formControlName="auditorId" placeholder="Select Auditor" class="form-control">
+                <mat-select formControlName="auditorId" placeholder="Select Auditor" class="form-control" style="background-color: #fefec4 !important;">
                     <mat-option *ngFor="let a of auditors" [value]="a.userId">{{a.userName}}</mat-option>
                 </mat-select>
             </div>
@@ -61,7 +61,7 @@
         <div class="row" style="margin-bottom: 12px;">
             <div class="col-sm-4"><label style="font-weight: bold;">Audit Date <span class="text-danger">*</span></label></div>
             <div class="col-sm-8">
-                <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: white; overflow: hidden;">
+                <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 4px; height: 38px; background-color: #fefec4 !important; overflow: hidden;">
                     <input matInput [matDatepicker]="picker" formControlName="auditDate" placeholder="mm/dd/yyyy"
                         style="border: none; outline: none; flex: 1; padding-left: 12px; height: 100%; font-size: 14px; background: transparent;">
                     <mat-datepicker-toggle matSuffix [for]="picker" style="flex-shrink: 0;"></mat-datepicker-toggle>

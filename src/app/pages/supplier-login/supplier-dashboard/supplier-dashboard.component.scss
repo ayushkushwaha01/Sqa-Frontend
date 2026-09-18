@@ -67,7 +67,7 @@
   border-radius: 8px;
   font-size: 18px;
   font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Main Grid Layout */
@@ -129,6 +129,26 @@
 .button-group {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-clear {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.reset-icon {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .btn-go {
@@ -156,7 +176,72 @@
   border: 1px solid #e0e0e0;
   padding: 15px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.table-scroll-container {
+  flex: 1;
+  max-height: 200px;
+  overflow-y: auto !important;
+  overflow-x: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+
+  .data-table {
+    width: 100%;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    border: none;
+    margin: 0;
+
+    thead {
+      th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 20 !important;
+        background-color: #3f3f3f !important;
+        color: white !important;
+        font-weight: bold;
+        padding: 10px;
+        text-align: center;
+        border-bottom: 2px solid #2a2a2a !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    tbody td {
+      border-bottom: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+
+    &:hover {
+      background: #888888;
+    }
+  }
 }
 
 .data-table {
@@ -166,7 +251,7 @@
 }
 
 .data-table th {
-  background-color:  #3f3f3f;
+  background-color: #3f3f3f;
   color: white;
   font-weight: bold;
   padding: 12px;
@@ -179,7 +264,8 @@ th {
   color: white;
   padding: 12px;
   font-size: 14px;
-  border: 1px solid #e1e1e1;  /* ← darker shade of the header blue */
+  border: 1px solid #e1e1e1;
+  /* ← darker shade of the header blue */
 }
 
 .data-table td {
@@ -195,13 +281,13 @@ th {
   border: 1px solid #e0e0e0;
   padding: 15px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .chart-container {
   display: flex;
-  flex: 1; 
-  min-height: 200px; 
+  flex: 1;
+  min-height: 200px;
   position: relative;
   border-bottom: 1px solid #ccc;
   margin-bottom: 25px;
@@ -241,6 +327,7 @@ th {
   border-top: 1px solid #f0f0f0;
   z-index: 1;
 }
+
 .chart-area::after {
   content: "";
   position: absolute;
@@ -309,8 +396,13 @@ th {
   display: inline-block;
 }
 
-.plan-box { background-color: #6b69a6; }
-.actual-box { background-color: #55c898; }
+.plan-box {
+  background-color: #6b69a6;
+}
+
+.actual-box {
+  background-color: #55c898;
+}
 
 .watermark {
   position: absolute;
@@ -323,12 +415,29 @@ th {
 /* --- MANUAL CARD HEIGHTS --- */
 /* Adjust these pixel values to fine-tune the exact height of each specific card */
 
-.card-filter { height: 250px; }
-.card-parts { height: 250px; }
-.card-issue { height: 300px; }
-.card-trend { height: 350px; }
-.card-process { height: 400px; }
-.card-ageing { height: 250px; }
+.card-filter {
+  height: 250px;
+}
+
+.card-parts {
+  height: 250px;
+}
+
+.card-issue {
+  height: 300px;
+}
+
+.card-trend {
+  height: 350px;
+}
+
+.card-process {
+  height: 400px;
+}
+
+.card-ageing {
+  height: 250px;
+}
 
 select {
   /* Remove browser default arrow */
@@ -358,22 +467,24 @@ select {
 .panel-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Changed from center to flex-start to remove top gap */
-  margin-bottom: 15px; 
+  align-items: flex-start;
+  /* Changed from center to flex-start to remove top gap */
+  margin-bottom: 15px;
 }
 
 /* Fix title margins and line-height */
 .panel-header .panel-title {
   margin-top: 0;
   margin-bottom: 0;
-  width: auto; 
-  line-height: 32px; /* Matches the dropdown height for perfect side-by-side alignment */
+  width: auto;
+  line-height: 32px;
+  /* Matches the dropdown height for perfect side-by-side alignment */
 }
 
 /* Compact Material Dropdown Styling */
 .panel-dropdown {
-  width: 140px; 
-  
+  width: 140px;
+
   /* Force the text field wrapper to be short */
   ::ng-deep .mat-mdc-text-field-wrapper {
     height: 32px !important;
@@ -384,7 +495,7 @@ select {
     height: 32px !important;
     align-items: center !important;
   }
-  
+
   /* Remove default padding from the input area that forces height */
   ::ng-deep .mat-mdc-form-field-infix {
     padding-top: 0 !important;
@@ -400,14 +511,14 @@ select {
     display: flex;
     align-items: center;
   }
-  
+
   /* Hide the extra space reserved for error messages at the bottom */
   ::ng-deep .mat-mdc-form-field-subscript-wrapper {
     display: none !important;
   }
-  
+
   /* Adjust label alignment */
   ::ng-deep .mat-mdc-form-field-label-wrapper {
-    top: -10px; 
+    top: -10px;
   }
 }

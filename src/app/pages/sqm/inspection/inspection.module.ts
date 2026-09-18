@@ -32,6 +32,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { InspectionDocspopComponent } from './inspection-capa/inspection-docspop/inspection-docspop.component';
 import { CapaEditPopComponent } from './inspection-capa/capa-edit-pop/capa-edit-pop.component'; // <-- Already here, just needed in imports array below
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const routes: Routes = [
   {
@@ -78,6 +79,7 @@ const routes: Routes = [
     MatPaginatorModule,
     NgxChartsModule, // ✅ ADDED HERE,
     MatTooltipModule,
-]
+    MatProgressSpinnerModule
+  ]
 })
 export class InspectionModule { }

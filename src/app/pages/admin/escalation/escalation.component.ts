@@ -29,8 +29,13 @@ export class EscalationComponent implements OnInit {
   ngOnInit(): void {
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
-    this.getEscalations();
+    // this.getEscalations();
+
+    if (this.canRead) {
+      this.getEscalations();
+    }
   }
+
 
   // Get Escalations
   getEscalations(): void {

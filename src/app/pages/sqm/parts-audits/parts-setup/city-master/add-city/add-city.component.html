@@ -18,7 +18,7 @@
                         </div>
                         
                         <div class="col-sm-8">
-                              <mat-select formControlName="stateId" placeholder="Select State" class="form-control mt-2">
+                              <mat-select formControlName="stateId" placeholder="Select State" class="form-control mt-2" style="background-color: #fefec4 !important;">
                                 <mat-option *ngFor="let state of statesList" [value]="state.stateId">
                                     {{ state.stateName }}
                                 </mat-option>
@@ -37,7 +37,7 @@
                             </label>
                         </div>
                         <div class="col-sm-8">
-                            <input type="text" formControlName="cityName" class="form-control" placeholder="Enter City Name">
+                            <input type="text" formControlName="cityName" class="form-control" placeholder="Enter City Name" style="background-color: #fefec4 !important;">
                              <div *ngIf="cityForm.get('cityName')?.hasError('required') && cityForm.get('cityName')?.touched" 
                                  style="color: red; font-size: 12px; margin-top: 4px;">
                                 City Name is required

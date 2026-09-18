@@ -8,6 +8,7 @@ import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.serv
 import { ActiveGridDialogComponent } from 'src/app/pages/sqm/process-audits/paudits-active-audits/activeaudits-reference/active-grid-dialog/active-grid-dialog.component';
 import { ProcessAuditService } from 'src/app/pages/sqm/process-audits/process-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-sup-proactivegrid',
@@ -20,14 +21,17 @@ export class SupProactivegridComponent implements OnInit {
 
   // Chart Configuration
   auditScoreChartOptions: Highcharts.Options = {
-    chart: { type: 'column', height: 350 },
+    chart: { type: 'column', height: 350, animation: false },
     title: { text: 'Latest 10 Process Audit Scores', style: { color: '#666', fontSize: '18px' } },
     credits: { enabled: false },
     xAxis: { categories: [], title: { text: 'Audit Reference' }, crosshair: true },
     yAxis: { min: 0, max: 100, title: { text: 'Score (%)' } },
     tooltip: { shared: true, useHTML: true },
-    plotOptions: { column: { pointPadding: 0.2, borderWidth: 0, dataLabels: { enabled: true, format: '{point.y}%' } } },
-    series: [{ type: 'column', name: 'Audit Score', data: [], color: '#2b6ca3' }]
+    plotOptions: {
+      series: { animation: false },
+      column: { animation: false, pointPadding: 0.2, borderWidth: 0, dataLabels: { enabled: true, format: '{point.y}%' } }
+    },
+    series: [{ type: 'column', name: 'Audit Score', data: [], color: '#2b6ca3', animation: false }]
   };
 
   auditData: any[] = [];
@@ -74,7 +78,21 @@ export class SupProactivegridComponent implements OnInit {
     }
     this.loadLookups();
     this.loadGridColumns();
+    
   }
+
+  
+
+private getSupplierId(): number {
+  const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  if (!token) return 0;
+  try {
+    const decoded: any = jwtDecode(token);
+    return Number(decoded.nameid) || 0;
+  } catch {
+    return 0;
+  }
+}
 
   loadLookups() {
     this.api.getLookups().subscribe((res: any) => {
@@ -86,12 +104,15 @@ export class SupProactivegridComponent implements OnInit {
   }
 
   loadData() {
-    const supplierId = Number(localStorage.getItem('UserId')) || 0;
+    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+
+    const supplierId = this.getSupplierId();
 
     this.api.getAllAuditsSupplier(supplierId).subscribe((res: any) => {
       if (res.success) {
         this.originalAuditData = res.data.map((item: any) => {
           const statusObj = this.statusLookups.find((l: any) => l.lookupId === item.statusId);
+          const cleanReport = item.report != null ? item.report.toString().replace(/%/g, '').trim() : '0';
           return {
             processAuditId: item.processAuditId,
             auditReference: item.auditReference,
@@ -102,10 +123,10 @@ export class SupProactivegridComponent implements OnInit {
             auditor: item.auditorName,
             date: new Date(item.auditDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
             action: item.capaSummary,
-            score: item.report ? item.report + ' %' : '0 %',
+            score: cleanReport + ' %',
             status: statusObj ? statusObj.lookupName : 'Open',
             done: item.isDone,
-            rawScore: parseInt(item.report || '0', 10),
+            rawScore: parseInt(cleanReport || '0', 10),
             state: item.stateName,
             stage: item.stageName,
             auditDateObj: new Date(item.auditDate)
@@ -135,7 +156,7 @@ export class SupProactivegridComponent implements OnInit {
     this.auditScoreChartOptions = {
       ...this.auditScoreChartOptions,
       xAxis: { ...this.auditScoreChartOptions.xAxis, categories: categories },
-      series: [{ type: 'column', name: 'Audit Score', data: scores, color: '#2b6ca3' }]
+      series: [{ type: 'column', name: 'Audit Score', data: scores, color: '#2b6ca3', animation: false }]
     };
   }
 

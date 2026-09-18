@@ -19,9 +19,25 @@ export class AnalyticsActionsComponent implements OnInit {
   years: number[] = [2023, 2024, 2025, 2026];
   isLoading: boolean = false;
 
+  // private months = [
+  //   'March', 'April', 'May', 'June', 'July', 'August',
+  //   'September', 'October', 'November', 'December', 'January', 'February'
+  // ];
+
+
   private months = [
-    'March', 'April', 'May', 'June', 'July', 'August',
-    'September', 'October', 'November', 'December', 'January', 'February'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
   ];
 
   // Aging Table Data

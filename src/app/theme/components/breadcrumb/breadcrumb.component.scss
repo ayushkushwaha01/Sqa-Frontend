@@ -3,12 +3,10 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0 36px;
+    padding: 8px 36px 10px 36px;
     height: 100%;
     box-sizing: border-box;
     margin-left: 0;
-    padding-top: 8px;
-    padding-bottom: 10px;
 }
 
 /* Left: Page heading */
@@ -74,27 +72,13 @@
 
 
 /* ==========================================================================
-   SPECIFIC STYLES FOR: /app/admin/manage-users/... 
+   SPECIFIC STYLES FOR: Admin Routes ONLY (Flush alignment exclusively for Admin)
    ========================================================================== */
-.breadcrumb-wrapper.custom-manage-users-breadcrumb {
-    margin-left: 0; 
-    padding: 8px 36px;
-    
-    .page-title {
-        color: #000000 !important; 
-    }
-
-    .breadcrumb-trail {
-        margin-left: auto; 
-    }
-}
-
-/* ==========================================================================
-   SPECIFIC STYLES FOR: Settings, Departments, Lookups, Event Log, Escalation
-   ========================================================================== */
+.breadcrumb-wrapper.custom-admin-breadcrumb,
+.breadcrumb-wrapper.custom-manage-users-breadcrumb,
 .breadcrumb-wrapper.custom-admin-settings-breadcrumb {
     margin-left: 0; 
-    padding: 8px 36px;
+    padding: 8px 15px 10px 15px;
     
     .page-title {
         color: #000000 !important; 

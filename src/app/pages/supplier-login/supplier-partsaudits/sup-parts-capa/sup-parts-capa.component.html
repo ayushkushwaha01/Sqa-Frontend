@@ -319,12 +319,21 @@
               </td>
 
               <!-- CAPA Subject -->
-              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
                 {{ applicant.capaSubject || "-" }}
-              </td>
+              </td> -->
 
+
+              <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount" [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)" [style.min-width.px]="getColumnWidth(col)">
+                <div style="line-height: 1.4;">
+                  <span [ngStyle]="{'color': applicant.calculatedDelayInDays >= overdueThreshold ? 'red' : 'inherit', 'font-weight': applicant.calculatedDelayInDays >= overdueThreshold ? '600' : 'normal'}" style="display: inline-flex; align-items: center; justify-content: center;">
+                    <mat-icon *ngIf="applicant.calculatedDelayInDays >= escalateThreshold" style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">flag</mat-icon>
+                    <span>{{ applicant.subject || applicant.capaSubject || '-' }}</span>
+                  </span>
+                </div>
+              </td>
               <!-- Action Type -->
               <td *ngSwitchCase="'Action Type'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"

@@ -3,7 +3,8 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import * as Highcharts from 'highcharts';
 import { DefectsPopMasterComponent } from '../inspection-datatable/defects-pop-master/defects-pop-master.component';
 import { MatDialog } from '@angular/material/dialog';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, Subscription, Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { InspectionService } from '../inspection.service';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 
@@ -17,7 +18,10 @@ export class InspectionAnalyticsComponent implements OnInit {
 
   Highcharts: typeof Highcharts = Highcharts;
 
-  chartsReady = true;
+  chartsReady = false;
+  updateFlag = false;
+  isLoading = false;
+  private activeSub?: Subscription;
 
   isDailyView = false;
   showFilter = false;
@@ -83,8 +87,20 @@ export class InspectionAnalyticsComponent implements OnInit {
     this.inspectionService.selectedMonth = this.selectedMonth;
   }
 
+  private safeCall(obs: any): Observable<any> {
+    return obs.pipe(
+      catchError(err => {
+        console.warn('Analytics API error on endpoint:', err);
+        return of({ data: [] });
+      })
+    );
+  }
+
   fetchAnalyticsData(): void {
-    this.chartsReady = false;
+    if (this.activeSub) {
+      this.activeSub.unsubscribe();
+    }
+    this.isLoading = true;
     if (this.isDailyView) {
       this.setDailyData();
     } else {
@@ -112,131 +128,167 @@ export class InspectionAnalyticsComponent implements OnInit {
     this.showFilter = !this.showFilter;
   }
 
+  private extractDataList(response: any): any[] {
+    if (!response) return [];
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response.data)) return response.data;
+    if (Array.isArray(response.Data)) return response.Data;
+    return [];
+  }
+
+  private populateTopDefects(topDefectResponse: any, allDefectsList: any[]): void {
+    let list = this.extractDataList(topDefectResponse);
+
+    // If dedicated top-defects endpoint returned empty or failed, fallback to sorting all defects descending by count!
+    if (!list || list.length === 0) {
+      list = [...allDefectsList].sort((a: any, b: any) => {
+        const countA = Number(a.count ?? a.qty ?? a.quantity ?? 0);
+        const countB = Number(b.count ?? b.qty ?? b.quantity ?? 0);
+        return countB - countA;
+      });
+    }
+
+    const mappedTableDefects = list.map((item: any) => ({
+      defect: item.defectName || item.defect || item.name || '',
+      qty: Number(item.count ?? item.qty ?? item.quantity ?? 0)
+    }));
+
+    this.topDefectsLeft = mappedTableDefects.slice(0, 5);
+    this.topDefectsRight = mappedTableDefects.slice(5, 10);
+  }
+
   setMonthlyData(): void {
-    // 6 Specific endpoints for Monthly View
-    forkJoin({
-      annualPpm: this.inspectionService.getMonthlyErrorRates(this.selectedYear),
-      monthlyPpm: this.inspectionService.getDailyErrorRates(this.selectedYear, this.selectedMonth),
-      partFamilies: this.inspectionService.getMonthlyPartFamilyCounts(this.selectedYear, this.selectedMonth),
-      allDefects: this.inspectionService.getMonthlyDefectCounts(this.selectedYear, this.selectedMonth),
-      topDefects: this.inspectionService.getTopDefectCounts(this.selectedYear, this.selectedMonth),
-      inspectors: this.inspectionService.getTopInspectorCounts(this.selectedYear, this.selectedMonth)
-    }).subscribe(responses => {
+    const currentYear = this.selectedYear;
+    const currentMonth = this.selectedMonth;
 
-      // Safely map data arrays using || []
-      const annualDataList = responses.annualPpm.data || responses.annualPpm.Data || [];
-      const annualCats = annualDataList.map((d: any) => d.monthName);
-      const annualValues = annualDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
-      this.activeAnnualPpmOptions = this.createColumnChart(`Annual Defect Rate PPM Trend (${this.selectedYear})`, 'PPM', annualCats, annualValues);
+    this.activeSub = forkJoin({
+      annualPpm: this.safeCall(this.inspectionService.getMonthlyErrorRates(currentYear)),
+      monthlyPpm: this.safeCall(this.inspectionService.getDailyErrorRates(currentYear, currentMonth)),
+      partFamilies: this.safeCall(this.inspectionService.getMonthlyPartFamilyCounts(currentYear, currentMonth)),
+      allDefects: this.safeCall(this.inspectionService.getMonthlyDefectCounts(currentYear, currentMonth)),
+      topDefects: this.safeCall(this.inspectionService.getTopDefectCounts(currentYear, currentMonth)),
+      inspectors: this.safeCall(this.inspectionService.getTopInspectorCounts(currentYear, currentMonth))
+    }).subscribe({
+      next: (responses: any) => {
+        // Guard against race condition if user switched to Daily View in the meantime
+        if (this.isDailyView) return;
 
-      const monthlyDataList = responses.monthlyPpm.data || responses.monthlyPpm.Data || [];
-      const monthlyCats = monthlyDataList.map((d: any) => d.dayNumber ? d.dayNumber.toString() : '');
-      const monthlyValues = monthlyDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
-      this.activeMonthlyPpmOptions = this.createSplineChart(`Daily Defect Rate PPM Trend (${this.selectedMonth}/${this.selectedYear})`, 'PPM', monthlyCats, monthlyValues);
+        const annualDataList = this.extractDataList(responses.annualPpm);
+        const annualCats = annualDataList.map((d: any) => d.monthName);
+        const annualValues = annualDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+        this.activeAnnualPpmOptions = this.createColumnChart(`Annual Defect Rate PPM Trend (${currentYear})`, 'PPM', annualCats, annualValues);
 
-      // Pie Chart uses allDefects
-      const allDefectList = responses.allDefects.data || responses.allDefects.Data || [];
-      this.activeDefectsPieOptions = this.createPieChart(
-        allDefectList.map((item: any, index: number) => ({
-          name: item.defectName,
-          y: item.count,
-          color: this.pieColors[index % this.pieColors.length]
-        }))
-      );
+        const monthlyDataList = this.extractDataList(responses.monthlyPpm);
+        const monthlyCats = monthlyDataList.map((d: any) => d.dayNumber ? d.dayNumber.toString() : '');
+        const monthlyValues = monthlyDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+        this.activeMonthlyPpmOptions = this.createSplineChart(`Daily Defect Rate PPM Trend (${currentMonth}/${currentYear})`, 'PPM', monthlyCats, monthlyValues);
 
-      // Table uses topDefects
-      const topDefectList = responses.topDefects.data || responses.topDefects.Data || [];
-      const mappedTableDefects = topDefectList.map((item: any) => ({ defect: item.defectName, qty: item.count }));
-      this.topDefectsLeft = mappedTableDefects.slice(0, 5);
-      this.topDefectsRight = mappedTableDefects.slice(5, 10);
+        const allDefectList = this.extractDataList(responses.allDefects);
+        this.activeDefectsPieOptions = this.createPieChart(
+          allDefectList.map((item: any, index: number) => ({
+            name: item.defectName || item.defect || item.name,
+            y: Number(item.count ?? item.qty ?? item.quantity ?? 0),
+            color: this.pieColors[index % this.pieColors.length]
+          }))
+        );
 
-      const pfList = responses.partFamilies.data || responses.partFamilies.Data || [];
-      this.activeProductsPieOptions = this.createPieChart(
-        pfList.map((item: any, index: number) => ({
-          name: item.partFamilyName,
-          y: item.count,
-          color: this.pieColors[index % this.pieColors.length]
-        }))
-      );
+        this.populateTopDefects(responses.topDefects, allDefectList);
 
-      const inspectorDocs = responses.inspectors.data || responses.inspectors.Data || [];
-      this.activeInspectorActivities = inspectorDocs.map((item: any) => ({
-        inspector: item.inspectorName,
-        qty: item.count,
-        records: item.count,
-        ppm: 'N/A'
-      }));
+        const pfList = this.extractDataList(responses.partFamilies);
+        this.activeProductsPieOptions = this.createPieChart(
+          pfList.map((item: any, index: number) => ({
+            name: item.partFamilyName || item.name,
+            y: Number(item.count ?? item.qty ?? item.quantity ?? 0),
+            color: this.pieColors[index % this.pieColors.length]
+          }))
+        );
 
-      this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+        const inspectorDocs = this.extractDataList(responses.inspectors);
+        this.activeInspectorActivities = inspectorDocs.map((item: any) => ({
+          inspector: item.inspectorName || item.name,
+          qty: item.count ?? item.qty ?? 0,
+          records: item.count ?? item.qty ?? 0,
+          ppm: 'N/A'
+        }));
 
-      // Using setTimeout ensures Angular completely unmounts old charts before mounting new ones, preventing 'columns' error
-      setTimeout(() => {
+        this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+
         this.chartsReady = true;
-      }, 50);
+        this.isLoading = false;
+        this.updateFlag = true;
+      },
+      error: () => {
+        this.chartsReady = true;
+        this.isLoading = false;
+      }
     });
   }
 
   setDailyData(): void {
-    // 6 Specific endpoints for Daily View
-    forkJoin({
-      hourlyPpm: this.inspectionService.getHourlyErrorRates(this.selectedYear, this.selectedMonth, this.selectedDay),
-      shiftPpm: this.inspectionService.getShiftErrorRates(this.selectedYear, this.selectedMonth, this.selectedDay),
-      partFamilies: this.inspectionService.getDailyPartFamilyCounts(this.selectedYear, this.selectedMonth, this.selectedDay),
-      allDefects: this.inspectionService.getDailyDefectCounts(this.selectedYear, this.selectedMonth, this.selectedDay),
-      topDefects: this.inspectionService.getTopDefectCounts(this.selectedYear, this.selectedMonth, this.selectedDay),
-      inspectors: this.inspectionService.getTopInspectorCounts(this.selectedYear, this.selectedMonth, this.selectedDay)
-    }).subscribe(responses => {
+    const currentYear = this.selectedYear;
+    const currentMonth = this.selectedMonth;
+    const currentDay = this.selectedDay;
 
-      // Safely map data arrays using || []
-      const hourlyDataList = responses.hourlyPpm.data || responses.hourlyPpm.Data || [];
-      const hourlyCats = hourlyDataList.map((d: any) => d.time);
-      const hourlyValues = hourlyDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
-      this.activeAnnualPpmOptions = this.createColumnChart(`Hourly PPM Trend (${this.selectedDay}/${this.selectedMonth}/${this.selectedYear})`, 'PPM', hourlyCats, hourlyValues);
+    this.activeSub = forkJoin({
+      hourlyPpm: this.safeCall(this.inspectionService.getHourlyErrorRates(currentYear, currentMonth, currentDay)),
+      shiftPpm: this.safeCall(this.inspectionService.getShiftErrorRates(currentYear, currentMonth, currentDay)),
+      partFamilies: this.safeCall(this.inspectionService.getDailyPartFamilyCounts(currentYear, currentMonth, currentDay)),
+      allDefects: this.safeCall(this.inspectionService.getDailyDefectCounts(currentYear, currentMonth, currentDay)),
+      topDefects: this.safeCall(this.inspectionService.getTopDefectCounts(currentYear, currentMonth, currentDay)),
+      inspectors: this.safeCall(this.inspectionService.getTopInspectorCounts(currentYear, currentMonth, currentDay))
+    }).subscribe({
+      next: (responses: any) => {
+        // Guard against race condition if user switched to Monthly View in the meantime
+        if (!this.isDailyView) return;
 
-      const shiftDataList = responses.shiftPpm.data || responses.shiftPpm.Data || [];
-      const shiftCats = shiftDataList.map((d: any) => d.shiftName);
-      const shiftValues = shiftDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
-      this.activeMonthlyPpmOptions = this.createSplineChart(`Shift PPM Trend`, 'PPM', shiftCats, shiftValues);
+        const hourlyDataList = this.extractDataList(responses.hourlyPpm);
+        const hourlyCats = hourlyDataList.map((d: any) => d.time);
+        const hourlyValues = hourlyDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+        this.activeAnnualPpmOptions = this.createColumnChart(`Hourly PPM Trend (${currentDay}/${currentMonth}/${currentYear})`, 'PPM', hourlyCats, hourlyValues);
 
-      // Pie Chart uses allDefects
-      const allDefectList = responses.allDefects.data || responses.allDefects.Data || [];
-      this.activeDefectsPieOptions = this.createPieChart(
-        allDefectList.map((item: any, index: number) => ({
-          name: item.defectName,
-          y: item.count,
-          color: this.pieColors[index % this.pieColors.length]
-        }))
-      );
+        const shiftDataList = this.extractDataList(responses.shiftPpm);
+        const shiftCats = shiftDataList.map((d: any) => d.shiftName);
+        const shiftValues = shiftDataList.map((d: any) => parseFloat(d.averageErrorRate || 0));
+        this.activeMonthlyPpmOptions = this.createSplineChart(`Shift PPM Trend`, 'PPM', shiftCats, shiftValues);
 
-      // Table uses topDefects
-      const topDefectList = responses.topDefects.data || responses.topDefects.Data || [];
-      const mappedTableDefects = topDefectList.map((item: any) => ({ defect: item.defectName, qty: item.count }));
-      this.topDefectsLeft = mappedTableDefects.slice(0, 5);
-      this.topDefectsRight = mappedTableDefects.slice(5, 10);
+        const allDefectList = this.extractDataList(responses.allDefects);
+        this.activeDefectsPieOptions = this.createPieChart(
+          allDefectList.map((item: any, index: number) => ({
+            name: item.defectName || item.defect || item.name,
+            y: Number(item.count ?? item.qty ?? item.quantity ?? 0),
+            color: this.pieColors[index % this.pieColors.length]
+          }))
+        );
 
-      const pfList = responses.partFamilies.data || responses.partFamilies.Data || [];
-      this.activeProductsPieOptions = this.createPieChart(
-        pfList.map((item: any, index: number) => ({
-          name: item.partFamilyName,
-          y: item.count,
-          color: this.pieColors[index % this.pieColors.length]
-        }))
-      );
+        this.populateTopDefects(responses.topDefects, allDefectList);
 
-      const inspectorDocs = responses.inspectors.data || responses.inspectors.Data || [];
-      this.activeInspectorActivities = inspectorDocs.map((item: any) => ({
-        inspector: item.inspectorName,
-        qty: item.count,
-        records: item.count,
-        ppm: 'N/A'
-      }));
+        const pfList = this.extractDataList(responses.partFamilies);
+        this.activeProductsPieOptions = this.createPieChart(
+          pfList.map((item: any, index: number) => ({
+            name: item.partFamilyName || item.name,
+            y: Number(item.count ?? item.qty ?? item.quantity ?? 0),
+            color: this.pieColors[index % this.pieColors.length]
+          }))
+        );
 
-      this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+        const inspectorDocs = this.extractDataList(responses.inspectors);
+        this.activeInspectorActivities = inspectorDocs.map((item: any) => ({
+          inspector: item.inspectorName || item.name,
+          qty: item.count ?? item.qty ?? 0,
+          records: item.count ?? item.qty ?? 0,
+          ppm: 'N/A'
+        }));
 
-      // Using setTimeout ensures Angular completely unmounts old charts before mounting new ones, preventing 'columns' error
-      setTimeout(() => {
+        this.updatePaginatedData({ pageIndex: 0, pageSize: 5, length: this.activeInspectorActivities.length });
+
         this.chartsReady = true;
-      }, 50);
+        this.isLoading = false;
+        this.updateFlag = true;
+      },
+      error: () => {
+        this.chartsReady = true;
+        this.isLoading = false;
+      }
     });
   }
 

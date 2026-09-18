@@ -7,8 +7,7 @@
         <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px" class="user-info">
             <img [src]="userImage" alt="user-profile" class="user-image mat-elevation-z2">
             <div class="user-details" fxLayout="column" fxLayoutAlign="center start">
-                <span class="user-name">{{ userName }}</span>
-                <span class="user-type">{{ userType }}</span>
+               <span>Welcome, {{ currentUserName }}</span>
             </div>
         </div>
     </div>
@@ -26,8 +25,8 @@
 
 
 
-    <!-- Shows if they DO NOT have a passkey -->
-    <button mat-menu-item (click)="openPasskeyManager()">
+    <!-- Shows if they DO NOT have a passkey and are not a supplier -->
+    <button *ngIf="!isSupplier" mat-menu-item (click)="openPasskeyManager()">
         <mat-icon>fingerprint</mat-icon>
         <span>Manage Passkeys</span>
     </button>

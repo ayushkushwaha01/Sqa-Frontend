@@ -45,20 +45,32 @@ export class AddPartspopComponent implements OnInit {
 
 
   partsFamilies: any[] = [];
+  // getPartsFamilies() {
+  //   const userId = localStorage.getItem('UserId');
+  //   const payload = {
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getPartFamilies(payload)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.partsFamilies = res.data.data;
+
+  //       }
+  //     });
+  // }
+
   getPartsFamilies() {
-    const userId = localStorage.getItem('UserId');
-    const payload = {
-      UserId: userId ? Number(userId) : null
-    };
-    this._setupService.getPartFamilies(payload)
+    // 🔥 ZERO TRUST FIX: Do not send UserId
+    this._setupService.getPartFamilies({}) // Pass an empty object instead of the payload with UserId
       .subscribe((res: any) => {
         if (res.success) {
-
           this.partsFamilies = res.data.data;
-
         }
       });
   }
+
+
   originalTableData: any[] = [];
   getCommodities() {
     this.api.getCommodities().subscribe((res: any) => {
@@ -110,48 +122,80 @@ export class AddPartspopComponent implements OnInit {
   }
 
 
-  UpsertPartMaster(): void {
+  // UpsertPartMaster(): void {
 
+  //   if (this.myGroup.invalid) {
+  //     this.myGroup.markAllAsTouched();
+  //     return;
+  //   }
+
+  //   const userId = localStorage.getItem('UserId');
+  //   const paylaod = {
+  //     ...this.myGroup.value,
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService
+  //     .upsertPartMaster(paylaod)
+  //     .subscribe({
+
+  //       next: (res: any) => {
+
+  //         if (res.success) {
+
+  //           this.alertService.createAlert(res.message, 1);
+  //           this.dialogRef.close(true);
+
+  //         } else {
+
+  //           this.alertService.createAlert(res.message, 0);
+
+  //         }
+
+  //       },
+
+  //       error: (err: HttpErrorResponse) => {
+
+  //         console.error(err);
+  //         const message = err.error?.message || 'Something went wrong.';
+  //         this.alertService.createAlert(message, 0);
+
+  //       }
+
+  //     });
+
+  // }
+
+  UpsertPartMaster(): void {
     if (this.myGroup.invalid) {
       this.myGroup.markAllAsTouched();
       return;
     }
 
-    const userId = localStorage.getItem('UserId');
-    const paylaod = {
-      ...this.myGroup.value,
-      UserId: userId ? Number(userId) : null
+    // 🔥 ZERO TRUST FIX: Do not attach UserId to the payload
+    const payload = {
+      ...this.myGroup.value
     };
+
     this._setupService
-      .upsertPartMaster(paylaod)
+      .upsertPartMaster(payload)
       .subscribe({
-
         next: (res: any) => {
-
           if (res.success) {
-
             this.alertService.createAlert(res.message, 1);
             this.dialogRef.close(true);
-
           } else {
-
             this.alertService.createAlert(res.message, 0);
-
           }
-
         },
-
         error: (err: HttpErrorResponse) => {
-
           console.error(err);
           const message = err.error?.message || 'Something went wrong.';
           this.alertService.createAlert(message, 0);
-
         }
-
       });
-
   }
+
+  
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();

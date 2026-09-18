@@ -22,6 +22,7 @@ export class BreadcrumbComponent implements OnInit {
     public settings: Settings;
     
     // ✅ Existing Flags
+    public isAdminRoute: boolean = false;
     public isManageUsersRoute: boolean = false;
     public isAdminSettingsRoute: boolean = false;
 
@@ -65,6 +66,7 @@ export class BreadcrumbComponent implements OnInit {
         this.title.setTitle(this.settings.name + this.pageTitle);
 
         // ✅ Check Admin routes
+        this.isAdminRoute = this.router.url.includes('/app/admin');
         this.isManageUsersRoute = this.router.url.includes('/app/admin/manage-users');
 
         const adminSettingsRoutes = [

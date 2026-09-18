@@ -15,6 +15,7 @@ import { PartAuditService } from '../../part-audit.service';
 export class PartsParetoComponent implements OnInit, AfterViewInit {
 
   Highcharts: typeof Highcharts = Highcharts;
+  years: number[] = [2023, 2024, 2025, 2026];
 
   constructor(private dialog: MatDialog, private fb: FormBuilder,
     private alertService: AlertService, private api: CommodityService, private PartsAuditAnalayticsService: PartsAuditAnalayticsService,
@@ -149,9 +150,10 @@ export class PartsParetoComponent implements OnInit, AfterViewInit {
   }
 
   forminit() {
+    const currentDate = new Date();
     this.filterForm = this.fb.group({
       commodityId: [null],
-      Year: [null],
+      Year: [currentDate.getFullYear()],
     });
   }
   onClearFilter() {

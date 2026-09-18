@@ -8,16 +8,16 @@
         <form class="form-horizontal" [formGroup]="departmentForm">
             
             <div class="form-group" style="margin-top: 20px">
-                <label class="control-label col-sm-4 "> Department:</label>
+                <label class="control-label col-sm-4 "> Department: <span class="text-danger">*</span></label>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                    <input type="text" formControlName="departmentName" class="form-control" placeholder="Enter Department" />
+                    <input type="text" formControlName="departmentName" class="form-control" placeholder="Enter Department" style="background-color: #fefec4 !important;" />
                 </div>
             </div>
 
             <div class="form-group" style="margin-top: 20px">
-                <label class="control-label col-sm-4 ">Department Code:</label>
+                <label class="control-label col-sm-4 ">Department Code: <span class="text-danger">*</span></label>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-                    <input type="text" formControlName="departmentCode" class="form-control" placeholder="Enter Department Code" />
+                    <input type="text" formControlName="departmentCode" class="form-control" placeholder="Enter Department Code" style="background-color: #fefec4 !important;" />
                 </div>
             </div>
 

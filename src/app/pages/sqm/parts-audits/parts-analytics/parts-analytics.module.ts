@@ -44,7 +44,7 @@ const routes: Routes = [
       { path: 'pareto', component: PartsParetoComponent },
       { path: 'summary', component: PartsSummaryComponent },
 
-      { path: '', redirectTo: 'performance', pathMatch: 'full' }
+      { path: '', redirectTo: 'summary', pathMatch: 'full' }
     ]
   }
 ];

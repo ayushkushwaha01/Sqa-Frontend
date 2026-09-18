@@ -32,6 +32,7 @@ export class PartsActiveAuditsComponent implements OnInit {
   fromIndex: number = 0;
   pageSize: number = 20;
   tableLists: any[] = [];
+  isLoading: boolean = true;
   canCreate: boolean = false;
   canUpdate: boolean = false;
   canDelete: boolean = false;
@@ -61,6 +62,7 @@ export class PartsActiveAuditsComponent implements OnInit {
       });
 
     });
+    this.activeColumns = [...this.defaultColumns];
     this.getPartsAuidt();
     this.getLookups();
     this.getPartsFamilies();
@@ -216,7 +218,7 @@ export class PartsActiveAuditsComponent implements OnInit {
   }
   partsAudits: any[] = [];
   getPartsAuidt() {
-
+    this.isLoading = true;
     const filter = { ...this.filterForm.value };
 
     Object.keys(filter).forEach(key => {
@@ -231,12 +233,18 @@ export class PartsActiveAuditsComponent implements OnInit {
     console.log('Filter:', filter);
 
     this.partAuditService.getPartAudits(filter)
-      .subscribe((res: any) => {
-        if (res.success) {
-          this.partsAudits = res.data.data;
-          this.totalSize = res.data.toatalRecords;
-          this.tableLists = this.partsAudits.slice(this.fromIndex, this.pageSize);
-          this.loadCharts();
+      .subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.partsAudits = res.data.data;
+            this.totalSize = res.data.toatalRecords;
+            this.tableLists = this.partsAudits.slice(this.fromIndex, this.pageSize);
+            this.loadCharts();
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
         }
       });
   }

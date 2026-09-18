@@ -1,7 +1,7 @@
 import { PartAuditService } from './../../parts-audits/part-audit.service';
 import { Location } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { InspectionService } from '../../inspection/inspection.service';
 import { AlertService } from 'src/app/shared/alert.service';
@@ -205,8 +205,8 @@ export class CapaViewScreenComponent implements OnInit {
     this.auditForm = this.fb.group({
       capaId: [0],
       inspectionRefId: [0],
-      subject: [''],
-      logDate: [localToday],
+      subject: ['', Validators.required],
+      logDate: [localToday, Validators.required],
       dueDate: [''],
       completedDate: [''],
       pdcaStatus: [''],
@@ -439,8 +439,22 @@ export class CapaViewScreenComponent implements OnInit {
     if (this.isReadOnly && !this.isSupplier) {
       return;
     }
+
+    const subjectVal = this.auditForm.get('subject')?.value;
+    const logDateVal = this.auditForm.get('logDate')?.value;
+
+    if (!subjectVal || subjectVal.trim() === '') {
+      this.alertService.createAlert('CAPA Subject is mandatory.', 0);
+      return;
+    }
+
+    if (!logDateVal || logDateVal.trim() === '') {
+      this.alertService.createAlert('Log Date is mandatory.', 0);
+      return;
+    }
+
     if (this.auditForm.invalid) {
-      this.alertService.createAlert("Please fill all required fields.");
+      this.alertService.createAlert("Please fill all required fields.", 0);
       return;
     }
 

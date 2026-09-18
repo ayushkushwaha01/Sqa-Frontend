@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -107,28 +108,35 @@ export class ManageUsersService {
     return this.http.post(this.apiUrl + 'Auth/send-email-otp', {}, { headers });
   }
 
- passkeyLoginOptions(email: string) {
+  passkeyLoginOptions(email: string) {
     // Passkeys don't need a token because you aren't logged in yet
     return this.http.post(this.apiUrl + 'Auth/passkey-login-options', { email: email });
   }
 
-verifyPasskeyLogin(clientResponse: any, email: string) {
+  verifyPasskeyLogin(clientResponse: any, email: string) {
     return this.http.post(this.apiUrl + `Auth/verify-passkey-login?email=${email}`, clientResponse);
   }
 
 
- 
-// 🔥 PASSKEY SETUP ENDPOINTS 🔥
+
+  // 🔥 PASSKEY SETUP ENDPOINTS 🔥
   setupPasskeyOptions() {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.post(this.apiUrl + 'Mfa/setup-passkey-options', {}, { headers });
   }
 
-  setupPasskeyRegister(data: any) {
+  // setupPasskeyRegister(data: any) {
+  //   const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  //   return this.http.post(this.apiUrl + 'Mfa/setup-passkey-register', data, { headers });
+  // }
+
+  // 🔥 UPDATED: Now accepts deviceName
+  setupPasskeyRegister(data: any, deviceName: string) {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(this.apiUrl + 'Mfa/setup-passkey-register', data, { headers });
+    return this.http.post(this.apiUrl + `Mfa/setup-passkey-register?deviceName=${encodeURIComponent(deviceName)}`, data, { headers });
   }
 
 
@@ -144,10 +152,17 @@ verifyPasskeyLogin(clientResponse: any, email: string) {
     return this.http.get(this.apiUrl + 'Mfa/passkey-info', { headers });
   }
 
-  deletePasskey() {
+  // deletePasskey() {
+  //   const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  //   const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  //   return this.http.post(this.apiUrl + 'Mfa/delete-passkey', {}, { headers });
+  // }
+
+  // 🔥 UPDATED: Now requires passkeyId to know which device to delete
+  deletePasskey(passkeyId: number) {
     const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(this.apiUrl + 'Mfa/delete-passkey', {}, { headers });
+    return this.http.post(this.apiUrl + `Mfa/delete-passkey/${passkeyId}`, {}, { headers });
   }
 
 
@@ -224,7 +239,16 @@ verifyPasskeyLogin(clientResponse: any, email: string) {
     return this.http.post(this.apiUrl + 'RolePermissions/save-role-permissions', payload);
   }
 
-  getUserLoginPermissions(roleId: number) {
+  // getUserLoginPermissions(roleId: number) {
+  //   return this.http.get(this.apiUrl + `RolePermissions/get-user-login-permissions?roleId=${roleId}`);
+  // }
+
+  getUserLoginPermissions(roleId: any) { // <-- Change 'number' to 'any'
+    // 🔥 THE GLOBAL FIX / CIRCUIT BREAKER
+    if (roleId === 'Supplier') {
+      return of({ success: true, data: [] });
+    }
+
     return this.http.get(this.apiUrl + `RolePermissions/get-user-login-permissions?roleId=${roleId}`);
   }
 
@@ -270,6 +294,9 @@ verifyPasskeyLogin(clientResponse: any, email: string) {
 
 
 
-  
-  
+
+//   getInspectorNames() {
+//   return this.http.get(this.apiUrl + 'Users/get-inspector-names');
+// }
+
 }

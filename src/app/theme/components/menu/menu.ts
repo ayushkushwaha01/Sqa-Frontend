@@ -226,15 +226,7 @@ export const clientMenuItems = [
 
 export const supplierMenuItems = [
   new Menu(
-    1,
-    "Dashboard",
-    "/app/supplier-login/dashboard", // Updated to point explicitly to the dashboard child route
-    null,
-    "dashboard",
-    null,
-    false,
-    0,
-  ),
+    1, "Dashboard", "/app/supplier-login/dashboard",  null, "dashboard", null, false, 0,),
   new Menu(
     2,
     "Process Audits", // Fixed the typo here

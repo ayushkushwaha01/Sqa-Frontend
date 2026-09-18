@@ -1,5 +1,6 @@
 <div class="breadcrumb-wrapper" *ngIf="breadcrumbs.length > 0" 
      [ngClass]="{
+        'custom-admin-breadcrumb': isAdminRoute,
         'custom-manage-users-breadcrumb': isManageUsersRoute,
         'custom-admin-settings-breadcrumb': isAdminSettingsRoute,
         'custom-supplier-inspection-breadcrumb': isSupplierInspectionRoute,

@@ -104,6 +104,7 @@ export class InspectionService {
     return this.http.put(`${this.apiUrl}InspectionCapa/UpdateInlineStatus`, payload);
   }
 
+
   getCapaDocuments(capaId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}InspectionCapa/GetCapaDocuments/${capaId}`);
   }

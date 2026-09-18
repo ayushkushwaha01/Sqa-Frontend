@@ -23,7 +23,10 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.canRead = UserPermissionService.fnGetReadPermissions(this.SCREEN_ID);
-    this.getPreferences();
+    // this.getPreferences();
+    if (this.canRead) {
+      this.getPreferences();
+    }
   }
 
   // Get Preferences

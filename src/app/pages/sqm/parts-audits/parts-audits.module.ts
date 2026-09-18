@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { PartsAuditsComponent } from './parts-audits.component';
 import { PartsCompletedAuditsComponent } from './parts-completed-audits/parts-completed-audits.component';
@@ -110,7 +111,7 @@ const routes: Routes = [
     MatFormFieldModule,
     MatCardModule,
     MatTooltipModule,
-
+    MatProgressSpinnerModule
   ]
 })
 export class PartsAuditsModule { }

@@ -14,13 +14,13 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <label class="fw-bold">Part Family</label>
+                        <label class="fw-bold">Part Family <span class="text-danger">*</span></label>
                     </div>
 
                     <div class="col-sm-8">
 
                         <mat-select class="form-control" placeholder="Select Part Family"
-                            formControlName="PartFamilyId">
+                            formControlName="PartFamilyId" style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
 
@@ -44,12 +44,13 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <label class="fw-bold">Select Part</label>
+                        <label class="fw-bold">Select Part <span class="text-danger">*</span></label>
                     </div>
 
                     <div class="col-sm-8">
 
-                        <mat-select class="form-control" placeholder="Select Part" formControlName="PartMasterId">
+                        <mat-select class="form-control" placeholder="Select Part" formControlName="PartMasterId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of partsMasters" [value]="item.partMasterId">
 
@@ -73,13 +74,13 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <label class="fw-bold">Batch Number</label>
+                        <label class="fw-bold">Batch Number <span class="text-danger">*</span></label>
                     </div>
 
                     <div class="col-sm-8">
 
                         <input class="form-control" type="text" placeholder="Enter Batch Number"
-                            formControlName="BatchNumber">
+                            formControlName="BatchNumber" style="background-color: #fefec4 !important;">
 
                         <small class="text-danger"
                             *ngIf="f['BatchNumber'].touched && f['BatchNumber'].errors?.['required']">

@@ -24,9 +24,6 @@
       <button mat-icon-button (click)="fetchData()" matTooltip="Refresh Mails" class="icon-btn">
         <mat-icon>refresh</mat-icon>
       </button>
-      <button mat-icon-button (click)="goBack()" matTooltip="Back to previous page" class="icon-btn">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
     </div>
   </div>
 
@@ -103,8 +100,8 @@
 
         <!-- EMAIL BODY CONTENT -->
         <div class="body-content">
-          <div class="mail-details-card">
-            <span class="field-label">Message:</span>
+          <div class="message-box">
+            <span class="field-label">MESSAGE</span>
             <p class="message-text">{{ selectedMail.description || 'No description provided.' }}</p>
           </div>
         </div>

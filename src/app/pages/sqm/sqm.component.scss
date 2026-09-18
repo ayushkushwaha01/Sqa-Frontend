@@ -90,13 +90,22 @@
 }
 
 /* --- ACTIVE STATE --- */
-.nav-links li.active {
-  background-color: #dfefff;
-  font-weight: bold;
-  color: #1976d2;
+.nav-links li.active,
+.nav-links li:has(a.active),
+.nav-links li:has(a.router-link-active),
+.nav-links a.active,
+.nav-links a.router-link-active {
+  background-color: #dfefff !important;
+  font-weight: bold !important;
+  color: #1976d2 !important;
 
-  .nav-icon {
-    color: #1976d2;
+  a {
+    color: #1976d2 !important;
+    font-weight: bold !important;
+  }
+
+  .nav-icon, span, mat-icon, i {
+    color: #1976d2 !important;
   }
 }
 

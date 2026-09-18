@@ -34,7 +34,7 @@
 
                         </mat-select> -->
                         <mat-select class="form-control" formControlName="commodityId" placeholder="Select Commodity"
-                            (selectionChange)="onCommodityChange($event.value)">
+                            (selectionChange)="onCommodityChange($event.value)" style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of originalTableData" [value]="item.commodityId">
 
@@ -72,7 +72,7 @@
 
                         </mat-select> -->
                         <mat-select class="form-control" formControlName="partFamilyId" placeholder="Select Part Family"
-                            (selectionChange)="onPartFamilyChange($event.value)">
+                            (selectionChange)="onPartFamilyChange($event.value)" style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of partsFamilies" [value]="item.partFamilyId">
 
@@ -110,7 +110,7 @@
 
                     <div class="col-sm-8">
                         <mat-select class="form-control" placeholder="Select Part" formControlName="partMasterId"
-                            (selectionChange)="onPartChange($event.value)">
+                            (selectionChange)="onPartChange($event.value)" style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of parts" [value]="item.partMasterId">
                                 {{ item.partMasterName }}
@@ -145,7 +145,8 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select Supplier" formControlName="supplierId">
+                        <mat-select class="form-control" placeholder="Select Supplier" formControlName="supplierId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of filteredSuppliers" [value]="item.supplierId">
 
@@ -192,7 +193,7 @@
 
                         </mat-select> -->
                         <mat-select class="form-control" placeholder="Select State" formControlName="stateId"
-                            (selectionChange)="onStateChange($event.value)">
+                            (selectionChange)="onStateChange($event.value)" style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of states" [value]="item.stateId">
                                 {{ item.stateName }}
@@ -216,7 +217,8 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select City" formControlName="cityId">
+                        <mat-select class="form-control" placeholder="Select City" formControlName="cityId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of cities" [value]="item.cityId">
 
@@ -242,7 +244,8 @@
                     </div>
 
                     <div class="col-sm-8">
-                        <mat-select class="form-control" placeholder="Select Auditor" formControlName="auditorId">
+                        <mat-select class="form-control" placeholder="Select Auditor" formControlName="auditorId"
+                            style="background-color: #fefec4 !important;">
 
                             <mat-option *ngFor="let item of Auditors" [value]="item.userId">
 
@@ -279,7 +282,7 @@
                 border: 1px solid #141414;
                 border-radius: 4px;
                 box-sizing: border-box;
-                background-color: white;
+                background-color: #fefec4 !important;
             ">
 
                         <mat-datepicker-toggle matSuffix [for]="picker" style="

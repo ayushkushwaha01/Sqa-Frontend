@@ -7,6 +7,10 @@ import { InspectionService } from 'src/app/pages/sqm/inspection/inspection.servi
 import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { AlertService } from 'src/app/shared/alert.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-supplier-activerecords',
@@ -54,9 +58,18 @@ export class SupplierActiverecordsComponent implements OnInit {
   filterPartNumber: string = '';
   filterBatchNumber: string = '';
 
+  supplierMap: Map<number, string> = new Map();
+  suppliersList: any[] = [];
+  partIdMap: Map<number, string> = new Map();
+  partCodeMap: Map<string, string> = new Map();
+  partsList: any[] = [];
+
   constructor(
     private dialog: MatDialog,
-    private api: InspectionService, private partAuditService: PartAuditService, private alertService: AlertService
+    private api: InspectionService,
+    private setupService: SetupService,
+    private partAuditService: PartAuditService,
+    private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
@@ -64,40 +77,106 @@ export class SupplierActiverecordsComponent implements OnInit {
     this.loadGridColumns();
   }
 
+private getSupplierId(): number {
+  const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  if (!token) return 0;
+  try {
+    const decoded: any = jwtDecode(token);
+    return Number(decoded.nameid) || 0;
+  } catch {
+    return 0;
+  }
+}
+
   loadData() {
-    // 🔥 Grab the logged-in Supplier's ID
-    const supplierId = Number(localStorage.getItem('UserId')) || 0;
+    const supplierId = this.getSupplierId();
 
-    // 🔥 Pass it to the API
-    this.api.getAllInspections(supplierId).subscribe((res: any) => {
-      if (res.success) {
-        this.originalInspectionData = res.data.map((item: any) => {
-          const rawErrorRateStr = item.errorRate || '0';
-          const parsedErrorRate = parseFloat(rawErrorRateStr.toString().replace('%', ''));
-          const errorRatePpmVal = isNaN(parsedErrorRate) ? 0 : (parsedErrorRate * 1000);
+    const suppliers$ = this.supplierMap.size > 0
+      ? of({ success: true, data: this.suppliersList })
+      : this.setupService.getAllSuppliers().pipe(catchError(() => of({ success: false, data: [] })));
 
-          return {
-            id: item.inspectionId,
-            Reference: item.referenceId,
-            Publish: item.publish,
-            InspectionDate: item.inspectionDate ? new Date(item.inspectionDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-            Time: item.time || '-',
-            Inspector: item.inspectorName || 'N/A',
-            PartFamily: item.partFamilyName || 'N/A',
-            PartName: item.partMasterCode || 'N/A',
-            PartNumber: item.partMasterCode || 'N/A',
-            Defects: item.defects,
-            Parameters: item.parameters,
-            Remarks: item.remarks || '-',
-            BatchNumber: item.batchNumber || 'N/A',
-            BatchQuantity: item.batchQuantity || 0,
-            SampleQuantity: item.sampleQuantity || 0,
-            ErrorRatePct: rawErrorRateStr.toString().includes('%') ? rawErrorRateStr : `${rawErrorRateStr}%`,
-            ErrorRatePPM: errorRatePpmVal,
-            stage: item.stageName || 'N/A'
-          };
-        });
-        this.inspectionData = [...this.originalInspectionData];
+    const parts$ = this.partIdMap.size > 0
+      ? of({ success: true, data: { data: this.partsList } })
+      : this.setupService.getPartMaster({ Keyword: '', Status: '' }).pipe(catchError(() => of({ success: false, data: [] })));
+
+    forkJoin({
+      res: this.api.getAllInspections(supplierId),
+      suppliersRes: suppliers$,
+      partsRes: parts$
+    }).subscribe({
+      next: ({ res, suppliersRes, partsRes }: any) => {
+        if (suppliersRes && suppliersRes.success && Array.isArray(suppliersRes.data)) {
+          this.suppliersList = suppliersRes.data;
+          suppliersRes.data.forEach((s: any) => {
+            const id = Number(s.supplierId ?? s.SupplierId ?? s.id);
+            const name = s.supplierName ?? s.SupplierName ?? s.name;
+            if (id && name) {
+              this.supplierMap.set(id, name);
+            }
+          });
+        }
+
+        const rawParts = partsRes?.data?.data || (Array.isArray(partsRes?.data) ? partsRes.data : []);
+        if (Array.isArray(rawParts) && rawParts.length) {
+          this.partsList = rawParts;
+          rawParts.forEach((p: any) => {
+            const id = Number(p.partMasterId ?? p.PartMasterId ?? p.id);
+            const code = (p.partMasterCode ?? p.PartMasterCode ?? '').toString().trim().toLowerCase();
+            const name = p.partMasterName ?? p.PartMasterName ?? p.name;
+            if (id && name) {
+              this.partIdMap.set(id, name);
+            }
+            if (code && name) {
+              this.partCodeMap.set(code, name);
+            }
+          });
+        }
+
+        if (res.success) {
+          this.originalInspectionData = res.data.map((item: any) => {
+            const rawErrorRateStr = item.errorRate || '0';
+            const parsedErrorRate = parseFloat(rawErrorRateStr.toString().replace('%', ''));
+            const errorRatePpmVal = isNaN(parsedErrorRate) ? 0 : (parsedErrorRate * 1000);
+
+            const sId = Number(item.supplierId ?? item.SupplierId);
+            const directName = item.supplierName || item.SupplierName || item.supplier || item.Supplier || item.supplierMasterName;
+            const supplierName = (directName && directName !== '-' && directName !== 'N/A') ? directName : (sId ? this.supplierMap.get(sId) : null) || 'N/A';
+
+            const pmId = Number(item.partMasterId ?? item.PartMasterId ?? item.partCodeId ?? item.PartCodeId ?? item.partId ?? item.PartId);
+            const pmCode = (item.partMasterCode || item.PartMasterCode || '').toString().trim();
+            const pmCodeLower = pmCode.toLowerCase();
+
+            const directPartName = item.partMasterName || item.PartMasterName || item.partName || item.PartName;
+            const resolvedPartName = (directPartName && directPartName !== '-' && directPartName !== 'N/A')
+              ? directPartName
+              : ((pmId ? this.partIdMap.get(pmId) : null)
+                || (pmCodeLower ? this.partCodeMap.get(pmCodeLower) : null)
+                || pmCode
+                || 'N/A');
+
+            return {
+              id: item.inspectionId,
+              Reference: item.referenceId,
+              Publish: item.publish,
+              InspectionDate: item.inspectionDate ? new Date(item.inspectionDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+              Time: item.time || '-',
+              Inspector: item.inspectorName || 'N/A',
+              Supplier: supplierName,
+              PartFamily: item.partFamilyName || 'N/A',
+              PartName: resolvedPartName,
+              PartNumber: item.partMasterCode || 'N/A',
+              Defects: item.defects,
+              Parameters: item.parameters,
+              Remarks: item.remarks || '-',
+              BatchNumber: item.batchNumber || 'N/A',
+              BatchQuantity: item.batchQuantity || 0,
+              SampleQuantity: item.sampleQuantity || 0,
+              ErrorRatePct: rawErrorRateStr.toString().includes('%') ? rawErrorRateStr : `${rawErrorRateStr}%`,
+              ErrorRatePPM: errorRatePpmVal,
+              stage: item.stageName || 'N/A'
+            };
+          });
+          this.inspectionData = [...this.originalInspectionData];
 
         // Populate dynamic lists (excluding duplicates and N/A values)
         this.inspectors = Array.from(new Set(this.originalInspectionData.map(item => item.Inspector).filter(x => x && x !== 'N/A'))).sort();
@@ -105,7 +184,11 @@ export class SupplierActiverecordsComponent implements OnInit {
         this.partNames = Array.from(new Set(this.originalInspectionData.map(item => item.PartName).filter(x => x && x !== 'N/A'))).sort();
         this.batchNumbers = Array.from(new Set(this.originalInspectionData.map(item => item.BatchNumber).filter(x => x && x !== 'N/A'))).sort();
 
-        this.updateChartData();
+          this.updateChartData();
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load inspections', err);
       }
     });
   }
@@ -218,6 +301,7 @@ export class SupplierActiverecordsComponent implements OnInit {
     'Inspection Date',
     'Time',
     'Inspector',
+    'Supplier',
     'Part Family',
     'Part Name',
     'Part Number',
@@ -247,6 +331,7 @@ export class SupplierActiverecordsComponent implements OnInit {
       'Inspection Date': 150,
       'Time': 120,
       'Inspector': 160,
+      'Supplier': 180,
       'Part Family': 180,
       'Part Name': 180,
       'Part Number': 160,

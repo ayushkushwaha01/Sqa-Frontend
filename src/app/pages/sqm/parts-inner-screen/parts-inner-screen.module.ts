@@ -21,6 +21,7 @@ import { PartsCompletedReferenceComponent } from "./parts-completed-reference/pa
 import { AuditrefRemarksPopComponent } from "./parts-audit-reference/auditref-remarks-pop/auditref-remarks-pop.component";
 import { PdfrefComponent } from './pdfref/pdfref.component';
 import { HighchartsChartModule } from "highcharts-angular";
+import { SamplesComponent } from './samples/samples.component';
 // import { MatDialogModule } from "@angular/material/dialog";
 
 const routes: Routes = [
@@ -44,6 +45,12 @@ const routes: Routes = [
         data: { breadcrumb: 'Part Audit Summary' }
       },
       { path: "", redirectTo: "parts-audit-details", pathMatch: "full" },
+
+      {
+        path: "samples",
+        component: SamplesComponent,
+        data: { breadcrumb: 'Audit Dashboard' }
+      },
     ],
   },
 ];
@@ -56,6 +63,7 @@ const routes: Routes = [
     PartsCompletedReferenceComponent,
     AuditrefRemarksPopComponent,
     PdfrefComponent,
+    SamplesComponent,
   ],
   imports: [
     CommonModule,

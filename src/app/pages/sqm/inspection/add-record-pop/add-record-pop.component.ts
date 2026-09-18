@@ -6,6 +6,8 @@ import { LookupService } from "src/app/pages/admin/lookup/lookup.service";
 import { ManageUsersService } from "src/app/pages/admin/manage-user/manage-users.service";
 import { InspectionService } from "../inspection.service";
 import { AlertService } from "src/app/shared/alert.service";
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 
 export class CustomDateAdapter extends NativeDateAdapter {
@@ -63,7 +65,7 @@ export class AddRecordPopComponent implements OnInit {
     private manageUsersService: ManageUsersService,
     private inspectionService: InspectionService,
     private alertService: AlertService // <-- Inject Alert Service
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.initForm();
@@ -92,30 +94,12 @@ export class AddRecordPopComponent implements OnInit {
         supplierId: this.data.supplierId,
         shiftId: this.data.shiftId,
         inspectorId: this.data.inspectorId,
-        partFamilyId: this.data.partFamilyId,
-        partMasterId: this.data.partMasterId,
-        batchId: this.data.batchId,
         inspectionDate: this.parseLocalDate(this.data.InspectionDate),
         time: this.data.Time,
         remarks: this.data.Remarks === "-" ? "" : this.data.Remarks,
         batchQuantity: this.data.BatchQuantity,
         sampleQuantity: this.data.SampleQuantity,
       });
-
-      this.recordForm.get('partFamilyId')?.disable();
-      this.recordForm.get('partMasterId')?.disable();
-
-      setTimeout(() => {
-        if (this.data.partFamilyId) {
-          this.onPartFamilyChange(this.data.partFamilyId);
-          this.recordForm.get("partMasterId")?.setValue(this.data.partMasterId);
-
-          if (this.data.partMasterId) {
-            this.onPartMasterChange(this.data.partMasterId);
-            this.recordForm.get("batchId")?.setValue(this.data.batchId);
-          }
-        }
-      }, 600);
     }
   }
 
@@ -139,40 +123,101 @@ export class AddRecordPopComponent implements OnInit {
       }
     });
 
-    this.setupService.getPartFamilies({}).subscribe((res: any) => {
-      if (res.success && res.data && res.data.data) {
-        this.partFamilies = res.data.data.filter((item: any) => item.isActive);
+    forkJoin({
+      families: this.setupService.getPartFamilies({}).pipe(catchError(() => of({ success: false }))),
+      parts: this.setupService.getPartMaster({ Keyword: "", Status: "" }).pipe(catchError(() => of({ success: false }))),
+      batches: this.setupService.getBatchMaster({ Keyword: "", Status: "" }).pipe(catchError(() => of({ success: false })))
+    }).subscribe(({ families, parts, batches }: any) => {
+      if (families?.success && families.data?.data) {
+        this.partFamilies = families.data.data.filter((item: any) => item.isActive);
       }
-    });
-
-    this.setupService.getPartMaster({ Keyword: "", Status: "" }).subscribe((res: any) => {
-      if (res.success && res.data && res.data.data) {
-        this.allPartCodes = res.data.data.filter((item: any) => item.isActive);
-        const partFamilyId = this.recordForm.get("partFamilyId")?.value;
-        this.partCodes = partFamilyId ? this.allPartCodes.filter((item: any) => item.partFamilyId == partFamilyId) : [];
+      if (parts?.success && parts.data?.data) {
+        this.allPartCodes = parts.data.data.filter((item: any) => item.isActive);
       }
-    });
+      if (batches?.success && batches.data?.data) {
+        this.allBatches = batches.data.data.filter((item: any) => item.isActive);
+      }
 
-    this.setupService.getBatchMaster({ Keyword: "", Status: "" }).subscribe((res: any) => {
-      if (res.success && res.data && res.data.data) {
-        this.allBatches = res.data.data.filter((item: any) => item.isActive);
-        const partMasterId = this.recordForm.get("partMasterId")?.value;
-        this.batches = partMasterId ? this.allBatches.filter((item: any) => item.partMasterId == partMasterId) : [];
+      if (this.data) {
+        this.applyEditValues();
       }
     });
   }
 
- saveRecord() {
+  applyEditValues() {
+    if (!this.data) return;
+
+    // 1. Resolve and set Part Family
+    let partFamilyId = this.data.partFamilyId ?? this.data.PartFamilyId;
+    if (!partFamilyId && this.data.PartFamily && this.partFamilies.length) {
+      const matchedFamily = this.partFamilies.find((f: any) =>
+        f.partFamilyName?.toLowerCase().trim() === this.data.PartFamily?.toLowerCase().trim()
+      );
+      if (matchedFamily) partFamilyId = matchedFamily.partFamilyId;
+    }
+
+    if (partFamilyId) {
+      this.recordForm.get("partFamilyId")?.setValue(partFamilyId);
+      this.partCodes = this.allPartCodes.filter((item: any) => item.partFamilyId == partFamilyId);
+    } else {
+      this.partCodes = [...this.allPartCodes];
+    }
+
+    // 2. Resolve and set Part Name / Part Master
+    let partMasterId = this.data.partMasterId ?? this.data.PartMasterId ?? this.data.partCodeId ?? this.data.PartCodeId ?? this.data.partId;
+    if (!partMasterId && (this.data.PartName || this.data.PartNumber) && this.allPartCodes.length) {
+      const partNameToMatch = (this.data.PartName || this.data.PartNumber || "").toLowerCase().trim();
+      const matchedPart = this.allPartCodes.find((p: any) =>
+        (p.partMasterCode && p.partMasterCode.toLowerCase().trim() === partNameToMatch) ||
+        (p.partMasterName && p.partMasterName.toLowerCase().trim() === partNameToMatch)
+      );
+      if (matchedPart) {
+        partMasterId = matchedPart.partMasterId;
+        if (!this.partCodes.some((p: any) => p.partMasterId == partMasterId)) {
+          this.partCodes = this.allPartCodes.filter((item: any) => item.partFamilyId == matchedPart.partFamilyId);
+          this.recordForm.get("partFamilyId")?.setValue(matchedPart.partFamilyId);
+        }
+      }
+    }
+
+    if (partMasterId) {
+      this.recordForm.get("partMasterId")?.setValue(partMasterId);
+      this.batches = this.allBatches.filter((item: any) => item.partMasterId == partMasterId);
+    } else {
+      this.batches = [...this.allBatches];
+    }
+
+    // 3. Resolve and set Batch Number / Batch
+    let batchId = this.data.batchId ?? this.data.BatchId ?? this.data.batchNumberId ?? this.data.BatchNumberId;
+    if (!batchId && this.data.BatchNumber && this.data.BatchNumber !== '-' && this.allBatches.length) {
+      const batchNameToMatch = this.data.BatchNumber.toLowerCase().trim();
+      const matchedBatch = this.allBatches.find((b: any) =>
+        b.batchNumber && b.batchNumber.toLowerCase().trim() === batchNameToMatch
+      );
+      if (matchedBatch) {
+        batchId = matchedBatch.batchId;
+        if (!this.batches.some((b: any) => b.batchId == batchId)) {
+          this.batches = this.allBatches.filter((item: any) => item.partMasterId == matchedBatch.partMasterId);
+        }
+      }
+    }
+
+    if (batchId) {
+      this.recordForm.get("batchId")?.setValue(batchId);
+    }
+  }
+
+  saveRecord() {
     if (this.recordForm.valid) {
       const formData = this.recordForm.getRawValue();
 
       const payload = {
         ...formData,
-        inspectionId: this.data && this.data.id ? this.data.id : 0, 
-        partCodeId: formData.partMasterId,
-        batchNumberId: formData.batchId,
+        inspectionId: this.data && this.data.id ? this.data.id : 0,
+        partMasterId: formData.partMasterId,
+        batchId: formData.batchId,
         inspectionDate: this.formatLocalDate(formData.inspectionDate),
-        createdBy: 1, 
+        createdBy: 1,
       };
 
       this.inspectionService.addInspection(payload).subscribe({
@@ -226,11 +271,11 @@ export class AddRecordPopComponent implements OnInit {
       if (isNaN(d.getTime())) return null;
       return new Date(d.getFullYear(), d.getMonth(), d.getDate());
     } else {
-      const cleanDateStr = dateStr.split('T')[0]; 
+      const cleanDateStr = dateStr.split('T')[0];
       const parts = cleanDateStr.split('-');
       if (parts.length === 3) {
         const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; 
+        const month = parseInt(parts[1], 10) - 1;
         const day = parseInt(parts[2], 10);
         return new Date(year, month, day);
       }

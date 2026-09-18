@@ -1,210 +1,10 @@
-<!-- <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 20px;">
- 
-  <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
-    class="filter-hover margin-right-10" (click)="filterToggle = !filterToggle">
-    <mat-icon class="">filter_list</mat-icon> Filter
-  </button>
-
- 
-</div>
-
-<div class="col-sm-12" style="overflow: hidden; width: 100%;">
-
-  <div class="col-sm-12" fxLayout="row wrap" *ngIf="filterToggle" style="margin-bottom: 0px;">
-    <div style="margin-top: 10px; width: 100%;">
-      <form [formGroup]="myGroup">
-        <mat-card class="filter">
-          <mat-card-content>
-            <div class="row col-lg-12 col-sm-12">
-              <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Keyword:</b></div>
-                <div class="col-sm-8">
-                  <input type="text" formControlName="Keyword" class="form-control" placeholder="Search by keyword" />
-                </div>
-              </div>
-
-              <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass"><b>Process Category :</b></div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ProcessCategory"
-                    placeholder="Select Process Category">
-                    <mat-option *ngFor="let category of processCategories" [value]="category">
-                      {{ category }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div>
-
-              <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass">
-                  <b>Select Supplier Name:</b>
-                </div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="SupplierName" placeholder="Select Supplier Name">
-                    <mat-option *ngFor="let supplier of suppliers" [value]="supplier">
-                      {{ supplier }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div>
-
-              <div class="col-sm-4 row me-2 mt-3">
-                <div class="col-sm-4 newMarginClass">
-                  <b>Action Type :</b>
-                </div>
-                <div class="col-sm-8">
-                  <mat-select class="form-control" formControlName="ActionType" placeholder="Select Action Type">
-                    <mat-option *ngFor="let action of actionTypes" [value]="action">
-                      {{ action }}
-                    </mat-option>
-                  </mat-select>
-                </div>
-              </div>
-
-            
-
-
-              <div class="col-sm-12 pull-right mt-3" style="margin-left: -15px;">
-                <a (click)="filterToggle = !filterToggle" class="pull-right"
-                  style="font-size: 25px; cursor: pointer; margin-left: 5px">
-                  <i class="fa fa-angle-double-up" aria-hidden="true"></i>
-                </a>
-
-                <button mat-raised-button class="pull-right btn-default margin-right-10" (click)="clearFilter()">
-                  <mat-icon>settings_backup_restore</mat-icon>Clear
-                </button>
-                <button mat-raised-button style="margin-right: 10px;" color="primary" class="pull-right" (click)="go()">
-                  <mat-icon>search</mat-icon>Search
-                </button>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </form>
-    </div>
-  </div>
-
-  <div class="col-sm-12" style="margin-top: 10px; width: 100%; padding: 0;">
-    <div class="table-responsive" id="grid-table-container">
-
-      <table mat-table class="table table-bordered table-hover">
-        <thead class="tbl-head">
-          <tr>
-            <th mat-header-cell mat-sort-header class="text-center"
-              style="width: 50px; min-width: 50px; max-width: 50px;">Action</th>
-            <th mat-header-cell mat-sort-header class="text-center">Status</th>
-            <th mat-header-cell mat-sort-header class="text-center">Resolved </th>
-            <th mat-header-cell mat-sort-header class="text-center">Docs</th>
-             <th mat-header-cell mat-sort-header class="text-center">Reference </th>
-            <th mat-header-cell mat-sort-header class="text-center">CAPA Subject</th>
-            <th mat-header-cell mat-sort-header class="text-center">Supplier Name</th>
-            <th mat-header-cell mat-sort-header class="text-center">Action Type</th>
-         
-            <th mat-header-cell mat-sort-header class="text-center">Process Category</th>
-            <th mat-header-cell mat-sort-header class="text-center">Description</th>
-            <th mat-header-cell mat-sort-header class="text-center">Supplier Remarks</th>
-            <th mat-header-cell mat-sort-header class="text-center">Log Date</th>
-            <th mat-header-cell mat-sort-header class="text-center"> Due Date</th>
-            <th mat-header-cell mat-sort-header class="text-center">Delay In Days</th>
-            <th mat-header-cell mat-sort-header class="text-center">Completion Date</th>
-            <th mat-header-cell mat-sort-header class="text-center">Severity</th>
-            <th mat-header-cell mat-sort-header class="text-center">Occurrence</th>
-            <th mat-header-cell mat-sort-header class="text-center">Detection</th>
-            <th mat-header-cell mat-sort-header class="text-center">Risk Rating</th>
-            <th mat-header-cell mat-sort-header class="text-center">Rating</th>
-            <th mat-header-cell mat-sort-header class="text-center">PDCA Status</th>
-           </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let applicant of pagedCapaData">
-            <td class="text-center" style="width: 50px; min-width: 50px; max-width: 50px;">
-              <a matTooltip="Delete" (click)="deleteConfirmation(applicant)"><i class="fa fa-trash red"></i></a>
-            </td>
-
-          
-
-             <td class="text-center">
-              <mat-select [(ngModel)]="applicant.status" (selectionChange)="onStatusChange(applicant)"
-                class="form-control">
-                 <mat-option *ngFor="let status of capaStatusLookups" [value]="status.lookupId.toString()">
-                  {{ status.lookupName }}
-                </mat-option>
-              </mat-select>
-            </td>
-
-             <td class="text-center">
-              <mat-checkbox [checked]="applicant.resolved" (change)="onResolvedChange(applicant, $event)"
-                color="primary"></mat-checkbox>
-            </td>
-
-          
-
-             <td class="text-center" style="color: blue; cursor: pointer;" (click)="docsPhoto(applicant)">
-              {{ applicant.docs }}
-            </td>
-          
-
-             <td class="text-link text-center">
-              <a [routerLink]="['/app','sqm','process-inner-screen','process-audit-reference']" [queryParams]="{ 
-        id: applicant.processAuditId, 
-        ref: applicant.auditReference, 
-        categoryId: applicant.processCategoryId, 
-        checklistId: applicant.checklistId 
-     }">
-                {{ applicant.reference }}
-              </a>
-            </td>
-            <td class="text-center">{{ applicant.actionSubject }}</td>
-            <td class="text-center">{{ applicant.supplierName }}</td>
-            <td class="text-center">{{ applicant.actionType }}</td>
-             <td class="text-center">{{ applicant.processCategory }}</td>
-            <td class="text-center">
-              <mat-icon (click)="imageSource1(applicant.description)" matTooltip="{{ applicant.description }}"
-                style="color: blue; cursor: pointer;">info</mat-icon>
-            </td>
-            <td class="text-center">
-              <mat-icon (click)="imageSource1(applicant.supplierRemarks)" matTooltip="{{ applicant.supplierRemarks }}"
-                style="color: blue; cursor: pointer;">info</mat-icon>
-            </td>
-            <td class="text-center">{{ applicant.logDate | date:'dd-MM-yyyy' }}</td>
-            <td class="text-center">{{ applicant.dueDate | date:'dd-MM-yyyy' }}</td>
-            <td class="text-center">{{ applicant.delayInDays === 0 ? '-' : applicant.delayInDays }}</td>
-            <td class="text-center">{{ applicant.completion | date:'dd-MM-yyyy' }}</td>
-            <td class="text-center">{{ applicant.severity }}</td>
-            <td class="text-center">{{ applicant.occurrence }}</td>
-            <td class="text-center">{{ applicant.detection }}</td>
-            <td class="text-center">{{ applicant.riskRating }}</td>
-            <td class="text-center">{{ applicant.rating }}</td>
-            <td class="text-center">{{ applicant.pdcaStatus }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <button class="mine mine-right" mat-fab (click)="scrollRight()">
-        <mat-icon style="color: #37474f">fast_forward</mat-icon>
-      </button>
-      <button class="mine mine-left" mat-fab (click)="scrollLeft()">
-        <mat-icon style="color: #37474f">fast_rewind</mat-icon>
-      </button>
-
-    </div>
-
-    <div style="width: 100%;">
-      <mat-paginator [length]="totalSize" [pageSize]="pageSize" [pageIndex]="pageIndex"
-        [pageSizeOptions]="[5, 10, 20, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
-      </mat-paginator>
-    </div>
-  </div>
-</div> -->
-
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 5px;">
   <button mat-raised-button style="background-color: black; color: white" [class.disable-custom]="!canUpdate"
     class="filter-hover margin-right-10" [matTooltip]="!canUpdate ? 'You don’t have permission to update' : 'Grid View'"
     (click)="canUpdate && openColumnSelector()">
 
     <mat-icon>grid_on</mat-icon>
-    Grid View
+    Columns
 
   </button>
   <button mat-raised-button matTooltip="Filter" style="background-color: black; color: white"
@@ -515,7 +315,18 @@
 
         <tbody>
 
-          <tr *ngFor="let applicant of pagedCapaData">
+          <!-- Loading Spinner Row -->
+          <tr *ngIf="isLoading">
+            <td [attr.colspan]="activeColumns.length || defaultColumns.length || 21" style="padding: 50px 0; background: #ffffff; border: none;">
+              <div style="position: sticky; left: 0; width: 100%; max-width: calc(100vw - 280px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+                <mat-spinner diameter="40"></mat-spinner>
+                <span style="font-size: 14px; font-weight: 500; color: #333;">Loading data, please wait...</span>
+              </div>
+            </td>
+          </tr>
+
+          <ng-container *ngIf="!isLoading">
+            <tr *ngFor="let applicant of pagedCapaData">
 
             <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
 
@@ -524,7 +335,7 @@
               <td *ngSwitchCase="'Action'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
-
+  
                 <a [class.disable-custom]="!canDelete" [matTooltip]="
                 !canDelete
                   ? 'You don’t have permission to delete'
@@ -583,13 +394,10 @@
                 [style.min-width.px]="getColumnWidth(col)">
 
                 <!-- 🔥 Locked if user is NOT a supplier OR lacks update rights -->
-                <mat-checkbox 
-                  [checked]="applicant.resolved" 
-                  [disabled]="!isSupplier || !canUpdate" 
+                <mat-checkbox [checked]="applicant.resolved" [disabled]="!isSupplier || !canUpdate"
                   [matTooltip]="!isSupplier ? 'Only Suppliers can mark this as resolved' : ''"
-                  (click)="(!isSupplier || !canUpdate) ? $event.preventDefault() : null" 
-                  (change)="onResolvedChange(applicant, $event)" 
-                  color="primary">
+                  (click)="(!isSupplier || !canUpdate) ? $event.preventDefault() : null"
+                  (change)="onResolvedChange(applicant, $event)" color="primary">
                 </mat-checkbox>
 
               </td>
@@ -666,49 +474,53 @@
 
 
               <!-- CAPA SUBJECT -->
+              <!-- <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                 
+                <div *ngIf="applicant.delayInDays >= overdueThreshold; else normalSubject" style="line-height: 1.4;">
+                  <span
+                    style="color: red; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">flag</mat-icon>
+                    <span>{{ applicant.actionSubject || '-' }}</span>
+                  </span>
+                  
+                </div>
+
+                 
+                <ng-template #normalSubject>
+                  <div style="line-height: 1.4;">
+                    <span>{{ applicant.actionSubject || '-' }}</span>
+                    
+                  </div>
+                </ng-template>
+
+              </td> -->
+
+              <!-- CAPA SUBJECT -->
               <td *ngSwitchCase="'CAPA Subject'" class="text-center" [class.frozen-col]="i < frozenCount"
                 [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
                 [style.min-width.px]="getColumnWidth(col)">
 
-                <!-- 🔥 If Escalated / Overdue -->
-                <div *ngIf="applicant.delayInDays >= overdueThreshold; else normalSubject" style="line-height: 1.4;">
+                <div style="line-height: 1.4;">
+                  <!-- 🔥 Color and weight rely ONLY on the OVERDUE threshold -->
                   <span
-                    style="color: red; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">
-                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px;">flag</mat-icon>
-                    {{ applicant.actionSubject || '-' }}
-                  </span>
-                  <!-- <br>
-                  <span style="font-size: 12px; color: blue;">
-                    (Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})
-                  </span> -->
-                </div>
-
-                <!-- Normal / Not Overdue -->
-                <ng-template #normalSubject>
-                  <div style="line-height: 1.4;">
+                    [ngStyle]="{
+                      'color': applicant.delayInDays >= overdueThreshold ? 'red' : 'inherit',
+                      'font-weight': applicant.delayInDays >= overdueThreshold ? '600' : 'normal'
+                    }"
+                    style="display: inline-flex; align-items: center; justify-content: center;">
+                    
+                    <!-- 🔥 The Flag Icon relies ONLY on the ESCALATE threshold -->
+                    <mat-icon *ngIf="applicant.delayInDays >= escalateThreshold" 
+                      style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">
+                      flag
+                    </mat-icon>
+                    
                     <span>{{ applicant.actionSubject || '-' }}</span>
-                    <!-- <br>
-                    <span style="font-size: 12px; color: gray;">
-                      (Delay: {{ applicant.delayInDays }} | Threshold: {{ overdueThreshold }})
-                    </span> -->
-                  </div>
-                </ng-template>
-
-              </td>
-
-
-              <!-- DELAY IN DAYS -->
-              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
-                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
-                [style.min-width.px]="getColumnWidth(col)">
-
-                <!-- 🔥 Shows the delay number in bold red if overdue -->
-                <span [ngStyle]="{
-                    'color': applicant.delayInDays >= overdueThreshold ? 'red' : 'inherit', 
-                    'font-weight': applicant.delayInDays >= overdueThreshold ? 'bold' : 'normal'
-                  }">
-                  {{ applicant.delayInDays === 0 ? '-' : applicant.delayInDays }}
-                </span>
+                  </span>
+                </div>
 
               </td>
 
@@ -793,6 +605,21 @@
               </td>
 
 
+              <!-- DELAY IN DAYS -->
+              <td *ngSwitchCase="'Delay In Days'" class="text-center" [class.frozen-col]="i < frozenCount"
+                [class.last-frozen]="i === frozenCount - 1" [style.left]="getStickyLeft(i)"
+                [style.min-width.px]="getColumnWidth(col)">
+
+                <!-- 🔥 Shows the delay number in bold red if overdue -->
+                <span [ngStyle]="{
+                    'color': applicant.delayInDays >= overdueThreshold ? 'red' : 'inherit', 
+                    'font-weight': applicant.delayInDays >= overdueThreshold ? 'bold' : 'normal'
+                  }">
+                  {{ applicant.delayInDays === 0 ? '-' : applicant.delayInDays }}
+                </span>
+
+              </td>
+
 
               <!-- COMPLETION DATE -->
               <td *ngSwitchCase="'Completion Date'" class="text-center" [class.frozen-col]="i < frozenCount"
@@ -865,7 +692,15 @@
 
             </ng-container>
 
-          </tr>
+            </tr>
+
+            <!-- No Data -->
+            <tr *ngIf="pagedCapaData.length === 0">
+              <td [attr.colspan]="activeColumns.length" class="text-center py-4 center">
+                No Data Available
+              </td>
+            </tr>
+          </ng-container>
 
         </tbody>
 

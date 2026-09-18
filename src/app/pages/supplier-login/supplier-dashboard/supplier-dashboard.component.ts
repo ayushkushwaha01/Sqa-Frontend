@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import * as Highcharts from 'highcharts';
 import { SupplierDashboardService } from './supplier-dashboard.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-supplier-dashboard',
@@ -16,7 +17,7 @@ export class SupplierDashboardComponent implements OnInit {
   dashboardData: any = null;
   commodities: any[] = [];
   severities: any[] = [];
-  years = ['FY 2021-2022', 'FY 2022-2023', 'FY 2023-2024', 'FY 2024-2025', 'FY 2025-2026', 'FY 2026-2027'];
+  years = ['2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026', '2026-2027'];
 
   supplierId: number = 0;
   localProcessCommodityId: number | null = null;
@@ -57,15 +58,36 @@ export class SupplierDashboardComponent implements OnInit {
     this.filterForm = this.fb.group({
       commodityId: [null],
       severityId: [null],
-      finYear: ['FY 2026-2027']
+      finYear: ['2026-2027']
     });
   }
 
   ngOnInit(): void {
-    this.supplierId = Number(localStorage.getItem('UserId')) || 0;
+    // this.supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+    const supplierId = this.getSupplierId();
     this.loadDropdowns();
     this.loadDashboard();
   }
+
+  onTableWheel(event: WheelEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    if (!target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    target.scrollTop += event.deltaY;
+  }
+
+  private getSupplierId(): number {
+  const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  if (!token) return 0;
+  try {
+    const decoded: any = jwtDecode(token);
+    return Number(decoded.nameid) || 0;
+  } catch {
+    return 0;
+  }
+}
+
 
   loadDropdowns() {
     this.api.getCommodities().subscribe((res: any) => { if (res.success) this.commodities = res.data; });
@@ -77,7 +99,8 @@ export class SupplierDashboardComponent implements OnInit {
     this.localProcessCommodityId = filters.commodityId;
     this.localPartsCommodityId = filters.commodityId;
     
-    this.api.getDashboardData(this.supplierId, filters.finYear, filters.commodityId, filters.severityId)
+    // this.api.getDashboardData(this.supplierId, filters.finYear, filters.commodityId, filters.severityId)
+    this.api.getDashboardData(filters.finYear, filters.commodityId, filters.severityId)
       .subscribe({
         next: (res: any) => {
           if (res.success) {
@@ -106,9 +129,19 @@ export class SupplierDashboardComponent implements OnInit {
 
   onFilterSubmit() { this.loadDashboard(); }
 
+  onClearFilter() {
+    this.filterForm.patchValue({
+      commodityId: null,
+      severityId: null,
+      finYear: '2026-2027'
+    });
+    this.loadDashboard();
+  }
+
   onProcessCommodityChange(commodityId: number | null) {
     this.localProcessCommodityId = commodityId;
-    this.api.getProcessChartData(this.supplierId, this.filterForm.value.finYear, commodityId ? commodityId : undefined).subscribe({
+    // this.api.getProcessChartData(this.supplierId, this.filterForm.value.finYear, commodityId ? commodityId : undefined).subscribe({
+    this.api.getProcessChartData(this.filterForm.value.finYear, commodityId ? commodityId : undefined).subscribe({
       next: (res: any) => {
         if (res.success && this.processChartRef && this.processChartRef.series.length > 0) {
           const chartData = res.data;
@@ -123,7 +156,7 @@ export class SupplierDashboardComponent implements OnInit {
 
   onPartsCommodityChange(commodityId: number | null) {
     this.localPartsCommodityId = commodityId;
-    this.api.getPartsChartData(this.supplierId, this.filterForm.value.finYear, commodityId ? commodityId : undefined).subscribe({
+    this.api.getPartsChartData(this.filterForm.value.finYear, commodityId ? commodityId : undefined).subscribe({ 
       next: (res: any) => {
         if (res.success && this.partsChartRef && this.partsChartRef.series.length > 0) {
           const chartData = res.data;

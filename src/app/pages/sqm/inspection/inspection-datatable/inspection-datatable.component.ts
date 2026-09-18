@@ -11,6 +11,9 @@ import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/mater
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export class CustomDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -75,6 +78,7 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   pageIndex = 0;
   totalSize = 0;
   showFilter = false;
+  isLoading: boolean = true;
 
   inspectors: string[] = [];
   partFamilies: string[] = [];
@@ -100,9 +104,16 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
   readonly SCREEN_ID: number = 27;
   readonly SCREEN_IDd: number = 28;
 
+  supplierMap: Map<number, string> = new Map();
+  suppliersList: any[] = [];
+  partIdMap: Map<number, string> = new Map();
+  partCodeMap: Map<string, string> = new Map();
+  partsList: any[] = [];
+
   constructor(
     private dialog: MatDialog,
     private inspectionService: InspectionService,
+    private setupService: SetupService,
     private cdr: ChangeDetectorRef,
     private alertService: AlertService,// <-- Inject Alert Service here
     private partAuditService: PartAuditService
@@ -120,14 +131,55 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     this.canUpdate = UserPermissionService.fnGetUpdatePermissions(this.SCREEN_ID);
     this.canDelete = UserPermissionService.fnGetDeletePermissions(this.SCREEN_ID);
     this.canreadDashboard = UserPermissionService.fnGetReadPermissions(this.SCREEN_IDd);
+    this.activeColumns = [...this.defaultColumns];
     this.loadData();
     this.loadGridColumns();
   }
 
 
   loadData() {
-    this.inspectionService.getAllInspections().subscribe({
-      next: (res: any) => {
+    this.isLoading = true;
+    const suppliers$ = this.supplierMap.size > 0
+      ? of({ success: true, data: this.suppliersList })
+      : this.setupService.getAllSuppliers().pipe(catchError(() => of({ success: false, data: [] })));
+
+    const parts$ = this.partIdMap.size > 0
+      ? of({ success: true, data: { data: this.partsList } })
+      : this.setupService.getPartMaster({ Keyword: '', Status: '' }).pipe(catchError(() => of({ success: false, data: [] })));
+
+    forkJoin({
+      res: this.inspectionService.getAllInspections(),
+      suppliersRes: suppliers$,
+      partsRes: parts$
+    }).subscribe({
+      next: ({ res, suppliersRes, partsRes }: any) => {
+        if (suppliersRes && suppliersRes.success && Array.isArray(suppliersRes.data)) {
+          this.suppliersList = suppliersRes.data;
+          suppliersRes.data.forEach((s: any) => {
+            const id = Number(s.supplierId ?? s.SupplierId ?? s.id);
+            const name = s.supplierName ?? s.SupplierName ?? s.name;
+            if (id && name) {
+              this.supplierMap.set(id, name);
+            }
+          });
+        }
+
+        const rawParts = partsRes?.data?.data || (Array.isArray(partsRes?.data) ? partsRes.data : []);
+        if (Array.isArray(rawParts) && rawParts.length) {
+          this.partsList = rawParts;
+          rawParts.forEach((p: any) => {
+            const id = Number(p.partMasterId ?? p.PartMasterId ?? p.id);
+            const code = (p.partMasterCode ?? p.PartMasterCode ?? '').toString().trim().toLowerCase();
+            const name = p.partMasterName ?? p.PartMasterName ?? p.name;
+            if (id && name) {
+              this.partIdMap.set(id, name);
+            }
+            if (code && name) {
+              this.partCodeMap.set(code, name);
+            }
+          });
+        }
+
         if (res && res.success) {
           this.allMockData = res.data.map((item: any) => {
 
@@ -135,22 +187,39 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
             const rawErrorRateStr = (item.errorRate ?? item.ErrorRate) || '0';
             const parsedErrorRate = parseFloat(rawErrorRateStr.toString().replace('%', ''));
 
+            const sId = Number(item.supplierId ?? item.SupplierId);
+            const directName = item.supplierName || item.SupplierName || item.supplier || item.Supplier || item.supplierMasterName;
+            const supplierName = (directName && directName !== '-') ? directName : (sId ? this.supplierMap.get(sId) : null) || '-';
+
+            const pmId = Number(item.partMasterId ?? item.PartMasterId ?? item.partCodeId ?? item.PartCodeId ?? item.partId ?? item.PartId);
+            const pmCode = (item.partMasterCode || item.PartMasterCode || '').toString().trim();
+            const pmCodeLower = pmCode.toLowerCase();
+
+            const directPartName = item.partMasterName || item.PartMasterName || item.partName || item.PartName;
+            const resolvedPartName = (directPartName && directPartName !== '-')
+              ? directPartName
+              : ((pmId ? this.partIdMap.get(pmId) : null)
+                || (pmCodeLower ? this.partCodeMap.get(pmCodeLower) : null)
+                || pmCode
+                || '-');
+
             return {
               id: item.inspectionId || item.InspectionId,
               stageId: item.stageId || item.StageId,
               supplierId: item.supplierId || item.SupplierId,
               shiftId: item.shiftId || item.ShiftId,
               inspectorId: item.inspectorId || item.InspectorId,
-              partFamilyId: item.partFamilyId || item.PartFamilyId,
-              partMasterId: item.partCodeId || item.PartCodeId,
-              batchId: item.batchNumberId || item.BatchNumberId,
+              partFamilyId: item.partFamilyId ?? item.PartFamilyId,
+              partMasterId: item.partMasterId ?? item.PartMasterId ?? item.partCodeId ?? item.PartCodeId ?? item.partId ?? item.PartId,
+              batchId: item.batchId ?? item.BatchId ?? item.batchNumberId ?? item.BatchNumberId,
               Reference: item.referenceId || item.ReferenceId,
               Publish: item.publish ?? item.Publish ?? false,
               InspectionDate: item.inspectionDate || item.InspectionDate ? new Date(item.inspectionDate || item.InspectionDate).toISOString() : null,
               Time: item.time || item.Time,
               Inspector: item.inspectorName || item.InspectorName || '-',
+              Supplier: supplierName,
               PartFamily: item.partFamilyName || item.PartFamilyName || '-',
-              PartName: item.partMasterCode || item.PartMasterCode || '-',
+              PartName: resolvedPartName,
               PartNumber: item.partMasterCode || item.PartMasterCode || '-',
 
               Defects: item.defects || item.Defects || '0/0',
@@ -178,11 +247,13 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
           this.updateChartData();
           this.cdr.detectChanges();
         }
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Failed to load inspection records from API', err);
         this.mockdata = [];
         this.allMockData = [];
+        this.isLoading = false;
       }
     });
   }
@@ -386,9 +457,10 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
     'Inspection Date',
     'Time',
     'Inspector',
+    'Supplier',
     'Part Family',
     'Part Name',
-    'Part Number',
+    // 'Part Number',
     'Defects',
     'Parameters',
     'Remarks',
@@ -414,6 +486,7 @@ export class InspectionDatatableComponent implements OnInit, AfterViewInit {
       'Inspection Date': 150,
       'Time': 120,
       'Inspector': 180,
+      'Supplier': 180,
       'Part Family': 180,
       'Part Name': 180,
       'Part Number': 160,

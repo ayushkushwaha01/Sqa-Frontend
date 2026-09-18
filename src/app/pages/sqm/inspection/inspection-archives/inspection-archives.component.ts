@@ -11,6 +11,9 @@ import { PageEvent } from '@angular/material/paginator';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
+import { SetupService } from 'src/app/pages/setup/setup.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-inspection-archives',
@@ -30,6 +33,7 @@ export class InspectionArchivesComponent implements OnInit {
   allMockData: any[] = [];
   showFilter = true;
   filterToggle: boolean = false;
+  isLoading: boolean = true;
   myGroup!: FormGroup;
 
   // Filter Arrays for UI
@@ -46,9 +50,16 @@ export class InspectionArchivesComponent implements OnInit {
   canreadCAPAScreen: boolean = false;
   readonly SCREEN_ID: number = 30;
   readonly SCREEN_IDd: number = 42;
+  supplierMap: Map<number, string> = new Map();
+  suppliersList: any[] = [];
+  partIdMap: Map<number, string> = new Map();
+  partCodeMap: Map<string, string> = new Map();
+  partsList: any[] = [];
+
   constructor(
     private dialog: MatDialog,
     private inspectionService: InspectionService,
+    private setupService: SetupService,
     private alertService: AlertService,
     private cdr: ChangeDetectorRef,
     private datePipe: DatePipe,
@@ -69,50 +80,110 @@ export class InspectionArchivesComponent implements OnInit {
 
     // Initialize the form group to prevent HTML errors
     this.myGroup = new FormGroup({
-      inspectionDate: new FormControl(''),
+      date: new FormControl(null),
       inspector: new FormControl(''),
       partFamily: new FormControl(''),
       partName: new FormControl(''),
       partNumber: new FormControl(''),
       batchNumber: new FormControl('')
     });
+    this.activeColumns = [...this.defaultColumns];
     this.loadData();
     this.loadGridColumns();
   }
 
   // --- API INTEGRATION ---
   loadData() {
-    this.inspectionService.getAllArchived().subscribe({
-      next: (res: any) => {
-        if (res && res.success) {
-          this.allMockData = res.data.map((item: any) => ({
-            id: item.inspectionId,
-            Reference: item.referenceId || '-',
-            Publish: item.publish ?? false,
-            InspectionDate: item.inspectionDate ? this.datePipe.transform(item.inspectionDate, 'dd/MM/yyyy') : '-',
-            Time: item.time || '-',
-            Inspector: item.inspectorName || '-',
-            PartFamily: item.partFamilyName || '-',
-            PartName: item.partMasterCode || '-',
-            PartNumber: item.partMasterCode || '-',
-            Defects: item.defects || '0/0',
-            Parameters: item.parameters || '0',
-            Remarks: item.remarks || '-',
-            BatchNumber: item.batchNumber || '-',
-            BatchQuantity: item.batchQuantity || 0,
-            SampleQuantity: item.sampleQuantity || 0,
-            ErrorRatePct: item.errorRate != null ? item.errorRate + '%' : '0%',
-            ErrorRatePPM: item.errorRate != null ? (item.errorRate * 10000) : 0,
+    this.isLoading = true;
+    const suppliers$ = this.supplierMap.size > 0
+      ? of({ success: true, data: this.suppliersList })
+      : this.setupService.getAllSuppliers().pipe(catchError(() => of({ success: false, data: [] })));
 
-            // Hidden Ids useful for Edit/Delete
-            stageId: item.stageId,
-            supplierId: item.supplierId,
-            shiftId: item.shiftId,
-            inspectorId: item.inspectorId,
-            partFamilyId: item.partFamilyId,
-            partMasterId: item.partCodeId,
-            batchId: item.batchNumberId
-          }));
+    const parts$ = this.partIdMap.size > 0
+      ? of({ success: true, data: { data: this.partsList } })
+      : this.setupService.getPartMaster({ Keyword: '', Status: '' }).pipe(catchError(() => of({ success: false, data: [] })));
+
+    forkJoin({
+      res: this.inspectionService.getAllArchived(),
+      suppliersRes: suppliers$,
+      partsRes: parts$
+    }).subscribe({
+      next: ({ res, suppliersRes, partsRes }: any) => {
+        if (suppliersRes && suppliersRes.success && Array.isArray(suppliersRes.data)) {
+          this.suppliersList = suppliersRes.data;
+          suppliersRes.data.forEach((s: any) => {
+            const id = Number(s.supplierId ?? s.SupplierId ?? s.id);
+            const name = s.supplierName ?? s.SupplierName ?? s.name;
+            if (id && name) {
+              this.supplierMap.set(id, name);
+            }
+          });
+        }
+
+        const rawParts = partsRes?.data?.data || (Array.isArray(partsRes?.data) ? partsRes.data : []);
+        if (Array.isArray(rawParts) && rawParts.length) {
+          this.partsList = rawParts;
+          rawParts.forEach((p: any) => {
+            const id = Number(p.partMasterId ?? p.PartMasterId ?? p.id);
+            const code = (p.partMasterCode ?? p.PartMasterCode ?? '').toString().trim().toLowerCase();
+            const name = p.partMasterName ?? p.PartMasterName ?? p.name;
+            if (id && name) {
+              this.partIdMap.set(id, name);
+            }
+            if (code && name) {
+              this.partCodeMap.set(code, name);
+            }
+          });
+        }
+
+        if (res && res.success) {
+          this.allMockData = res.data.map((item: any) => {
+            const sId = Number(item.supplierId ?? item.SupplierId);
+            const directName = item.supplierName || item.SupplierName || item.supplier || item.Supplier || item.supplierMasterName;
+            const supplierName = (directName && directName !== '-') ? directName : (sId ? this.supplierMap.get(sId) : null) || '-';
+
+            const pmId = Number(item.partMasterId ?? item.PartMasterId ?? item.partCodeId ?? item.PartCodeId ?? item.partId ?? item.PartId);
+            const pmCode = (item.partMasterCode || item.PartMasterCode || '').toString().trim();
+            const pmCodeLower = pmCode.toLowerCase();
+
+            const directPartName = item.partMasterName || item.PartMasterName || item.partName || item.PartName;
+            const resolvedPartName = (directPartName && directPartName !== '-')
+              ? directPartName
+              : ((pmId ? this.partIdMap.get(pmId) : null)
+                || (pmCodeLower ? this.partCodeMap.get(pmCodeLower) : null)
+                || pmCode
+                || '-');
+
+            return {
+              id: item.inspectionId,
+              Reference: item.referenceId || '-',
+              Publish: item.publish ?? false,
+              InspectionDate: item.inspectionDate ? this.datePipe.transform(item.inspectionDate, 'dd/MM/yyyy') : '-',
+              Time: item.time || '-',
+              Inspector: item.inspectorName || '-',
+              Supplier: supplierName,
+              PartFamily: item.partFamilyName || '-',
+              PartName: resolvedPartName,
+              PartNumber: item.partMasterCode || '-',
+              Defects: item.defects || '0/0',
+              Parameters: item.parameters || '0',
+              Remarks: item.remarks || '-',
+              BatchNumber: item.batchNumber || '-',
+              BatchQuantity: item.batchQuantity || 0,
+              SampleQuantity: item.sampleQuantity || 0,
+              ErrorRatePct: item.errorRate != null ? item.errorRate + '%' : '0%',
+              ErrorRatePPM: item.errorRate != null ? (item.errorRate * 10000) : 0,
+
+              // Hidden Ids useful for Edit/Delete
+              stageId: item.stageId,
+              supplierId: item.supplierId,
+              shiftId: item.shiftId,
+              inspectorId: item.inspectorId,
+              partFamilyId: item.partFamilyId ?? item.PartFamilyId,
+              partMasterId: item.partMasterId ?? item.PartMasterId ?? item.partCodeId ?? item.PartCodeId ?? item.partId ?? item.PartId,
+              batchId: item.batchId ?? item.BatchId ?? item.batchNumberId ?? item.BatchNumberId
+            };
+          });
 
           this.mockdata = [...this.allMockData];
           this.populateFilterDropdowns();
@@ -120,11 +191,13 @@ export class InspectionArchivesComponent implements OnInit {
           this.updatePagedList();
           this.cdr.detectChanges();
         }
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Failed to load archived records', err);
         this.mockdata = [];
         this.allMockData = [];
+        this.isLoading = false;
       }
     });
   }
@@ -335,9 +408,10 @@ export class InspectionArchivesComponent implements OnInit {
     'Inspection Date',
     'Time',
     'Inspector',
+    'Supplier',
     'Part Family',
     'Part Name',
-    'Part Number',
+    // 'Part Number',
     'Defects',
     'Parameters',
     'Remarks',
@@ -362,6 +436,7 @@ export class InspectionArchivesComponent implements OnInit {
       'Inspection Date': 150,
       'Time': 120,
       'Inspector': 180,
+      'Supplier': 180,
       'Part Family': 180,
       'Part Name': 180,
       'Part Number': 160,

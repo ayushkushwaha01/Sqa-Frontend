@@ -20,19 +20,20 @@
     <div class="row">
       <div class="col-sm-6">
         <div class="row form-group mt-3 align-items-start">
-          <label class="control-label col-sm-4 font-weight-bold"> CAPA Subject :</label>
+          <label class="control-label col-sm-4 font-weight-bold"> CAPA Subject : <span class="text-danger">*</span></label>
           <div class="col-sm-7">
             <textarea formControlName="subject" placeholder="Enter Subject" class="form-control" rows="4"
-              style="height: 100px; resize: vertical;">
+              style="height: 100px; resize: vertical; background-color: #fefec4 !important;">
             </textarea>
           </div>
         </div>
 
 
         <div class="row form-group mt-3 align-items-center">
-          <label class="control-label col-sm-4 font-weight-bold"> Log Date :</label>
+          <label class="control-label col-sm-4 font-weight-bold"> Log Date : <span class="text-danger">*</span></label>
           <div class="col-sm-7">
-            <input type="date" formControlName="logDate" class="form-control">
+            <input type="date" formControlName="logDate" class="form-control"
+              style="background-color: #fefec4 !important;">
           </div>
         </div>
 
@@ -281,60 +282,41 @@
             [class.disable-custom]="!canCreate"
             [matTooltip]="!canCreate ? 'You don’t have permission to create' : 'Add Document'"
             (click)="canCreate && addDocument()">
-
             <mat-icon>add</mat-icon>
-
           </div>
 
           <!-- API Uploaded PDFs -->
           <div *ngFor="let doc of uploadedDocs; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-white position-relative" [matTooltip]="doc.title"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative d-flex flex-column justify-content-center align-items-center p-1 text-center"
+            [matTooltip]="doc.title"
             (click)="viewApiDoc(doc.url)">
-            <div class="pdf-logo">
-              <div class="pdf-tag">PDF</div>
-              <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
-            </div>
-            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-              style="padding: 0 4px;" (click)="$event.stopPropagation(); removeApiDoc(i)">
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
-            </button> -->
-            <button *ngIf="!isReadOnly || isSupplier" type="button"
-              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+            <mat-icon style="color: #dc3545; font-size: 32px; width: 32px; height: 32px;">picture_as_pdf</mat-icon>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">
+              {{ doc.title }}
+            </span>
+            <i *ngIf="!isReadOnly || isSupplier" class="fa fa-trash"
               [class.disable-custom]="!canDelete"
-              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Document'"
+              style="position: absolute; top: 4px; right: 4px; color: red; font-size: 14px; cursor: pointer;"
               (click)="canDelete && $event.stopPropagation(); canDelete && removeApiDoc(i)">
-
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
-                close
-              </mat-icon>
-
-            </button>
+            </i>
           </div>
 
           <!-- Local Pending PDFs -->
           <div *ngFor="let file of selectedFiles; let i = index"
-            class="gallery-item me-2 border cursor-pointer bg-light position-relative" [matTooltip]="file.name"
+            class="gallery-item me-2 border cursor-pointer bg-white position-relative d-flex flex-column justify-content-center align-items-center p-1 text-center"
+            [matTooltip]="file.name"
             (click)="viewLocalFile(file)">
-            <div class="pdf-logo opacity-75">
-              <div class="pdf-tag">PDF</div>
-              <mat-icon class="pdf-icon">insert_drive_file</mat-icon>
-            </div>
-            <!-- <button *ngIf="!isReadOnly || isSupplier" type="button"
-              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
-              (click)="$event.stopPropagation(); removeLocalFile(i)">
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
-            </button> -->
-            <button *ngIf="!isReadOnly || isSupplier" type="button"
-              class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" style="padding: 0 4px;"
+            <mat-icon style="color: #dc3545; font-size: 32px; width: 32px; height: 32px;">picture_as_pdf</mat-icon>
+            <span class="text-truncate w-100 px-1 mt-1" style="font-size: 10px; font-weight: 500; color: #333;">
+              {{ file.name }}
+            </span>
+            <i *ngIf="!isReadOnly || isSupplier" class="fa fa-trash"
               [class.disable-custom]="!canDelete"
-              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete'"
-              (click)="canDelete && removeLocalFile(i); $event.stopPropagation()">
-
-              <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
-                close
-              </mat-icon>
-
-            </button>
+              [matTooltip]="!canDelete ? 'You don’t have permission to delete' : 'Delete Document'"
+              style="position: absolute; top: 4px; right: 4px; color: red; font-size: 14px; cursor: pointer;"
+              (click)="canDelete && $event.stopPropagation(); canDelete && removeLocalFile(i)">
+            </i>
           </div>
         </div>
       </div>

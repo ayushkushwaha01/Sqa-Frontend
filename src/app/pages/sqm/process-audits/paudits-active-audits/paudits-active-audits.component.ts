@@ -27,6 +27,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   filterToggle = false;
   maskDone = false;
   filterForm!: FormGroup;
+  isLoading: boolean = true;
 
   //Screen Permissions
   canCreate: boolean = false;
@@ -237,6 +238,7 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
     if (!this.canRead) {
       // Optional: this.router.navigate(['/dashboard']);
     }
+    this.activeColumns = [...this.defaultColumns];
     this.loadLookups();
     this.loadGridColumns();
   }
@@ -257,15 +259,22 @@ export class PauditsActiveAuditsComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    this.api.getAllAudits().subscribe((res: any) => {
-      if (res.success) {
-        // Sort latest audit on top
-        const sorted = (res.data || []).sort((a: any, b: any) => (b.processAuditId || 0) - (a.processAuditId || 0));
-        this.auditData = sorted;
-        this.originalAuditData = [...sorted];
-        // Re-apply active filters (including maskDone) after reload
-        this.filter();
-        this.updateCharts();
+    this.isLoading = true;
+    this.api.getAllAudits().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          // Sort latest audit on top
+          const sorted = (res.data || []).sort((a: any, b: any) => (b.processAuditId || 0) - (a.processAuditId || 0));
+          this.auditData = sorted;
+          this.originalAuditData = [...sorted];
+          // Re-apply active filters (including maskDone) after reload
+          this.filter();
+          this.updateCharts();
+        }
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
       }
     });
   }

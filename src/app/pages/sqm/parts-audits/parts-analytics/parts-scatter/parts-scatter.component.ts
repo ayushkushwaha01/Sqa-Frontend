@@ -61,10 +61,18 @@ export class PartsScatterComponent implements OnInit {
     this.onGoClick(); // initial load with no filters -> entire data
   }
 
-  forminit() {
+  // forminit() {
+  //   this.filterForm = this.fb.group({
+  //     month: [null],
+  //     year: [null]
+  //   });
+  // }
+
+   forminit() {
+    const currentDate = new Date();
     this.filterForm = this.fb.group({
-      month: [null],
-      year: [null]
+      month: [currentDate.getMonth() + 1],
+      year: [currentDate.getFullYear()]
     });
   }
 

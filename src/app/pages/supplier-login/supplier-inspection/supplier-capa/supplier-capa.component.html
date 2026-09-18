@@ -170,7 +170,7 @@
 
 
                 <!-- Reference -->
-                <ng-container *ngSwitchCase="'Reference'">
+                <!-- <ng-container *ngSwitchCase="'Reference'">
 
                   <a [routerLink]="[
                   '/app',
@@ -190,15 +190,48 @@
                     {{ applicant.reference }}
                   </a>
 
+                </ng-container> -->
+
+                <ng-container *ngSwitchCase="'Reference'">
+                  <a [routerLink]="['/app', 'sqm', 'inspect-inner-screen', 'capa-view']" 
+                     [queryParams]="{
+                        inspectionRefId: applicant.inspectionRefId,
+                        isReadOnly: true,
+                        parameterName: applicant.parameterName
+                     }" 
+                     style="color: blue; font-weight: 500; text-decoration: underline;">
+                    {{ applicant.reference }}
+                  </a>
                 </ng-container>
 
 
                 <!-- Subject -->
-                <ng-container *ngSwitchCase="'Subject'">
+                <!-- <ng-container *ngSwitchCase="'Subject'">
 
                   {{ applicant.actionSubject }}
 
                 </ng-container>
+ -->
+
+
+ <ng-container *ngSwitchCase="'Subject'">
+                  <div style="line-height: 1.4;">
+                    <span [ngStyle]="{
+                        'color': applicant.calculatedDelayInDays >= overdueThreshold ? 'red' : 'inherit',
+                        'font-weight': applicant.calculatedDelayInDays >= overdueThreshold ? '600' : 'normal'
+                      }"
+                      style="display: inline-flex; align-items: center; justify-content: center;">
+                      
+                      <mat-icon *ngIf="applicant.calculatedDelayInDays >= escalateThreshold" 
+                        style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; position: relative; top: 2px;">
+                        flag
+                      </mat-icon>
+                      
+                      <span>{{ applicant.actionSubject || '-' }}</span>
+                    </span>
+                  </div>
+                </ng-container>
+
 
 
                 <!-- Parameter Name -->

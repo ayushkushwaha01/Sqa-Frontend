@@ -2,7 +2,7 @@
   <div class="card p-5 shadow-sm border-danger" style="max-width: 500px; margin: 0 auto; background-color: #fff5f5;">
     <!-- <mat-icon style="font-size: 60px; height: 60px; width: 60px; color: #e53e3e;" class="mb-3">lock</mat-icon> -->
     <h3 class="text-danger font-weight-bold">Access Denied</h3>
-    <p class="text-muted">You do not have permission to view Analytics.</p>
+    <p class="text-muted">You do not have permission to view this page.</p>
     <p class="text-secondary small">Please contact your administrator if you believe this is an error.</p>
   </div>
 </div>
@@ -56,6 +56,8 @@
           </div>
 
           <div class="button-group">
+            <button type="button" class="btn-clear" (click)="onClearFilter()"><span class="reset-icon">&#8634;</span>
+              Clear</button>
             <button type="submit" class="btn-go"><span class="search-icon">&#9906;</span> Go</button>
           </div>
         </form>
@@ -90,26 +92,28 @@
     <div class="grid-column">
 
       <!-- CAPA DISTRIBUTION TABLE -->
-      <div class="panel table-panel card-issue" style="height: 260px; overflow-y: auto;">
-        <h3 class="panel-title">CAPA Distribution</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Severity</th>
-              <th>Volume</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of dashboardData?.capaDistribution">
-              <td>{{ item.severity }}</td>
-              <td>{{ item.count }}</td>
-            </tr>
-            <!-- Show if no data -->
-            <tr *ngIf="!dashboardData?.capaDistribution?.length">
-              <td colspan="2" class="text-center text-muted">No data available</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="panel table-panel card-issue" style="height: 260px;">
+        <h3 class="panel-title mb-2">CAPA Distribution</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaDistribution">
+                <td>{{ item.severity }}</td>
+                <td>{{ item.count }}</td>
+              </tr>
+              <!-- Show if no data -->
+              <tr *ngIf="!dashboardData?.capaDistribution?.length">
+                <td colspan="2" class="text-center text-muted">No data available</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- MONTHLY TREND CHART -->
@@ -152,26 +156,28 @@
       </div>
 
       <!-- CAPA AGEING ANALYSIS TABLE -->
-      <div class="panel table-panel card-ageing" style="height: 270px; overflow-y: auto;">
-        <h3 class="panel-title">CAPA Ageing Analysis</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Days</th>
-              <th>Volume</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of dashboardData?.capaAgeing">
-              <td>{{ item.days }}</td>
-              <td>{{ item.volume }}</td>
-            </tr>
-            <!-- Show if no data -->
-            <tr *ngIf="!dashboardData?.capaAgeing?.length">
-              <td colspan="2" class="text-center text-muted">No pending CAPAs</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="panel table-panel card-ageing" style="height: 270px;">
+        <h3 class="panel-title mb-2">CAPA Ageing Analysis</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Days</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaAgeing">
+                <td>{{ item.days }}</td>
+                <td>{{ item.volume }}</td>
+              </tr>
+              <!-- Show if no data -->
+              <tr *ngIf="!dashboardData?.capaAgeing?.length">
+                <td colspan="2" class="text-center text-muted">No pending CAPAs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>

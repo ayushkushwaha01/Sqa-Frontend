@@ -54,6 +54,8 @@
           </div>
 
           <div class="button-group">
+            <button type="button" class="btn-clear" (click)="onClearFilter()"><span class="reset-icon">&#8634;</span>
+              Clear</button>
             <button type="submit" class="btn-go">
               <span class="search-icon">&#9906;</span> Go
             </button>
@@ -63,23 +65,14 @@
 
       <!-- PARTS AUDITS CHART -->
       <div class="panel chart-panel card-parts" style="height: 270px">
-        <div
-          class="panel-header d-flex justify-content-between align-items-center mb-0"
-          style="margin-top: -10px"
-        >
+        <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top: -10px">
           <h3 class="panel-title mb-0">Parts Audits</h3>
           <!-- Local Widget Commodity Dropdown -->
           <mat-form-field appearance="outline" class="panel-dropdown">
             <mat-label>Commodity</mat-label>
-            <mat-select
-              [(value)]="localPartsCommodityId"
-              (selectionChange)="onPartsCommodityChange($event.value)"
-            >
+            <mat-select [(value)]="localPartsCommodityId" (selectionChange)="onPartsCommodityChange($event.value)">
               <mat-option [value]="null">All</mat-option>
-              <mat-option
-                *ngFor="let com of commodities"
-                [value]="com.commodityId"
-              >
+              <mat-option *ngFor="let com of commodities" [value]="com.commodityId">
                 {{ com.name || com.commodityName }}
               </mat-option>
             </mat-select>
@@ -87,12 +80,8 @@
         </div>
 
         <div class="chart-container" style="margin-top: -30px">
-          <highcharts-chart
-            [Highcharts]="Highcharts"
-            [options]="partsAuditOptions"
-            [callbackFunction]="partsCallback"
-            style="width: 100%; height: 100%; display: block"
-          >
+          <highcharts-chart [Highcharts]="Highcharts" [options]="partsAuditOptions" [callbackFunction]="partsCallback"
+            style="width: 100%; height: 100%; display: block">
           </highcharts-chart>
         </div>
       </div>
@@ -101,42 +90,37 @@
     <!-- ==================== COLUMN 2 ==================== -->
     <div class="grid-column">
       <!-- CAPA DISTRIBUTION TABLE -->
-      <div
-        class="panel table-panel card-issue"
-        style="height: 260px; overflow-y: auto"
-      >
-        <h3 class="panel-title">CAPA Distribution</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Severity</th>
-              <th>Volume</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of dashboardData?.capaDistribution">
-              <td>{{ item.severity }}</td>
-              <td>{{ item.count }}</td>
-            </tr>
-            <tr *ngIf="!dashboardData?.capaDistribution?.length">
-              <td colspan="2" class="text-center text-muted">
-                No data available
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="panel table-panel card-issue" style="height: 260px;">
+        <h3 class="panel-title mb-2">CAPA Distribution</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaDistribution">
+                <td>{{ item.severity }}</td>
+                <td>{{ item.count }}</td>
+              </tr>
+              <tr *ngIf="!dashboardData?.capaDistribution?.length">
+                <td colspan="2" class="text-center text-muted">
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- MONTHLY TREND CHART -->
       <div class="panel chart-panel card-trend" style="height: 270px">
         <h3 class="panel-title mb-0">Monthly Trend</h3>
         <div class="chart-container" style="margin-top: -10px">
-          <highcharts-chart
-            [Highcharts]="Highcharts"
-            [options]="monthlyTrendOptions"
-            [callbackFunction]="trendCallback"
-            style="width: 100%; height: 100%; display: block"
-          >
+          <highcharts-chart [Highcharts]="Highcharts" [options]="monthlyTrendOptions" [callbackFunction]="trendCallback"
+            style="width: 100%; height: 100%; display: block">
           </highcharts-chart>
         </div>
       </div>
@@ -146,23 +130,14 @@
     <div class="grid-column">
       <!-- PROCESS AUDITS CHART -->
       <div class="panel chart-panel card-process" style="height: 260px">
-        <div
-          class="panel-header d-flex justify-content-between align-items-center mb-0"
-          style="margin-top: -10px"
-        >
+        <div class="panel-header d-flex justify-content-between align-items-center mb-0" style="margin-top: -10px">
           <h3 class="panel-title mb-0">Process Audits</h3>
           <!-- Local Widget Commodity Dropdown -->
           <mat-form-field appearance="outline" class="panel-dropdown">
             <mat-label>Commodity</mat-label>
-            <mat-select
-              [(value)]="localProcessCommodityId"
-              (selectionChange)="onProcessCommodityChange($event.value)"
-            >
+            <mat-select [(value)]="localProcessCommodityId" (selectionChange)="onProcessCommodityChange($event.value)">
               <mat-option [value]="null">All</mat-option>
-              <mat-option
-                *ngFor="let com of commodities"
-                [value]="com.commodityId"
-              >
+              <mat-option *ngFor="let com of commodities" [value]="com.commodityId">
                 {{ com.name || com.commodityName }}
               </mat-option>
             </mat-select>
@@ -170,41 +145,36 @@
         </div>
 
         <div class="chart-container" style="margin-top: -30px">
-          <highcharts-chart
-            [Highcharts]="Highcharts"
-            [options]="processAuditOptions"
-            [callbackFunction]="processCallback"
-            style="width: 100%; height: 100%; display: block"
-          >
+          <highcharts-chart [Highcharts]="Highcharts" [options]="processAuditOptions"
+            [callbackFunction]="processCallback" style="width: 100%; height: 100%; display: block">
           </highcharts-chart>
         </div>
       </div>
 
       <!-- CAPA AGEING ANALYSIS TABLE -->
-      <div
-        class="panel table-panel card-ageing"
-        style="height: 270px; overflow-y: auto"
-      >
-        <h3 class="panel-title">CAPA Ageing Analysis</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Days</th>
-              <th>Volume</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of dashboardData?.capaAgeing">
-              <td>{{ item.days }}</td>
-              <td>{{ item.volume }}</td>
-            </tr>
-            <tr *ngIf="!dashboardData?.capaAgeing?.length">
-              <td colspan="2" class="text-center text-muted">
-                No pending CAPAs
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="panel table-panel card-ageing" style="height: 270px;">
+        <h3 class="panel-title mb-2">CAPA Ageing Analysis</h3>
+        <div class="table-scroll-container" (wheel)="onTableWheel($event)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Days</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of dashboardData?.capaAgeing">
+                <td>{{ item.days }}</td>
+                <td>{{ item.volume }}</td>
+              </tr>
+              <tr *ngIf="!dashboardData?.capaAgeing?.length">
+                <td colspan="2" class="text-center text-muted">
+                  No pending CAPAs
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

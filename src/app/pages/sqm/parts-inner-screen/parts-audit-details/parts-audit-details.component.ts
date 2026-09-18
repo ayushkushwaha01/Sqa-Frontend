@@ -1,7 +1,7 @@
 import { OccurrenceMasterComponent } from './../../parts-audits/parts-setup/occurrence-master/occurrence-master.component';
 import { Location } from '@angular/common';
 import { Component, OnInit, HostListener } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PartAuditService } from '../../parts-audits/part-audit.service';
 import { AlertService } from 'src/app/shared/alert.service';
 import { SetupService } from 'src/app/pages/setup/setup.service';
@@ -24,6 +24,8 @@ export class PartsAuditDetailsComponent implements OnInit {
   severityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   occurrenceOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   detectionOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+   done: boolean = false;
 
   // images: string[] = [
   //   'assets/img8.jpg',
@@ -63,6 +65,7 @@ export class PartsAuditDetailsComponent implements OnInit {
       this.partAuditId = +params['partAuditId'] || 0;
       this.auditParameterId = +params['auditParameterId'] || 0;
 
+      this.done = params['done'] === 'true';
       console.log('PartAuditId:', this.partAuditId);
       console.log('AuditParameterId:', this.auditParameterId);
 
@@ -236,6 +239,14 @@ export class PartsAuditDetailsComponent implements OnInit {
 
   // }
 
+  getTodayDateString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   initForm(): void {
     this.auditForm = this.fb.group({
       partAuditCapaId: [0],
@@ -244,7 +255,7 @@ export class PartsAuditDetailsComponent implements OnInit {
       subject: [''],
       dueDate: [''],
       completedDate: [''],
-      loggedDate: [''],
+      loggedDate: [this.getTodayDateString(), Validators.required],
       pdcaStatus: [''],
       severityId: [null],
       occurrence: [null],
@@ -254,7 +265,7 @@ export class PartsAuditDetailsComponent implements OnInit {
       isResolved: [false],
       class: [''],
       actionType: [''],
-      capaSubject: [''],
+      capaSubject: ['', Validators.required],
       observations: [''],
       correctiveActions: [''],
       supplierRemarks: [''],
@@ -316,6 +327,19 @@ export class PartsAuditDetailsComponent implements OnInit {
 
 
   save() {
+    const capaSubject = this.auditForm.get('capaSubject')?.value;
+    const loggedDate = this.auditForm.get('loggedDate')?.value;
+
+    if (!capaSubject || capaSubject.trim() === '') {
+      this.alertService.createAlert('CAPA Subject is mandatory.', 0);
+      return;
+    }
+
+    if (!loggedDate || loggedDate.trim() === '') {
+      this.alertService.createAlert('Logged Date is mandatory.', 0);
+      return;
+    }
+
     if (this.auditForm.invalid) {
       return;
     }
@@ -330,8 +354,13 @@ export class PartsAuditDetailsComponent implements OnInit {
       modifiedBy: currentUserId
     });
 
-    // Get the final payload
+    // Get the final payload and convert empty strings to null for optional dates & dropdowns
     const payload = this.auditForm.getRawValue();
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === '') {
+        payload[key] = null;
+      }
+    });
 
     this.partAuditService.upsertCapa(payload).subscribe({
       next: (res: any) => {
@@ -573,7 +602,7 @@ export class PartsAuditDetailsComponent implements OnInit {
             : '',
           loggedDate: capa.createdDate
             ? capa.createdDate.substring(0, 10)
-            : '',
+            : this.getTodayDateString(),
           pdcaStatus: capa.pdcaStatus,
           severityId: capa.severityId,
           occurrence: capa.occurrence,

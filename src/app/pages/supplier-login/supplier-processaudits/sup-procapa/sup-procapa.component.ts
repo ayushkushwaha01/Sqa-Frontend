@@ -9,6 +9,8 @@ import { ProcessActionsGridComponent } from 'src/app/pages/sqm/process-audits/pa
 import { ProcessDocPopComponent } from 'src/app/pages/sqm/process-audits/paudits-actions/process-doc-pop/process-doc-pop.component';
 import { PartAuditService } from 'src/app/pages/sqm/parts-audits/part-audit.service';
 import { ColumnSelectorComponent } from 'src/app/pages/column-selector/column-selector.component';
+import { ManageUsersService } from 'src/app/pages/admin/manage-user/manage-users.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-sup-procapa',
@@ -33,10 +35,14 @@ export class SupProcapaComponent implements OnInit {
   resSectionFilterLeads: any[] = [];
   pageSize: number = 5;
 
+  overdueThreshold: number = 9999; 
+  escalateThreshold: number = 9999;
+
   constructor(
     public dialog: MatDialog,
     private api: ProcessAuditService,
-    private alertService: AlertService, private partAuditService: PartAuditService
+    private alertService: AlertService, private partAuditService: PartAuditService,
+    private manageUserService: ManageUsersService
   ) { }
 
   ngOnInit(): void {
@@ -52,87 +58,86 @@ export class SupProcapaComponent implements OnInit {
       ResponsibleSectionLeadId: new FormControl('')
     });
 
-    this.loadData();
+    // this.loadData();
+
+    this.manageUserService.getEscalation().subscribe((res: any) => {
+      if (res.success && res.data) {
+        const overdue = res.data.find((x: any) => x.escalationName === 'Overdue' || x.EscalationName === 'Overdue');
+        if (overdue) this.overdueThreshold = parseInt(overdue.newValue || overdue.NewValue, 10);
+
+        const escalate = res.data.find((x: any) => x.escalationName === 'Escalate' || x.EscalationName === 'Escalate');
+        if (escalate) this.escalateThreshold = parseInt(escalate.newValue || escalate.NewValue, 10);
+      }
+      this.loadData();
+    });
+
     this.loadGridColumns();
   }
 
-  // loadData() {
-  //     //   Grab the logged-in Supplier's ID
-  //     const supplierId = Number(localStorage.getItem('UserId')) || 0;
-
-  //     //   Pass it to the API
-  //     this.api.getAllCapasSupplie(supplierId).subscribe((res: any) => {
-  //       if (res.success) {
-  //         this.originalTableList = res.data.map((item: any) => ({
-  //           capaId: item.capaId,
-  //           status: item.status,
-  //           resolved: item.resolved,
-  //           docs: item.docs,
-  //           reference: item.reference,
-  //           actionSubject: item.actionSubject,
-  //           supplierName: item.supplierName,
-  //           actionType: item.actionType,
-  //           auditReference: item.auditReference,
-  //           processCategory: item.processCategory,
-  //           description: item.description,
-  //           supplierRemarks: item.supplierRemarks,
-  //           logDate: new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
-  //           dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-  //           delayInDays: item.delayInDays,
-  //           completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-  //           severity: item.severity,
-  //           occurrence: item.occurrence,
-  //           detection: item.detection,
-  //           riskRating: item.riskRating,
-  //           rating: item.rating,
-  //           pdcaStatus: item.pdcaStatus,
-  //           isAlert: item.delayInDays > 5 
-  //         }));
-
-  //         this.tableList = [...this.originalTableList];
-  //         this.totalSize = this.tableList.length;
-
-  //         // Dynamic filters based on actual loaded data
-  //         this.TractorIdSections = [...new Set(res.data.map((i: any) => i.processCategory).filter(Boolean))].map(val => ({ item_id: val, item_text: val }));
-  //         this.responsibleSections = [...new Set(res.data.map((i: any) => i.supplierName).filter(Boolean))].map(val => ({ item_id: val, item_text: val }));
-  //         this.resSectionFilterLeads = [...new Set(res.data.map((i: any) => i.actionType).filter(Boolean))].map(val => ({ UserId: val, UserName: val }));
-  //       }
-  //     });
-  //   }
+private getSupplierId(): number {
+  const token = localStorage.getItem('jwt_token') || sessionStorage.getItem('jwt_token');
+  if (!token) return 0;
+  try {
+    const decoded: any = jwtDecode(token);
+    return Number(decoded.nameid) || 0;
+  } catch {
+    return 0;
+  }
+}
 
   loadData() {
-    const supplierId = Number(localStorage.getItem('UserId')) || 0;
+    // const supplierId = Number(localStorage.getItem('SupplierId')) || Number(localStorage.getItem('UserId')) || 0;
+
+    const supplierId = this.getSupplierId();
 
     this.api.getAllCapasSupplie(supplierId).subscribe((res: any) => {
       if (res.success) {
-        this.originalTableList = res.data.map((item: any) => ({
-          capaId: item.capaId,
-          processAuditId: item.processAuditId,        // 🔥 Added
-          processCategoryId: item.processCategoryId,  // 🔥 Added
-          checklistId: item.checklistId,              // 🔥 Added
-          auditReference: item.auditReference,        // 🔥 Added
-          status: item.status,
-          resolved: item.resolved,
-          docs: item.docs,
-          reference: item.reference,
-          actionSubject: item.actionSubject,
-          supplierName: item.supplierName,
-          actionType: item.actionType,
-          processCategory: item.processCategory,
-          description: item.description,
-          supplierRemarks: item.supplierRemarks,
-          logDate: new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
-          dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-          delayInDays: item.delayInDays,
-          completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
-          severity: item.severity,
-          occurrence: item.occurrence,
-          detection: item.detection,
-          riskRating: item.riskRating,
-          rating: item.rating,
-          pdcaStatus: item.pdcaStatus,
-          isAlert: item.delayInDays > 5
-        }));
+        this.originalTableList = res.data.map((item: any) => {
+          
+          // 🔥 PERMANENT DELAY CALCULATION
+          let calculatedDelay: any = '-';
+          if (item.dueDate) {
+            const due = new Date(item.dueDate);
+            // If completed, calculate delay up to completion date. Otherwise, up to today.
+            const completion = item.completion ? new Date(item.completion) : new Date();
+            due.setHours(0, 0, 0, 0);
+            completion.setHours(0, 0, 0, 0);
+
+            const diffTime = completion.getTime() - due.getTime();
+            if (diffTime > 0) {
+              calculatedDelay = Math.floor(diffTime / (1000 * 3600 * 24));
+            }
+          }
+
+          return {
+            capaId: item.capaId,
+            processAuditId: item.processAuditId,
+            processCategoryId: item.processCategoryId,
+            checklistId: item.checklistId,
+            auditReference: item.auditReference,
+            status: item.status,
+            resolved: item.resolved,
+            docs: item.docs,
+            reference: item.reference,
+            actionSubject: item.actionSubject,
+            supplierName: item.supplierName,
+            actionType: item.actionType,
+            processCategory: item.processCategory,
+            description: item.description,
+            supplierRemarks: item.supplierRemarks,
+            logDate: new Date(item.logDate).toLocaleDateString('en-GB').replace(/\//g, '-'),
+            dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+            completion: item.completion ? new Date(item.completion).toLocaleDateString('en-GB').replace(/\//g, '-') : '-',
+            delayInDays: calculatedDelay, // 🔥 Replaced with permanent delay logic
+            severity: item.severity,
+            occurrence: item.occurrence,
+            detection: item.detection,
+            riskRating: item.riskRating,
+            rating: item.rating,
+            pdcaStatus: item.pdcaStatus,
+            isAlert: calculatedDelay !== '-' && calculatedDelay > 5
+          };
+        });
 
         this.tableList = [...this.originalTableList];
         this.totalSize = this.tableList.length;
@@ -207,12 +212,37 @@ export class SupProcapaComponent implements OnInit {
   }
 
   // 🔥 Triggered when the Supplier clicks the Resolved checkbox
+  // onResolvedChange(item: any, event: any) {
+  //   item.resolved = event.checked;
+
+  //   const payload = {
+  //     CapaId: item.capaId,
+  //     Status: item.status != null ? item.status.toString() : null, // Keeps the status whatever it currently is
+  //     IsResolved: item.resolved
+  //   };
+
+  //   this.api.updateCapaStatus(payload).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success) {
+  //         this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
+  //       } else {
+  //         this.alertService.createAlert(res.message || 'Failed to update status', 0);
+  //         item.resolved = !event.checked; // Revert UI if API fails
+  //       }
+  //     },
+  //     error: () => {
+  //       this.alertService.createAlert('Error updating CAPA status', 0);
+  //       item.resolved = !event.checked; // Revert UI on error
+  //     }
+  //   });
+  // }
+
   onResolvedChange(item: any, event: any) {
     item.resolved = event.checked;
 
     const payload = {
       CapaId: item.capaId,
-      Status: item.status != null ? item.status.toString() : null, // Keeps the status whatever it currently is
+      Status: item.status != null ? item.status.toString() : null, 
       IsResolved: item.resolved
     };
 
@@ -220,6 +250,21 @@ export class SupProcapaComponent implements OnInit {
       next: (res: any) => {
         if (res.success) {
           this.alertService.createAlert(item.resolved ? 'Marked as Resolved' : 'Marked as Unresolved', 1);
+
+          // 🔥 NOTIFICATION EMAIL LOGIC
+          if (item.resolved) {
+            const notifPayload = {
+              UserId: Number(localStorage.getItem('UserId')) || 0,
+              UserType: localStorage.getItem('UserType') || 'Supplier',
+              UserName: 'System Alert',
+              ModuleName: 'CAPA Resolution',
+              Subject: `CAPA Resolved: ${item.reference}`,
+              Description: `Supplier has successfully marked Process CAPA ${item.reference} as Resolved. It is now pending internal review.`,
+              SentToEmail: localStorage.getItem('Email') || 'admin@sqa.com' // Adjust fallback email if needed
+            };
+            this.api.sendHelpDeskMail(notifPayload).subscribe();
+          }
+
         } else {
           this.alertService.createAlert(res.message || 'Failed to update status', 0);
           item.resolved = !event.checked; // Revert UI if API fails

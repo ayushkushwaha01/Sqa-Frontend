@@ -32,7 +32,7 @@ const routes: Routes = [
     path: '',
     component: PauditsAnalyticsComponent,
     children: [
-      { path: '', redirectTo: 'actions', pathMatch: 'full' },
+      { path: '', redirectTo: 'summary', pathMatch: 'full' },
 
       {
         path: 'commodity',

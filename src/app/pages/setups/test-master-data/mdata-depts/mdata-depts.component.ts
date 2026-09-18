@@ -51,7 +51,11 @@ export class MdataDeptsComponent implements OnInit {
       this.pageSize = Number(gridLength);
     }
 
-    this.getDepartments();
+    // this.getDepartments();
+
+    if (this.canRead) {
+      this.getDepartments();
+    }
   }
 
   getDepartments() {

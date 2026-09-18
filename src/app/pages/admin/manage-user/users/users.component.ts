@@ -12,6 +12,7 @@ import { ResetPasswordDialogComponent } from './reset-password-dialog/reset-pass
 import { StatusChangeComponent } from 'src/app/status-change/status-change.component';
 import { UserPermissionService } from 'src/app/pages/helpers/user-permission.service';
 import { MfaSetupDialogComponent } from 'src/app/pages/mfa-setup-dialog/mfa-setup-dialog.component';
+import { AuthTokenService } from 'src/auth-token.service';
 
 @Component({
   selector: 'app-users',
@@ -32,6 +33,7 @@ export class UsersComponent implements OnInit {
   pageSize = 10;
   filterForm!: FormGroup;
   filterToggle = false;
+  allUsersData: any[] = []; // 🔥 Cache master user list for filtering
 
   Status = [
     { name: 'Active', value: true },
@@ -42,7 +44,8 @@ export class UsersComponent implements OnInit {
     public dialog: MatDialog,
     private fb: FormBuilder,
     private api: ManageUsersService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private authTokenService: AuthTokenService
   ) {
     this.filterForm = this.fb.group({
       Keyword: [''],
@@ -80,8 +83,8 @@ export class UsersComponent implements OnInit {
     this.api.getAllUsers().subscribe({
       next: (res: any) => {
         if (res.success) {
-          this.dataSource.data = res.data;
-          this.dataSource.paginator = this.paginator;
+          this.allUsersData = res.data || [];
+          this.filter(); // Apply any existing filters or show all if empty
         }
       },
       error: () => this.alertService.createAlert('Error fetching users', 0)
@@ -102,9 +105,13 @@ export class UsersComponent implements OnInit {
   //   });
   // }
 
+  isAdminUser(item: any): boolean {
+    return !!(item && item.userName && item.userName.toLowerCase() === 'admin');
+  }
+
   openEditDialog(item: any = null) {
     if (!item && !this.canCreate) return; // Block Add
-    if (item && !this.canUpdate) return; // Block Edit
+    if (item && (this.isAdminUser(item) || !this.canUpdate)) return; // Block Edit Admin
 
     let dialogRef = this.dialog.open(EditUserComponent, {
       data: item,
@@ -143,7 +150,7 @@ export class UsersComponent implements OnInit {
   // }
 
   toggleStatus(item: any) {
-    if (!this.canUpdate) return; // 🔥 Safety Guard
+    if (this.isAdminUser(item) || !this.canUpdate) return; // 🔥 Safety Guard for Admin
 
     let dialogRef = this.dialog.open(StatusChangeComponent, {
       width: '360px',
@@ -191,7 +198,7 @@ export class UsersComponent implements OnInit {
   // }
 
   deleteConfirmation(item: any) {
-    if (!this.canDelete) return; // 🔥 Safety Guard
+    if (this.isAdminUser(item) || !this.canDelete) return; // 🔥 Safety Guard for Admin
 
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '360px',
@@ -263,7 +270,7 @@ export class UsersComponent implements OnInit {
   // }
 
   toggleRole(item: any) {
-    if (!this.canUpdate) return; // 🔥 Safety Guard
+    if (this.isAdminUser(item) || !this.canUpdate) return; // 🔥 Safety Guard for Admin
 
     this.api.upsertUser(item).subscribe({
       next: (res: any) => {
@@ -286,10 +293,11 @@ export class UsersComponent implements OnInit {
   // 🔥 SMART MFA CHECKBOX HANDLER
   // ==========================================================
   public onMfaChange(item: any, event: any) {
-    if (!this.canUpdate) return;
+    if (this.isAdminUser(item) || !this.canUpdate) return;
 
     // Get the ID of the Admin who is currently clicking the screen
-    const currentLoggedInUserId = localStorage.getItem('UserId');
+    // const currentLoggedInUserId = localStorage.getItem('UserId');
+    const currentLoggedInUserId = this.authTokenService.getUserId();
 
     // 1. IF TURNING MFA ON
     if (event.checked) {
@@ -320,6 +328,58 @@ export class UsersComponent implements OnInit {
     // 2. IF TURNING MFA OFF
     else {
       this.toggleRole(item);
+    }
+  }
+
+  // ==========================================================
+  // 🔥 FILTER METHODS
+  // ==========================================================
+  filter() {
+    const { Keyword, Status } = this.filterForm.value;
+    const keywordLower = (Keyword || '').toLowerCase().trim();
+
+    let filtered = this.allUsersData.filter(item => {
+      // 1. Keyword filter
+      let matchesKeyword = true;
+      if (keywordLower) {
+        matchesKeyword =
+          (item.userName && item.userName.toLowerCase().includes(keywordLower)) ||
+          (item.email && item.email.toLowerCase().includes(keywordLower)) ||
+          (item.phoneNumber && item.phoneNumber.toLowerCase().includes(keywordLower)) ||
+          (item.department && item.department.toLowerCase().includes(keywordLower)) ||
+          (item.roleName && item.roleName.toLowerCase().includes(keywordLower));
+      }
+
+      // 2. Status filter
+      let matchesStatus = true;
+      if (Status !== '' && Status !== null && Status !== undefined) {
+        const statusBool = Status === true || Status === 'true';
+        matchesStatus = item.isActive === statusBool;
+      }
+
+      return matchesKeyword && matchesStatus;
+    });
+
+    this.dataSource.data = filtered;
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+    }
+  }
+
+  clearFilter() {
+    this.filterForm.reset({
+      Keyword: '',
+      Status: ''
+    });
+    this.dataSource.data = [...this.allUsersData];
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
     }
   }
 }

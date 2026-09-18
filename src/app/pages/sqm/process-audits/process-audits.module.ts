@@ -18,6 +18,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Other Libraries
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -145,6 +146,7 @@ const routes: Routes = [
     MatCardModule,
     MatDialogModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     QuillModule.forRoot()
   ]
 })

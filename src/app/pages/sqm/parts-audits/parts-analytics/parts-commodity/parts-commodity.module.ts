@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 
 import { PartsCommodityRoutingModule } from './parts-commodity-routing.module';
@@ -13,15 +14,15 @@ import { PartsFastenersComponent } from './parts-fasteners/parts-fasteners.compo
 import { PartsNonmetalicComponent } from './parts-nonmetalic/parts-nonmetalic.component';
 import { PartsSheetmetalComponent } from './parts-sheetmetal/parts-sheetmetal.component';
 import { PartsProprietaryComponent } from './parts-proprietary/parts-proprietary.component';
-// import { MatSelectModule } from '@angular/material/select/select-module';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { HighchartsChartModule } from 'highcharts-angular';
 
 @NgModule({
-
-    imports: [
+  imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     PartsCommodityRoutingModule,
     MatButtonModule,
     MatSelectModule,    
@@ -39,6 +40,5 @@ import { HighchartsChartModule } from 'highcharts-angular';
     PartsSheetmetalComponent,
     PartsProprietaryComponent
   ],
-  
 })
 export class PartsCommodityModule { }

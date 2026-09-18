@@ -92,6 +92,25 @@ export class AnalyticsBellcurveComponent implements OnInit {
 
   initChart(rawPoints: any[]): void {
     const formattedPoints = this.formatDataPoints(rawPoints);
+    const maxY = Math.max(...formattedPoints.map(p => p.y || 0), 0);
+
+    const axisYConfig: any = {
+      minimum: 0,
+      gridColor: "#e6e6e6",
+      gridThickness: 1,
+      lineThickness: 0,
+      tickThickness: 0,
+      labelFontFamily: "Arial, sans-serif",
+      labelFontColor: "#777"
+    };
+
+    // Only set explicit interval for small counts (to avoid fractional decimals like 0.5, 1.5).
+    // For larger counts, CanvasJS automatically calculates clean, non-overlapping intervals (e.g., 20, 50, 100).
+    if (maxY <= 5) {
+      axisYConfig.interval = 1;
+    } else if (maxY <= 10) {
+      axisYConfig.interval = 2;
+    }
 
     this.chartOptions = {
       animationEnabled: true,
@@ -113,16 +132,7 @@ export class AnalyticsBellcurveComponent implements OnInit {
         lineColor: "#d3d3d3",
         margin: 10
       },
-      axisY: {
-        minimum: 0,
-        interval: 5, // Flexible interval for audit counts
-        gridColor: "#e6e6e6",
-        gridThickness: 1,
-        lineThickness: 0,
-        tickThickness: 0,
-        labelFontFamily: "Arial, sans-serif",
-        labelFontColor: "#777"
-      },
+      axisY: axisYConfig,
       data: [{
         type: "column",
         color: "#8cd3ef", // Light blue matching your screenshot

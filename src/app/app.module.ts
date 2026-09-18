@@ -110,7 +110,8 @@ import { ColumnSelectorComponent } from './pages/column-selector/column-selector
 import { NotificationsInboxComponent } from './theme/components/notification/notifications-inbox/notifications-inbox.component';
 import { SentMailsDialogComponent } from './sent-mails-dialog/sent-mails-dialog.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { UserIdInterceptor } from './shared/user-id.interceptor';
+// import { UserIdInterceptor } from './shared/user-id.interceptor';
+import { JwtAuthInterceptor } from './shared/user-id.interceptor';
 import { MfaSetupDialogComponent } from './pages/mfa-setup-dialog/mfa-setup-dialog.component';
 import { PasskeyManageDialogComponent } from './pages/passkey-manage-dialog/passkey-manage-dialog.component'; // Ensure this path matches where you saved it!
 
@@ -223,7 +224,9 @@ export function highchartsModules() {
     { provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG },
     { provide: OverlayContainer, useClass: CustomOverlayContainer },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    { provide: HTTP_INTERCEPTORS, useClass: UserIdInterceptor, multi: true }
+    // { provide: HTTP_INTERCEPTORS, useClass: UserIdInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtAuthInterceptor, multi: true }
+    
   ],
   bootstrap: [AppComponent]
 })

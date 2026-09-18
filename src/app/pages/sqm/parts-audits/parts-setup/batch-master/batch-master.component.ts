@@ -71,26 +71,48 @@ export class BatchMasterComponent implements OnInit {
   }
 
   BatchMasters: any[] = [];
+  // getBatchMaster() {
+
+
+  //   const userId = localStorage.getItem('UserId');
+
+  //   const payload = {
+  //     ...this.filterForm.value,
+  //     UserId: userId ? Number(userId) : null
+  //   };
+  //   this._setupService.getBatchMaster(payload)
+  //     .subscribe((res: any) => {
+  //       if (res.success) {
+
+  //         this.BatchMasters = res.data.data;
+  //         this.totalSize = res.data.toatalRecords;
+
+  //         this.tableLists = this.BatchMasters.slice(
+  //           this.fromIndex,
+  //           this.pageSize
+  //         );
+  //       }
+  //     });
+  // }
+
+
   getBatchMaster() {
+    // 🔥 ZERO TRUST: Removed UserId logic!
+    const payload = { ...this.filterForm.value };
 
+    // Clean up empty strings and nulls so they don't clutter the URL
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === null || payload[key] === '') {
+        delete payload[key];
+      }
+    });
 
-    const userId = localStorage.getItem('UserId');
-
-    const payload = {
-      ...this.filterForm.value,
-      UserId: userId ? Number(userId) : null
-    };
     this._setupService.getBatchMaster(payload)
       .subscribe((res: any) => {
         if (res.success) {
-
           this.BatchMasters = res.data.data;
           this.totalSize = res.data.toatalRecords;
-
-          this.tableLists = this.BatchMasters.slice(
-            this.fromIndex,
-            this.pageSize
-          );
+          this.tableLists = this.BatchMasters.slice(this.fromIndex, this.pageSize);
         }
       });
   }
@@ -111,6 +133,34 @@ export class BatchMasterComponent implements OnInit {
     this.loadPageData();
   }
 
+  // deleteConfirmation(item: any) {
+  //   let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+  //     width: 'auto',
+  //     data: { component: null, title: 'Delete Confirmation', content: 'Are you sure you want to Delete?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (data) {
+  //       const userId = localStorage.getItem('UserId');
+
+  //       const payload = {
+  //         ...item,
+  //         UserId: userId ? Number(userId) : null
+  //       };
+  //       this._setupService.deleteBatchMaster(payload).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getBatchMaster();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
   deleteConfirmation(item: any) {
     let dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: 'auto',
@@ -119,12 +169,9 @@ export class BatchMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        const userId = localStorage.getItem('UserId');
-
-        const payload = {
-          ...item,
-          UserId: userId ? Number(userId) : null
-        };
+        // 🔥 ZERO TRUST: Just pass the item
+        const payload = { ...item };
+        
         this._setupService.deleteBatchMaster(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
@@ -140,6 +187,29 @@ export class BatchMasterComponent implements OnInit {
   }
 
 
+  // changeStatus(item: any) {
+  //   let dialogRef = this.dialog.open(DialogComponent, {
+  //     width: 'auto',
+  //     data: { component: null, title: 'Change Status Confirmation', content: 'Are you sure you want to change the status?', isConfirmation: true }
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data: any) => {
+  //     if (data) {
+  //       this._setupService.ChangeStatus(item).subscribe({
+  //         next: (res: any) => {
+  //           if (res.success) {
+  //             this.alertService.createAlert(res.message, 1);
+  //             this.getBatchMaster();
+  //           } else {
+  //             this.alertService.createAlert(res.message, 0);
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
+
   changeStatus(item: any) {
     let dialogRef = this.dialog.open(DialogComponent, {
       width: 'auto',
@@ -148,7 +218,10 @@ export class BatchMasterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
-        this._setupService.ChangeStatus(item).subscribe({
+        // 🔥 ZERO TRUST: Just pass the item
+        const payload = { ...item };
+
+        this._setupService.ChangeStatus(payload).subscribe({
           next: (res: any) => {
             if (res.success) {
               this.alertService.createAlert(res.message, 1);

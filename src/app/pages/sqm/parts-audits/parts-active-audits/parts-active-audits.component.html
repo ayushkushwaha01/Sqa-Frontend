@@ -28,7 +28,7 @@
       (click)="canUpdate && openColumnSelector()">
 
       <mat-icon>grid_on</mat-icon>
-      Grid View
+      Columns
 
     </button>
     <button mat-raised-button class="btn-dark" (click)="toggleFilters()">
@@ -349,7 +349,18 @@
 
       <tbody>
 
-        <tr *ngFor="let audit of tableLists">
+        <!-- Loading Spinner Row -->
+        <tr *ngIf="isLoading">
+          <td [attr.colspan]="activeColumns.length || defaultColumns.length || 20" style="padding: 50px 0; background: #ffffff; border: none;">
+            <div style="position: sticky; left: 0; width: 100%; max-width: calc(100vw - 280px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+              <mat-spinner diameter="40"></mat-spinner>
+              <span style="font-size: 14px; font-weight: 500; color: #333;">Loading data, please wait...</span>
+            </div>
+          </td>
+        </tr>
+
+        <ng-container *ngIf="!isLoading">
+          <tr *ngFor="let audit of tableLists">
 
           <ng-container *ngFor="let col of activeColumns; let i = index" [ngSwitch]="col">
             <!-- Audit Reference -->
@@ -538,11 +549,11 @@
         </tr>
 
         <tr *ngIf="tableLists.length === 0">
-          <td colspan="7" class="text-center py-4 center">
+          <td [attr.colspan]="activeColumns.length" class="text-center py-4 center">
             No Data Available
           </td>
         </tr>
-
+      </ng-container>
 
       </tbody>
 

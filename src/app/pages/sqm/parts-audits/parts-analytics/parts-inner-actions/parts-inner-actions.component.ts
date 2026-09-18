@@ -19,6 +19,7 @@ export class PartsInnerActionsComponent {
     private PartAuditService: PartAuditService
   ) { }
 
+  years: number[] = [2023, 2024, 2025, 2026];
   filterForm!: FormGroup;
 
   ngOnInit(): void {
@@ -29,10 +30,18 @@ export class PartsInnerActionsComponent {
     this.getCapaAgingPercentage()
   }
 
-  forminit() {
+  // forminit() {
+  //   this.filterForm = this.fb.group({
+  //     commodityId: [null],
+  //     Year: [null],
+  //   });
+  // }
+
+   forminit() {
+    const currentDate = new Date();
     this.filterForm = this.fb.group({
       commodityId: [null],
-      Year: [null],
+      Year: [currentDate.getFullYear()],
     });
   }
   onClearFilter() {
