@@ -2,6 +2,7 @@
 //   production: true,
 //   mode: 1,
 //   // apiUrl : 'https://mmdevapi.omsaiintex.co.in/'
+//  // apiUrl: 'https://sqa-stagingapi.optionmatrix.co/api/'
 // //  apiUrl: 'https://qasqaapi.optionmatrix.co.in/api/' // <-- Added api/ here
 
 // };

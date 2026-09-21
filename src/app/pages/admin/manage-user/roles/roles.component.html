@@ -93,7 +93,7 @@
                                 [style.cursor]="canUpdate ? 'pointer' : 'not-allowed'"
                                 [matTooltip]="!canUpdate ? 'You don’t have permission to update permissions' : 'Edit Screen Permissions'"
                                 style="text-decoration: none; font-weight: 500;">
-                                {{ item.screenPermissions || item.permissions || '35/35' }}
+                                {{ item.screenPermissions || '0/0' }}
                             </a>
                         </td>
 

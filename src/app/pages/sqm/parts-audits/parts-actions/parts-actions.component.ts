@@ -51,7 +51,7 @@ export class PartsActionsComponent implements OnInit {
   readonly SCREEN_ID: number = 23;
   readonly SCREEN_IDd: number = 41;
 
-  overdueThreshold: number = 9999; 
+  overdueThreshold: number = 9999;
   escalateThreshold: number = 9999;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

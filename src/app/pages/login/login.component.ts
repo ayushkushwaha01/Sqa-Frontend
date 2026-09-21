@@ -14,7 +14,7 @@ import { jwtDecode } from 'jwt-decode';
 export class LoginComponent implements OnInit {
   public form: FormGroup;
   public passwordType: string = 'password';
-  
+
   // 🔥 NEW: Flow State Variables
   public loginStep: 'email' | 'password' = 'email';
   public isCheckingPasskey: boolean = false;
@@ -24,7 +24,7 @@ export class LoginComponent implements OnInit {
   public mfaCode: string = '';
   public isSendingOtp: boolean = false;
 
-  
+
 
   public togglePassword() {
     this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
@@ -38,10 +38,10 @@ export class LoginComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       'email': [null, Validators.compose([Validators.required, emailValidator])],
-      
+
       // Note: We remove the 'required' validator temporarily so the 'Continue' button works for just the email.
       // We will check password validity manually later!
-      'password': [null] 
+      'password': [null]
     });
   }
 
@@ -63,7 +63,7 @@ export class LoginComponent implements OnInit {
     this.api.passkeyLoginOptions(email).subscribe({
       next: async (options: any) => {
         this.isCheckingPasskey = false;
-        
+
         try {
           // 1. Passkey exists! Convert options for the scanner
           options.challenge = this.base64urlToBuffer(options.challenge);
@@ -89,16 +89,16 @@ export class LoginComponent implements OnInit {
             id: assertion.id,
             rawId: this.bufferToBase64url(assertion.rawId),
             type: assertion.type,
-            
+
             // 🔥 FIX 1: C# strictly requires this exact property name for Login
             clientExtensionResults: assertion.getClientExtensionResults(),
-            
+
             response: {
               authenticatorData: this.bufferToBase64url(response.authenticatorData),
-              
+
               // 🔥 FIX 2: Must be lowercase 'son' to match the C# Model
               clientDataJson: this.bufferToBase64url(response.clientDataJSON),
-              
+
               signature: this.bufferToBase64url(response.signature),
               userHandle: response.userHandle ? this.bufferToBase64url(response.userHandle) : null
             }
@@ -193,8 +193,8 @@ export class LoginComponent implements OnInit {
   public submitMfaCode() {
     if (!this.mfaCode || this.mfaCode.length < 6) return;
 
-    const request = this.step === 'mfa-email' 
-      ? this.api.verifyEmailOtp({ code: this.mfaCode }) 
+    const request = this.step === 'mfa-email'
+      ? this.api.verifyEmailOtp({ code: this.mfaCode })
       : this.api.verifyMfaLogin({ code: this.mfaCode });
 
     request.subscribe({
@@ -220,49 +220,49 @@ export class LoginComponent implements OnInit {
     this.mfaCode = '';
   }
 
- 
 
-private processSuccessfulLogin(res: any) {
-  // 1. Save the secure token
-  localStorage.setItem('jwt_token', res.token);
-  sessionStorage.setItem('jwt_token', res.token);
 
-  // 2. Decode the token
-  // const decodedToken: any = jwtDecode(res.token);
+  private processSuccessfulLogin(res: any) {
+    // 1. Save the secure token
+    localStorage.setItem('jwt_token', res.token);
+    sessionStorage.setItem('jwt_token', res.token);
+
     // 2. Decode the token
-  const decodedToken: any = jwtDecode(res.token);
-  console.log('DECODED TOKEN:', decodedToken); // 🔍 TEMPORARY — remove after checking  
-  
-  // 3. Grab the UserName safely (checking both upper and lower case)
-  // const userName = decodedToken.UserName || decodedToken.userName || decodedToken.name || 'User'; 
-  // localStorage.setItem('UserName', userName); 
-  
-  // 🔥 NOTICE: We are NOT setting UserId, RoleId, or UserType in Local Storage anymore!
+    // const decodedToken: any = jwtDecode(res.token);
+    // 2. Decode the token
+    const decodedToken: any = jwtDecode(res.token);
+    console.log('DECODED TOKEN:', decodedToken); // 🔍 TEMPORARY — remove after checking  
 
-  this.setGridLength();
+    // 3. Grab the UserName safely (checking both upper and lower case)
+    // const userName = decodedToken.UserName || decodedToken.userName || decodedToken.name || 'User'; 
+    // localStorage.setItem('UserName', userName); 
 
-  // 4. Grab RoleId from the token just to fetch the UI permissions
-  const roleId = decodedToken.RoleId || decodedToken.roleId;
+    // 🔥 NOTICE: We are NOT setting UserId, RoleId, or UserType in Local Storage anymore!
 
-  this.api.getUserLoginPermissions(roleId).subscribe({
-    next: (permRes: any) => {
-      if (permRes.success || permRes.Success) {
-        // We KEEP rolePermissions so Angular knows to show/hide the Delete buttons
-        localStorage.setItem('rolePermissions', JSON.stringify(permRes.data || permRes.Data));
+    this.setGridLength();
+
+    // 4. Grab RoleId from the token just to fetch the UI permissions
+    const roleId = decodedToken.RoleId || decodedToken.roleId;
+
+    this.api.getUserLoginPermissions(roleId).subscribe({
+      next: (permRes: any) => {
+        if (permRes.success || permRes.Success) {
+          // We KEEP rolePermissions so Angular knows to show/hide the Delete buttons
+          localStorage.setItem('rolePermissions', JSON.stringify(permRes.data || permRes.Data));
+        }
+        this.alertService.createAlert('Login Successful', 1);
+
+        const userType = decodedToken.UserType || decodedToken.userType;
+        this.navigateUser(userType);
+      },
+      error: () => {
+        this.alertService.createAlert('Login Successful', 1);
+
+        const userType = decodedToken.UserType || decodedToken.userType;
+        this.navigateUser(userType);
       }
-      this.alertService.createAlert('Login Successful', 1);
-      
-      const userType = decodedToken.UserType || decodedToken.userType;
-      this.navigateUser(userType);
-    },
-    error: () => {
-      this.alertService.createAlert('Login Successful', 1);
-      
-      const userType = decodedToken.UserType || decodedToken.userType;
-      this.navigateUser(userType);
-    }
-  });
-}
+    });
+  }
 
   private navigateUser(userType: string) {
     if (userType === 'Supplier') {

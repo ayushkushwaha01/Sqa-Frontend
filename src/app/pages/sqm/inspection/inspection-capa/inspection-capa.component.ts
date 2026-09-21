@@ -52,7 +52,7 @@ export class InspectionCapaComponent implements OnInit {
   readonly SCREEN_ID: number = 29;
   readonly SCREEN_IDd: number = 42;
 
-  overdueThreshold: number = 9999; 
+  overdueThreshold: number = 9999;
   escalateThreshold: number = 9999;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
