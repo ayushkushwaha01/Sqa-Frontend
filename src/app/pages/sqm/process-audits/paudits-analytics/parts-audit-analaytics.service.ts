@@ -45,6 +45,11 @@ export class PartsAuditAnalayticsService {
     return this.http.get(this.apiUrl + 'ProcessAnalytics/get-commodity-rating-distribution', { params: filter });
   }
 
+  getperformance(filter: any) {
+    // Assuming this maps to your ProcessAnalyticsController
+    return this.http.get(this.apiUrl + 'ProcessAnalytics/get-process-performance', { params: filter });
+  }
+
 
 
 }
